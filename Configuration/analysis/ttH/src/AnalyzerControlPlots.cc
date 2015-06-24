@@ -126,6 +126,13 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met E_{t};E_{t}^{MET} [GeV];Events",60,0,300));
     name = "met_phi";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met #phi;#phi^{MET};Events",64,-3.2,3.2));
+    
+    // Deliverables for baseline analysis
+    // Leading jet
+    name = "jet1st_pt";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "1-st Jet p_{t};p_{t}^{j_{1}} [GeV];Jets",20,0,500));
+    name = "jet1st_btagDiscriminator";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "1-st Jet b-tag Discriminator d;d^{j_{1}};Jets",22,-0.1,1));
 }
 
 
@@ -243,6 +250,21 @@ void AnalyzerControlPlots::fillHistos(const EventMetadata&,
     const LV& met = *recoObjects.met_;
     m_histogram.at("met_et")->Fill(met.E(), weight);
     m_histogram.at("met_phi")->Fill(met.phi(), weight);
+    
+    
+    // Deliverables for baseline analysis
+    // Leading jet
+    if(recoObjectIndices.jetIndices_.size()){
+        // FIXME: Under-/overflow bins are set by hand now, should be automated
+        const int index1st = recoObjectIndices.jetIndices_.at(0);
+        const LV& jet1st = recoObjects.jets_->at(index1st);
+        double pt1st = jet1st.pt();
+        if(pt1st >= 500.) pt1st = 499.;
+        m_histogram.at("jet1st_pt")->Fill(jet1st.pt());
+        double btagDiscriminator1st = recoObjects.jetBTagCSV_->at(index1st);
+        if(btagDiscriminator1st < -0.1) btagDiscriminator1st = -0.09;
+        m_histogram.at("jet1st_btagDiscriminator")->Fill(btagDiscriminator1st);
+    }
 }
 
 
