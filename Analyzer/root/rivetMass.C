@@ -18,11 +18,12 @@ struct sample {
   bool spread;
   bool trust;
   double offset;
+  bool wscaled;
   TFile* file;
   TH1F* wmass;
   TH1F* tmass;
-  sample(std::string f, bool s = false, bool t = false, double o = 0.)
-  : filename(f), spread(s), trust(t), offset(o) {}
+  sample(std::string f, bool s = false, bool t = false, double o = 0., bool w = false)
+  : filename(f), spread(s), trust(t), offset(o), wscaled(w) {}
 };
 
 std::vector<sample> samples;
@@ -59,7 +60,7 @@ void rivetMass() {
   samples.push_back(sample("TT_Z2_8TeV-powheg", true));
   */
 
-  /*
+  //*
   samples.push_back(sample("TTJets_MSDecays_Z2_8TeV-madgraph", true, true));
   samples.push_back(sample("TTJets_MSDecays_Z2_mass169.5_8TeV-madgraph"));
   samples.push_back(sample("TTJets_MSDecays_Z2_mass175.5_8TeV-madgraph"));
@@ -144,6 +145,12 @@ void rivetMass() {
   samples.push_back(sample("TT_ILC_1TeV-herwigpp"));
   samples.push_back(sample("TT_2TeV-amcatnlo-pythia8"));
   samples.push_back(sample("TT_2TeV-amcatnlo-herwigpp"));
+  
+  samples.push_back(sample("TT_Herwigpp_MEcorrOFF"));
+  samples.push_back(sample("TT_Herwigpp_MEcorrON"));
+  
+  samples.push_back(sample("TT_Z2_8TeV-powheg", false, false, 0., true));
+  samples.push_back(sample("TT_AUET2_8TeV-powheg", false, false, 0., true));
 
   TH1F* wspread   = new TH1F("wspread",   "wspread",   100, -10, 10);
   TH1F* tspread   = new TH1F("tspread",   "tspread",   100, -10, 10);
@@ -152,6 +159,9 @@ void rivetMass() {
   TH1F* wtrust   = new TH1F("wtrust",   "wtrust",   100, -10, 10);
   TH1F* ttrust   = new TH1F("ttrust",   "ttrust",   100, -10, 10);
   TH1F* t2dtrust = new TH1F("t2dtrust", "t2dtrust", 100, -10, 10);
+  
+  TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 600);
+  canvas->cd();
 
   for (it = samples.begin(); it != samples.end(); ++it) {
     it->file = new TFile((std::string("/nfs/dust/cms/user/mseidel/rivet/")+it->filename+std::string(".root")).c_str());
@@ -159,13 +169,16 @@ void rivetMass() {
     //std::cout << it->filename << (it->spread ? " SPREAD " : "") << (it->trust ? " TRUST " : "") << std::endl;
 
     it->wmass = (TH1F*) it->file->Get("W_mass");
-    it->tmass = (TH1F*) it->file->Get("t_mass_W_cut");
+    if (!it->wscaled) it->tmass = (TH1F*) it->file->Get("t_mass_W_cut");
+    else              it->tmass = (TH1F*) it->file->Get("t_mass_W_scaled");
 
     TF1* wfit = new TF1("wfit", "gaus");
     TF1* tfit = new TF1("tfit", "gaus");
 
-    it->wmass->Fit(wfit, "Q0", "", 75, 85);
-    it->tmass->Fit(tfit, "Q0", "", 160, 185);
+    it->wmass->Fit(wfit, "Q", "", 75, 85);
+    canvas->Print((std::string("../plot/rivetMass/")+it->filename+std::string("_mw.eps")).c_str());
+    it->tmass->Fit(tfit, "Q", "", 160, 185);
+    canvas->Print((std::string("../plot/rivetMass/")+it->filename+std::string("_mt.eps")).c_str());
 
     double wref =  80.4825;
     double tref = 170.9162;

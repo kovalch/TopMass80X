@@ -26,30 +26,32 @@ enum lepton          { kElectron, kMuon, kAll};
 TString lepton_ [] = { "electron", "muon", "all"};
 enum cat             { kCR, kRad, kBoth};
 
-TString sBinning[] = {"TopPt", "TopEta", "B1Pt", "B1Eta", "TTBarMass", "TTBarPt", "DeltaRqq", "DeltaRbb", "HT", "NJet", "Q1Pt", "Q1Eta", "WPt", "WEta", "NVertex", "LeptonCharge"};
-TString sData[] = {"top_fitTop1_Pt__", "top_fitTop1_Eta__", "top_fitB1_Pt__", "top_fitB1_Eta__", "top_fitTTBar_M__", "top_fitTTBar_Pt__", "sqrt_pow_top_fitW1Prod1_Eta__-top_fitW1Prod2_Eta__2____pow_TVector2Phi_mpi_pi_top_fitW1Prod1_Phi__-top_fitW1Prod2_Phi___2__", "sqrt_pow_top_fitB1_Eta__-top_fitB2_Eta__2____pow_TVector2Phi_mpi_pi_top_fitB1_Phi__-top_fitB2_Phi___2__", "top_fitB1_Pt___top_fitB2_Pt___top_fitW1Prod1_Pt___top_fitW1Prod2_Pt__", "Max__Iteration___jet_jet_Pt___gt_30_____1", "top_fitW1Prod1_Pt__", "top_fitW1Prod1_Eta__", "top_fitW1_Pt__", "top_fitW1_Eta__", "weight_nVertex", "-top_leptonFlavour_abs_top_leptonFlavour_"};
-TString sBinNice[] = {"p_{T,t,had} [GeV]", "|#eta_{t,had}|", "p_{T,b,had} [GeV]", "|#eta_{b,had}|", "m_{t#bar{t}} [GeV]", "p_{T,t#bar{t}} [GeV]", "#DeltaR_{q#bar{q}}", "#DeltaR_{b#bar{b}}", "H_{T}^{4} [GeV]", "Number of jets", "p_{T,q} [GeV]", "|#eta_{q}|", "p_{T,W} [GeV]", "|#eta_{W}|", "N(PV)", "lepton charge"};
-TString sBinLatex[] = {"$p_{\\rm T,t,had}$", "$\\left|\\eta_{\\rm t,had}\\right|$", "$p_{\\rm T,b,had}$", "$\\left|\\eta_{\\rm b,had}\\right|$", "$m_{\\ttbar}$", "$p_{\\rm T,\\ttbar}$", "$\\Delta R_{\\qqbar}$", "$\\Delta R_{\\bbbar}$", "$\\HT^{4}$", "Number of jets", "$p_{\\rm T,q,had}^{1}$", "$\\left|\\eta_{\\rm q,had}^{1}\\right|$", "$p_{\\rm T,W,had}$", "$\\left|\\eta_{\\rm W,had}\\right|$", "N(PV)", "lepton charge"};
-int binCat[] = {/*"p_{T,t,had} [GeV]"*/ kCR, /*"|#eta_{t,had}|"*/ kCR, /*"p_{T,b,had} [GeV]"*/ kCR, /*"|#eta_{b,had}|"*/ kCR, /*"m_{t#bar{t}} [GeV]"*/ kCR, /*"p_{T,t#bar{t}} [GeV]"*/ kCR, /*"#DeltaR_{q#bar{q}}"*/ kCR, /*"#DeltaR_{b#bar{b}}"*/ kCR, /*"p_{T,b,lep} [GeV]"*/ kCR, /*"|#eta_{b,lep}|"*/ kCR, /*"#Delta#phi_{q#bar{q}}"*/ kCR, /*"#Delta#phi_{b#bar{b}}"*/ kCR, /*"p_{T,lep} [GeV]"*/ kCR, /*"|#eta_{lep}|"*/ kCR, /*"MET [GeV]"*/ kCR, /*"H_{T} [GeV]"*/ kCR, /*"Number of jets"*/ kCR, /*"Number of b-tagged jets"*/ kCR, kCR, kCR, kCR, kCR, kCR};
-bool pas[] = {/*"p_{T,t,had} [GeV]"*/ true, /*"|#eta_{t,had}|"*/ true, /*"p_{T,b,had} [GeV]"*/ true, /*"|#eta_{b,had}|"*/ true, /*"m_{t#bar{t}} [GeV]"*/ true, /*"p_{T,t#bar{t}} [GeV]"*/ true, /*"#DeltaR_{q#bar{q}}"*/ true, /*"#DeltaR_{b#bar{b}}"*/ true, /*"p_{T,b,lep} [GeV]"*/ false, /*"|#eta_{b,lep}|"*/ false, /*"#Delta#phi_{q#bar{q}}"*/ true, /*"#Delta#phi_{b#bar{b}}"*/ true, /*"p_{T,lep} [GeV]"*/ false, /*"|#eta_{lep}|"*/ false, /*"MET [GeV]"*/ false, /*"H_{T} [GeV]"*/ true, /*"Number of jets"*/ true, /*"Number of b-tagged jets"*/ false, false, false, false, false, false};
+const int nKin = 17;
 
-TString sObservable[4] = {"Entries", "mass_mTop_JES", "mass_mTop", "JES_mTop_JES"};
-TString sObsLowCase[4] = {"Entries", "mass_mTop_JES", "mass_mTop", "JES_mTop_JES"};
-TString sObsFile[4]    = {"Entries", "MT2D", "MT1D", "JES"};
-TString sObsCanvas[4] = {"canvas_1", "canvas_2", "canvas_4", "canvas_3"};
-TString sObsNice[4] = {"Number of permutations / bin width", "m_{t}^{2D} - <m_{t}^{2D}> [GeV]", "m_{t}^{1D} - <m_{t}^{1D}> [GeV]", "JSF - <JSF>"};
-TString sObsNiceCal[4] = {"Number of permutations / bin width", "m_{t,cal}^{2D} - <m_{t}^{2D}> [GeV]", "m_{t,cal}^{1D} - <m_{t}^{1D}> [GeV]", "JSF_{cal} - <JSF>"};
-TString sObsNice2[4] = {"Number of permutations / bin width", "(m_{t}^{2D} - <m_{t}^{2D}>)_{MC} - (m_{t}^{2D} - <m_{t}^{2D}>)_{data} [GeV]", "(m_{t}^{1D} - <m_{t}^{1D}>)_{MC} - (m_{t}^{1D} - <m_{t}^{1D}>)_{data} [GeV]", "(JSF - <JSF>)_{MC} - (JSF - <JSF>)_{data}"};
+TString sBinning[nKin] = {"TopPt", "TopEta", "B1Pt", "B1Eta", "TTBarMass", "TTBarPt", "DeltaRqq", "DeltaRbb", "HT", "NJet", "Q1Pt", "Q1Eta", "WPt", "WEta", "NVertex", "LeptonCharge", "Alpha"};
+TString sData[nKin] = {"top_fitTop1_Pt__", "top_fitTop1_Eta__", "top_fitB1_Pt__", "top_fitB1_Eta__", "top_fitTTBar_M__", "top_fitTTBar_Pt__", "sqrt_pow_top_fitW1Prod1_Eta__-top_fitW1Prod2_Eta__2____pow_TVector2Phi_mpi_pi_top_fitW1Prod1_Phi__-top_fitW1Prod2_Phi___2__", "sqrt_pow_top_fitB1_Eta__-top_fitB2_Eta__2____pow_TVector2Phi_mpi_pi_top_fitB1_Phi__-top_fitB2_Phi___2__", "top_fitB1_Pt___top_fitB2_Pt___top_fitW1Prod1_Pt___top_fitW1Prod2_Pt__", "Max__Iteration___jet_jet_Pt___gt_30_____1", "top_fitW1Prod1_Pt__", "top_fitW1Prod1_Eta__", "top_fitW1_Pt__", "top_fitW1_Eta__", "weight_nVertex", "-top_leptonFlavour_abs_top_leptonFlavour_", "jet_jet_4__Pt____top_recoB1_0__Pt___top_recoB2_0__Pt____2"};
+TString sBinNice[nKin] = {"p_{T,t,had} [GeV]", "|#eta_{t,had}|", "p_{T,b,had} [GeV]", "|#eta_{b,had}|", "m_{t#bar{t}} [GeV]", "p_{T,t#bar{t}} [GeV]", "#DeltaR_{q#bar{q}}", "#DeltaR_{b#bar{b}}", "H_{T}^{4} [GeV]", "Number of jets", "p_{T,q} [GeV]", "|#eta_{q}|", "p_{T,W} [GeV]", "|#eta_{W}|", "N(PV)", "lepton charge", "#alpha"};
+TString sBinLatex[nKin] = {"$p_{\\rm T,t,had}$", "$\\left|\\eta_{\\rm t,had}\\right|$", "$p_{\\rm T,b,had}$", "$\\left|\\eta_{\\rm b,had}\\right|$", "$m_{\\ttbar}$", "$p_{\\rm T,\\ttbar}$", "$\\Delta R_{\\qqbar}$", "$\\Delta R_{\\bbbar}$", "$\\HT^{4}$", "Number of jets", "$p_{\\rm T,q,had}^{1}$", "$\\left|\\eta_{\\rm q,had}^{1}\\right|$", "$p_{\\rm T,W,had}$", "$\\left|\\eta_{\\rm W,had}\\right|$", "N(PV)", "lepton charge", "$\\alpha$"};
+
+const int nObs = 6;
+
+TString sObservable[nObs] = {"Entries", "mass_mTop_JES", "mass_mTop", "JES_mTop_JES", "mass_mTop_JES_jsfc", "JES_mTop_JES_jsfc"};
+TString sObsLowCase[nObs] = {"Entries", "mass_mTop_JES", "mass_mTop", "JES_mTop_JES", "mass_mTop_JES_jsfc", "JES_mTop_JES_jsfc"};
+TString sObsFile[nObs]    = {"Entries", "MT2D", "MT1D", "JES", "MTH", "JESH"};
+TString sObsCanvas[nObs] = {"canvas_1", "canvas_2", "canvas_4", "canvas_3", "canvas_6", "canvas_5"};
+TString sObsNice[nObs] = {"Number of permutations / bin width", "m_{t}^{2D} - <m_{t}^{2D}> [GeV]", "m_{t}^{1D} - <m_{t}^{1D}> [GeV]", "JSF - <JSF>", "m_{t}^{hyb} - <m_{t}^{hyb}> [GeV]", "JSF^{hyb} - <JSF^{hyb}>"};
+TString sObsNiceCal[nObs] = {"Number of permutations / bin width", "m_{t,cal}^{2D} - <m_{t}^{2D}> [GeV]", "m_{t,cal}^{1D} - <m_{t}^{1D}> [GeV]", "JSF_{cal} - <JSF>", "m_{t,cal}^{hyb} - <m_{t}^{hyb}> [GeV]", "JSF_{cal}^{hyb} - <JSF^{hyb}>"};
+TString sObsNice2[nObs] = {"Number of permutations / bin width", "(m_{t}^{2D} - <m_{t}^{2D}>)_{MC} - (m_{t}^{2D} - <m_{t}^{2D}>)_{data} [GeV]", "(m_{t}^{1D} - <m_{t}^{1D}>)_{MC} - (m_{t}^{1D} - <m_{t}^{1D}>)_{data} [GeV]", "(JSF - <JSF>)_{MC} - (JSF - <JSF>)_{data}", "fixme1", "fixme2"};
 
 std::vector<TString> sampleNames;
 
-double chi2matrix[14][4][24];
+double chi2matrix[nKin][nObs][30];
 
 double crossSection   = 230;
 double peLumi         = 20000.;
 
 int channel = 2;
-bool doCalibration = true;
+bool doCalibration = false;
 
 struct resultContainer {
   TPad* pad;
@@ -89,7 +91,7 @@ std::string itos(int number)
    return ss.str();
 }
 
-void differentialMass(int iBinning = 6, bool batch = false)
+void differentialMass(int iBinning = 12)
 {
   bool fixme = false;
   
@@ -135,15 +137,37 @@ void differentialMass(int iBinning = 6, bool batch = false)
   samples.push_back(sample(false,  true, false, false, false, false, "Summer12_TTJetsMS1725_matchingdown", "MG, matching down", kRed-7, 7, 1545688./1.2));
   //*/
   
+  samples.push_back(sample(false,  true, false, false, false, false, "Summer12_TTJetsMS1725_1.00_puUp", "MG, PU up", kBlue+1, 2, 62131965./1.2));
+  samples.push_back(sample(false,  true, false, false, false, false, "Summer12_TTJetsMS1725_1.00_puDown", "MG, PU down", kGreen+1, 2, 62131965./1.2));
+  samples.push_back(sample(false,  true, false, false, false, false, "Summer12_TTJetsMS1725_1.00_fNuUp", "MG, fNu up", kBlue+1, 2, 62131965./1.2));
+  samples.push_back(sample(false,  true, false, false, false, false, "Summer12_TTJetsMS1725_1.00_fNuDown", "MG, fNu down", kGreen+1, 2, 62131965./1.2));
+  samples.push_back(sample(false,  true, false, false, false, false, "Summer12_TTJetsMS1725_1.00_frag", "MG, rbLEP", kGreen+1, 2, 62131965./1.2));
+  
   //*
   samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJets1725_MGDecays_P11", "MG, Pythia P11", kMagenta+1, 5, 27000000./1.2));
   samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJets1725_MGDecays_P11noCR", "MG, Pythia P11noCR", kCyan+1, 6, 27000000./1.2));
   samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJets1725_powheg", "Powheg, Pythia Z2*", kGreen+1, 9, 21675970./1.2));
   samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJets1725_powheg_herwig", "Powheg, Herwig 6", kOrange+2, 7, 27684235./1.2));
   samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJets1725_mcatnlo_herwig", "MC@NLO, Herwig 6", kBlue+1, 2, 32852589.*0.7718/1.2));
-  //samples.push_back(sample(false, false,  true,  true,  true, false, "sherpa", "Sherpa", kYellow+1, 3, 44000000./1.2));
-  //samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJetsMS1715_1.00", "MG+MS, mt = 171.5", kRed, 2, 24439341./1.2));
-  //samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJetsMS1735_1.00", "MG+MS, mt = 173.5", kGreen, 2, 26489020./1.2));
+  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJets1725_sherpa", "Sherpa", kYellow+1, 3, 44000000./1.2));
+  
+  //*/
+  
+  /*
+  // Debug samples
+  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJetsMS1715_1.00", "MG+MS, mt = 171.5", kRed, 2, 24439341./1.2));
+  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJetsMS1735_1.00", "MG+MS, mt = 173.5", kGreen, 2, 26489020./1.2));
+  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJetsMS1725_1.02", "JES up", kBlack, 1, 62131965./1.2));
+  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJetsMS1755_1.00", "Mass up", kGray, 1, 40244328./1.2));
+  //*/
+  
+  //*
+  // FastSim samples
+  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJets1725_FSIM_parj81_nominal", "FSIM MG+MS", kRed, 2, 24439341./1.2));
+  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TT1725_FSIM_pythia8", "FSIM Pythia8", kGreen, 2, 26489020./1.2));
+  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TT1725_amcatnlo_herwigpp:pythia8", "FSIM aMC+H++:P8", kBlack, 1, 62131965./1.2));
+  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TT1725_amcatnlo_herwigpp", "FSIM aMC+H++", kGray, 1, 40244328./1.2));
+  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TT1725_amcatnlo_pythia8", "FSIM aMC+P8", kGray, 1, 40244328./1.2));
   //*/
   
   // calibration samples
@@ -169,37 +193,36 @@ void differentialMass(int iBinning = 6, bool batch = false)
   samples.push_back(sample(false, false, false, false, false,  true, "Summer12_TTJetsMS1785_1.00", "t", kBlack, 1, 24359161./1.2));
   samples.push_back(sample(false, false, false, false, false,  true, "Summer12_TTJetsMS1785_1.02", "u", kBlack, 1, 24359161./1.2));
   
-  double meanEntries = 0.;
-  
-  double minVal[4] = {0., 0., 0., 0.};
-  double maxVal[4] = {0., 0., 0., 0.};
+  double minVal[nObs] = {0., 0., 0., 0., 0., 0.};
+  double maxVal[nObs] = {0., 0., 0., 0., 0., 0.};
   
   for (it = samples.begin(); it != samples.end(); ++it) {
     sampleNames.push_back(it->label);
-    for (int iObs = 0; iObs < 4; ++iObs) it->results.push_back(resultContainer());
+    std::cout << "Reading " << it->id << std::endl;
+    for (int iObs = 0; iObs < nObs; ++iObs) it->results.push_back(resultContainer());
     
     if (it->data) {
-      TFile* inclFile     = new TFile("/afs/desy.de/user/m/mseidel/xxl/CMSSW_5_3_11/src/TopMass/Analyzer/plot/IdeogramMin_Run2012_incl.root");
+      TFile* inclFile     = new TFile("/afs/desy.de/user/m/mseidel/xxl/CMSSW_5_3_11/src/TopMass/Analyzer/plot/IdeogramMin_Run2012_JEC_Winter14_V8_incl.root");
       TCanvas* inclCanvas = (TCanvas*) inclFile  ->Get("canvas");
       
-      for (int iObs = 0; iObs < 4; ++iObs) {
+      for (int iObs = 0; iObs < nObs; ++iObs) {
         TPad* inclPad       = (TPad*)    inclCanvas->GetPrimitive(sObsCanvas[iObs]);
         TH1F* inclProfile   = (TH1F*)    inclPad   ->GetPrimitive(sObservable[iObs]);
         it->results[iObs].incl = inclProfile->GetBinContent(1);
       }
       inclFile->Close();
       
-      it->file    = new TFile("/afs/desy.de/user/m/mseidel/xxl/CMSSW_5_3_11/src/TopMass/Analyzer/plot/IdeogramMin_Run2012_" + sData[iBinning] + ".root");
+      it->file    = new TFile("/afs/desy.de/user/m/mseidel/xxl/CMSSW_5_3_11/src/TopMass/Analyzer/plot/IdeogramMin_Run2012_JEC_Winter14_V8_" + sData[iBinning] + ".root");
       it->canvas  = (TCanvas*) it->file  ->Get("canvas");
       
-      for (int iObs = 0; iObs < 4; ++iObs) {
+      for (int iObs = 0; iObs < nObs; ++iObs) {
         it->results[iObs].pad     = (TPad*)    it->canvas->GetPrimitive(sObsCanvas[iObs]);
         it->results[iObs].profile = (TH1F*)    it->results[iObs].pad   ->GetPrimitive(sObservable[iObs]);
       }
     }
     else {
       if (!doCalibration && it->calibration) continue;
-      TString sfBase("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper_diff/");
+      TString sfBase("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper_diff_jsfconstraint/");
       
       TChain* inclChain = new TChain("tree");
       inclChain->Add(sfBase + "lepton/" + it->id + "/TopMass/job_*_ensemble.root");
@@ -207,20 +230,21 @@ void differentialMass(int iBinning = 6, bool batch = false)
       it->chain   = new TChain("tree");
       it->chain->Add(sfBase + "lepton/" + it->id + "/" + sBinning[iBinning] + "/job_*_ensemble.root");
       
-      for (int iObs = 0; iObs < 4; ++iObs) {
+      for (int iObs = 0; iObs < nObs; ++iObs) {
         int minFit = 0;
         int maxFit = 100000;
-        if (iObs == 1 || iObs == 2) {
+        if (iObs == 1 || iObs == 2 || iObs == 4) {
           minFit = 100;
           maxFit = 250;
         }
-        if (iObs == 3) maxFit = 2;
+        if (iObs == 3 || iObs == 5) maxFit = 2;
         
         // inclusive values -> doubles
         
         TF1* inclGaus = new TF1("inclGaus", "gaus");
         inclChain->Fit("inclGaus", sObsLowCase[iObs], sObsLowCase[iObs] + " < " + itos(maxFit) + " & " + sObsLowCase[iObs] + " > " + itos(minFit), "LEMQ");
         it->results[iObs].incl = inclGaus->GetParameter(1);
+        std::cout << "\t" << sObsFile[iObs] << " " << it->results[iObs].incl << std::endl;
         
         // binned values -> hists
         
@@ -269,16 +293,16 @@ void differentialMass(int iBinning = 6, bool batch = false)
   }
   
   const int iterations = 5;
-  double calibration[iterations][4][10][4]; // iteration/obs/bin/param
+  double calibration[iterations][nObs][10][4]; // iteration/obs/bin/param
   
   // TODO: on-the-fly calibration
   //*
   if (doCalibration) {
     for (int iter = 0; iter < iterations; ++iter) {
-      for (int iObs = 1; iObs < 4; ++iObs) {
+      for (int iObs = 1; iObs < nObs; ++iObs) {
         for (int i = 1; i < samples[0].results[iObs].profile->GetNbinsX()+1; i++) {
           // mt2d, jsf
-          if (iObs !=2) {
+          if (iObs == 1 || iObs == 3) {
             TH2D* h2Bias = new TH2D("h2Bias", "h2Bias", 1000, 150, 200, 2000, 0.8, 1.2);
             
             for (it = samples.begin(); it != samples.end(); ++it) {
@@ -306,10 +330,10 @@ void differentialMass(int iBinning = 6, bool batch = false)
             h2Bias->Fit("fit2D");
             
             for (int iPar = 0; iPar < 4; ++iPar) calibration[iter][iObs][i][iPar] = fit2D->GetParameter(iPar);
-            if (iObs == 2) for (int iPar = 2; iPar < 4; ++iPar) calibration[iter][iObs][i][iPar] = 0.;
+            h2Bias->Delete();
           }
           // mt1d
-          else if (iObs ==2) {
+          else if (iObs == 2) {
             TH1D* hBias = new TH1D("hBias", "hBias", 1000, 150, 200);
             
             for (it = samples.begin(); it != samples.end(); ++it) {
@@ -332,7 +356,41 @@ void differentialMass(int iBinning = 6, bool batch = false)
             
             for (int iPar = 0; iPar < 2; ++iPar) calibration[iter][iObs][i][iPar] = fit->GetParameter(iPar);
             for (int iPar = 2; iPar < 4; ++iPar) calibration[iter][iObs][i][iPar] = 0.;
+            hBias->Delete();
           }
+          // hybrid
+          //*
+          else if (iObs == 4 || iObs == 5) {
+            TH2D* hhBias = new TH2D("hhBias", "hhBias", 1000, 150, 200, 2000, 0.8, 1.2);
+            
+            for (it = samples.begin(); it != samples.end(); ++it) {
+              if (!it->calibration) continue;
+              
+              double genValue = it->results[iObs].incl; //it->genMass;
+              //if (iObs == 5) genValue = it->genJES; //(it->genJES+1.)/2.;
+              double m = it->results[4].profile->GetBinContent(i);
+              double j = it->results[5].profile->GetBinContent(i); //(it->results[5].profile->GetBinContent(i)-1.)*2. + 1.;
+              if (iter > 0) {
+                for (int iterprev = 0; iterprev < iter; ++iterprev) {
+                  double mnext = m - calibration[iterprev][4][i][0] - calibration[iterprev][4][i][1]*(m-172.5) - calibration[iterprev][4][i][2]*(j-1.) - calibration[iterprev][4][i][3]*(m-172.5)*(j-1.);
+                  double jnext = j - calibration[iterprev][5][i][0] - calibration[iterprev][5][i][1]*(m-172.5) - calibration[iterprev][5][i][2]*(j-1.) - calibration[iterprev][5][i][3]*(m-172.5)*(j-1.);
+                  m = mnext;
+                  j = jnext;
+                }
+              }
+              std::cout << it->id << " " << iObs << ", bin " << i << ", fitted " << m << " " << j << ", generated " << genValue << std::endl;
+              
+              hhBias->Fill(m, j, (iObs == 4 ? m : j) - genValue);
+            }
+            
+            TF2* fit2D = new TF2("fit2D", "[0] + [1]*(x-172.5) + [2]*(y-1) + [3]*(x-172.5)*(y-1)");
+            fit2D->SetParNames("offset", "slopeMass", "slopeJES");
+            hhBias->Fit("fit2D");
+            
+            for (int iPar = 0; iPar < 4; ++iPar) calibration[iter][iObs][i][iPar] = fit2D->GetParameter(iPar);
+            hhBias->Delete();
+          }
+          //*/
         }
       }
     }
@@ -342,7 +400,7 @@ void differentialMass(int iBinning = 6, bool batch = false)
   // Do the (calibrated) difference
   for (it = samples.begin(); it != samples.end(); ++it) {
     if (it->calibration) continue;
-    for (int iObs = 0; iObs < 4; ++iObs) {
+    for (int iObs = 0; iObs < nObs; ++iObs) {
       //std::cout << it->genMass << it->genJES << std::endl;
       TString fitid("constFit"); fitid += it->id;
       it->fit = new TF1(fitid, "[0]");
@@ -363,19 +421,34 @@ void differentialMass(int iBinning = 6, bool batch = false)
           double value = it->results[iObs].profile->GetBinContent(i);
           double vaerr = it->results[iObs].profile->GetBinError(i);
           if (doCalibration) {
-            
-            double m = it->results[2].profile->GetBinContent(i);
-            double j = it->results[3].profile->GetBinContent(i);
+            int mStart = 1;
+            int jStart = 3;
+            int mIndex = 1;
+            int jIndex = 3;
+            int vIndex = iObs;
+            if (iObs == 2) {
+              mStart = 2;
+              mIndex = 2;
+            }
+            else if (iObs > 3) { // hybrid
+              mStart = 4;
+              jStart = 5;
+              mIndex = 4;
+              jIndex = 5;
+            }
+            double m = it->results[mStart].profile->GetBinContent(i);
+            double j = it->results[jStart].profile->GetBinContent(i);
             for (int iter = 0; iter < iterations; ++iter) {
-              value = value - calibration[iter][iObs][i][0] - calibration[iter][iObs][i][1]*(m-172.5) - calibration[iter][iObs][i][2]*(j-1.) - calibration[iter][iObs][i][3]*(m-172.5)*(j-1.);
-              double mnext = m - calibration[iter][1][i][0] - calibration[iter][1][i][1]*(m-172.5) - calibration[iter][1][i][2]*(j-1.) - calibration[iter][1][i][3]*(m-172.5)*(j-1.);
-              if (iObs == 2) mnext = m - calibration[iter][2][i][0] - calibration[iter][2][i][1]*(m-172.5) - calibration[iter][2][i][2]*(j-1.) - calibration[iter][2][i][3]*(m-172.5)*(j-1.);
-              double jnext = j - calibration[iter][3][i][0] - calibration[iter][3][i][1]*(m-172.5) - calibration[iter][3][i][2]*(j-1.) - calibration[iter][3][i][3]*(m-172.5)*(j-1.);
+              value = value - calibration[iter][vIndex][i][0] - calibration[iter][vIndex][i][1]*(m-172.5) - calibration[iter][vIndex][i][2]*(j-1.) - calibration[iter][vIndex][i][3]*(m-172.5)*(j-1.); // /2 brings jsfh in ~agreement
+              double mnext = m - calibration[iter][mIndex][i][0]/2. - calibration[iter][mIndex][i][1]*(m-172.5) - calibration[iter][mIndex][i][2]*(j-1.) - calibration[iter][mIndex][i][3]*(m-172.5)*(j-1.);
+              double jnext = j - calibration[iter][5][i][0]/2. - calibration[iter][jIndex][i][1]*(m-172.5) - calibration[iter][jIndex][i][2]*(j-1.) - calibration[iter][jIndex][i][3]*(m-172.5)*(j-1.);
               m = mnext;
               j = jnext;
               
-              if (iObs != 3) vaerr = sqrt(pow(vaerr,2) + pow(vaerr * abs(calibration[iter][iObs][i][1]),2)); // mass slope
-              else           vaerr = sqrt(pow(vaerr,2) + pow(vaerr * abs(calibration[iter][iObs][i][2]),2)); // jsf slope
+              if (iObs != 3 && iObs !=5) {
+                vaerr = sqrt(pow(vaerr,2) + pow(vaerr * abs(calibration[iter][vIndex][i][1]),2)); // mass slope
+              }
+              else vaerr = sqrt(pow(vaerr,2) + pow(vaerr * abs(calibration[iter][vIndex][i][2]),2)); // jsf slope
             }
           }
           it->results[iObs].profileDiff->SetBinContent(i, value - it->results[iObs].incl);
@@ -408,7 +481,7 @@ void differentialMass(int iBinning = 6, bool batch = false)
   //*
   std::vector<TH1F*> hNull;
   
-  for (int iObs = 0; iObs < 4; ++iObs) {
+  for (int iObs = 0; iObs < nObs; ++iObs) {
     hNull.push_back((TH1F*) samples[0].results[iObs].profileDiff->Clone("hNull"));
     hNull[iObs]->SetLineColor(kBlack);
     hNull[iObs]->SetLineStyle(1);
@@ -443,6 +516,11 @@ void differentialMass(int iBinning = 6, bool batch = false)
                 //max(sqrt(pow(samples[sysRef].results[iObs].profileDiff->GetBinError(i),2) + pow(samples[sysRef+10].results[iObs].profileDiff->GetBinError(i), 2)),
                 //    sqrt(pow(samples[sysRef].results[iObs].profileDiff->GetBinError(i),2) + pow(samples[sysRef+11].results[iObs].profileDiff->GetBinError(i), 2)))
                  0.), 2);
+      syst2 += pow(max(fabs(samples[sysRef].results[iObs].profileDiff->GetBinContent(i) - samples[sysRef+18].results[iObs].profileDiff->GetBinContent(i)),
+                       fabs(samples[sysRef].results[iObs].profileDiff->GetBinContent(i) - samples[sysRef+19].results[iObs].profileDiff->GetBinContent(i))), 2);
+      syst2 += pow(max(fabs(samples[sysRef].results[iObs].profileDiff->GetBinContent(i) - samples[sysRef+20].results[iObs].profileDiff->GetBinContent(i)),
+                       fabs(samples[sysRef].results[iObs].profileDiff->GetBinContent(i) - samples[sysRef+21].results[iObs].profileDiff->GetBinContent(i))), 2);
+      syst2 += pow(fabs(samples[sysRef].results[iObs].profileDiff->GetBinContent(i) - samples[sysRef+22].results[iObs].profileDiff->GetBinContent(i)), 2);
       
       hNull[iObs]->SetBinError(i, sqrt(pow(samples[0].results[iObs].profileDiff->GetBinError(i), 2) + syst2));
       if (iObs == 0) hNull[iObs]->SetBinError(i, hNull[iObs]->GetBinError(i) / hNull[iObs]->GetBinWidth(i));
@@ -454,9 +532,9 @@ void differentialMass(int iBinning = 6, bool batch = false)
   // TODO: for all generator setups
   //*
   //if (batch) {
-  for (int iSample = 0; iSample < 24; ++iSample) {
+  for (int iSample = 0; iSample < 30; ++iSample) {
     std::cout << "Comparing data to " << samples[iSample].label << std::endl;
-    for (int iObs = 0; iObs < 4; ++iObs) {
+    for (int iObs = 0; iObs < nObs; ++iObs) {
       double chi2 = 0;
       int ndf = samples[0].results[iObs].profileDiff->GetNbinsX()-1;
       for (int i = 1; i < samples[0].results[iObs].profileDiff->GetNbinsX()+1; i++) {
@@ -478,7 +556,7 @@ void differentialMass(int iBinning = 6, bool batch = false)
   TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 600);
   canvas->cd();
   
-  for (int iObs = 0; iObs < 4; ++iObs) {
+  for (int iObs = 0; iObs < nObs; ++iObs) {
     double pad2size = 0.3;
     if (iObs != 0 && !doCalibration) {
       TPad *pad1 = new TPad("pad1","pad1",0,pad2size,1,1);
@@ -492,8 +570,9 @@ void differentialMass(int iBinning = 6, bool batch = false)
     double range = maxVal[iObs] - minVal[iObs];
     double minRange = minVal[iObs] - range * 0.1;
     double maxRange = maxVal[iObs] + range * 0.75;
-    if (doCalibration) {
-      if (iObs == 1 || iObs == 2) {
+    //*
+    if (doCalibration && iBinning == 16) {
+      if (iObs == 1 || iObs == 2 || iObs == 4) {
         minRange = -5.;
         maxRange =  5.;
       }
@@ -502,6 +581,7 @@ void differentialMass(int iBinning = 6, bool batch = false)
         maxRange =  0.05;
       }
     }
+    //*/
     //std::cout << "min: " << minRange << ", max: " << maxRange << std::endl;
     if (iObs != 0) hNull[iObs]->GetYaxis()->SetRangeUser(minRange, maxRange);
     else           hNull[iObs]->GetYaxis()->SetRangeUser(0, maxRange);
@@ -521,67 +601,23 @@ void differentialMass(int iBinning = 6, bool batch = false)
     leg1->SetFillStyle(0);
     leg1->SetBorderSize(0);
     
-    if (!doCalibration) {
+    //if (!doCalibration) {
       for (it = samples.begin(); it != samples.end(); ++it) {
-        if (!it->data && !it->systematic && it->drawerror
-            && ( (binCat[iBinning] == kCR && it->cr)
-                || (binCat[iBinning] == kRad && it->rad)
-                || binCat[iBinning] == kBoth ) ) {
+        if (!it->data && !it->systematic && !it->calibration && it->drawerror) {
           it->results[iObs].error->Draw("SAME,E2");
         }
       }
-    }
+    //}
     
     int legEntry = 0;
     for (it = samples.begin(); it != samples.end(); ++it) {
       if (it->data) {
         it->results[iObs].profileDiff->Draw("SAME,E1,X0");
-        // Fit data if calibrated
-        //*
-        if (doCalibration) {
-          if (iObs == 0) meanEntries = it->results[iObs].profileDiff->GetMean();
-          else {
-            TF1* fitData = new TF1("fitData", TString::Format("[0]+(x-%f)*[1]", meanEntries), -1000, 2000);
-            fitData->SetLineWidth(2);
-            fitData->SetLineColor(kRed+1);
-            fitData->SetParameter(1, 0);
-            fitData->SetParLimits(1, -1, 1);
-            
-            TF1* fitDataUp   = new TF1("fitDataUp",   TString::Format("[0]+(x-%f)*[1]+sqrt([2]^2+((x-%f)*[3])^2)", meanEntries, meanEntries), -1000, 2000);
-            TF1* fitDataDown = new TF1("fitDataDown", TString::Format("[0]+(x-%f)*[1]-sqrt([2]^2+((x-%f)*[3])^2)", meanEntries, meanEntries), -1000, 2000);
-            
-            hNull[iObs]->Fit("fitData", "EMR");
-            
-            hNull[iObs]->Draw("E,X0");
-            it->results[iObs].profileDiff->Draw("SAME,E1");
-            fitData->Draw("same");
-  
-            fitDataUp->SetParameters(fitData->GetParameter(0), fitData->GetParameter(1), fitData->GetParError(0), fitData->GetParError(1));
-            fitDataUp->SetLineColor(kRed+1);
-            fitDataUp->SetLineStyle(2);
-            fitDataUp->Draw("same");
-            
-            fitDataDown->SetParameters(fitData->GetParameter(0), fitData->GetParameter(1), fitData->GetParError(0), fitData->GetParError(1));
-            fitDataDown->SetLineColor(kRed+1);
-            fitDataDown->SetLineStyle(2);
-            fitDataDown->Draw("same");
-            
-            float slope    = fitData->GetParameter(1);
-            float slopeUnc = fitData->GetParError(1);
-            
-            std::cout << "slope: " << slope << " +/- " << slopeUnc << std::endl;
-            
-            DrawLabel(TString::Format("Slope: %.2e #pm %.2e", slope, slopeUnc), 0.25, 0.15, 0.9);
-          }
-        }
-        //*/
         ++legEntry;
         leg0->AddEntry(it->results[iObs].profileDiff, it->label, "P");
       }
-      else if (!it->systematic //&& !doCalibration
-          && ( (binCat[iBinning] == kCR && it->cr)
-              || (binCat[iBinning] == kRad && it->rad)
-              || binCat[iBinning] == kBoth ) ) {
+      else if (!it->systematic && !it->calibration //&& !doCalibration
+              ) {
         it->results[iObs].profileDiff->Draw("SAME");
         ++legEntry;
         // 2 columns
@@ -600,9 +636,9 @@ void differentialMass(int iBinning = 6, bool batch = false)
       pad0->SetFillStyle(0);
     }
     
+    leg0->Draw();
+    leg1->Draw();
     if (!doCalibration) {
-      leg0->Draw();
-      leg1->Draw();
       if (iObs == 1 || iObs == 2) {
         TPaveLabel* gevLabel = DrawLabel("[GeV]", 0.06, 0.26, 0.2);
         gevLabel->SetTextFont(42);
@@ -694,101 +730,35 @@ void differentialMass(int iBinning = 6, bool batch = false)
     
     TString path("../plot/differential/diff_" + sBinning[iBinning] + "_" + sObsFile[iObs] + (doCalibration ? "_cal" : "") + ".eps");
     canvas->Print(path);
+    TString pathr("../plot/differential/root/diff_" + sBinning[iBinning] + "_" + sObsFile[iObs] + (doCalibration ? "_cal" : "") + ".root");
+    canvas->Print(pathr);
     canvas->Clear();
   }
-  
-  // CLEANUP
-  //if (batch == true) {
-  //  delete canvas;
-  //  
-  //  for (it = samples.begin(); it != samples.end(); ++it) {
-  //    if (it->data) {
-  //      it->file->Close();
-  //    }
-  //    else {
-  //      it->chain->Delete();
-  //    }
-  //  }
-  //}
-  
-  
-  //return values;
 }
 
 void differentialBatch() {
   for (unsigned int b = 0; b < sizeof(sBinning) / sizeof(sBinning[0]); ++b) {    
     // 1D mass, JES
-    differentialMass(b, true);
+    differentialMass(b);
   }
   
-  for (int iSample = 0; iSample < 24; ++iSample) {
+  for (int iSample = 0; iSample < 30; ++iSample) {
     double chi2_m1d = 0.;
     double chi2_m2d = 0.;
+    double chi2_mh  = 0.;
     double chi2_jes = 0.;
     double sum_ndf  = 0.;
     for (unsigned int b = 0; b < 14; ++b) {
-      printf("%s & %2.2f & %2.2f & %2.2f & %1.0f \\\\ \n", sBinLatex[b].Data(), chi2matrix[b][2][iSample], chi2matrix[b][3][iSample], chi2matrix[b][1][iSample], chi2matrix[b][0][iSample]);
+      printf("%s & %2.2f & %2.2f & %2.2f & %2.2f & %1.0f \\\\ \n", sBinLatex[b].Data(), chi2matrix[b][2][iSample], chi2matrix[b][3][iSample], chi2matrix[b][1][iSample], chi2matrix[b][4][iSample], chi2matrix[b][0][iSample]);
       
       chi2_m1d += chi2matrix[b][2][iSample];
       chi2_jes += chi2matrix[b][3][iSample];
       chi2_m2d += chi2matrix[b][1][iSample];
+      chi2_mh  += chi2matrix[b][4][iSample];
       sum_ndf  += chi2matrix[b][0][iSample];
     }
     
-    printf("%s & %2.2f & %2.2f & %2.2f & %1.0f & %2.2f & %2.2f \\\\ \n\n", sampleNames[iSample].Data(), chi2_m1d, chi2_jes, chi2_m2d, sum_ndf, sqrt(2)*TMath::ErfInverse(1-TMath::Prob(chi2_m1d+chi2_jes, 2*sum_ndf)), sqrt(2)*TMath::ErfInverse(1-TMath::Prob(chi2_m2d, sum_ndf)));
+    printf("%s & %2.2f & %2.2f & %2.2f & %2.2f & %1.0f & %2.2f & %2.2f & %2.2f \\\\ \n\n", sampleNames[iSample].Data(), chi2_m1d, chi2_jes, chi2_m2d, chi2_mh, sum_ndf, sqrt(2)*TMath::ErfInverse(1-TMath::Prob(chi2_m1d+chi2_jes, 2*sum_ndf)), sqrt(2)*TMath::ErfInverse(1-TMath::Prob(chi2_m2d, sum_ndf)), sqrt(2)*TMath::ErfInverse(1-TMath::Prob(chi2_mh, sum_ndf)));
   }
 }
 
-/*
-void differentialBatch() {
-  for (unsigned int b = 0; b < sizeof(sBinning) / sizeof(sBinning[0]); ++b) {    
-    // Entries, 2d mass: Calculate systematic uncertainty by reweighting
-    std::vector<std::vector<double> > entries = differentialMass(b, 0, true);
-    std::vector<std::vector<double> > mass    = differentialMass(b, 1, true);
-    
-    double massShift = 0;
-    for (unsigned int i = 0; i < entries[0].size(); ++i) {
-      //std::cout << "Data -- entries: " << entries[0][i] << " dmt: " << mass[0][i] << std::endl;
-      //std::cout << "MGZ2 -- entries: " << entries[1][i] << " dmt: " << mass[1][i] << std::endl;
-      massShift += (entries[0][i]/entries[1][i] - 1.) * mass[1][i] * entries[1][i];
-    }
-    std::cout << "Mass shift for reweighting to data: " << massShift << std::endl;
-    
-    // 1D mass, JES
-    differentialMass(b, 2, true);
-    differentialMass(b, 3, true);
-  }
-  
-  double chi2_m1d = 0.;
-  double chi2_m2d = 0.;
-  double chi2_jes = 0.;
-  double sum_ndf  = 0.;
-  for (unsigned int b = 0; b < sizeof(sBinning) / sizeof(sBinning[0]); ++b) {
-    printf("$%s$ & %2.2f & %2.2f & %2.2f & %1.0f \\\\ \n", sBinNice[b].Data(), chi2matrix[b][2], chi2matrix[b][3], chi2matrix[b][1], chi2matrix[b][0]);
-//    if (pas[b]) {
-      chi2_m1d += chi2matrix[b][2];
-      chi2_jes += chi2matrix[b][3];
-      chi2_m2d += chi2matrix[b][1];
-      sum_ndf  += chi2matrix[b][0];
-//    }
-  }
-  
-  printf("Total & %2.2f & %2.2f & %2.2f & %1.0f \\\\ \n", chi2_m1d, chi2_jes, chi2_m2d, sum_ndf);
-}
-
-void differentialSys(int iBinning = 0) {
-  std::vector<std::vector<double> > entries = differentialMass(iBinning, 0, true);
-  std::vector<std::vector<double> > mass    = differentialMass(iBinning, 1, true);
-  
-  double massShift = 0;
-  
-  for (unsigned int i = 0; i < entries[0].size(); ++i) {
-    std::cout << "Data -- entries: " << entries[0][i] << " dmt: " << mass[0][i] << std::endl;
-    std::cout << "MGZ2 -- entries: " << entries[1][i] << " dmt: " << mass[1][i] << std::endl;
-    
-    massShift += (entries[0][i]/entries[1][i] - 1.) * mass[1][i] * entries[1][i];
-  }
-  
-  std::cout << "Mass shift for reweighting to data: " << massShift << std::endl;
-}
-*/

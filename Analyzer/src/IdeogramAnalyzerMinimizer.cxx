@@ -223,14 +223,23 @@ void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimize
     else if(toFit[i] == kFCP ) { SetValue("fCP" +nameFreeVariables, min->X()[3], min->Errors()[3]); }
   }
   SetValue("Entries", entries_, sqrt(entries_));
+  
+  std::cout << "covariance matrix:\n";
+  for(unsigned int i = 0; i < 4 ; ++i) {
+    for(unsigned int j = 0 ; j < 4; ++j) {
+      std::cout << min->CovMatrix(i,j) << " ";
+    }
+    std::cout << '\n';
+  } 
   /*
+  std::cout << '\n\n';
   for(short i=0; i<4; ++i){
     for(short j=0; j<4; ++j){
       std::cout << min->Correlation(i,j) << " ";
     }
     std::cout << std::endl;
   }
-  */
+  //*/
   // DRAW
   if (po::GetOption<bool>("minPlot")) {
     if(channelID_ == Helper::kAllJets){
