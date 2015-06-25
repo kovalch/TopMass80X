@@ -319,10 +319,10 @@ ztop::retsort(_RandomAccessIterator __first, _RandomAccessIterator __last,
 	std::vector<size_t> sortedilo;
 	std::sort(copy.begin(),copy.end(),__comp);
 
-	for(_RandomAccessIterator it=__first;it!=__last;++it){
-		//get the position in input
-		size_t pos=std::find(copy.begin(),copy.end(),*it)-copy.begin();
-		sortedilo.push_back(pos);
+	for(_RandomAccessIterator it=copy.begin();it!=copy.end();++it){
+			//get the position in input
+			size_t pos=std::find(__first,__last,*it)-__first;
+			sortedilo.push_back(pos);
 	}
 	std::copy(copy.begin(),copy.end(),__first);
 	return sortedilo;
@@ -338,9 +338,9 @@ ztop::retsort(_RandomAccessIterator __first, _RandomAccessIterator __last){
 	std::vector<size_t> sortedilo;
 	std::sort(copy.begin(),copy.end());
 
-	for(_RandomAccessIterator it=__first;it!=__last;++it){
+	for(_RandomAccessIterator it=copy.begin();it!=copy.end();++it){
 		//get the position in input
-		size_t pos=std::find(copy.begin(),copy.end(),*it)-copy.begin();
+		size_t pos=std::find(__first,__last,*it)-__first;
 		sortedilo.push_back(pos);
 	}
 	std::copy(copy.begin(),copy.end(),__first);
