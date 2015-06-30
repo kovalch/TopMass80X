@@ -22,6 +22,8 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   Correctors
   plotterUtils
   RootFileReader
+  TextFormatter
+  TextfileReader
   )
 
 
