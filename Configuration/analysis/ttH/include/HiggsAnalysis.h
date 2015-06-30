@@ -135,6 +135,15 @@ private:
                                const std::vector<int>& jetIndices, const VLV& jets,
                                const TopGenObjects& topGenObjects)const;
     
+
+    /// Event by event information
+    void eventByEventInfo(const EventMetadata& eventMetadata,
+			  const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+			  const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
+			  const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
+			  const tth::GenObjectIndices& genObjectIndices, const tth::RecoObjectIndices& recoObjectIndices,
+			  const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
+			  const double& defaultWeight, const std::string& stepShort);
     
     /// Fill all analysers and histograms in one method
     void fillAll(const std::string& selectionStep,
@@ -175,8 +184,9 @@ private:
     /// Pointer to the jet charge instance
     const JetCharge* jetCharge_;
     
-    
-    
+    /// Strin contaiing event by event content      
+    TString  eventInfo_;
+
     /// All analysers of type AnalyzerBase
     std::vector<AnalyzerBase*> v_analyzer_;
     

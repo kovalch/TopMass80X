@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <utility>
 #include <algorithm>
+#include <iomanip>
 
 #include <TTree.h>
 #include <TString.h>
@@ -78,7 +79,8 @@ reweightingName_(""),
 reweightingSlope_(0.0),
 genStudiesTtbb_(false),
 genStudiesTth_(false),
-jetCharge_(0)
+jetCharge_(0),
+eventInfo_("")
 {
     if(MvaMET) this->mvaMet();
 }
@@ -129,6 +131,29 @@ void HiggsAnalysis::Terminate()
             mvaTreeHandler->clear();
         }
     }
+    
+    // *********** EVENT-BY-EVENT INFO ******************** 
+
+    TString fileName = TString(this->systematic().name())+"_"+TString(Channel::convert(this->channel()))+"_"+TString(this->outputFilename()).ReplaceAll(".root","");
+
+    TString outputFileString = common::assignFolder("synchronisation", this->channel(),this->systematic());
+    outputFileString.Append(fileName+".csv");
+    
+    std::ofstream outputFile;
+    outputFile.open(outputFileString, std::ios::app);
+    
+    outputFile << "run,lumi,event,is_SL,is_DL,lep1_pt,lep1_eta,lep1_phi,lep1_iso,lep1_pdgId,lep2_pt,"
+	       << "lep2_eta,lep2_phi,lep2_iso,lep2_pdgId,jet1_pt,jet2_pt,jet3_pt,jet4_pt,jet1_CSVv2,"
+	       << "jet2_CSVv2,jet3_CSVv2,jet4_CSVv2,MET_pt,MET_phi,n_jets,n_btags,bWeight,ttHFCategory" 
+	       << "\n";
+    
+    outputFile << this->eventInfo_ << std::endl;
+    
+    // Clear string and close file
+    this->eventInfo_ = "";
+    outputFile.close();
+    
+    // *********** END EVENT-BY-EVENT INFO *****************
     
     // Defaults from AnalysisBase
     AnalysisBase::Terminate();
@@ -602,6 +627,15 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                                                    genJetMatchedRecoCjetIndices,
                                                    matchedBjetFromTopIndex, matchedAntiBjetFromTopIndex,
                                                    matchedBjetFromHiggsIndex, matchedAntiBjetFromHiggsIndex);
+    
+    // Event by event information
+    this->eventByEventInfo(eventMetadata,
+			   recoObjects, commonGenObjects,
+			   topGenObjects, higgsGenObjects,
+			   kinematicReconstructionSolutions,
+			   genObjectIndices, recoObjectIndices,
+			   genLevelWeights, recoLevelWeights,
+			   weight, selectionStep);
     
     // ++++ Control Plots ++++
     
@@ -1158,7 +1192,110 @@ void HiggsAnalysis::clearAll()
 
 
 
+void HiggsAnalysis::eventByEventInfo(const EventMetadata& eventMetadata,
+				     const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+				     const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
+				     const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
+				     const tth::GenObjectIndices& genObjectIndices, const tth::RecoObjectIndices& recoObjectIndices,
+				     const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
+				     const double& defaultWeight, const std::string& selectionStep)
+{
 
+    // Store event information to string
+    std::stringstream eventInfoString;
+
+    // General event information
+    eventInfoString << TString::Format("%d,%d,%d", eventMetadata.runNumber_, eventMetadata.lumiBlock_, eventMetadata.eventNumber_);
+
+    // Analysis type: single lepton (SL) or double lepton (DL)
+    eventInfoString << "," << 0 << "," << 1;
+
+    // Reco leptons object collection and information
+    const VLV& allLeptons = *recoObjects.allLeptons_;
+    const int& leadingLeptonIndex = recoObjectIndices.leadingLeptonIndex_;
+    const int& nleadingLeptonIndex  = recoObjectIndices.nLeadingLeptonIndex_;
+
+    const std::vector<int>& LeptonsPgdId = *recoObjects.lepPdgId_;
+    std::vector<double>& leptonPfIso = *recoObjects.lepPfIso_;
+    
+    if (leadingLeptonIndex > -1 && nleadingLeptonIndex > -1) {
+
+      LV leadingleptons = allLeptons.at(leadingLeptonIndex); 
+      LV nleadingleptons = allLeptons.at(nleadingLeptonIndex);
+
+      eventInfoString << std::setprecision(3) 
+		      << "," << leadingleptons.pt() 
+		      << "," << leadingleptons.eta()
+		      << "," << leadingleptons.phi()
+		      << "," << leptonPfIso.at(leadingLeptonIndex)
+		      << "," << LeptonsPgdId.at(leadingLeptonIndex)
+		      << "," << nleadingleptons.pt() 
+		      << "," << nleadingleptons.eta()
+		      << "," << nleadingleptons.phi()
+		      << "," << leptonPfIso.at(nleadingLeptonIndex)
+		      << "," << LeptonsPgdId.at(nleadingLeptonIndex);
+    }
+        
+    // Reco jet object collection and information
+    const VLV& allJets = *recoObjects.jets_;
+    const std::vector<int>& jetIdx = recoObjectIndices.jetIndices_;  // Selected jets (point to jets from allJets)
+    
+    int nJets = 0;
+    size_t numJets = jetIdx.size() >= 4? 4 : jetIdx.size();
+    
+    for (size_t iJet= 0; iJet < numJets; ++iJet) {
+      
+      int jetIndex = jetIdx.at(iJet);
+      LV jets = allJets.at(jetIndex);
+      
+      eventInfoString << std::setprecision(3) << "," <<  jets.pt();
+      nJets++;
+    }
+    
+    if (numJets < 4) {
+      size_t n = 4 - jetIdx.size();
+      for (size_t iJet= 0; iJet < n; ++iJet) {
+	eventInfoString << "," << "-999";
+      }
+    }
+    
+    // Reco b-tagged jet collection and information
+    const std::vector<int>& bjetIdx = recoObjectIndices.bjetIndices_;  // B-tagged jets (point to jets from allJets);    
+    const std::vector<double>& jetBTagCSV = *recoObjects.jetBTagCSV_;
+    
+    size_t numbJets = bjetIdx.size() >= 4? 4 : bjetIdx.size();
+    Int_t nBJets = bjetIdx.size();
+    
+    for (size_t ibJet= 0; ibJet <  numbJets; ++ibJet) {
+      
+      int bjetIndex = bjetIdx.at(ibJet);
+      
+      eventInfoString  << std::setprecision(3) << "," << jetBTagCSV.at(bjetIndex);
+    }
+    
+    if (numbJets < 4) {
+      size_t n = 4 - bjetIdx.size();
+      for (size_t ibJet= 0; ibJet < n; ++ibJet) {
+	eventInfoString << "," << "-999";
+      }
+    }
+    
+    // MET collection and information 
+    const LV& met = *recoObjects.met_;
+    
+    eventInfoString << std::setprecision(3) 
+		    << "," << met.pt()
+		    << "," << met.phi()
+		    << "," << nJets
+		    << "," << nBJets
+		    << "," << recoLevelWeights.weightBtagSF_ //bWeight
+		    << "," << -999 //ttHFCategory 
+		    << "\n";
+    
+    this->eventInfo_.Append(eventInfoString.str());
+    
+    return;
+}
 
 
 
