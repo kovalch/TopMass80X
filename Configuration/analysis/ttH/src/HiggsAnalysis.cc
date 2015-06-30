@@ -133,28 +133,29 @@ void HiggsAnalysis::Terminate()
     }
     
     // *********** EVENT-BY-EVENT INFO ******************** 
-
-    TString fileName = TString(this->systematic().name())+"_"+TString(Channel::convert(this->channel()))+"_"+TString(this->outputFilename()).ReplaceAll(".root","");
-
-    TString outputFileString = common::assignFolder("synchronisation", this->channel(),this->systematic());
-    outputFileString.Append(fileName+".csv");
+    if (!std::string(this->eventInfo_.Data()).empty()){
+      
+      TString fileName = TString(this->systematic().name())+"_"+TString(Channel::convert(this->channel()))+"_"+TString(this->outputFilename()).ReplaceAll(".root","");
+      
+      TString outputFileString = common::assignFolder("synchronisation", this->channel(),this->systematic());
+      outputFileString.Append(fileName+".csv");
+      
+      std::ofstream outputFile;
+      outputFile.open(outputFileString, std::ios::app);
+      
+      outputFile << "run,lumi,event,is_SL,is_DL,lep1_pt,lep1_eta,lep1_phi,lep1_iso,lep1_pdgId,lep2_pt,"
+		 << "lep2_eta,lep2_phi,lep2_iso,lep2_pdgId,jet1_pt,jet2_pt,jet3_pt,jet4_pt,jet1_CSVv2,"
+		 << "jet2_CSVv2,jet3_CSVv2,jet4_CSVv2,MET_pt,MET_phi,n_jets,n_btags,bWeight,ttHFCategory" 
+		 << "\n";
     
-    std::ofstream outputFile;
-    outputFile.open(outputFileString, std::ios::app);
-    
-    outputFile << "run,lumi,event,is_SL,is_DL,lep1_pt,lep1_eta,lep1_phi,lep1_iso,lep1_pdgId,lep2_pt,"
-	       << "lep2_eta,lep2_phi,lep2_iso,lep2_pdgId,jet1_pt,jet2_pt,jet3_pt,jet4_pt,jet1_CSVv2,"
-	       << "jet2_CSVv2,jet3_CSVv2,jet4_CSVv2,MET_pt,MET_phi,n_jets,n_btags,bWeight,ttHFCategory" 
-	       << "\n";
-    
-    outputFile << this->eventInfo_ << std::endl;
-    
-    // Clear string and close file
-    this->eventInfo_ = "";
-    outputFile.close();
-    
+      outputFile << this->eventInfo_ << std::endl;
+      
+      // Empty string and close file
+      this->eventInfo_ = "";
+      outputFile.close();
+    }
     // *********** END EVENT-BY-EVENT INFO *****************
-    
+      
     // Defaults from AnalysisBase
     AnalysisBase::Terminate();
 }
