@@ -12,6 +12,80 @@
 
 
 
+/// Namespace to treat different analysis eras as enum types
+namespace Era{
+    
+    /// All analysis eras as needed
+    enum Era{run1_8tev, run2_13tev_50ns, run2_13tev_25ns, undefined};
+    
+    /// Convert an era from string to enum
+    Era convert(const TString& era);
+    
+    /// Convert an era from enum to string
+    TString convert(const Era& era);
+    
+    /// Return energy for given era in TeV
+    double energyInTev(const Era era);
+}
+
+
+
+
+
+
+
+/// Namespace to define enums needed for b-tag related stuff
+/// Also needed for b-tag scale factors, since ROOT dictionary does not want definitions done in ZTopUtils/
+namespace Btag{
+    
+    /// Enum for the implemented b-tagging algorithms
+    enum Algorithm{
+        csv,
+        csvv2,
+        undefinedAlgorithm
+    };
+    
+    /// Enum for the working points
+    enum WorkingPoint{
+        L, M, T, undefinedWP
+    };
+    
+    /// Enum for the implemented modes of btag corrections
+    enum CorrectionMode{
+        noCorrection,               // Do not apply any corrections, i.e. scale factors event SF=1
+        greaterEqualOneTagReweight, // Correct selection efficiency for given working point via event SF for >=1 b-tag
+        randomNumberRetag,          // Random-number based tag flipping for b-/c-/l-jets to correct for selection efficiency
+        discriminatorReweight,      // Reweight with event-wise SF to describe b-tag discriminator distribution
+        undefinedCorrectionMode     // Undefined
+    };
+    
+    
+    
+    /// Convert an Algorithm from string to enum
+    Algorithm convertAlgorithm(const std::string& algo);
+    
+    /// Convert an Algorithm from enum to string
+    std::string convertAlgorithm(const Algorithm& algo);
+    
+    /// Convert a WorkingPoint from string to enum
+    WorkingPoint convertWorkingPoint(const std::string& wp);
+    
+    /// Convert a WorkingPoint from enum to string
+    std::string convertWorkingPoint(const WorkingPoint& wp);
+    
+    /// Convert a CorrectionMode from string to enum
+    CorrectionMode convertCorrectionMode(const std::string& mode);
+    
+    /// Convert a CorrectionMode from enum to string
+    std::string convertCorrectionMode(const CorrectionMode& mode);
+}
+
+
+
+
+
+
+
 /// Namespace to treat systematics as enum types
 namespace Systematic{
     
@@ -264,10 +338,6 @@ namespace Systematic{
     /// Set up undefined systematic
     Systematic undefinedSystematic();
 }
-
-
-
-
 
 
 
