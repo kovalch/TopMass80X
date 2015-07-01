@@ -135,8 +135,7 @@ private:
                                const std::vector<int>& jetIndices, const VLV& jets,
                                const TopGenObjects& topGenObjects)const;
     
-
-    /// Event by event information
+    /// Event by event information for synchronisations
     void eventByEventInfo(const EventMetadata& eventMetadata,
 			  const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
 			  const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
@@ -184,7 +183,7 @@ private:
     /// Pointer to the jet charge instance
     const JetCharge* jetCharge_;
     
-    /// Strin contaiing event by event content      
+    /// Fill string containing event by event information for synchronisations
     TString  eventInfo_;
 
     /// All analysers of type AnalyzerBase
