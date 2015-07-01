@@ -7,6 +7,7 @@ SET( ${PROJECT_NAME}_HEADERS_THAT_NEED_ROOTDICT
   ttH_LinkDef )
 
 SET( ${PROJECT_NAME}_LIBSOURCES
+  AnalysisConfig
   HistoListReader
   TheoryTopHistoReader
   higgsUtils

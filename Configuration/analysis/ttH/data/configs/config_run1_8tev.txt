@@ -1,0 +1,66 @@
+##
+## Config file for steering the analysis
+## For definition of variables see their description in AnalysisConfig.h
+##
+
+
+
+[ general ]
+    
+    era = run1_8tev
+    
+    luminosity = 19712.
+    luminosityUncertainty = 0.026
+    
+[ end - general ]
+
+
+
+[ corrections ]
+    
+    pileupInputFile = Data_PUDist_Full2012ReReco_FinalRecommendation.root
+    
+    triggerSFInputSuffix = _rereco198fb.root
+    
+    electronSFInputFile = ElectronSF_198fbReReco.root
+    muonSFInputFile = MuonSF_198fbReReco.root
+    
+    jerUncertaintySourceName = jer2012
+    jesUncertaintySourceFile = Summer13_V5_DATA_UncertaintySources_AK5PFchs.txt
+    
+    btagCorrectionMode = discriminatorReweight
+    btagHeavyFlavourFile = csv_rwt_hf_20pt_8_20_14.root
+    btagLightFlavourFile = csv_rwt_lf_20pt_8_20_14.root
+    
+    mvaMetRecoilDataFile = METrecoil_Fits_DataSummer2013.root
+    mvaMetRecoilMcFile = METrecoil_Fits_MCSummer2013.root
+    
+[ end - corrections ]
+
+
+
+[ objectSelection ]
+    
+    leptonEtaCut = 2.4
+    leptonPtCut = 20.
+    
+    jetEtaCut = 2.4
+    jetPtCut = 20.
+    deltaRLeptonJetCut = -1.
+    lead2JetPtCut = 30.
+    
+    btagAlgorithm = csv
+    btagWorkingPoint = M
+    
+    mvaMet = true
+    metCut = 40.
+    
+    genJetEtaCut = 2.4
+    genJetPtCut = 20.
+    genDeltaRLeptonJetCut = -1.
+    
+[ end - objectSelection ]
+
+
+
+
