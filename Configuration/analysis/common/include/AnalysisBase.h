@@ -14,7 +14,6 @@ class TTree;
 class TH1;
 
 #include "classesFwd.h"
-#include "ScaleFactorsFwd.h"
 #include "storeTemplate.h"
 #include "sampleHelpers.h"
 

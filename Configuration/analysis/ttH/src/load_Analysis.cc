@@ -88,9 +88,9 @@ constexpr const char* JesUncertaintySourceFILE = "Summer13_V5_DATA_UncertaintySo
 
 
 /// The correction mode for the b-tagging
-//constexpr BtagScaleFactors::CorrectionMode BtagCorrectionMODE = BtagScaleFactors::none;
-//constexpr BtagScaleFactors::CorrectionMode BtagCorrectionMODE = BtagScaleFactors::randomNumberRetag;
-constexpr BtagScaleFactors::CorrectionMode BtagCorrectionMODE = BtagScaleFactors::discriminatorReweight;
+//constexpr Btag::CorrectionMode BtagCorrectionMODE = Btag::noCorrection;
+//constexpr Btag::CorrectionMode BtagCorrectionMODE = Btag::randomNumberRetag;
+constexpr Btag::CorrectionMode BtagCorrectionMODE = Btag::discriminatorReweight;
 
 /// File for the official heavy flavour scale factors for b-tag discriminator reweighting
 constexpr const char* BtagHeavyFlavourFILE = "csv_rwt_hf_20pt_8_20_14.root";

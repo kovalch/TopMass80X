@@ -418,7 +418,7 @@ BtagScaleFactors::BtagScaleFactors(const char* efficiencyInputDir,
                                    const char* inputFileLightFlavour,
                                    const std::vector<Channel::Channel>& channels,
                                    const Systematic::Systematic& systematic,
-                                   const CorrectionMode& correctionMode):
+                                   const Btag::CorrectionMode& correctionMode):
 bTagBase(),
 selectorList_(0),
 channel_(Channel::undefined),
@@ -431,19 +431,19 @@ correctionMode_(correctionMode)
     
     // Adapt behaviour for requested correction mode
     this->setMakeEff(false);
-    if(correctionMode_ == none){
-        std::cout<<"Correction mode: none\n";
+    if(correctionMode_ == Btag::noCorrection){
+        std::cout<<"Correction mode: noCorrection\n";
         std::cout<<"No corrections will be applied\n";
     }
-    else if(correctionMode_==greaterEqualOneTagReweight || correctionMode_==randomNumberRetag){
-        if(correctionMode_ == greaterEqualOneTagReweight)
+    else if(correctionMode_==Btag::greaterEqualOneTagReweight || correctionMode_==Btag::randomNumberRetag){
+        if(correctionMode_ == Btag::greaterEqualOneTagReweight)
             std::cout<<"Correction mode: Event scale factor correcting (mis-)tagging efficiency for >=1 b-tagged jet\n";
-        else if(correctionMode_ == randomNumberRetag)
+        else if(correctionMode_ == Btag::randomNumberRetag)
             std::cout<<"Correction mode: Random number based (un-)tagging of b-/c-/l- jets correcting b-tag multiplicity\n";
         std::cout<<"Requires b-/c-/l-tagging efficiency histograms from MC\n";
         this->prepareEfficiencies(efficiencyInputDir, efficiencyOutputDir, channels, systematic);
     }
-    else if(correctionMode_ == discriminatorReweight){
+    else if(correctionMode_ == Btag::discriminatorReweight){
         std::cout<<"Correction mode: Event scale factor correcting the b-tag discriminator distribution\n";
         std::cout<<"Requires files containing the official flavour-specific per-jet correction factors\n";
         this->prepareDiscriminatorReweighting(inputFileHeavyFlavour, inputFileLightFlavour);
@@ -465,18 +465,18 @@ void BtagScaleFactors::btagSystematic(const Systematic::Systematic& systematic)
         std::ostringstream stream;
         stream<<"Correction mode of b-tag not compatible with specified systematic: "<<systematic.name()
               <<"\nStop running of analysis --- this is NOT an error, just avoiding double running\n";
-        if(correctionMode_ == none){
+        if(correctionMode_ == Btag::noCorrection){
             std::cout<<stream.str()<<std::endl;
             exit(111);
         }
-        else if(correctionMode_==greaterEqualOneTagReweight || correctionMode_==randomNumberRetag){
+        else if(correctionMode_==Btag::greaterEqualOneTagReweight || correctionMode_==Btag::randomNumberRetag){
             const std::vector<Systematic::Type>& efficiencyTypes = Systematic::btagEfficiencyCorrectionTypes;
             if(std::find(efficiencyTypes.begin(), efficiencyTypes.end(), systematic.type()) == efficiencyTypes.end()){
                 std::cout<<stream.str()<<std::endl;
                 exit(111);
             }
         }
-        else if(correctionMode_ == discriminatorReweight){
+        else if(correctionMode_ == Btag::discriminatorReweight){
             const std::vector<Systematic::Type>& discriminatorTypes = Systematic::btagDiscriminatorReweightTypes;
             if(std::find(discriminatorTypes.begin(), discriminatorTypes.end(), systematic.type()) == discriminatorTypes.end()){
                 std::cout<<stream.str()<<std::endl;
@@ -545,7 +545,7 @@ void BtagScaleFactors::btagSystematic(const Systematic::Systematic& systematic)
     }
     else if(systematic.type() == Systematic::jes){
         // This variation covers the with JES correlated uncertainty, only needed for discriminator reweighting
-        if(correctionMode_ == discriminatorReweight){
+        if(correctionMode_ == Btag::discriminatorReweight){
             if(systematic.variation() == Systematic::up) systematicInternal = jesup;
             else if(systematic.variation() == Systematic::down) systematicInternal = jesdown;
         }
@@ -559,7 +559,7 @@ void BtagScaleFactors::prepareChannel(const Channel::Channel& channel)
 {
     channel_ = channel;
     
-    if(correctionMode_==randomNumberRetag || correctionMode_==greaterEqualOneTagReweight) this->loadEfficiencies();
+    if(correctionMode_==Btag::randomNumberRetag || correctionMode_==Btag::greaterEqualOneTagReweight) this->loadEfficiencies();
 }
 
 
@@ -601,7 +601,7 @@ void BtagScaleFactors::indexOfBtags(std::vector<int>& bjetIndices,
     // In case efficiencies are produced, the input needs to be without any retagging
     if(this->makeEfficiencies()) return;
     
-    if(correctionMode_ != randomNumberRetag) return;
+    if(correctionMode_ != Btag::randomNumberRetag) return;
     
     bjetIndices.clear();
     for(const int index : jetIndices){
@@ -609,9 +609,9 @@ void BtagScaleFactors::indexOfBtags(std::vector<int>& bjetIndices,
         if(jetPartonFlavours.at(index) == 0) continue;
         const LV& jet = jets.at(index);
 
-        // Preparing a seed for the random jet retagging
-        const unsigned int seed = std::abs( static_cast<int>( 1.e6*sin( 1.e6*jet.Phi() ) ) );
-        const bool isTagged = this->jetIsTagged( jet.pt(), std::fabs(jet.eta()), jetPartonFlavours.at(index), btagDiscriminants.at(index), seed );
+        // Prepare seed for the random jet retagging
+        const unsigned int seed = std::abs(static_cast<int>(1.e6*sin(1.e6*jet.Phi())));
+        const bool isTagged = this->jetIsTagged(jet.pt(), std::fabs(jet.eta()), jetPartonFlavours.at(index), btagDiscriminants.at(index), seed);
         if(isTagged) bjetIndices.push_back(index);
     }
 }
@@ -626,9 +626,9 @@ double BtagScaleFactors::getSF(const std::vector<int>& jetIndices,
     // In case efficiencies are produced, the input needs to be without scale factors
     if(this->makeEfficiencies()) return 1.;
     
-    if(correctionMode_ == greaterEqualOneTagReweight)
+    if(correctionMode_ == Btag::greaterEqualOneTagReweight)
         return this->scaleFactorGreaterEqualOneTag(jetIndices, jets, jetPartonFlavours);
-    else if(correctionMode_ == discriminatorReweight)
+    else if(correctionMode_ == Btag::discriminatorReweight)
         return this->scaleFactorDiscriminatorReweight(jetIndices, jets, jetPartonFlavours, btagDiscriminators);
     else return 1.;
 }

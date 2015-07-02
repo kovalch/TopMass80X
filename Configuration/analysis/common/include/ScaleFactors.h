@@ -17,7 +17,6 @@ namespace ztop{
 }
 
 #include "classesFwd.h"
-#include "ScaleFactorsFwd.h"
 #include "storeTemplate.h"
 #include "sampleHelpers.h"
 #include "TopAnalysis/ZTopUtils/interface/bTagBase.h"
@@ -182,17 +181,6 @@ class BtagScaleFactors : public ztop::bTagBase{
     
 public:
     
-    /// Enum for the implemented modes of btag corrections
-    enum CorrectionMode{
-        none,                       // Do not apply any corrections, i.e. scale factors event SF=1
-        greaterEqualOneTagReweight, // Correct selection efficiency for given working point via event SF for >=1 b-tag
-        randomNumberRetag,          // Random-number based tag flipping for b-/c-/l-jets to correct for selection efficiency
-        discriminatorReweight,      // Reweight with event-wise SF to describe b-tag discriminator distribution
-        undefinedMode               // Undefined
-    };
-    
-    
-    
     /// Constructor
     BtagScaleFactors(const char* efficiencyInputDir,
                      const char* efficiencyOutputDir,
@@ -200,7 +188,7 @@ public:
                      const char* inputFileLightFlavour,
                      const std::vector<Channel::Channel>& channels,
                      const Systematic::Systematic& systematic,
-                     const CorrectionMode& correctionMode);
+                     const Btag::CorrectionMode& correctionMode);
     
     /// Destructor
     ~BtagScaleFactors(){}
@@ -313,7 +301,7 @@ private:
     Channel::Channel channel_;
     
     /// Which correction mode is used
-    const CorrectionMode correctionMode_;
+    const Btag::CorrectionMode correctionMode_;
 };
 
 

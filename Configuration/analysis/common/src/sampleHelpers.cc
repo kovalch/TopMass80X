@@ -16,6 +16,125 @@
 
 
 
+// --------------------- Functions defined in namespace Era -------------------------
+
+Era::Era Era::convert(const TString& era)
+{
+    if(era == "run1_8tev") return run1_8tev;
+    if(era == "run2_13tev_50ns") return run2_13tev_50ns;
+    if(era == "run2_13tev_25ns") return run2_13tev_25ns;
+    if(era == "") return undefined;
+    std::cerr<<"Error in Era::convert()! Following conversion is not implemented: "<<era<<"\n...break\n"<<std::endl;
+    exit(97);
+}
+
+
+
+TString Era::convert(const Era& era)
+{
+    if(era == run1_8tev) return "run1_8tev";
+    if(era == run2_13tev_50ns) return "run2_13tev_50ns";
+    if(era == run2_13tev_25ns) return "run2_13tev_25ns";
+    if(era == undefined) return "";
+    std::cerr<<"Error in Era::convert()! Conversion is not implemented\n...break\n"<<std::endl;
+    exit(97);
+}
+
+
+
+double Era::energyInTev(const Era era)
+{
+    if(era == run1_8tev) return 8.;
+    if(era == run2_13tev_50ns) return 13.;
+    if(era == run2_13tev_25ns) return 13.;
+    if(era == undefined) return -1.;
+    std::cerr<<"Error in Era::energyInTev()! No energy value defined for requested era\n...break\n"<<std::endl;
+    exit(97);
+}
+
+
+
+
+
+// --------------------- Functions defined in namespace Btag -------------------------
+
+Btag::Algorithm Btag::convertAlgorithm(const std::string& algo)
+{
+    if(algo == "csv") return csv;
+    if(algo == "csvv2") return csvv2;
+    if(algo == "") return undefinedAlgorithm;
+    std::cerr<<"Error in Btag::convertAlgorithm()! Following conversion is not implemented: "
+             <<algo<<"\n...break\n"<<std::endl;
+    exit(96);
+}
+
+
+
+std::string Btag::convertAlgorithm(const Btag::Algorithm& algo)
+{
+    if(algo == csv) return "csv";
+    if(algo == csvv2) return "csvv2";
+    if(algo == undefinedAlgorithm) return "";
+    std::cerr<<"Error in Btag::convertAlgorithm()! Conversion is not implemented\n...break\n"<<std::endl;
+    exit(96);
+}
+
+
+
+Btag::WorkingPoint Btag::convertWorkingPoint(const std::string& wp)
+{
+    if(wp == "L") return L;
+    if(wp == "M") return M;
+    if(wp == "T") return T;
+    if(wp == "") return undefinedWP;
+    std::cerr<<"Error in Btag::convertWorkingPoint()! Following conversion is not implemented: "
+             <<wp<<"\n...break\n"<<std::endl;
+    exit(96);
+}
+
+
+
+std::string Btag::convertWorkingPoint(const Btag::WorkingPoint& wp)
+{
+    if(wp == L) return "L";
+    if(wp == M) return "M";
+    if(wp == T) return "T";
+    if(wp == undefinedWP) return "";
+    std::cerr<<"Error in Btag::convertWorkingPoint()! Conversion is not implemented\n...break\n"<<std::endl;
+    exit(96);
+}
+
+
+
+Btag::CorrectionMode Btag::convertCorrectionMode(const std::string& mode)
+{
+    if(mode == "noCorrection") return noCorrection;
+    if(mode == "greaterEqualOneTagReweight") return greaterEqualOneTagReweight;
+    if(mode == "randomNumberRetag") return randomNumberRetag;
+    if(mode == "discriminatorReweight") return discriminatorReweight;
+    if(mode == "") return undefinedCorrectionMode;
+    std::cerr<<"Error in Btag::convertCorrectionMode()! Following conversion is not implemented: "
+             <<mode<<"\n...break\n"<<std::endl;
+    exit(96);
+}
+
+
+
+std::string Btag::convertCorrectionMode(const Btag::CorrectionMode& mode)
+{
+    if(mode == noCorrection) return "noCorrection";
+    if(mode == greaterEqualOneTagReweight) return "greaterEqualOneTagReweight";
+    if(mode == randomNumberRetag) return "randomNumberRetag";
+    if(mode == discriminatorReweight) return "discriminatorReweight";
+    if(mode == undefinedCorrectionMode) return "";
+    std::cerr<<"Error in Btag::convertCorrectionMode()! Conversion is not implemented\n...break\n"<<std::endl;
+    exit(96);
+}
+
+
+
+
+
 // --------------------- Functions defined in namespace Systematic for Type -------------------------
 
 
@@ -78,7 +197,8 @@ Systematic::Type Systematic::convertType(const TString& type)
     if(type.BeginsWith("closure")) return closure;
     if(type.BeginsWith("allAvailable")) return allAvailable;
     if(type.BeginsWith("all")) return all;
-    std::cout<<"Warning! The following systematic type conversion is not implemented: "<<type<<std::endl<<std::endl;
+    std::cout<<"Warning in Systematic::convertType()! Following conversion is not implemented: "
+             <<type<<std::endl<<std::endl;
     return undefinedType;
 }
 
@@ -142,7 +262,7 @@ TString Systematic::convertType(const Type& type)
     if(type == allAvailable) return "allAvailable";
     if(type == all) return "all";
     if(type == undefinedType) return "";
-    std::cerr<<"Error! Type conversion is not implemented,\n...break\n"<<std::endl;
+    std::cerr<<"Error in Systematic::convertType()! Conversion is not implemented\n...break\n"<<std::endl;
     exit(99);
 }
 
@@ -193,7 +313,8 @@ Systematic::Variation Systematic::convertVariation(const TString& variation)
     if(variation.EndsWith("_UP")) return up;
     if(variation.EndsWith("_DOWN")) return down;
     if(variation.EndsWith("_CENTRAL")) return central;
-    //std::cout<<"Warning! The following variation conversion is not implemented: "<<variation<<std::endl<<std::endl;
+    //std::cout<<"Warning in Systematic::convertVariation()! Following conversion is not implemented: "
+    //         <<variation<<std::endl<<std::endl;
     return undefinedVariation;
 }
 
@@ -205,7 +326,7 @@ TString Systematic::convertVariation(const Variation& variation)
     if(variation == down) return "_DOWN";
     if(variation == central) return "_CENTRAL";
     if(variation == undefinedVariation) return "";
-    std::cerr<<"Error! Variation conversion is not implemented,\n...break\n"<<std::endl;
+    std::cerr<<"Error in Systematic::convertVariation()! Conversion is not implemented\n...break\n"<<std::endl;
     exit(99);
 }
 
@@ -297,14 +418,16 @@ std::vector<Systematic::Systematic> Systematic::allowedSystematicsAnalysis(const
         if(std::find(centralTypes.begin(), centralTypes.end(), type) != centralTypes.end()){
             // Central types need specific treatment using variation numbers, e.g. PDF variations
             // They require detailed specifications at the place where they are used
-            if(type == pdf) {
+            // FIXME: This implementation of 26 hardcoded PDF variations should be made more generic
+            if(type == pdf){
                 result.push_back(Systematic(type, central, 0));
-                for(int id = 1; id <= 26; ++id) {
+                for(int id = 1; id <= 26; ++id){
                     result.push_back(Systematic(type, up, id));
                     result.push_back(Systematic(type, down, id));
                 }
-            } else
-            result.push_back(Systematic(type, undefinedVariation));
+            }
+            else
+                result.push_back(Systematic(type, undefinedVariation));
         }
         else if(std::find(upDownTypes.begin(), upDownTypes.end(), type) != upDownTypes.end()){
             // Up/down types need the two variations
@@ -431,7 +554,7 @@ Channel::Channel Channel::convert(const TString& channel)
     if(channel == "combined") return combined;
     if(channel == "tautau") return tautau;
     if(channel == "") return undefined;
-    std::cerr<<"Error! The following channel conversion is not implemented: "<<channel<<"\n...break\n"<<std::endl;
+    std::cerr<<"Error in Channel::convert()! Following conversion is not implemented: "<<channel<<"\n...break\n"<<std::endl;
     exit(98);
 }
 
@@ -445,7 +568,7 @@ TString Channel::convert(const Channel& channel)
     if(channel == combined) return "combined";
     if(channel == tautau) return "tautau";
     if(channel == undefined) return "";
-    std::cerr<<"Error! Channel conversion is not implemented,\n...break\n"<<std::endl;
+    std::cerr<<"Error in Channel::convert()! Conversion is not implemented\n...break\n"<<std::endl;
     exit(98);
 }
 
