@@ -192,13 +192,13 @@ topAnalysis $1
 ##### Fix to avoid crash on MVA Met producer when no PV exist
 ## The JetMet people were contacted and they will fix (hopefully) the bug soon
 ## in the meantime...
-cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/RecoMET_METPUSubtraction_plugins_PFMETProducerMVA.cc $CMSSW_BASE/src/RecoMET/METPUSubtraction/plugins/PFMETProducerMVA.cc
-cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/RecoMET_METAnalyzers_BuildFile.xml $CMSSW_BASE/src/RecoMET/METAnalyzers/BuildFile.xml
+cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks_5327/RecoMET_METPUSubtraction_plugins_PFMETProducerMVA.cc $CMSSW_BASE/src/RecoMET/METPUSubtraction/plugins/PFMETProducerMVA.cc
+cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks_5327/RecoMET_METAnalyzers_BuildFile.xml $CMSSW_BASE/src/RecoMET/METAnalyzers/BuildFile.xml
 
 
 
 ##### Fix to enable exclusion of particles from resonances for genJet input in Pythia8 (~backport from CMSSW_7 implementation)
-cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/RecoJets_JetProducers_plugins_InputGenJetsParticleSelector.cc $CMSSW_BASE/src/RecoJets/JetProducers/plugins/InputGenJetsParticleSelector.cc
+cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks_5327/RecoJets_JetProducers_plugins_InputGenJetsParticleSelector.cc $CMSSW_BASE/src/RecoJets/JetProducers/plugins/InputGenJetsParticleSelector.cc
 
 
 
