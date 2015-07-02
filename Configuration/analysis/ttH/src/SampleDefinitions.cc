@@ -100,7 +100,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     );
 
     result["ttbarsignalPlusCcbar"] = Sample(
-        "t#bar{t}Other",
+        "t#bar{t} Other",
         23,
         // TOP-14-016 (ATLAS+CMS combination)
         241.5,
@@ -113,7 +113,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     );
 
     result["ttbarsignalPlusOther"] = Sample(
-        "t#bar{t}Other",
+        "t#bar{t} Other",
         23,
         // TOP-14-016 (ATLAS+CMS combination)
         241.5,
@@ -125,7 +125,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     );
     
     result["ttbarbkg"] = Sample(
-        "t#bar{t}Other",
+        "t#bar{t} Other",
         23,
         // TOP-14-016 (ATLAS+CMS combination)
         241.5,
