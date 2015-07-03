@@ -14,6 +14,7 @@
 #include <Math/VectorUtil.h>
 
 #include "HiggsAnalysis.h"
+#include "AnalysisConfig.h"
 #include "JetCharge.h"
 #include "higgsUtils.h"
 #include "analysisStructs.h"
@@ -30,49 +31,9 @@
 
 
 
-/// Lepton eta selection (absolute value)
-constexpr double LeptonEtaCUT = 2.4;
-
-/// Lepton pt selection in GeV
-constexpr double LeptonPtCut = 20.;
-
-/// Jet eta selection (absolute value)
-constexpr double JetEtaCUT = 2.4;
-
-/// Jet pt selection in GeV
-constexpr double JetPtCUT = 20.;
-
-/// Leading 2 jet pt selection in GeV
-constexpr double Lead2JetPtCUT = 30.;
-
-/// Minimal deltaR for removal of jets that are close to leptons (if negative, no cut applied)
-constexpr double DeltaRLeptonJetCUT = -1.;
-
-/// B-tag algorithm and working point
-constexpr Btag::Algorithm BtagALGO = Btag::csv;
-constexpr Btag::WorkingPoint BtagWP = Btag::M;
-
-/// PF MET or MVA MET
-constexpr bool MvaMET = true;
-
-/// MET selection for same-flavour channels (ee, mumu)
-constexpr double MetCUT = 40.;
-
-/// Generated jet eta selection (absolute value)
-constexpr double GenJetEtaCUT = 2.4;
-
-/// Generated jet pt selection in GeV
-constexpr double GenJetPtCUT = JetPtCUT;
-
-/// Minimal deltaR for removal of generated jets that are close to leptons (if negative, no cut applied)
-constexpr double GenDeltaRLeptonJetCUT = -1.;
-
-
-
-
-
-
-HiggsAnalysis::HiggsAnalysis(TTree*):
+HiggsAnalysis::HiggsAnalysis(const AnalysisConfig& analysisConfig, TTree*):
+AnalysisBase(),
+analysisConfig_(analysisConfig),
 inclusiveHiggsDecayMode_(-999),
 additionalBjetMode_(-999),
 reweightingName_(""),
@@ -82,7 +43,7 @@ genStudiesTth_(false),
 jetCharge_(0),
 eventInfo_("")
 {
-    if(MvaMET) this->mvaMet();
+    if(analysisConfig.selections().mvaMet_) this->mvaMet();
 }
 
 
@@ -98,7 +59,7 @@ void HiggsAnalysis::Begin(TTree*)
     AnalysisBase::Begin(0);
     
     // Set b-tagging working point
-    this->setBtagAlgorithmAndWorkingPoint(BtagALGO, BtagWP);
+    this->setBtagAlgorithmAndWorkingPoint(analysisConfig_.selections().btagAlgorithm_, analysisConfig_.selections().btagWorkingPoint_);
     
     // Set up selection steps of MVA tree handlers
     for(MvaTreeHandlerBase* mvaTreeHandler : v_mvaTreeHandler_){
@@ -371,10 +332,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // Bools relevant for selection steps
     const bool hasLeptonPair = this->hasLeptonPair(leadingLeptonIndex, nLeadingLeptonIndex, lepPdgId);
     const int numberOfJets = jetIndices.size();
-    const bool has2Jets = numberOfJets > 1 && jets.at(jetIndices.at(1)).pt() >= Lead2JetPtCUT;
+    const bool has2Jets = numberOfJets>1 && jets.at(jetIndices.at(1)).pt()>=analysisConfig_.selections().lead2JetPtCut_;
     const int numberOfBjets = bjetIndices.size();
     const bool hasBtag = numberOfBjets > 0;
-    const bool hasMet = met.pt() > MetCUT;
+    const bool hasMet = met.pt() > analysisConfig_.selections().metCut_;
     
     // Determine all reco level weights (lepton+trigger SFs only valid after requiring dilepton system)
     const double weightLeptonSF = this->weightLeptonSF(leadingLeptonIndex, nLeadingLeptonIndex, allLeptons, lepPdgId);
@@ -670,12 +631,15 @@ void HiggsAnalysis::recoObjectSelection(std::vector<int>& allLeptonIndices,
                                         const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                                         const Long64_t& entry)const
 {
+    // Access object selections from config
+    const AnalysisConfig::Selections& selections = analysisConfig_.selections();
+    
     // Get allLepton indices, apply selection cuts and order them by pt (beginning with the highest value)
     const VLV& allLeptons = *recoObjects.allLeptons_;
     allLeptonIndices = common::initialiseIndices(allLeptons);
-    common::selectIndices(allLeptonIndices, allLeptons, common::LVeta, LeptonEtaCUT, false);
-    common::selectIndices(allLeptonIndices, allLeptons, common::LVeta, -LeptonEtaCUT);
-    common::selectIndices(allLeptonIndices, allLeptons, common::LVpt, LeptonPtCut);
+    common::selectIndices(allLeptonIndices, allLeptons, common::LVeta, selections.leptonEtaCut_, false);
+    common::selectIndices(allLeptonIndices, allLeptons, common::LVeta, -selections.leptonEtaCut_);
+    common::selectIndices(allLeptonIndices, allLeptons, common::LVpt, selections.leptonPtCut_);
     common::orderIndices(allLeptonIndices, allLeptons, common::LVpt);
     
     // Get indices of leptons and antiLeptons separated by charge, and get the leading ones if they exist
@@ -711,14 +675,14 @@ void HiggsAnalysis::recoObjectSelection(std::vector<int>& allLeptonIndices,
     // Get jet indices, apply selection cuts and order them by pt (beginning with the highest value)
     const VLV& jets = *recoObjects.jets_;
     jetIndices = common::initialiseIndices(jets);
-    common::selectIndices(jetIndices, jets, common::LVeta, JetEtaCUT, false);
-    common::selectIndices(jetIndices, jets, common::LVeta, -JetEtaCUT);
-    common::selectIndices(jetIndices, jets, common::LVpt, JetPtCUT);
-    if(DeltaRLeptonJetCUT > 0.){
+    common::selectIndices(jetIndices, jets, common::LVeta, selections.jetEtaCut_, false);
+    common::selectIndices(jetIndices, jets, common::LVeta, -selections.jetEtaCut_);
+    common::selectIndices(jetIndices, jets, common::LVpt, selections.jetPtCut_);
+    if(selections.deltaRLeptonJetCut_ > 0.){
         // Vector of leptons from which jets need to be separated in deltaR
         VLV leptonsForJetCleaning;
         for(const int index : allLeptonIndices) leptonsForJetCleaning.push_back(allLeptons.at(index));
-        this->leptonCleanedJetIndices(jetIndices, jets, leptonsForJetCleaning, DeltaRLeptonJetCUT);
+        this->leptonCleanedJetIndices(jetIndices, jets, leptonsForJetCleaning, selections.deltaRLeptonJetCut_);
     }
     common::orderIndices(jetIndices, jets, common::LVpt);
     const int numberOfJets = jetIndices.size();
@@ -763,22 +727,23 @@ void HiggsAnalysis::genObjectSelection(std::vector<int>& genJetIndices,
 {
     if(!topGenObjects.valuesSet_) return;
     
+    // Access object selections from config
+    const AnalysisConfig::Selections& selections = analysisConfig_.selections();
+    
     // Generated jets
     const VLV& allGenJets = *topGenObjects.allGenJets_;
     std::vector<int> allGenJetIndices = common::initialiseIndices(allGenJets);
     common::orderIndices(allGenJetIndices, allGenJets, common::LVpt);
     genJetIndices = allGenJetIndices;
-    common::selectIndices(genJetIndices, allGenJets, common::LVeta, GenJetEtaCUT, false);
-    common::selectIndices(genJetIndices, allGenJets, common::LVeta, -GenJetEtaCUT);
-    common::selectIndices(genJetIndices, allGenJets, common::LVpt, GenJetPtCUT);
-    if(GenDeltaRLeptonJetCUT > 0.){
+    common::selectIndices(genJetIndices, allGenJets, common::LVeta, selections.genJetEtaCut_, false);
+    common::selectIndices(genJetIndices, allGenJets, common::LVeta, -selections.genJetEtaCut_);
+    common::selectIndices(genJetIndices, allGenJets, common::LVpt, selections.genJetPtCut_);
+    if(selections.genDeltaRLeptonJetCut_ > 0.){
         // Vector of genLeptons from which genJets need to be separated in deltaR
         VLV allGenLeptons;
-        if(topGenObjects.valuesSet_){
-            if(topGenObjects.GenLepton_) allGenLeptons.push_back(*topGenObjects.GenLepton_);
-            if(topGenObjects.GenAntiLepton_) allGenLeptons.push_back(*topGenObjects.GenAntiLepton_);
-        }
-        this->leptonCleanedJetIndices(genJetIndices, allGenJets, allGenLeptons, GenDeltaRLeptonJetCUT);
+        if(topGenObjects.GenLepton_) allGenLeptons.push_back(*topGenObjects.GenLepton_);
+        if(topGenObjects.GenAntiLepton_) allGenLeptons.push_back(*topGenObjects.GenAntiLepton_);
+        this->leptonCleanedJetIndices(genJetIndices, allGenJets, allGenLeptons, selections.genDeltaRLeptonJetCut_);
     }
     
     // Match for all genJets all B hadrons
