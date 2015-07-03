@@ -278,6 +278,12 @@ void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimize
     }
     SetValue("Entries", entries_, sqrt(entries_));
   }
+  
+  if (po::GetOption<bool>("minPlot")) {
+    if(nameFreeVariables == "_mTop_JES"){
+      PlotResult(min, kMass, kJES, true);
+    }
+  }
 
   // do the next combination of variables
   for(unsigned int i = start; i < toFit.size(); ++i){
@@ -288,19 +294,10 @@ void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimize
   return;
 }
 
-void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramAnalyzerMinimizer::allowedVariables x, IdeogramAnalyzerMinimizer::allowedVariables y){
+void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramAnalyzerMinimizer::allowedVariables x, IdeogramAnalyzerMinimizer::allowedVariables y, bool hybrid){
   Helper helper;
 
   TCanvas canv("canv", "Top mass", 500, 500);
-  canv.SetFrameFillColor(kRed);
-  canv.SetFrameFillStyle(1001);
-  /*
-  canv.Update();
-  canv.GetFrame()->SetFillColor(21);
-  canv.GetFrame()->SetBorderSize(12);
-  canv.GetFrame()->SetFillStyle(1001);
-  canv.Modified();
-  */
   canv.SetLeftMargin (0.20);
   canv.SetRightMargin(0.04);
   canv.cd();
@@ -309,15 +306,15 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
   double* contourxs = new double[numPoints+1];
   double* contourys = new double[numPoints+1];
 
-  int lineColor = kBlack;
-  int lineWidth = 1;
+  int lineColor = kWhite;
+  int lineWidth = 2;
 
   min->SetErrorDef(9.);
   min->Contour(x, y, numPoints, contourxs, contourys);
   contourxs[numPoints] = contourxs[0]; contourys[numPoints] = contourys[0];
   TGraph gr3(numPoints+1, contourxs, contourys);
-  gr3.SetNameTitle("","");
-  gr3.SetFillColor(kSpring-9);
+  gr3.SetNameTitle("gr3","gr3");
+  gr3.SetFillColor(kOrange-9);
   gr3.SetLineColor(lineColor);
   gr3.SetLineWidth(lineWidth);
 
@@ -325,7 +322,8 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
   min->Contour(x, y, numPoints, contourxs, contourys);
   contourxs[numPoints] = contourxs[0]; contourys[numPoints] = contourys[0];
   TGraph gr2(numPoints+1, contourxs, contourys);
-  gr2.SetFillColor(kAzure+1);
+  gr2.SetNameTitle("gr2","gr2");
+  gr2.SetFillColor(kAzure+7);
   gr2.SetLineColor(lineColor);
   gr2.SetLineWidth(lineWidth);
 
@@ -333,7 +331,8 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
   min->Contour(x, y, numPoints, contourxs, contourys);
   contourxs[numPoints] = contourxs[0]; contourys[numPoints] = contourys[0];
   TGraph gr1(numPoints+1, contourxs, contourys);
-  gr1.SetFillColor(kViolet+9);
+  gr1.SetNameTitle("gr1","gr1");
+  gr1.SetFillColor(kAzure-6);
   gr1.SetLineColor(lineColor);
   gr1.SetLineWidth(lineWidth);
 
@@ -347,6 +346,7 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
   else if(y == kJES ) { gr3.GetYaxis()->SetTitle("JSF");         plotNamePostfix += "JES" ; }
   else if(y == kFSig) { gr3.GetYaxis()->SetTitle("f_{sig}");     plotNamePostfix += "fSig"; }
   else if(y == kFCP ) { gr3.GetYaxis()->SetTitle("f_{CP}");      plotNamePostfix += "fCP" ; }
+  if (hybrid) plotNamePostfix += "_hyb";
   gr3.GetYaxis()->SetTitleOffset(1.7);
 
   gr3.Draw("ACF");
@@ -357,18 +357,25 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
   gr1.Draw("C,SAME");
 
   TGraph gr0(1, &min->X()[x], &min->X()[y]);
-  gr0.SetMarkerColor(kWhite);
-  gr0.SetMarkerStyle(2);
+  gr0.SetNameTitle("gr0","gr0");
+  gr0.SetMarkerColor(kOrange+9);
+  gr0.SetMarkerStyle(34);
   gr0.SetMarkerSize(2);
   gr0.Draw("P,SAME");
+  
+  TGraph gr0red(1, &min->X()[x], &min->X()[y]);
+  gr0red.SetMarkerColor(kWhite);
+  gr0red.SetMarkerStyle(28);
+  gr0red.SetMarkerSize(2);
+  gr0red.Draw("P,SAME");
 
   TLegend leg0(0.70, 0.75, 0.93, 0.92);
   leg0.SetFillStyle(1001);
   leg0.SetFillColor(kWhite);
   leg0.SetBorderSize(1);
-  leg0.AddEntry(&gr1, "-2#Delta log(L) = 1", "F");
-  leg0.AddEntry(&gr2, "-2#Delta log(L) = 4", "F");
-  leg0.AddEntry(&gr3, "-2#Delta log(L) = 9", "F");
+  leg0.AddEntry(&gr1, "-2#Delta log(L) < 1", "F");
+  leg0.AddEntry(&gr2, "-2#Delta log(L) < 4", "F");
+  leg0.AddEntry(&gr3, "-2#Delta log(L) < 9", "F");
   leg0.Draw();
 
   // draw tangents to -2#Delta log(L) = 1 ellipse
