@@ -27,6 +27,7 @@ public:
     
     /// Constructor setting up samples
     Samples(const TString& filelistDirectory,
+            const Era::Era& era,
             const std::vector<Channel::Channel>& v_channel,
             const std::vector<Systematic::Systematic>& v_systematic,
             const GlobalScaleFactors* globalScaleFactors =0);
@@ -65,6 +66,7 @@ private:
     
     /// Add samples for specific dilepton analysis channel and specific systematic
     void addSamples(const TString& filelistDirectory,
+                    const Era::Era& era,
                     const Channel::Channel& channel,
                     const Systematic::Systematic& systematic);
     

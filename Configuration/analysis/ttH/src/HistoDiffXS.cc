@@ -6,6 +6,7 @@
 
 #include <TString.h>
 
+#include "AnalysisConfig.h"
 #include "Samples.h"
 #include "GlobalScaleFactors.h"
 #include "EventYields.h"
@@ -21,37 +22,28 @@
 
 
 
-/// Set data luminosity in pb-1
-//constexpr double Luminosity = 19624.8;
-//constexpr double Luminosity = 19789.;
-constexpr double Luminosity = 19712.;
-
-
-/// Set relative luminosity uncertainty
-constexpr double LuminosityUNCERTAINTY = 0.026;
-
-
-
-
-
 void HistoDiffXS(const std::vector<std::string>& v_plot, 
            const std::vector<Channel::Channel>& v_channel,
            const std::vector<Systematic::Systematic>& v_systematic,
            const std::vector<GlobalCorrection::GlobalCorrection> v_globalCorrection)
 {
+    // Read analysis config from text file
+    AnalysisConfig analysisConfig;
+    const AnalysisConfig::General& general = analysisConfig.general();
+    
     // Set up scale factors
     const bool dyCorrection = std::find(v_globalCorrection.begin(), v_globalCorrection.end(), GlobalCorrection::dy) != v_globalCorrection.end();
     const bool ttbbCorrection = std::find(v_globalCorrection.begin(), v_globalCorrection.end(), GlobalCorrection::ttbb) != v_globalCorrection.end();
-    const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(v_channel, v_systematic, Luminosity, LuminosityUNCERTAINTY, dyCorrection, ttbbCorrection);
+    const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(general, v_channel, v_systematic, dyCorrection, ttbbCorrection);
     
     // Access all samples
-    const Samples samples("FileLists_plot", v_channel, v_systematic, globalScaleFactors);
+    const Samples samples("FileLists_plot", general.era_, v_channel, v_systematic, globalScaleFactors);
     
     // Produce event yields
 //     const EventYields eventYields("EventYields", samples);
     
     // Create Plotter
-    PlotterDiffXS plotter("Plots_diffXS_systematic_input", samples, Luminosity);
+    PlotterDiffXS plotter("Plots_diffXS_systematic_input", analysisConfig, samples);
     
     // Access the histoList specifying printing parameters of histograms
     const std::string histoListFile(tth::DATA_PATH_TTH() + "/" + "HistoList_DiffXS");

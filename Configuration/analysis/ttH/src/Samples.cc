@@ -25,6 +25,7 @@ globalScaleFactors_(0)
 
 
 Samples::Samples(const TString& filelistDirectory,
+                 const Era::Era& era,
                  const std::vector<Channel::Channel>& v_channel,
                  const std::vector<Systematic::Systematic>& v_systematic,
                  const GlobalScaleFactors* globalScaleFactors):
@@ -34,7 +35,7 @@ globalScaleFactors_(globalScaleFactors)
     
     for(const auto& systematic : v_systematic){
         for(const auto& channel : v_channel){
-            this->addSamples(filelistDirectory, channel, systematic);
+            this->addSamples(filelistDirectory, era, channel, systematic);
         }
     }
     
@@ -124,16 +125,32 @@ std::vector<std::pair<TString, Sample> > Samples::setSamples(const std::vector<T
 
 
 void Samples::addSamples(const TString& filelistDirectory,
+                         const Era::Era& era,
                          const Channel::Channel& channel,
                          const Systematic::Systematic& systematic)
 {
     // FIXME: This method is not fully safe: for certain systematics (e.g. ttbar theory variations), in case the input file does not exist,
     // FIXME: the nominal one is taken silently, not even any warning is produced
     
+    // Access samples according to analysis era
+    std::map<TString, Sample> m_identifierSample;
+    std::vector<TString> v_selectAndOrderSample;
+    if(era == Era::run1_8tev){
+        m_identifierSample = SampleDefinitions::samples8TeV();
+        v_selectAndOrderSample = SampleDefinitions::selectAndOrderSamples8TeV();
+    }
+    else if(era==Era::run2_13tev_25ns || era==Era::run2_13tev_50ns){
+        
+    }
+    else{
+        std::cerr<<"Error in Samples::addSamples()! No SampleDefintions existing for given era\n...break\n"<<std::endl;
+        exit(512);
+    }
+    
     // Full input filenames from the systematic and the nominal FileList
     std::vector<std::pair<TString, Sample> > v_filenameSamplePair;
     std::vector<std::pair<TString, Sample> > v_filenameSamplePairNominal;
-    const bool hasPseudodata = SampleDefinitions::usingPseudodata(SampleDefinitions::samples8TeV(), SampleDefinitions::selectAndOrderSamples8TeV());
+    const bool hasPseudodata = SampleDefinitions::usingPseudodata(m_identifierSample, v_selectAndOrderSample);
     
     // Add all samples as they are defined for given systematic (except of systematics which only scale nominal samples)
     if(systematic.type() != Systematic::lumi && 
@@ -142,14 +159,14 @@ void Samples::addSamples(const TString& filelistDirectory,
     ) {
         const auto& v_filename = common::readFilelist(filelistDirectory, channel, systematic);
         v_filenameSamplePair =
-            this->setSamples(v_filename, SampleDefinitions::samples8TeV(), SampleDefinitions::selectAndOrderSamples8TeV(), hasPseudodata);
+            this->setSamples(v_filename, m_identifierSample, v_selectAndOrderSample, hasPseudodata);
     }
     
     // Add nominal samples for those not varied (i.e. not found in systematic FileList)
     if(systematic.type() != Systematic::nominal){
         const auto& v_filenameNominal = common::readFilelist(filelistDirectory, channel, Systematic::nominalSystematic());
         v_filenameSamplePairNominal =
-            this->setSamples(v_filenameNominal, SampleDefinitions::samples8TeV(), SampleDefinitions::selectAndOrderSamples8TeV(), hasPseudodata);
+            this->setSamples(v_filenameNominal, m_identifierSample, v_selectAndOrderSample, hasPseudodata);
     }
     
     // Set sample options via filename
@@ -157,7 +174,7 @@ void Samples::addSamples(const TString& filelistDirectory,
     
     // Reordering samples based on legends (in case some are merged)
     // Getting a list of legends in a proper order
-    std::vector<TString> v_legend = SampleDefinitions::legendList(SampleDefinitions::samples8TeV(), SampleDefinitions::selectAndOrderSamples8TeV());
+    std::vector<TString> v_legend = SampleDefinitions::legendList(m_identifierSample, v_selectAndOrderSample);
     // Order files by legendEntry
     this->orderByLegend(v_sample, v_legend);
     

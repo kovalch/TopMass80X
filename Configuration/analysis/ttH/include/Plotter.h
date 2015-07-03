@@ -15,6 +15,8 @@ class TPaveText;
 #include "SamplesFwd.h"
 #include "../../common/include/sampleHelpers.h"
 
+class AnalysisConfig;
+
 
 
 
@@ -25,6 +27,7 @@ public:
     
     /// Constructor
     Plotter(const char* outputDir,
+            const AnalysisConfig& analysisConfig,
             const Samples& samples,
             const DrawMode::DrawMode& drawMode);
     
@@ -77,8 +80,8 @@ private:
     /// Output folder name
     const char* outputDir_;
     
-    /// Id of the label to be plotted in the top left corner [0-none, 1-channel, 2-systematic]
-    const int topLeftLabelId_;
+    /// Reference to the analysis config
+    const AnalysisConfig& analysisConfig_;
     
     /// Samples to be analysed
     const Samples& samples_;

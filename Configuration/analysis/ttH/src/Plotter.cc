@@ -20,6 +20,7 @@
 #include <TError.h>
 
 #include "Plotter.h"
+#include "AnalysisConfig.h"
 #include "higgsUtils.h"
 #include "Samples.h"
 #include "../../common/include/sampleHelpers.h"
@@ -31,10 +32,11 @@
 
 
 Plotter::Plotter(const char* outputDir,
+                 const AnalysisConfig& analysisConfig,
                  const Samples& samples,
                  const DrawMode::DrawMode& drawMode):
 outputDir_(outputDir),
-topLeftLabelId_(1),
+analysisConfig_(analysisConfig),
 samples_(samples),
 drawMode_(drawMode),
 fileReader_(RootFileReader::getInstance()),
@@ -396,9 +398,9 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     canvas->RedrawAxis();
     
     // Put additional stuff to histogram
-    common::drawCmsLabels(0, 8, samples_.luminosityInInversePb()/1000.);
-//     if(topLeftLabelId_==1) this->drawTopLeftLabel(Channel::label(channel));
-//     else if(topLeftLabelId_==2) this->drawTopLeftLabel(Systematic::convertType(systematic.type())+=Systematic::convertVariation(systematic.variation()));
+    common::drawCmsLabels(0, Era::energyInTev(analysisConfig_.general().era_), analysisConfig_.general().luminosity_/1000.);
+    //this->drawTopLeftLabel(Channel::label(channel));
+    //this->drawTopLeftLabel(Systematic::convertType(systematic.type())+=Systematic::convertVariation(systematic.variation()));
     for(TPaveText* label : significanceLabels) if(label) label->Draw("same");
     legend->Draw("SAME");
     if(dataHist.second && stacksum){

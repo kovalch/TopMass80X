@@ -18,6 +18,8 @@ class TPad;
 #include "Sample.h"
 #include "../../common/include/sampleHelpers.h"
 
+class AnalysisConfig;
+
 
 
 
@@ -28,7 +30,8 @@ public:
     
     /// Constructor
     PlotterDiffXSSystematic(const char* outputDir, 
-                      const std::map<Channel::Channel, std::map<Systematic::Systematic, std::map<TString, std::pair<TString, TString> > > >& inputFileLists);
+                            const AnalysisConfig& analysisConfig,
+                            const std::map<Channel::Channel, std::map<Systematic::Systematic, std::map<TString, std::pair<TString, TString> > > >& inputFileLists);
     
     /// Destructor
     ~PlotterDiffXSSystematic(){};
@@ -171,6 +174,9 @@ private:
 
     /// Output folder name
     const char* outputDir_;
+    
+    /// Reference to the analysis config
+    const AnalysisConfig& analysisConfig_;
     
     /// Samples to be analysed
     const std::map<Channel::Channel, std::map<Systematic::Systematic, std::map<TString, std::pair<TString, TString> > > >& inputFileLists_;

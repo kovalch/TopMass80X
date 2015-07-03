@@ -44,7 +44,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     
     // EXAMPLE CONFIGURATION: activated by adding to the list in selectAndOrderSamples8TeV()
     // ttbb sample with 2X larger normalisation in pseudodata than in MC stack
-    result["pseudo_ttbarsignalPlusBbbar"] = Sample(
+    result["pseudo_ttbarDileptonPlusBbbar"] = Sample(
         "Pseudodata",
         kBlack,
         // 2 x TOP-14-016 (ATLAS+CMS combination)
@@ -58,7 +58,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     );
 
     
-    result["ttbarsignalPlusBbbar"] = Sample(
+    result["ttbarDileptonPlusBbbar"] = Sample(
         "t#bar{t}b#bar{b}",
         18,
         // TOP-14-016 (ATLAS+CMS combination)
@@ -71,7 +71,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         Sample::ttbb
     );
 
-    result["ttbarsignalPlusB"] = Sample(
+    result["ttbarDileptonPlusB"] = Sample(
         "t#bar{t}b",
         12,
         // TOP-14-016 (ATLAS+CMS combination)
@@ -84,7 +84,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         Sample::ttb
     );
 
-    result["ttbarsignalPlus2B"] = Sample(
+    result["ttbarDileptonPlus2B"] = Sample(
         "t#bar{t}2b",
         28,
         // TOP-14-016 (ATLAS+CMS combination)
@@ -99,7 +99,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         Sample::tt2b
     );
 
-    result["ttbarsignalPlusCcbar"] = Sample(
+    result["ttbarDileptonPlusCcbar"] = Sample(
         "t#bar{t} Other",
         23,
         // TOP-14-016 (ATLAS+CMS combination)
@@ -112,7 +112,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         Sample::ttcc
     );
 
-    result["ttbarsignalPlusOther"] = Sample(
+    result["ttbarDileptonPlusOther"] = Sample(
         "t#bar{t} Other",
         23,
         // TOP-14-016 (ATLAS+CMS combination)
@@ -638,11 +638,11 @@ std::vector<TString> SampleDefinitions::selectAndOrderSamples8TeV()
         "wwz",
         "zzz",
         "ttbarbkg",
-        "ttbarsignalPlusOther",
-        "ttbarsignalPlusCcbar",
-        "ttbarsignalPlus2B",
-        "ttbarsignalPlusB",
-        "ttbarsignalPlusBbbar",
+        "ttbarDileptonPlusOther",
+        "ttbarDileptonPlusCcbar",
+        "ttbarDileptonPlus2B",
+        "ttbarDileptonPlusB",
+        "ttbarDileptonPlusBbbar",
         "ttbargjets",
         "ttbarW",
         "ttbarZ",

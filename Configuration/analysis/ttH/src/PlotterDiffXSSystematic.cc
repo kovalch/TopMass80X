@@ -25,6 +25,7 @@
 #include <TF1.h>
 
 #include "PlotterDiffXSSystematic.h"
+#include "AnalysisConfig.h"
 #include "higgsUtils.h"
 #include "TheoryTopHistoReader.h"
 #include "../../common/include/sampleHelpers.h"
@@ -36,8 +37,10 @@
 
 
 PlotterDiffXSSystematic::PlotterDiffXSSystematic(const char* outputDir,
-                                     const std::map<Channel::Channel, std::map<Systematic::Systematic, std::map<TString, std::pair<TString, TString> > > >& inputFileLists):
+                                                 const AnalysisConfig& analysisConfig,
+                                                 const std::map<Channel::Channel, std::map<Systematic::Systematic, std::map<TString, std::pair<TString, TString> > > >& inputFileLists):
 outputDir_(outputDir),
+analysisConfig_(analysisConfig),
 inputFileLists_(inputFileLists),
 fileReader_(RootFileReader::getInstance()),
 inputDirTheoryTop_(tth::DATA_PATH_TTH() + "/" + "theoryPredictions"),
@@ -424,7 +427,7 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     
     updateHistoAxis(canvas);
     
-    common::drawCmsLabels(0, 8, 19.7);
+    common::drawCmsLabels(0, Era::energyInTev(analysisConfig_.general().era_), analysisConfig_.general().luminosity_/1000.);
     
     // Drawing ratios
     common::drawRatioPad(canvas, 0., double(nRatio_max_)-0.01, "#frac{Theory}{Data}");
