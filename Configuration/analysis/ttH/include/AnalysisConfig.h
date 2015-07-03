@@ -41,9 +41,15 @@ public:
         /// Print variables to screen
         void print()const;
         
-        /// Set pileup distribution file corresponding to data sample in use
+        /// Pileup distribution file corresponding to data sample in use
         /// The file ending is automatically adjusted for different systematics
         std::string pileupInputFile_;
+        
+        /// Pileup MC era
+        std::string pileupMcEra_;
+        
+        /// Pileup scenario
+        std::string pileupScenario_;
         
         /// File ending of dilepton trigger scale factors input file
         std::string triggerSFInputSuffix_;

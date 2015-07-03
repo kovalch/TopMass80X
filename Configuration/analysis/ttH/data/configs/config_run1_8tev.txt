@@ -19,6 +19,8 @@
 [ corrections ]
     
     pileupInputFile = Data_PUDist_Full2012ReReco_FinalRecommendation.root
+    pileupMcEra = Summer12
+    pileupScenario = S10
     
     triggerSFInputSuffix = _rereco198fb.root
     

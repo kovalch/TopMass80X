@@ -29,6 +29,8 @@ void AnalysisConfig::General::print()const
 
 AnalysisConfig::Corrections::Corrections():
 pileupInputFile_(""),
+pileupMcEra_(""),
+pileupScenario_(""),
 triggerSFInputSuffix_(""),
 electronSFInputFile_(""),
 muonSFInputFile_(""),
@@ -47,6 +49,8 @@ void AnalysisConfig::Corrections::print()const
 {
     std::cout<<"Beginning printing AnalysisConfig corrections\n"
              <<"\tpileup file: "<<pileupInputFile_<<"\n"
+             <<"\tpileup MC era: "<<pileupMcEra_<<"\n"
+             <<"\tpileup scenario: "<<pileupScenario_<<"\n"
              <<"\ttrigger SF suffix: "<<triggerSFInputSuffix_<<"\n"
              <<"\telectron SF file: "<<electronSFInputFile_<<"\n"
              <<"\tmuon SF file: "<<muonSFInputFile_<<"\n"
@@ -122,6 +126,8 @@ AnalysisConfig::AnalysisConfig(const std::string& configfilename)
     textfileReader.readFile(configfilename);
     textfileReader.setRequireValues(false);
     corrections_.pileupInputFile_ = textfileReader.getValue<std::string>("pileupInputFile", "");
+    corrections_.pileupMcEra_ = textfileReader.getValue<std::string>("pileupMcEra", "");
+    corrections_.pileupScenario_ = textfileReader.getValue<std::string>("pileupScenario", "");
     corrections_.triggerSFInputSuffix_ = textfileReader.getValue<std::string>("triggerSFInputSuffix", "");
     corrections_.electronSFInputFile_ = textfileReader.getValue<std::string>("electronSFInputFile", "");
     corrections_.muonSFInputFile_ = textfileReader.getValue<std::string>("muonSFInputFile", "");
