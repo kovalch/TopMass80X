@@ -29,6 +29,7 @@ enum cat             { kCR, kRad, kBoth};
 const int nKin = 17;
 
 TString sBinning[nKin] = {"TopPt", "TopEta", "B1Pt", "B1Eta", "TTBarMass", "TTBarPt", "DeltaRqq", "DeltaRbb", "HT", "NJet", "Q1Pt", "Q1Eta", "WPt", "WEta", "NVertex", "LeptonCharge", "Alpha"};
+bool paper[nKin] = {true, false, true, true, true, true, true, true, false, true, false, false, false, false, false, false, false};
 TString sData[nKin] = {"top_fitTop1_Pt__", "top_fitTop1_Eta__", "top_fitB1_Pt__", "top_fitB1_Eta__", "top_fitTTBar_M__", "top_fitTTBar_Pt__", "sqrt_pow_top_fitW1Prod1_Eta__-top_fitW1Prod2_Eta__2____pow_TVector2Phi_mpi_pi_top_fitW1Prod1_Phi__-top_fitW1Prod2_Phi___2__", "sqrt_pow_top_fitB1_Eta__-top_fitB2_Eta__2____pow_TVector2Phi_mpi_pi_top_fitB1_Phi__-top_fitB2_Phi___2__", "top_fitB1_Pt___top_fitB2_Pt___top_fitW1Prod1_Pt___top_fitW1Prod2_Pt__", "Max__Iteration___jet_jet_Pt___gt_30_____1", "top_fitW1Prod1_Pt__", "top_fitW1Prod1_Eta__", "top_fitW1_Pt__", "top_fitW1_Eta__", "weight_nVertex", "-top_leptonFlavour_abs_top_leptonFlavour_", "jet_jet_4__Pt____top_recoB1_0__Pt___top_recoB2_0__Pt____2"};
 TString sBinNice[nKin] = {"p_{T,t,had} [GeV]", "|#eta_{t,had}|", "p_{T,b,had} [GeV]", "|#eta_{b,had}|", "m_{t#bar{t}} [GeV]", "p_{T,t#bar{t}} [GeV]", "#DeltaR_{q#bar{q}}", "#DeltaR_{b#bar{b}}", "H_{T}^{4} [GeV]", "Number of jets", "p_{T,q} [GeV]", "|#eta_{q}|", "p_{T,W} [GeV]", "|#eta_{W}|", "N(PV)", "lepton charge", "#alpha"};
 TString sBinLatex[nKin] = {"$p_{\\rm T,t,had}$", "$\\left|\\eta_{\\rm t,had}\\right|$", "$p_{\\rm T,b,had}$", "$\\left|\\eta_{\\rm b,had}\\right|$", "$m_{\\ttbar}$", "$p_{\\rm T,\\ttbar}$", "$\\Delta R_{\\qqbar}$", "$\\Delta R_{\\bbbar}$", "$\\HT^{4}$", "Number of jets", "$p_{\\rm T,q,had}^{1}$", "$\\left|\\eta_{\\rm q,had}^{1}\\right|$", "$p_{\\rm T,W,had}$", "$\\left|\\eta_{\\rm W,had}\\right|$", "N(PV)", "lepton charge", "$\\alpha$"};
@@ -51,7 +52,7 @@ double crossSection   = 230;
 double peLumi         = 20000.;
 
 int channel = 2;
-bool doCalibration = false;
+bool doCalibration = true;
 
 struct resultContainer {
   TPad* pad;
@@ -161,7 +162,7 @@ void differentialMass(int iBinning = 12)
   samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJetsMS1755_1.00", "Mass up", kGray, 1, 40244328./1.2));
   //*/
   
-  //*
+  /*
   // FastSim samples
   samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJets1725_FSIM_parj81_nominal", "FSIM MG+MS", kRed, 2, 24439341./1.2));
   samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TT1725_FSIM_pythia8", "FSIM Pythia8", kGreen, 2, 26489020./1.2));
@@ -749,6 +750,7 @@ void differentialBatch() {
     double chi2_jes = 0.;
     double sum_ndf  = 0.;
     for (unsigned int b = 0; b < 14; ++b) {
+      if (!paper[b]) continue;
       printf("%s & %2.2f & %2.2f & %2.2f & %2.2f & %1.0f \\\\ \n", sBinLatex[b].Data(), chi2matrix[b][2][iSample], chi2matrix[b][3][iSample], chi2matrix[b][1][iSample], chi2matrix[b][4][iSample], chi2matrix[b][0][iSample]);
       
       chi2_m1d += chi2matrix[b][2][iSample];
