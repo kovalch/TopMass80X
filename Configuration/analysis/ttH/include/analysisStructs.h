@@ -92,29 +92,32 @@ namespace tth{
         bool isSwappedPairFromHiggs(const int& bIndex, const int& antiBIndex)const;
         bool isPairFromHiggs(const int& bIndex, const int& antiBIndex)const;
         
+        /// Whether reco objects were matched to gen objects
+        const bool genRecoMatched_;
+        
         #ifndef __CINT__
         const std::vector<int>& genJetIndices_;
         
         const std::vector<std::vector<int> >& genJetBhadronIndices_;
         const std::vector<int>& allGenBjetIndices_;
         const std::vector<int>& genBjetIndices_;
-        const std::vector<int>& genJetMatchedRecoBjetIndices_;
+        const std::vector<int> genJetMatchedRecoBjetIndices_;
         
         const std::vector<std::vector<int> >& genJetChadronIndices_;
         const std::vector<int>& allGenCjetIndices_;
         const std::vector<int>& genCjetIndices_;
-        const std::vector<int>& genJetMatchedRecoCjetIndices_;
+        const std::vector<int> genJetMatchedRecoCjetIndices_;
         
         const int& genBjetFromTopIndex_;
         const int& genAntiBjetFromTopIndex_;
-        const int& recoBjetFromTopIndex_;
-        const int& recoAntiBjetFromTopIndex_;
+        const int recoBjetFromTopIndex_;
+        const int recoAntiBjetFromTopIndex_;
         
         
         const int& genBjetFromHiggsIndex_;
         const int& genAntiBjetFromHiggsIndex_;
-        const int& recoBjetFromHiggsIndex_;
-        const int& recoAntiBjetFromHiggsIndex_;
+        const int recoBjetFromHiggsIndex_;
+        const int recoAntiBjetFromHiggsIndex_;
         #endif
     };
     
