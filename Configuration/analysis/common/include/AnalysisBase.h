@@ -183,20 +183,23 @@ protected:
     
 // ----------------------- Protected methods for event and object selection -----------------------
     
+    /// Select events from Drell-Yan samples which need to be removed due to generator selection
+    bool failsDrellYanGeneratorSelection(const std::vector<int>& v_zDecayMode)const;
+    
+    /// Check if event was triggered with the same dilepton trigger as the specified analysis channel
+    bool failsDileptonTrigger(const Long64_t& entry)const;
+    
+    /// Check if first primary vertex is good
+    bool firstVertexIsGood(const Long64_t& entry)const;
+    
     /// Check if opposite-charge dilepton combination exists,
     /// and check if lepton pair is correct flavour combination for the specified analysis channel (ee, emu, mumu)
     bool hasLeptonPair(const int leadingLeptonIndex, const int nLeadingLeptonIndex,
                        const std::vector<int>& lepPdgId)const;
     
-    /// Check if event was triggered with the same dilepton trigger as the specified analysis channel
-    bool failsDileptonTrigger(const Long64_t& entry)const;
-    
     /// Returns the b-tag discriminator cut value associated to the algorithm and working point set in the b-tag tool
     double btagCutValue()const;
     
-    /// Select events from Drell-Yan samples which need to be removed due to generator selection
-    bool failsDrellYanGeneratorSelection(const std::vector<int>& v_zDecayMode)const;
-
     
     
 // ----------------------- Protected methods for genJet selection, gen b/c jet identification and gen-reco jet matching -----------------------
@@ -411,6 +414,9 @@ private:
     /// Access event entry for nTuple branches for trigger bits
     void GetTriggerBranchesEntry(const Long64_t& entry)const;
     
+    /// Access event entry for nTuple branch for testing if first vertex is good
+    void GetFirstVertMultiEntry(const Long64_t& entry)const;
+    
     /// Access event entry for nTuple branch of true vertex multiplicity
     void GetVertMultiTrueEntry(const Long64_t& entry)const;
     
@@ -457,6 +463,9 @@ private:
     
     /// Set addresses of nTuple branches holding generator information for all MC samples
     void SetCommonGenBranchAddresses();
+    
+    /// Set address of nTuple branch for testing if first vertex is good
+    void SetFirstVertMultiBranchAddress();
     
     /// Set address of nTuple branch of true vertex multiplicity
     void SetVertMultiTrueBranchAddress();
@@ -535,6 +544,7 @@ private:
     TBranch* b_jetBTagJetProbability;
     TBranch* b_jetBTagJetBProbability;
     TBranch* b_jetBTagCSV;
+    TBranch* b_jetBTagCSVv2;
     TBranch* b_jetBTagCSVMVA;
     TBranch* b_jetChargeGlobalPtWeighted;
     TBranch* b_jetChargeRelativePtWeighted;
@@ -574,6 +584,10 @@ private:
     TBranch* b_associatedGenJetForMET;
     TBranch* b_jetPartonFlavour;
     TBranch* b_jetPartonFlavourForMET;
+    
+    
+    /// nTuple branch for testing if first vertex is good
+    TBranch* b_firstVertMulti;
     
     
     /// nTuple branch of true vertex multiplicity
@@ -694,6 +708,9 @@ private:
     UInt_t triggerBits_;
     //UInt_t triggerBitsTau_;
     //std::vector<std::string>* firedTriggers_;
+    
+    /// Variables associated to nTuple branch for testing if first vertex is good
+    Int_t firstVertMulti_;
     
     /// Variables associated to nTuple branch of true vertex multiplicity
     Int_t vertMultiTrue_;

@@ -232,6 +232,7 @@ void AnalysisBase::Init(TTree *tree)
     this->SetEventMetadataBranchAddresses();
     this->SetRecoBranchAddresses();
     this->SetTriggerBranchAddresses();
+    this->SetFirstVertMultiBranchAddress();
     if(isMC_) this->SetCommonGenBranchAddresses();
     if(isMC_) this->SetVertMultiTrueBranchAddress();
     if(isMC_) this->SetWeightGeneratorBranchAddress();
@@ -454,6 +455,7 @@ void AnalysisBase::clearBranches()
     b_jetBTagJetProbability = 0;
     b_jetBTagJetBProbability = 0;
     b_jetBTagCSV = 0;
+    b_jetBTagCSVv2 = 0;
     b_jetBTagCSVMVA = 0;
     b_jetChargeGlobalPtWeighted = 0;
     b_jetChargeRelativePtWeighted = 0;
@@ -493,6 +495,10 @@ void AnalysisBase::clearBranches()
     b_associatedGenJetForMET = 0;
     b_jetPartonFlavour = 0;
     b_jetPartonFlavourForMET = 0;
+    
+    
+    // nTuple branch for testing if first vertex is good
+    b_firstVertMulti = 0;
     
     
     // nTuple branch for true vertex multiplicity
@@ -603,20 +609,23 @@ void AnalysisBase::clearBranchVariables()
     //triggerBitsTau_ = 0;
     //firedTriggers_ = 0;
     
-    // Set values to null for true vertex multiplicity
-    vertMultiTrue_ = 0;
+    // Set values to dummy for true vertex multiplicity
+    firstVertMulti_ = -999;
     
-    // Set values to null for generator event weight
-    weightGenerator_ = 0;
+    // Set values to dummy for true vertex multiplicity
+    vertMultiTrue_ = -999;
+    
+    // Set values to dummy for generator event weight
+    weightGenerator_ = -999.;
     
     // Set values to null for PDF weight
     weightPDF_ = 0;
     
-    // Set values to null for Top decay branch
-    topDecayMode_ = 0;
+    // Set values to dummy for Top decay branch
+    topDecayMode_ = -999;
     
-    // Set values to null for Higgs decay branch
-    higgsDecayMode_ = 0;
+    // Set values to dummy for Higgs decay branch
+    higgsDecayMode_ = -999;
     
     // Set values to null for Z decay branch
     v_genZDecayMode_ = 0;
@@ -656,6 +665,7 @@ void AnalysisBase::SetRecoBranchAddresses()
     //chain_->SetBranchAddress("jetBTagJetProbability", &recoObjects_->jetBTagJetProbability_, &b_jetBTagJetProbability);
     //chain_->SetBranchAddress("jetBTagJetBProbability", &recoObjects_->jetBTagJetBProbability_, &b_jetBTagJetBProbability);
     chain_->SetBranchAddress("jetBTagCSV", &recoObjects_->jetBTagCSV_, &b_jetBTagCSV);
+    //chain_->SetBranchAddress("jetBTagCSVv2", &recoObjects_->jetBTagCSVv2_, &b_jetBTagCSVv2);
     //chain_->SetBranchAddress("jetBTagCSVMVA", &recoObjects_->jetBTagCSVMVA_, &b_jetBTagCSVMVA);
     if(chain_->GetBranch("jetChargeGlobalPtWeighted")) // new variable, keep check a while for compatibility
         chain_->SetBranchAddress("jetChargeGlobalPtWeighted", &recoObjects_->jetChargeGlobalPtWeighted_, &b_jetChargeGlobalPtWeighted);
@@ -737,6 +747,14 @@ void AnalysisBase::SetCommonGenBranchAddresses()
         chain_->SetBranchAddress("associatedGenJetForMET", &commonGenObjects_->associatedGenJetForMET_, &b_associatedGenJetForMET);
         //chain_->SetBranchAddress("jetPartonFlavourForMET", &commonGenObjects_->jetPartonFlavourForMET_, &b_jetPartonFlavourForMET);
     }
+}
+
+
+
+void AnalysisBase::SetFirstVertMultiBranchAddress()
+{
+    if(chain_->GetBranch("firstVertMulti")) // new variable, keep check a while for compatibility
+        chain_->SetBranchAddress("firstVertMulti", &firstVertMulti_, &b_firstVertMulti);
 }
 
 
@@ -932,6 +950,7 @@ void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
     //b_jetBTagJetProbability->GetEntry(entry);
     //b_jetBTagJetBProbability->GetEntry(entry);
     b_jetBTagCSV->GetEntry(entry);
+    //b_jetBTagCSVv2->GetEntry(entry);
     //b_jetBTagCSVMVA->GetEntry(entry);
     b_met->GetEntry(entry);
     b_vertMulti->GetEntry(entry);
@@ -990,6 +1009,13 @@ void AnalysisBase::GetCommonGenBranchesEntry(const Long64_t& entry)const
     b_jetPartonFlavour->GetEntry(entry);
     if(b_associatedGenJetForMET) b_associatedGenJetForMET->GetEntry(entry);
     //if(b_jetPartonFlavourForMET) b_jetPartonFlavourForMET->GetEntry(entry);
+}
+
+
+
+void AnalysisBase::GetFirstVertMultiEntry(const Long64_t& entry)const
+{
+    if(b_firstVertMulti) b_firstVertMulti->GetEntry(entry);
 }
 
 
@@ -1327,31 +1353,10 @@ void AnalysisBase::addRecoDoubles(const std::string& name, const std::vector<dou
 // ------------------------------------- Methods for event and object selection -------------------------------------
 
 
-double AnalysisBase::btagCutValue()const
-{
-    return static_cast<double>(btagScaleFactors_->getWPDiscrValue());
-}
-
-
-
 bool AnalysisBase::failsDrellYanGeneratorSelection(const std::vector<int>& v_zDecayMode)const
 {
     if(checkZDecayMode_ && !checkZDecayMode_(v_zDecayMode)) return true;
     return false;
-}
-
-
-
-bool AnalysisBase::hasLeptonPair(const int leadingLeptonIndex, const int nLeadingLeptonIndex,
-                                 const std::vector<int>& lepPdgId)const
-{
-    bool hasLeptonPair(false);
-    if(leadingLeptonIndex!=-1 && nLeadingLeptonIndex!=-1){
-        // Check if lepton pair is correct flavour combination for the specified analysis channel (ee, emu, mumu)
-        const int pdgIdProduct = lepPdgId.at(leadingLeptonIndex) * lepPdgId.at(nLeadingLeptonIndex);
-        if(pdgIdProduct == channelPdgIdProduct_) hasLeptonPair = true;
-    }
-    return hasLeptonPair;
 }
 
 
@@ -1372,6 +1377,38 @@ bool AnalysisBase::failsDileptonTrigger(const Long64_t& entry)const
         return false;
     }
     return true;
+}
+
+
+
+bool AnalysisBase::firstVertexIsGood(const Long64_t& entry)const
+{
+    this->GetFirstVertMultiEntry(entry);
+    
+    // If branch does not exist (value=-999), always return true
+    if(firstVertMulti_ == 0) return false;
+    return true;
+}
+
+
+
+bool AnalysisBase::hasLeptonPair(const int leadingLeptonIndex, const int nLeadingLeptonIndex,
+                                 const std::vector<int>& lepPdgId)const
+{
+    bool hasLeptonPair(false);
+    if(leadingLeptonIndex!=-1 && nLeadingLeptonIndex!=-1){
+        // Check if lepton pair is correct flavour combination for the specified analysis channel (ee, emu, mumu)
+        const int pdgIdProduct = lepPdgId.at(leadingLeptonIndex) * lepPdgId.at(nLeadingLeptonIndex);
+        if(pdgIdProduct == channelPdgIdProduct_) hasLeptonPair = true;
+    }
+    return hasLeptonPair;
+}
+
+
+
+double AnalysisBase::btagCutValue()const
+{
+    return static_cast<double>(btagScaleFactors_->getWPDiscrValue());
 }
 
 

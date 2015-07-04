@@ -75,7 +75,6 @@ void RecoObjects::clear()
     jetPfCandidatePrimaryVertexId_ = 0;
     met_ = 0;
     vertMulti_ = 0;
-    firstVertMulti_ = 0;
     
     m_userInts_.clear();
     m_userDoubles_.clear();

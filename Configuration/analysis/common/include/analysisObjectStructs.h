@@ -80,7 +80,6 @@ struct RecoObjects{
     std::vector<int>* jetSecondaryVertexTrackMatchToSelectedTrackIndex_;
     LV* met_;
     Int_t vertMulti_;
-    Int_t firstVertMulti_;
     
     // FIXME: Should probably be private, and access steered via functions which give errors with clear messages in case of mis-use
     std::map<std::string, std::vector<int> > m_userInts_;
