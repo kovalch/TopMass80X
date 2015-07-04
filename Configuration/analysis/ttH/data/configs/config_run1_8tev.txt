@@ -76,7 +76,7 @@
 
 [ plotStyle ]
     
-    cmsLabel = 1
+    cmsLabel = 0
     
 [ end -plotStyle ]
 

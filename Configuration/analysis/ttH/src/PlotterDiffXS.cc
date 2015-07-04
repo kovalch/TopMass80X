@@ -396,7 +396,7 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     updateHistoAxis(axisHisto);
     
     // Put additional stuff to histogram
-    common::drawCmsLabels(0, Era::energyInTev(analysisConfig_.general().era_), analysisConfig_.general().luminosity_/1000.);
+    common::drawCmsLabels(analysisConfig_.plotStyle().cmsLabel_, Era::energyInTev(analysisConfig_.general().era_), analysisConfig_.general().luminosity_/1000.);
     legend->Draw("same");
     common::drawRatioPad(canvas, 0., 2.4, "#frac{MC}{Data}");
     
@@ -781,7 +781,7 @@ void PlotterDiffXS::writeResponseMatrix(const Channel::Channel& channel, const S
     gPad->SetRightMargin(0.15);
     
     // Put additional stuff to histogram
-    common::drawCmsLabels(0, Era::energyInTev(analysisConfig_.general().era_), analysisConfig_.general().luminosity_/1000.);
+    common::drawCmsLabels(analysisConfig_.plotStyle().cmsLabel_, Era::energyInTev(analysisConfig_.general().era_), analysisConfig_.general().luminosity_/1000.);
 
     // Create Directory for Output Plots and write them
     const TString eventFileString = common::assignFolder(outputDir_, channel, systematic);
@@ -933,7 +933,7 @@ void PlotterDiffXS::drawPurityStability(TH2* histo2d, TString name)const
     leg->AddEntry(g_stability, "Stability", "p");
     leg->Draw();
     
-    common::drawCmsLabels(0, Era::energyInTev(analysisConfig_.general().era_), analysisConfig_.general().luminosity_/1000.);
+    common::drawCmsLabels(analysisConfig_.plotStyle().cmsLabel_, Era::energyInTev(analysisConfig_.general().era_), analysisConfig_.general().luminosity_/1000.);
     
     // Storing the same canvas with a different name
     gPad->Print(name);

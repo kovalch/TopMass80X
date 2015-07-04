@@ -224,8 +224,8 @@ void PlotterSystematic::writeVariations(const SystematicHistoMap& histoCollectio
     h_nominal->Draw("same E1 X0");
     legend->Draw();
     
-    common::drawCmsLabels(0, Era::energyInTev(analysisConfig_.general().era_), analysisConfig_.general().luminosity_/1000.);
-//     this->drawDecayChannelLabel(channel);
+    common::drawCmsLabels(analysisConfig_.plotStyle().cmsLabel_, Era::energyInTev(analysisConfig_.general().era_), analysisConfig_.general().luminosity_/1000.);
+    //this->drawDecayChannelLabel(channel);
     
     TString eventFileString = common::assignFolder(outputDir_, channel, Systematic::Systematic("Nominal"))+name_+"_"+processName+"_systematics";
     if(logY) eventFileString.Append("_logY");
@@ -287,7 +287,7 @@ void PlotterSystematic::writeNominalShapes(const std::map<TString, TH1*>& proces
     common::updatePadYAxisRange(canvas, logY, 0.35);
     updateHistoAxis(canvas);
     
-    common::drawCmsLabels(0, Era::energyInTev(analysisConfig_.general().era_), analysisConfig_.general().luminosity_/1000.);
+    common::drawCmsLabels(analysisConfig_.plotStyle().cmsLabel_, Era::energyInTev(analysisConfig_.general().era_), analysisConfig_.general().luminosity_/1000.);
     this->drawDecayChannelLabel(channel);
     
     // Saving the plot

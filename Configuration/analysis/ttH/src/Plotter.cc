@@ -398,7 +398,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     canvas->RedrawAxis();
     
     // Put additional stuff to histogram
-    common::drawCmsLabels(0, Era::energyInTev(analysisConfig_.general().era_), analysisConfig_.general().luminosity_/1000.);
+    common::drawCmsLabels(analysisConfig_.plotStyle().cmsLabel_, Era::energyInTev(analysisConfig_.general().era_), analysisConfig_.general().luminosity_/1000.);
     //this->drawTopLeftLabel(Channel::label(channel));
     //this->drawTopLeftLabel(Systematic::convertType(systematic.type())+=Systematic::convertVariation(systematic.variation()));
     for(TPaveText* label : significanceLabels) if(label) label->Draw("same");

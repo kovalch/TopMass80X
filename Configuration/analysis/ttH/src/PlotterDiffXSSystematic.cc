@@ -427,7 +427,7 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     
     updateHistoAxis(canvas);
     
-    common::drawCmsLabels(0, Era::energyInTev(analysisConfig_.general().era_), analysisConfig_.general().luminosity_/1000.);
+    common::drawCmsLabels(analysisConfig_.plotStyle().cmsLabel_, Era::energyInTev(analysisConfig_.general().era_), analysisConfig_.general().luminosity_/1000.);
     
     // Drawing ratios
     common::drawRatioPad(canvas, 0., double(nRatio_max_)-0.01, "#frac{Theory}{Data}");
