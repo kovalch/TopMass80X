@@ -60,7 +60,7 @@ void load_Analysis(const TString& validFilenamePattern,
                    const Long64_t& skipEvents)
 {
     // Read analysis config from text file
-    AnalysisConfig analysisConfig;
+    const AnalysisConfig analysisConfig;
     const AnalysisConfig::Corrections& corrections = analysisConfig.corrections();
     //analysisConfig.print();
     

@@ -8,6 +8,7 @@
 
 #include <TString.h>
 
+#include "AnalysisConfig.h"
 #include "Samples.h"
 #include "GlobalScaleFactors.h"
 #include "EventYields.h"
@@ -26,7 +27,7 @@ void HistoSystematic(const std::vector<std::string>& v_plot,
                      const std::vector<Systematic::Systematic>& v_systematic)
 {
     // Read analysis config from text file
-    AnalysisConfig analysisConfig;
+    const AnalysisConfig analysisConfig;
     
     // Set up systematic variations
     std::vector<Systematic::Variation> v_variation;

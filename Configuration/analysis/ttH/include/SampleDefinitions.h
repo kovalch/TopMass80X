@@ -20,10 +20,16 @@ namespace SampleDefinitions{
     typedef std::pair<int, std::set<TString> > ColorLegends;
     
     /// All sample definitions for 8 TeV
-    std::map<TString, Sample> samples8TeV();
+    std::map<TString, Sample> samples8TeV(const int mergeLevel);
     
     /// Select which samples for 8 TeV to use and in which order they should appear
-    std::vector<TString> selectAndOrderSamples8TeV();
+    std::vector<TString> selectAndOrderSamples8TeV(const int pseudodata);
+    
+    /// All sample definitions for 13 TeV
+    std::map<TString, Sample> samples13TeV(const int mergeLevel);
+    
+    /// Select which samples for 13 TeV to use and in which order they should appear
+    std::vector<TString> selectAndOrderSamples13TeV(const int pseudodata);
     
     /// Vector of legend names (used to properly order samples)
     std::vector<TString> legendList(const std::map<TString, Sample>& samples, const std::vector<TString>& sampleIdentifiers);

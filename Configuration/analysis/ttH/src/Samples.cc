@@ -10,6 +10,7 @@
 #include "Sample.h"
 #include "SampleDefinitions.h"
 #include "Samples.h"
+#include "AnalysisConfig.h"
 #include "GlobalScaleFactors.h"
 #include "higgsUtils.h"
 #include "../../common/include/sampleHelpers.h"
@@ -25,7 +26,7 @@ globalScaleFactors_(0)
 
 
 Samples::Samples(const TString& filelistDirectory,
-                 const Era::Era& era,
+                 const AnalysisConfig& analysisConfig,
                  const std::vector<Channel::Channel>& v_channel,
                  const std::vector<Systematic::Systematic>& v_systematic,
                  const GlobalScaleFactors* globalScaleFactors):
@@ -35,7 +36,7 @@ globalScaleFactors_(globalScaleFactors)
     
     for(const auto& systematic : v_systematic){
         for(const auto& channel : v_channel){
-            this->addSamples(filelistDirectory, era, channel, systematic);
+            this->addSamples(filelistDirectory, analysisConfig, channel, systematic);
         }
     }
     
@@ -125,7 +126,7 @@ std::vector<std::pair<TString, Sample> > Samples::setSamples(const std::vector<T
 
 
 void Samples::addSamples(const TString& filelistDirectory,
-                         const Era::Era& era,
+                         const AnalysisConfig& analysisConfig,
                          const Channel::Channel& channel,
                          const Systematic::Systematic& systematic)
 {
@@ -135,12 +136,16 @@ void Samples::addSamples(const TString& filelistDirectory,
     // Access samples according to analysis era
     std::map<TString, Sample> m_identifierSample;
     std::vector<TString> v_selectAndOrderSample;
+    const Era::Era era = analysisConfig.general().era_;
+    const int pseudodata = analysisConfig.sampleComposition().pseudodata_;
+    const int mergeLevel = analysisConfig.sampleComposition().mergeLevel_;
     if(era == Era::run1_8tev){
-        m_identifierSample = SampleDefinitions::samples8TeV();
-        v_selectAndOrderSample = SampleDefinitions::selectAndOrderSamples8TeV();
+        m_identifierSample = SampleDefinitions::samples8TeV(mergeLevel);
+        v_selectAndOrderSample = SampleDefinitions::selectAndOrderSamples8TeV(pseudodata);
     }
     else if(era==Era::run2_13tev_25ns || era==Era::run2_13tev_50ns){
-        
+        m_identifierSample = SampleDefinitions::samples13TeV(mergeLevel);
+        v_selectAndOrderSample = SampleDefinitions::selectAndOrderSamples13TeV(pseudodata);
     }
     else{
         std::cerr<<"Error in Samples::addSamples()! No SampleDefintions existing for given era\n...break\n"<<std::endl;

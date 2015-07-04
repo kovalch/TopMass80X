@@ -29,16 +29,15 @@ void Histo(const std::vector<std::string>& v_plot,
            const DrawMode::DrawMode& drawMode)
 {
     // Read analysis config from text file
-    AnalysisConfig analysisConfig;
-    const AnalysisConfig::General& general = analysisConfig.general();
+    const AnalysisConfig analysisConfig;
     
     // Set up scale factors
     const bool dyCorrection = std::find(v_globalCorrection.begin(), v_globalCorrection.end(), GlobalCorrection::dy) != v_globalCorrection.end();
     const bool ttbbCorrection = std::find(v_globalCorrection.begin(), v_globalCorrection.end(), GlobalCorrection::ttbb) != v_globalCorrection.end();
-    const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(general, v_channel, v_systematic, dyCorrection, ttbbCorrection, true);
+    const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(analysisConfig, v_channel, v_systematic, dyCorrection, ttbbCorrection, true);
     
     // Access all samples
-    const Samples samples("FileLists_plot", general.era_, v_channel, v_systematic, globalScaleFactors);
+    const Samples samples("FileLists_plot", analysisConfig, v_channel, v_systematic, globalScaleFactors);
     
     // Produce event yields
     const EventYields eventYields("EventYields", samples);
