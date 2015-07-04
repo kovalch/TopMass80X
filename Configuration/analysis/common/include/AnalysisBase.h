@@ -324,7 +324,7 @@ protected:
     KinematicReconstructionSolutions kinematicReconstructionSolutions(const int leptonIndex, const int antiLeptonIndex,
                                                                       const std::vector<int>& jetIndices, const std::vector<int>& bjetIndices,
                                                                       const VLV& allLeptons, const VLV& jets,
-                                                                      const std::vector<double>& jetBTagCSV, const LV& met)const;
+                                                                      const std::vector<double>& jetBtags, const LV& met)const;
     
     /// Get H_t of jets
     double getJetHT(const std::vector<int>& jetIndices, const VLV& jets)const;

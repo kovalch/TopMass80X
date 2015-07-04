@@ -1789,13 +1789,13 @@ double AnalysisBase::getJetHT(const std::vector<int>& jetIndices, const VLV& jet
 KinematicReconstructionSolutions AnalysisBase::kinematicReconstructionSolutions(const int leptonIndex, const int antiLeptonIndex,
                                                                                 const std::vector<int>& jetIndices, const std::vector<int>& bjetIndices,
                                                                                 const VLV& allLeptons, const VLV& jets,
-                                                                                const std::vector<double>& jetBTagCSV, const LV& met)const
+                                                                                const std::vector<double>& jetBtags, const LV& met)const
 {
     // If kinematic reconstruction is not initialised, do not run it but return dummy
     if(!kinematicReconstruction_) return KinematicReconstructionSolutions();
     
     return kinematicReconstruction_->solutions({leptonIndex}, {antiLeptonIndex}, jetIndices, bjetIndices,
-                                               allLeptons, jets, jetBTagCSV, met);
+                                               allLeptons, jets, jetBtags, met);
 }
 
 
