@@ -164,7 +164,10 @@ public:
         std::string print(const bool screen =false)const;
         
         /// CMS label
-        // FIXME: put here definitions of values
+        /// -1: none
+        ///  0: CMS
+        ///  1: CMS preliminary
+        ///  2: CMS private work
         int cmsLabel_;
     };
     
