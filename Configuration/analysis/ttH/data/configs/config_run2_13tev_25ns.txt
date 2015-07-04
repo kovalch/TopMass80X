@@ -19,6 +19,8 @@
 [ corrections ]
     
     pileupInputFile = 
+    pileupMcEra = 
+    pileupScenario = 
     
     triggerSFInputSuffix = 
     
@@ -60,6 +62,24 @@
     genDeltaRLeptonJetCut = -1.
     
 [ end - objectSelection ]
+
+
+
+[ sampleComposition ]
+    
+    pseudodata = 1
+    mergeLevel = 1
+    
+[ end - sampleComposition ]
+
+
+
+[ plotStyle ]
+    
+    cmsLabel = 0
+    
+[ end -plotStyle ]
+
 
 
 
