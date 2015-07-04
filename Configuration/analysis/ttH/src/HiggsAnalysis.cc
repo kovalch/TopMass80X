@@ -155,8 +155,8 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     std::string selectionStep("");
 
 
-    //===CUT===
-    // this is step0a, no cut application
+    // === CUT ===
+    // No cut application
     selectionStep = "0a";
     
     // Create dummies for objects, non-dummies are created only as soon as needed
@@ -186,8 +186,8 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     
     
-    //===CUT===
-    // this is step0b, select events on generator level and access true level weights
+    // === CUT ===
+    // Select events on generator level
     selectionStep = "0b";
     
     // Separate DY dilepton decays in lepton flavours
@@ -203,6 +203,22 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const int additionalJetFlavourId = this->additionalJetFlavourId(entry);
     if(this->failsAdditionalJetFlavourSelection(topDecayMode, additionalJetFlavourId)) return kTRUE;
     
+    // ++++ Control Plots ++++
+    
+    this->fillAll(selectionStep,
+                  eventMetadataDummy,
+                  recoObjectsDummy, commonGenObjectsDummy,
+                  topGenObjectsDummy, higgsGenObjectsDummy,
+                  kinematicReconstructionSolutionsDummy,
+                  genObjectIndicesDummy, recoObjectIndicesDummy,
+                  genLevelWeightsDummy, recoLevelWeightsDummy,
+                  1.);
+    
+    
+    
+    // === CUT ===
+    // No cut application, but select gen objects and access true level weights
+    selectionStep = "0";
     
     // All gen-level indices as needed in any part of analysis
     std::vector<int> genJetIndices;
@@ -271,11 +287,30 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     
     
-    //===CUT===
-    selectionStep = "1";
+    // === CUT ===
+    selectionStep = "1a";
     
     // Check if event was triggered with the same dilepton trigger as the specified analysis channel
     if(this->failsDileptonTrigger(entry)) return kTRUE;
+    
+    // ++++ Control Plots ++++
+    
+    this->fillAll(selectionStep,
+                  eventMetadataDummy,
+                  recoObjectsDummy, commonGenObjectsDummy,
+                  topGenObjectsForGenLevel, higgsGenObjectsDummy,
+                  kinematicReconstructionSolutionsDummy,
+                  genObjectIndicesForGenLevel, recoObjectIndicesDummy,
+                  genLevelWeights, recoLevelWeightsDummy,
+                  trueLevelWeight);
+    
+    
+    
+    // === CUT ===
+    selectionStep = "1";
+    
+    // Check if the first primary vertex is of good quality
+    if(!this->firstVertexIsGood()) return kTRUE;
     
     // All reco object indices as needed in any part of the analysis
     std::vector<int> allLeptonIndices;
@@ -352,7 +387,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     
     
-    //===CUT===
+    // === CUT ===
     selectionStep = "2";
     
     // we need an opposite-sign lepton pair matching the trigger selection...
@@ -373,7 +408,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     
     
-    //===CUT===
+    // === CUT ===
     selectionStep = "3";
     
     // ...with at least 20 GeV invariant mass
@@ -392,7 +427,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     
     
-    //=== CUT ===
+    // === CUT ===
     selectionStep = "4";
     
     // Exclude the Z window in analysis cutflow, but keep these events for Drell-Yan corrections
@@ -427,7 +462,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     
     
-    //=== CUT ===
+    // === CUT ===
     selectionStep = "5";
     
     // Require at least two jets
@@ -461,10 +496,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     
     
-    //=== CUT ===
+    // === CUT ===
     selectionStep = "6";
     
-    //Require MET > 40 GeV in non-emu channels
+    // Require MET > 40 GeV in non-emu channels
     if(!(hasMet || isEmu)) return kTRUE;
     
     // ++++ Z-window plots ++++
@@ -501,10 +536,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     
     
-    //=== CUT ===
+    // === CUT ===
     selectionStep = "7";
     
-    // Require at least one b tagged jet
+    // Require at least one b-tagged jet
     if(!hasBtag) return kTRUE;
     
     weightNoPileup *= weightBtagSF;

@@ -150,7 +150,7 @@ void load_Analysis(const TString& validFilenamePattern,
     
     // Set up event yield histograms
     AnalyzerEventYields* analyzerEventYields(0);
-    analyzerEventYields = new AnalyzerEventYields({"0a", "0b", "1", "2", "3", "4", "5", "6", "7", "4zWindow", "5zWindow", "6zWindow", "7zWindow"}, {"7"}, jetCategories);
+    analyzerEventYields = new AnalyzerEventYields({"0a", "0b", "0", "1a", "1", "2", "3", "4", "5", "6", "7", "4zWindow", "5zWindow", "6zWindow", "7zWindow"}, {"7"}, jetCategories);
     v_analyzer.push_back(analyzerEventYields);
     
     // Set up Drell-Yan scaling histograms
@@ -202,7 +202,7 @@ void load_Analysis(const TString& validFilenamePattern,
     // Set up DijetAnalyzer
     AnalyzerDijet* analyzerDijet(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::dijet) != v_analysisMode.end()){
-        analyzerDijet = new AnalyzerDijet("mvaOutput/Nominal/combined/weights/weights2d.root", "correct_step7_cate0_cate1_cate2_d144", "", {"0b"}, {"7"}, jetCategories, false, true);
+        analyzerDijet = new AnalyzerDijet("mvaOutput/Nominal/combined/weights/weights2d.root", "correct_step7_cate0_cate1_cate2_d144", "", {"0"}, {"7"}, jetCategories, false, true);
         v_analyzer.push_back(analyzerDijet);
         genStudiesTtbb = true;
     }
@@ -210,7 +210,7 @@ void load_Analysis(const TString& validFilenamePattern,
     // Set up event weight analyzer
     AnalyzerEventWeight* analyzerEventWeight(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::weight) != v_analysisMode.end()){
-        analyzerEventWeight = new AnalyzerEventWeight({"0b", "1", "2", "3", "4", "5", "6", "7"}, {"7"}, jetCategories);
+        analyzerEventWeight = new AnalyzerEventWeight({"0", "1", "2", "3", "4", "5", "6", "7"}, {"7"}, jetCategories);
         v_analyzer.push_back(analyzerEventWeight);
     }
     
