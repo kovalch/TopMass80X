@@ -33,6 +33,9 @@
 
 
 
+/// Analysis era
+constexpr Era::Era ERA = Era::run1_8tev;
+
 ///top production xsec in pb
 constexpr double TOPXSEC = 234.;
 
@@ -90,7 +93,7 @@ constexpr double GenDeltaRLeptonJetCUT = -1.;
 
 
 TopAnalysis::TopAnalysis():
-AnalysisBase(BtagALGO, BtagWP, MvaMET),
+AnalysisBase(ERA, BtagALGO, BtagWP, MvaMET),
 kinRecoOnTheFly_(false),
 doClosureTest_(false),
 closureFunction_(nullptr),

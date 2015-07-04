@@ -32,7 +32,10 @@
 
 
 HiggsAnalysis::HiggsAnalysis(const AnalysisConfig& analysisConfig, TTree*):
-AnalysisBase(analysisConfig.selections().btagAlgorithm_, analysisConfig.selections().btagWorkingPoint_, analysisConfig.selections().mvaMet_),
+AnalysisBase(analysisConfig.general().era_,
+             analysisConfig.selections().btagAlgorithm_,
+             analysisConfig.selections().btagWorkingPoint_,
+             analysisConfig.selections().mvaMet_),
 analysisConfig_(analysisConfig),
 inclusiveHiggsDecayMode_(-999),
 additionalBjetMode_(-999),

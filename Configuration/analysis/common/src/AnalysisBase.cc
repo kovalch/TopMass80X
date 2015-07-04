@@ -36,8 +36,11 @@
 // ------------------------------------- Basic TSelector methods for the processing of a sample -------------------------------------
 
 
-AnalysisBase::AnalysisBase(const Btag::Algorithm btagAlgorithm, const Btag::WorkingPoint btagWorkingPoint,
-                           const bool mvaMet, TTree*):
+AnalysisBase::AnalysisBase(const Era::Era era,
+                           const Btag::Algorithm btagAlgorithm,
+                           const Btag::WorkingPoint btagWorkingPoint,
+                           const bool mvaMet,
+                           TTree*):
 chain_(0),
 eventMetadata_(0),
 recoObjects_(0),
@@ -72,6 +75,9 @@ jetEnergyScaleScaleFactors_(0),
 btagScaleFactors_(0),
 topPtScaleFactors_(0),
 isSampleForBtagEfficiencies_(false),
+eeTriggers_(0),
+emuTriggers_(0),
+mumuTriggers_(0),
 btagAlgorithm_(btagAlgorithm),
 btagWorkingPoint_(btagWorkingPoint),
 mvaMet_(mvaMet),
@@ -81,6 +87,52 @@ trueLevelNoRenormalisationWeightSum_(0.)
 {
     this->clearBranches();
     this->clearBranchVariables();
+    
+    // Sanity checks of configuration
+    if(era == Era::run1_8tev){
+        if(btagAlgorithm != Btag::csv){
+            std::cerr<<"Error in constructor of AnalysisBase()! Specified era does not allow b-tagger (era, b-tagger): "
+                     <<Era::convert(era)<<" , "<<Btag::convertAlgorithm(btagAlgorithm)<<"\n...break\n"<<std::endl;
+            exit(55);
+        }
+    }
+    else if(era == Era::run2_13tev_50ns){
+        if(btagAlgorithm != Btag::csvv2){
+            std::cerr<<"Error in constructor of AnalysisBase()! Specified era does not allow b-tagger (era, b-tagger): "
+                     <<Era::convert(era)<<" , "<<Btag::convertAlgorithm(btagAlgorithm)<<"\n...break\n"<<std::endl;
+            exit(55);
+        }
+    }
+    else if(era == Era::run2_13tev_25ns){
+        if(btagAlgorithm != Btag::csvv2){
+            std::cerr<<"Error in constructor of AnalysisBase()! Specified era does not allow b-tagger (era, b-tagger): "
+                     <<Era::convert(era)<<" , "<<Btag::convertAlgorithm(btagAlgorithm)<<"\n...break\n"<<std::endl;
+            exit(55);
+        }
+    }
+    else{
+        std::cerr<<"Error in constructor of AnalysisBase()! Specified era invalid: "
+                 <<Era::convert(era)<<"\n...break\n"<<std::endl;
+        exit(55);
+    }
+    
+    // Set up trigger bits
+    if(era == Era::run1_8tev){
+        eeTriggers_ = 0x40000;
+        emuTriggers_ = 0x2000 + 0x4000;
+        mumuTriggers_ = 0x8 + 0x20;
+    }
+    else if(era == Era::run2_13tev_50ns){
+        // FIXME: Set proper values
+        eeTriggers_ = 0;
+        emuTriggers_ = 0;
+        mumuTriggers_ = 0;
+    }
+    else if(era == Era::run2_13tev_25ns){
+        eeTriggers_ = 0x40000;
+        emuTriggers_ = 0x800 + 0x100;
+        mumuTriggers_ = 0x20 + 0x1 + 0x4;
+    }
 }
 
 
@@ -1357,15 +1409,10 @@ bool AnalysisBase::failsDrellYanGeneratorSelection(const std::vector<int>& v_zDe
 bool AnalysisBase::failsDileptonTrigger(const Long64_t& entry)const
 {
     this->GetTriggerBranchesEntry(entry);
-
-    //our triggers (bits: see the ntuplewriter!)
-    constexpr int mumuTriggers = 0x8 + 0x20; //17/8 + 17Tr8
-    constexpr int emuTriggers = 0x2000 + 0x4000;
-    constexpr int eeTriggers = 0x40000;
-
-    if (((triggerBits_ & mumuTriggers) && channelPdgIdProduct_ == -13*13)     // mumu triggers in rightmost byte
-        || ((triggerBits_ & emuTriggers) && channelPdgIdProduct_ == -11*13)   // emu in 2nd byte
-        || ((triggerBits_ & eeTriggers) && channelPdgIdProduct_ == -11*11))  // ee in 3rd byte
+    
+    if (((triggerBits_ & mumuTriggers_) && channelPdgIdProduct_ == -13*13)     // mumu triggers in rightmost byte
+        || ((triggerBits_ & emuTriggers_) && channelPdgIdProduct_ == -11*13)   // emu in 2nd byte
+        || ((triggerBits_ & eeTriggers_) && channelPdgIdProduct_ == -11*11))   // ee in 3rd byte
     {
         return false;
     }

@@ -45,8 +45,11 @@ class AnalysisBase : public TSelector
 public:
 
     /// Constructor
-    AnalysisBase(const Btag::Algorithm btagAlgorithm, const Btag::WorkingPoint btagWorkingPoint,
-                 const bool mvaMet, TTree* =0);
+    AnalysisBase(const Era::Era era,
+                 const Btag::Algorithm btagAlgorithm,
+                 const Btag::WorkingPoint btagWorkingPoint,
+                 const bool mvaMet,
+                 TTree* =0);
 
     /// Destructor
     virtual ~AnalysisBase(){};
@@ -795,6 +798,15 @@ private:
     
     /// Whether the sample should be used for production of btag efficiencies
     bool isSampleForBtagEfficiencies_;
+    
+    /// Trigger bits for ee
+    int eeTriggers_;
+    
+    /// Trigger bits for emu
+    int emuTriggers_;
+    
+    /// Trigger bits for mumu
+    int mumuTriggers_;
     
     /// Specified b-tag algorithm
     const Btag::Algorithm btagAlgorithm_;
