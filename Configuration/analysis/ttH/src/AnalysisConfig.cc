@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 
 #include "AnalysisConfig.h"
 #include "../../common/include/TextfileReader.h"
@@ -16,13 +17,17 @@ luminosityUncertainty_(-999.)
 
 
 
-void AnalysisConfig::General::print()const
+std::string AnalysisConfig::General::print(const bool screen)const
 {
-    std::cout<<"Beginning printing AnalysisConfig general\n"
-             <<"\tera: "<<Era::convert(era_)<<"\n"
-             <<"\tluminosity: "<<luminosity_<<"\n"
-             <<"\tluminosity uncertainty: "<<luminosityUncertainty_<<"\n"
-             <<"Finishing printing AnalysisConfig general\n\n";
+    std::ostringstream ss;
+    ss<<"Beginning printing AnalysisConfig general\n"
+      <<"\tera: "<<Era::convert(era_)<<"\n"
+      <<"\tluminosity: "<<luminosity_<<"\n"
+      <<"\tluminosity uncertainty: "<<luminosityUncertainty_<<"\n"
+      <<"Finishing printing AnalysisConfig general\n\n";
+    const std::string s = ss.str();
+    if(screen) std::cout<<s;
+    return s;
 }
 
 
@@ -45,23 +50,27 @@ mvaMetRecoilMcFile_("")
 
 
 
-void AnalysisConfig::Corrections::print()const
+std::string AnalysisConfig::Corrections::print(const bool screen)const
 {
-    std::cout<<"Beginning printing AnalysisConfig corrections\n"
-             <<"\tpileup file: "<<pileupInputFile_<<"\n"
-             <<"\tpileup MC era: "<<pileupMcEra_<<"\n"
-             <<"\tpileup scenario: "<<pileupScenario_<<"\n"
-             <<"\ttrigger SF suffix: "<<triggerSFInputSuffix_<<"\n"
-             <<"\telectron SF file: "<<electronSFInputFile_<<"\n"
-             <<"\tmuon SF file: "<<muonSFInputFile_<<"\n"
-             <<"\tJER name: "<<jerUncertaintySourceName_<<"\n"
-             <<"\tJES file: "<<jesUncertaintySourceFile_<<"\n"
-             <<"\tb-tag correction mode: "<<Btag::convertCorrectionMode(btagCorrectionMode_)<<"\n"
-             <<"\tb-tag HF file: "<<btagHeavyFlavourFile_<<"\n"
-             <<"\tb-tag LF file: "<<btagLightFlavourFile_<<"\n"
-             <<"\tMVA MET recoil data file: "<<mvaMetRecoilDataFile_<<"\n"
-             <<"\tMVA MET recoil MC file: "<<mvaMetRecoilMcFile_<<"\n"
-             <<"Finishing printing AnalysisConfig corrections\n\n";
+    std::ostringstream ss;
+    ss<<"Beginning printing AnalysisConfig corrections\n"
+      <<"\tpileup file: "<<pileupInputFile_<<"\n"
+      <<"\tpileup MC era: "<<pileupMcEra_<<"\n"
+      <<"\tpileup scenario: "<<pileupScenario_<<"\n"
+      <<"\ttrigger SF suffix: "<<triggerSFInputSuffix_<<"\n"
+      <<"\telectron SF file: "<<electronSFInputFile_<<"\n"
+      <<"\tmuon SF file: "<<muonSFInputFile_<<"\n"
+      <<"\tJER name: "<<jerUncertaintySourceName_<<"\n"
+      <<"\tJES file: "<<jesUncertaintySourceFile_<<"\n"
+      <<"\tb-tag correction mode: "<<Btag::convertCorrectionMode(btagCorrectionMode_)<<"\n"
+      <<"\tb-tag HF file: "<<btagHeavyFlavourFile_<<"\n"
+      <<"\tb-tag LF file: "<<btagLightFlavourFile_<<"\n"
+      <<"\tMVA MET recoil data file: "<<mvaMetRecoilDataFile_<<"\n"
+      <<"\tMVA MET recoil MC file: "<<mvaMetRecoilMcFile_<<"\n"
+      <<"Finishing printing AnalysisConfig corrections\n\n";
+    const std::string s = ss.str();
+    if(screen) std::cout<<s;
+    return s;
 }
 
 
@@ -84,23 +93,67 @@ genDeltaRLeptonJetCut_(-999.)
 
 
 
-void AnalysisConfig::Selections::print()const
+std::string AnalysisConfig::Selections::print(const bool screen)const
 {
-    std::cout<<"Beginning printing AnalysisConfig selections\n"
-             <<"\tlepton eta: "<<leptonEtaCut_<<"\n"
-             <<"\tlepton pt: "<<leptonPtCut_<<"\n"
-             <<"\tjet eta: "<<jetEtaCut_<<"\n"
-             <<"\tjet pt: "<<jetPtCut_<<"\n"
-             <<"\tdeltaR(lepton, jet): "<<deltaRLeptonJetCut_<<"\n"
-             <<"\tleading 2 jet pt: "<<lead2JetPtCut_<<"\n"
-             <<"\tb-tag algorithm: "<<Btag::convertAlgorithm(btagAlgorithm_)<<"\n"
-             <<"\tb-tag working point: "<<Btag::convertWorkingPoint(btagWorkingPoint_)<<"\n"
-             <<"\tuse MVA MET: "<<mvaMet_<<"\n"
-             <<"\tMET et: "<<metCut_<<"\n"
-             <<"\tgenJet eta: "<<genJetEtaCut_<<"\n"
-             <<"\tgenJet pt: "<<genJetPtCut_<<"\n"
-             <<"\tdeltaR(genJet, genLepton): "<<genDeltaRLeptonJetCut_<<"\n"
-             <<"Finishing printing AnalysisConfig selections\n\n";
+    std::ostringstream ss;
+    ss<<"Beginning printing AnalysisConfig selections\n"
+      <<"\tlepton eta: "<<leptonEtaCut_<<"\n"
+      <<"\tlepton pt: "<<leptonPtCut_<<"\n"
+      <<"\tjet eta: "<<jetEtaCut_<<"\n"
+      <<"\tjet pt: "<<jetPtCut_<<"\n"
+      <<"\tdeltaR(lepton, jet): "<<deltaRLeptonJetCut_<<"\n"
+      <<"\tleading 2 jet pt: "<<lead2JetPtCut_<<"\n"
+      <<"\tb-tag algorithm: "<<Btag::convertAlgorithm(btagAlgorithm_)<<"\n"
+      <<"\tb-tag working point: "<<Btag::convertWorkingPoint(btagWorkingPoint_)<<"\n"
+      <<"\tuse MVA MET: "<<mvaMet_<<"\n"
+      <<"\tMET et: "<<metCut_<<"\n"
+      <<"\tgenJet eta: "<<genJetEtaCut_<<"\n"
+      <<"\tgenJet pt: "<<genJetPtCut_<<"\n"
+      <<"\tdeltaR(genJet, genLepton): "<<genDeltaRLeptonJetCut_<<"\n"
+      <<"Finishing printing AnalysisConfig selections\n\n";
+    const std::string s = ss.str();
+    if(screen) std::cout<<s;
+    return s;
+}
+
+
+
+AnalysisConfig::SampleComposition::SampleComposition():
+pseudodata_(0),
+mergeLevel_(0)
+{}
+
+
+
+std::string AnalysisConfig::SampleComposition::print(const bool screen)const
+{
+    std::ostringstream ss;
+    ss<<"Beginning printing AnalysisConfig sample composition\n"
+      <<"\tPseudodata: "<<pseudodata_<<"\n"
+      <<"\tMerge level: "<<mergeLevel_<<"\n"
+      <<"Finishing printing AnalysisConfig sample composition\n\n";
+    const std::string s = ss.str();
+    if(screen) std::cout<<s;
+    return s;
+}
+
+
+
+AnalysisConfig::PlotStyle::PlotStyle():
+cmsLabel_(0)
+{}
+
+
+
+std::string AnalysisConfig::PlotStyle::print(const bool screen)const
+{
+    std::ostringstream ss;
+    ss<<"Beginning printing AnalysisConfig plot style\n"
+      <<"\tCMS label: "<<cmsLabel_<<"\n"
+      <<"Finishing printing AnalysisConfig plot style\n\n";
+    const std::string s = ss.str();
+    if(screen) std::cout<<s;
+    return s;
 }
 
 
@@ -160,16 +213,37 @@ AnalysisConfig::AnalysisConfig(const std::string& configfilename)
     selections_.genDeltaRLeptonJetCut_ = textfileReader.getValue<double>("genDeltaRLeptonJetCut");
     textfileReader.clear();
     
+    // Read sample composition
+    textfileReader.setStartMarker("[ sampleComposition ]");
+    textfileReader.setEndMarker("[ end - sampleComposition ]");
+    textfileReader.readFile(configfilename);
+    sampleComposition_.pseudodata_ = textfileReader.getValue<int>("pseudodata");
+    sampleComposition_.mergeLevel_ = textfileReader.getValue<int>("mergeLevel");
+    textfileReader.clear();
+    
+    // Read plot style
+    textfileReader.setStartMarker("[ plotStyle ]");
+    textfileReader.setEndMarker("[ end - plotStyle ]");
+    textfileReader.readFile(configfilename);
+    plotStyle_.cmsLabel_ = textfileReader.getValue<int>("cmsLabel");
+    textfileReader.clear();
+    
     std::cout<<"=== Finishing setting up analysis config\n\n";
 }
 
 
 
-void AnalysisConfig::print()const
+std::string AnalysisConfig::print(const bool screen)const
 {
-    general_.print();
-    corrections_.print();
-    selections_.print();
+    std::ostringstream ss;
+    ss<<general_.print();
+    ss<<corrections_.print();
+    ss<<selections_.print();
+    ss<<sampleComposition_.print();
+    ss<<plotStyle_.print();
+    const std::string s = ss.str();
+    if(screen) std::cout<<s;
+    return s;
 }
 
 

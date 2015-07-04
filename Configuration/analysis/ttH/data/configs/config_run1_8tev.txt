@@ -65,4 +65,22 @@
 
 
 
+[ sampleComposition ]
+    
+    pseudodata = 0
+    mergeLevel = 1
+    
+[ end - sampleComposition ]
+
+
+
+[ plotStyle ]
+    
+    cmsLabel = 1
+    
+[ end -plotStyle ]
+
+
+
+
 
