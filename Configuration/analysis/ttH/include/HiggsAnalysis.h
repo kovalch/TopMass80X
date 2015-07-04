@@ -188,7 +188,7 @@ private:
     const JetCharge* jetCharge_;
     
     /// String containing event by event information for synchronisations
-    TString  eventInfo_;
+    std::string eventInfo_;
     
     /// All analysers of type AnalyzerBase
     std::vector<AnalyzerBase*> v_analyzer_;

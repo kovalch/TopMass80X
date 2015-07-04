@@ -45,7 +45,8 @@ class AnalysisBase : public TSelector
 public:
 
     /// Constructor
-    AnalysisBase(TTree* =0);
+    AnalysisBase(const Btag::Algorithm btagAlgorithm, const Btag::WorkingPoint btagWorkingPoint,
+                 const bool mvaMet, TTree* =0);
 
     /// Destructor
     virtual ~AnalysisBase(){};
@@ -190,19 +191,12 @@ protected:
     /// Check if event was triggered with the same dilepton trigger as the specified analysis channel
     bool failsDileptonTrigger(const Long64_t& entry)const;
     
-    /// Set the b-tag algoritm and working point used for b-tag corrections and also for the discriminator cut value
-    void setBtagAlgorithmAndWorkingPoint(const Btag::Algorithm& algorithm,
-                                         const Btag::WorkingPoint& workingPoint);
-    
     /// Returns the b-tag discriminator cut value associated to the algorithm and working point set in the b-tag tool
     double btagCutValue()const;
     
     /// Select events from Drell-Yan samples which need to be removed due to generator selection
     bool failsDrellYanGeneratorSelection(const std::vector<int>& v_zDecayMode)const;
 
-    /// Set usage of MVA MET instead of PF MET
-    void mvaMet();
-    
     
     
 // ----------------------- Protected methods for genJet selection, gen b/c jet identification and gen-reco jet matching -----------------------
@@ -793,8 +787,14 @@ private:
     /// Whether the sample should be used for production of btag efficiencies
     bool isSampleForBtagEfficiencies_;
     
+    /// Specified b-tag algorithm
+    const Btag::Algorithm btagAlgorithm_;
+    
+    /// Specified b-tag working point
+    const Btag::WorkingPoint btagWorkingPoint_;
+    
     /// Whether to use MVA MET
-    bool mvaMet_;
+    const bool mvaMet_;
     
     /// Pointer to the Met Recoil correction tools
     const MetRecoilCorrector* metRecoilCorrector_;

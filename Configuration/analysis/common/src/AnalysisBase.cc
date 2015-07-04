@@ -36,7 +36,8 @@
 // ------------------------------------- Basic TSelector methods for the processing of a sample -------------------------------------
 
 
-AnalysisBase::AnalysisBase(TTree*):
+AnalysisBase::AnalysisBase(const Btag::Algorithm btagAlgorithm, const Btag::WorkingPoint btagWorkingPoint,
+                           const bool mvaMet, TTree*):
 chain_(0),
 eventMetadata_(0),
 recoObjects_(0),
@@ -71,7 +72,9 @@ jetEnergyScaleScaleFactors_(0),
 btagScaleFactors_(0),
 topPtScaleFactors_(0),
 isSampleForBtagEfficiencies_(false),
-mvaMet_(false),
+btagAlgorithm_(btagAlgorithm),
+btagWorkingPoint_(btagWorkingPoint),
+mvaMet_(mvaMet),
 metRecoilCorrector_(0),
 trueLevelWeightSum_(0.),
 trueLevelNoRenormalisationWeightSum_(0.)
@@ -88,6 +91,7 @@ void AnalysisBase::Begin(TTree*)
     
     TSelector::Begin(0);
     
+    btagScaleFactors_->algorithmAndWorkingPoint(btagAlgorithm_, btagWorkingPoint_);
     eventCounter_ = 0;
 }
 
@@ -1323,14 +1327,6 @@ void AnalysisBase::addRecoDoubles(const std::string& name, const std::vector<dou
 // ------------------------------------- Methods for event and object selection -------------------------------------
 
 
-void AnalysisBase::setBtagAlgorithmAndWorkingPoint(const Btag::Algorithm& algorithm,
-                                                   const Btag::WorkingPoint& workingPoint)
-{
-    btagScaleFactors_->algorithmAndWorkingPoint(algorithm, workingPoint);
-}
-
-
-
 double AnalysisBase::btagCutValue()const
 {
     return static_cast<double>(btagScaleFactors_->getWPDiscrValue());
@@ -1376,13 +1372,6 @@ bool AnalysisBase::failsDileptonTrigger(const Long64_t& entry)const
         return false;
     }
     return true;
-}
-
-
-
-void AnalysisBase::mvaMet()
-{
-    mvaMet_ = true;
 }
 
 

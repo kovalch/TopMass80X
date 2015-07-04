@@ -90,15 +90,14 @@ constexpr double GenDeltaRLeptonJetCUT = -1.;
 
 
 TopAnalysis::TopAnalysis():
+AnalysisBase(BtagALGO, BtagWP, MvaMET),
 kinRecoOnTheFly_(false),
 doClosureTest_(false),
 closureFunction_(nullptr),
 closureMaxEvents_(0),
 runViaTau_(false),
 binnedControlPlots_(0)
-{
-    if(MvaMET) this->mvaMet();
-}
+{}
 
 
 
@@ -108,14 +107,10 @@ void TopAnalysis::Begin(TTree*)
     // Defaults from AnalysisBase
     AnalysisBase::Begin(0);
     
-    // Set b-tagging working point
-    this->setBtagAlgorithmAndWorkingPoint(BtagALGO, BtagWP);
-    
     // Set up selection steps of tree handlers
     for(TreeHandlerBase* treeHandler : v_treeHandler_){
         if(treeHandler) treeHandler->book();
     }
-    
 }
 
 

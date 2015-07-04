@@ -32,7 +32,7 @@
 
 
 HiggsAnalysis::HiggsAnalysis(const AnalysisConfig& analysisConfig, TTree*):
-AnalysisBase(),
+AnalysisBase(analysisConfig.selections().btagAlgorithm_, analysisConfig.selections().btagWorkingPoint_, analysisConfig.selections().mvaMet_),
 analysisConfig_(analysisConfig),
 inclusiveHiggsDecayMode_(-999),
 additionalBjetMode_(-999),
@@ -41,10 +41,8 @@ reweightingSlope_(0.0),
 genStudiesTtbb_(false),
 genStudiesTth_(false),
 jetCharge_(0),
-eventInfo_("")
-{
-    if(analysisConfig.selections().mvaMet_) this->mvaMet();
-}
+eventInfo_()
+{}
 
 
 
@@ -57,9 +55,6 @@ void HiggsAnalysis::Begin(TTree*)
 {
     // Defaults from AnalysisBase
     AnalysisBase::Begin(0);
-    
-    // Set b-tagging working point
-    this->setBtagAlgorithmAndWorkingPoint(analysisConfig_.selections().btagAlgorithm_, analysisConfig_.selections().btagWorkingPoint_);
     
     // Set up selection steps of MVA tree handlers
     for(MvaTreeHandlerBase* mvaTreeHandler : v_mvaTreeHandler_){
@@ -94,29 +89,25 @@ void HiggsAnalysis::Terminate()
     }
 
     // Write event-by-event information to text file for synchronisations
-    if (!std::string(this->eventInfo_.Data()).empty()){
-      
-      // Output file name
-      TString fileName = TString(this->systematic().name())+"_"+TString(Channel::convert(this->channel()))+"_"+TString(this->outputFilename()).ReplaceAll(".root","");
-      
-      // Create file directory structure with proper labeling
+    if(!eventInfo_.empty()){
+      // Create output file
+      const TString fileName = TString(this->systematic().name())+"_"+TString(Channel::convert(this->channel()))+"_"+TString(this->outputFilename()).ReplaceAll(".root", ".csv");
       TString outputFileString = common::assignFolder("synchronisation", this->channel(), this->systematic());
-      outputFileString.Append(fileName+".csv");
-      
+      outputFileString.Append(fileName);
       std::ofstream outputFile;
       outputFile.open(outputFileString, std::ios::app);
       
-      // File header for synchronisations (column labeling)
+      // File header (column labeling)
       outputFile << "run,lumi,event,is_SL,is_DL,lep1_pt,lep1_eta,lep1_phi,lep1_iso,lep1_pdgId,lep2_pt,"
                  << "lep2_eta,lep2_phi,lep2_iso,lep2_pdgId,jet1_pt,jet2_pt,jet3_pt,jet4_pt,jet1_CSVv2,"
                  << "jet2_CSVv2,jet3_CSVv2,jet4_CSVv2,MET_pt,MET_phi,n_jets,n_btags,bWeight,ttHFCategory" 
                  << "\n";
     
-      // Store event information to file
-      outputFile << this->eventInfo_ << std::endl;
+      // Write event information to file
+      outputFile << eventInfo_ << std::endl;
       
-      // Empty string and close file
-      this->eventInfo_ = "";
+      // Cleanup
+      eventInfo_.clear();
       outputFile.close();
     }
       
@@ -1263,7 +1254,7 @@ void HiggsAnalysis::eventByEventInfo(const EventMetadata& eventMetadata,
                     << "\n";
 
     // Store event information to string
-    this->eventInfo_.Append(eventInfoString.str());
+    eventInfo_.append(eventInfoString.str());
     
     return;
 }
