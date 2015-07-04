@@ -310,7 +310,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     selectionStep = "1";
     
     // Check if the first primary vertex is of good quality
-    if(!this->firstVertexIsGood()) return kTRUE;
+    if(!this->firstVertexIsGood(entry)) return kTRUE;
     
     // All reco object indices as needed in any part of the analysis
     std::vector<int> allLeptonIndices;
@@ -352,7 +352,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const VLV& jets = *recoObjects.jets_;
     const LV& met = *recoObjects.met_;
     const std::vector<int>& lepPdgId = *recoObjects.lepPdgId_;
-    const std::vector<double>& jetBTagCSV = *recoObjects.jetBTagCSV_;
+    const std::vector<double>& jetBtags = *recoObjects.jetBtags_;
     const std::vector<int>& jetPartonFlavour = *commonGenObjects.jetPartonFlavour_;
     
     // Bools relevant for selection steps
@@ -366,7 +366,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // Determine all reco level weights (lepton+trigger SFs only valid after requiring dilepton system)
     const double weightLeptonSF = this->weightLeptonSF(leadingLeptonIndex, nLeadingLeptonIndex, allLeptons, lepPdgId);
     const double weightTriggerSF = this->weightTriggerSF(leptonXIndex, leptonYIndex, allLeptons);
-    const double weightBtagSF = this->weightBtagSF(jetIndices, jets, jetPartonFlavour, jetBTagCSV);
+    const double weightBtagSF = this->weightBtagSF(jetIndices, jets, jetPartonFlavour, jetBtags);
     const double weightKinReco = this->weightKinReco();
     double weightNoPileup = trueLevelWeightNoPileup*weightTriggerSF*weightLeptonSF;
     double weight = weightNoPileup*weightPU;
@@ -528,7 +528,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                       weight);
         
         // Fill b-tagging efficiencies if required for given correction mode
-        this->fillBtagEfficiencyHistos(jetIndices, jetBTagCSV, jets, jetPartonFlavour, weight);
+        this->fillBtagEfficiencyHistos(jetIndices, jetBtags, jets, jetPartonFlavour, weight);
     }
     
     // In case of filling b-tagging efficiencies, do not process further steps
@@ -567,7 +567,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const EventMetadata eventMetadata = this->getEventMetadata(entry);
     
     // Access kinematic reconstruction info
-    const KinematicReconstructionSolutions kinematicReconstructionSolutions = this->kinematicReconstructionSolutions(leptonIndex, antiLeptonIndex, jetIndices, bjetIndices, allLeptons, jets, jetBTagCSV, met);
+    const KinematicReconstructionSolutions kinematicReconstructionSolutions = this->kinematicReconstructionSolutions(leptonIndex, antiLeptonIndex, jetIndices, bjetIndices, allLeptons, jets, jetBtags, met);
     //const bool hasSolution = kinematicReconstructionSolutions.numberOfSolutions();
     //std::cout<<"\n\n\nNew event - solutions(): "<<kinematicReconstructionSolutions.numberOfSolutions()<<"\n";
     //for(size_t iSolution = 0; iSolution < kinematicReconstructionSolutions.numberOfSolutions(); ++iSolution){
@@ -724,12 +724,12 @@ void HiggsAnalysis::recoObjectSelection(std::vector<int>& allLeptonIndices,
     // Get b-jet indices, apply selection cuts
     // and apply b-tag efficiency MC correction using random number based tag flipping (if requested correction mode is applied)
     // and order b-jets by btag discriminator (beginning with the highest value)
-    const std::vector<double>& jetBTagCSV = *recoObjects.jetBTagCSV_;
+    const std::vector<double>& jetBtags = *recoObjects.jetBtags_;
     const std::vector<int>& jetPartonFlavour = *commonGenObjects.jetPartonFlavour_;
     bjetIndices = jetIndices;
-    common::selectIndices(bjetIndices, jetBTagCSV, this->btagCutValue());
-    this->retagJets(bjetIndices, jetIndices, jets, jetPartonFlavour, jetBTagCSV);
-    common::orderIndices(bjetIndices, jetBTagCSV);
+    common::selectIndices(bjetIndices, jetBtags, this->btagCutValue());
+    this->retagJets(bjetIndices, jetIndices, jets, jetPartonFlavour, jetBtags);
+    common::orderIndices(bjetIndices, jetBtags);
     
     // In case of MVA MET apply recoil correction for Drell-Yan sample
     this->correctMvaMet(leptonIndex, antiLeptonIndex, allLeptons, numberOfJets, entry);
@@ -1201,79 +1201,77 @@ void HiggsAnalysis::eventByEventInfo(const EventMetadata& eventMetadata,
     // General event information
     eventInfoString << TString::Format("%d,%d,%d", eventMetadata.runNumber_, eventMetadata.lumiBlock_, eventMetadata.eventNumber_);
 
-    // Reco leptons object collection and information
+    // Reco lepton object collection and information
     const VLV& allLeptons = *recoObjects.allLeptons_;
-    const int& leadingLeptonIndex  = recoObjectIndices.leadingLeptonIndex_;
-    const int& nleadingLeptonIndex = recoObjectIndices.nLeadingLeptonIndex_;
-
-    const std::vector<int>& LeptonsPgdId = *recoObjects.lepPdgId_;
-    std::vector<double>& leptonPfIso = *recoObjects.lepPfIso_;
+    const std::vector<int>& lepPgdId = *recoObjects.lepPdgId_;
+    const std::vector<double>& lepPfIso = *recoObjects.lepPfIso_;
+    const int leadingLeptonIndex  = recoObjectIndices.leadingLeptonIndex_;
+    const int nleadingLeptonIndex = recoObjectIndices.nLeadingLeptonIndex_;
     
-    // Analysis type: single lepton (SL), double lepton (DL), or neither
-    if(leadingLeptonIndex > -1 && nleadingLeptonIndex > -1)
-        eventInfoString << "," << 0 << "," << 1;
-    else if(leadingLeptonIndex > -1 && nleadingLeptonIndex < 0)
-        eventInfoString << "," << 1 << "," << 0;
-    else
-        eventInfoString << "," << 0 << "," << 0;
+    // Analysis type: single lepton (SL), dilepton (DL), or neither
+    if(leadingLeptonIndex>-1 && nleadingLeptonIndex>-1) eventInfoString << "," << 0 << "," << 1;
+    else if(leadingLeptonIndex>-1 && nleadingLeptonIndex<0) eventInfoString << "," << 1 << "," << 0;
+    else eventInfoString << "," << 0 << "," << 0;
     
-    if (leadingLeptonIndex > -1 && nleadingLeptonIndex > -1) {
-        const LV& leadingleptons  = allLeptons.at(leadingLeptonIndex); 
-        const LV& nleadingleptons = allLeptons.at(nleadingLeptonIndex);
-        eventInfoString << std::setprecision(3) 
-                        << "," << leadingleptons.pt() 
-                        << "," << leadingleptons.eta()
-                        << "," << leadingleptons.phi()
-                        << "," << leptonPfIso.at(leadingLeptonIndex)
-                        << "," << LeptonsPgdId.at(leadingLeptonIndex)
-                        << "," << nleadingleptons.pt() 
-                        << "," << nleadingleptons.eta()
-                        << "," << nleadingleptons.phi()
-                        << "," << leptonPfIso.at(nleadingLeptonIndex)
-                        << "," << LeptonsPgdId.at(nleadingLeptonIndex);
+    // Leading lepton
+    if(leadingLeptonIndex > -1){
+        const LV& leadingLepton = allLeptons.at(leadingLeptonIndex); 
+        eventInfoString << std::setprecision(3)
+                        << "," << leadingLepton.pt()
+                        << "," << leadingLepton.eta()
+                        << "," << leadingLepton.phi()
+                        << "," << lepPfIso.at(leadingLeptonIndex)
+                        << "," << lepPgdId.at(leadingLeptonIndex);
     }
+    else{
+        eventInfoString <<","<<"-999"<<","<<"-999"<<","<<"-999"<<","<<"-999"<<","<<"-999";
+    }
+    
+    // Next-to-leading lepton
+    if(nleadingLeptonIndex > -1){
+        const LV& nLeadingLepton = allLeptons.at(nleadingLeptonIndex);
+        eventInfoString << std::setprecision(3)
+                        << "," << nLeadingLepton.pt()
+                        << "," << nLeadingLepton.eta()
+                        << "," << nLeadingLepton.phi()
+                        << "," << lepPfIso.at(nleadingLeptonIndex)
+                        << "," << lepPgdId.at(nleadingLeptonIndex);
+    }
+    else{
+        eventInfoString <<","<<"-999"<<","<<"-999"<<","<<"-999"<<","<<"-999"<<","<<"-999";
+    }
+    
         
-    // Reco jet object collection and information
+        
+    // Reco jet collection and information
     const VLV& allJets = *recoObjects.jets_;
-    const std::vector<int>& jetIdx = recoObjectIndices.jetIndices_;  // Selected jets (point to jets from allJets)
+    const std::vector<int>& jetIndices = recoObjectIndices.jetIndices_;
     
-    int nJets = 0;
-    size_t numJets = jetIdx.size() >= 4? 4 : jetIdx.size();
-    
-    for (size_t iJet = 0; iJet < numJets; ++iJet) {
-      
-      int jetIndex = jetIdx.at(iJet);
-      const LV& jets = allJets.at(jetIndex);
-      
-      eventInfoString << std::setprecision(3) << "," <<  jets.pt();
-      ++nJets;
+    // Jets, always fill 4 values, use dummy if less available
+    const size_t nJet = jetIndices.size()>=4 ? 4 : jetIndices.size();
+    for(size_t iJet = 0; iJet < nJet; ++iJet){
+        const int jetIndex = jetIndices.at(iJet);
+        const LV& jet = allJets.at(jetIndex);
+        eventInfoString << std::setprecision(3) << "," <<  jet.pt();
     }
-    
-    if (numJets < 4) {
-        size_t n = 4 - jetIdx.size();
-        for (size_t iJet = 0; iJet < n; ++iJet) {
-            eventInfoString << "," << "-999";
-        }
+    if(nJet < 4){
+        const size_t n = 4 - jetIndices.size();
+        for(size_t iJet = 0; iJet < n; ++iJet) eventInfoString << "," << "-999";
     }
     
     // Reco b-tagged jet collection and information
-    const std::vector<int>& bjetIdx = recoObjectIndices.bjetIndices_;  // B-tagged jets (point to jets from allJets);    
-    const std::vector<double>& jetBTagCSV = *recoObjects.jetBTagCSV_;
+    const std::vector<int>& bjetIndices = recoObjectIndices.bjetIndices_;
+    const std::vector<double>& jetBtags = *recoObjects.jetBtags_;
     
-    size_t numBjets = bjetIdx.size() >= 4 ? 4 : bjetIdx.size();
-    Int_t nBjets = bjetIdx.size();
-    
-    for (size_t iBjet = 0; iBjet < numBjets; ++iBjet) {
-        int bjetIndex = bjetIdx.at(iBjet);
-        eventInfoString  << std::setprecision(3) << "," << jetBTagCSV.at(bjetIndex);
+    // B-jets, always fill 4 values, use dummy if less available
+    size_t nBjet = bjetIndices.size()>=4 ? 4 : bjetIndices.size();
+    for(size_t iBjet = 0; iBjet < nBjet; ++iBjet){
+        const int bjetIndex = bjetIndices.at(iBjet);
+        eventInfoString  << std::setprecision(3) << "," << jetBtags.at(bjetIndex);
     }
-    
-    // If there is less than 4 b-jets fill remaing value with -999
-    if (numBjets < 4) {
-        size_t n = 4 - bjetIdx.size();
-        for (size_t iBjet = 0; iBjet < n; ++iBjet) {
-            eventInfoString << "," << "-999";
-        }
+    if(nBjet < 4){
+        const size_t n = 4 - bjetIndices.size();
+        for(size_t iBjet = 0; iBjet < n; ++iBjet) eventInfoString << "," << "-999";
     }
     
     // MET collection and information 
@@ -1282,10 +1280,10 @@ void HiggsAnalysis::eventByEventInfo(const EventMetadata& eventMetadata,
     eventInfoString << std::setprecision(3) 
                     << "," << met.pt()
                     << "," << met.phi()
-                    << "," << nJets
-                    << "," << nBjets
-                    << "," << recoLevelWeights.weightBtagSF_ //bWeight
-                    << "," << -999 //ttHFCategory 
+                    << "," << jetIndices.size()
+                    << "," << bjetIndices.size()
+                    << "," << recoLevelWeights.weightBtagSF_
+                    << "," << -999
                     << "\n";
 
     // Store event information to string

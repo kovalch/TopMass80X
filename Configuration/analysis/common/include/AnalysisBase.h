@@ -537,15 +537,7 @@ private:
     TBranch* b_lepDzVertex0;
     TBranch* b_lepTrigger;
     TBranch* b_jet;
-    TBranch* b_jetBTagTCHE;
-    TBranch* b_jetBTagTCHP;
-    TBranch* b_jetBTagSSVHE;
-    TBranch* b_jetBTagSSVHP;
-    TBranch* b_jetBTagJetProbability;
-    TBranch* b_jetBTagJetBProbability;
-    TBranch* b_jetBTagCSV;
-    TBranch* b_jetBTagCSVv2;
-    TBranch* b_jetBTagCSVMVA;
+    TBranch* b_jetBtags;
     TBranch* b_jetChargeGlobalPtWeighted;
     TBranch* b_jetChargeRelativePtWeighted;
     TBranch* b_jetPfCandidateTrack;

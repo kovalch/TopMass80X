@@ -448,15 +448,7 @@ void AnalysisBase::clearBranches()
     b_lepDzVertex0 = 0;
     b_lepTrigger = 0;
     b_jet = 0;
-    b_jetBTagTCHE = 0;
-    b_jetBTagTCHP = 0;
-    b_jetBTagSSVHE = 0;
-    b_jetBTagSSVHP = 0;
-    b_jetBTagJetProbability = 0;
-    b_jetBTagJetBProbability = 0;
-    b_jetBTagCSV = 0;
-    b_jetBTagCSVv2 = 0;
-    b_jetBTagCSVMVA = 0;
+    b_jetBtags = 0;
     b_jetChargeGlobalPtWeighted = 0;
     b_jetChargeRelativePtWeighted = 0;
     b_jetPfCandidateTrack = 0;
@@ -658,15 +650,24 @@ void AnalysisBase::SetRecoBranchAddresses()
         chain_->SetBranchAddress("lepDzVertex0", &recoObjects_->lepDzVertex0_, &b_lepDzVertex0);
     //chain_->SetBranchAddress("lepTrigger", &recoObjects_->lepTrigger_, &b_lepTrigger);
     chain_->SetBranchAddress("jets", &recoObjects_->jets_, &b_jet);
-    chain_->SetBranchAddress("jetBTagTCHE", &recoObjects_->jetBTagTCHE_, &b_jetBTagTCHE);
-    //chain_->SetBranchAddress("jetBTagTCHP", &recoObjects_->jetBTagTCHP_, &b_jetBTagTCHP);
-    chain_->SetBranchAddress("jetBTagSSVHE", &recoObjects_->jetBTagSSVHE_, &b_jetBTagSSVHE);
-    //chain_->SetBranchAddress("jetBTagSSVHP", &recoObjects_->jetBTagSSVHP_, &b_jetBTagSSVHP);
-    //chain_->SetBranchAddress("jetBTagJetProbability", &recoObjects_->jetBTagJetProbability_, &b_jetBTagJetProbability);
-    //chain_->SetBranchAddress("jetBTagJetBProbability", &recoObjects_->jetBTagJetBProbability_, &b_jetBTagJetBProbability);
-    chain_->SetBranchAddress("jetBTagCSV", &recoObjects_->jetBTagCSV_, &b_jetBTagCSV);
-    //chain_->SetBranchAddress("jetBTagCSVv2", &recoObjects_->jetBTagCSVv2_, &b_jetBTagCSVv2);
-    //chain_->SetBranchAddress("jetBTagCSVMVA", &recoObjects_->jetBTagCSVMVA_, &b_jetBTagCSVMVA);
+    if(btagAlgorithm_ == Btag::csv){
+        chain_->SetBranchAddress("jetBTagCSV", &recoObjects_->jetBtags_, &b_jetBtags);
+    }
+    else if(btagAlgorithm_ == Btag::csvv2){
+        chain_->SetBranchAddress("jetBTagCSVv2", &recoObjects_->jetBtags_, &b_jetBtags);
+    }
+    else{
+        //chain_->SetBranchAddress("jetBTagTCHE", &recoObjects_->jetBtags_, &b_jetBtags);
+        //chain_->SetBranchAddress("jetBTagTCHP", &recoObjects_->jetBtags_, &b_jetBtags);
+        //chain_->SetBranchAddress("jetBTagSSVHE", &recoObjects_->jetBtags_, &b_jetBtags);
+        //chain_->SetBranchAddress("jetBTagSSVHP", &recoObjects_->jetBtags_, &b_jetBtags);
+        //chain_->SetBranchAddress("jetBTagJetProbability", &recoObjects_->jetBtags_, &b_jetBtags);
+        //chain_->SetBranchAddress("jetBTagJetBProbability", &recoObjects_->jetBtags_, &b_jetBtags);
+        //chain_->SetBranchAddress("jetBTagCSVMVA", &recoObjects_->jetBtags_, &b_jetBtags);
+        std::cerr<<"ERROR in AnalysisBase::SetRecoBranchAddresses()! Requested b-tag algorithm not implemented: "
+                 <<Btag::convertAlgorithm(btagAlgorithm_)<<"\n...break\n"<<std::endl;
+        exit(237);
+    }
     if(chain_->GetBranch("jetChargeGlobalPtWeighted")) // new variable, keep check a while for compatibility
         chain_->SetBranchAddress("jetChargeGlobalPtWeighted", &recoObjects_->jetChargeGlobalPtWeighted_, &b_jetChargeGlobalPtWeighted);
     if(chain_->GetBranch("jetChargeRelativePtWeighted")) // new variable, keep check a while for compatibility
@@ -943,15 +944,7 @@ void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
     if(b_lepDzVertex0) b_lepDzVertex0->GetEntry(entry);
     //b_lepTrigger->GetEntry(entry);
     b_jet->GetEntry(entry);
-    //b_jetBTagTCHE->GetEntry(entry);
-    //b_jetBTagTCHP->GetEntry(entry);
-    //b_jetBTagSSVHE->GetEntry(entry);
-    //b_jetBTagSSVHP->GetEntry(entry);
-    //b_jetBTagJetProbability->GetEntry(entry);
-    //b_jetBTagJetBProbability->GetEntry(entry);
-    b_jetBTagCSV->GetEntry(entry);
-    //b_jetBTagCSVv2->GetEntry(entry);
-    //b_jetBTagCSVMVA->GetEntry(entry);
+    b_jetBtags->GetEntry(entry);
     b_met->GetEntry(entry);
     b_vertMulti->GetEntry(entry);
     // Reading of jetProperty branches can be switched off(on) by (un)commenting this line, but jetChargeRelativePtWeighted needs to exist always for ttH workflow

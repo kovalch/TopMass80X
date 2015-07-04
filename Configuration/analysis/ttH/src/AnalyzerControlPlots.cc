@@ -228,7 +228,7 @@ void AnalyzerControlPlots::fillHistos(const EventMetadata&,
         m_histogram.at("jet_pt")->Fill(jet.pt(), weight);
         m_histogram.at("jet_eta")->Fill(jet.eta(), weight);
         m_histogram.at("jet_phi")->Fill(jet.phi(), weight);
-        double btagDiscriminator = recoObjects.jetBTagCSV_->at(index);
+        double btagDiscriminator = recoObjects.jetBtags_->at(index);
         if(btagDiscriminator < -0.1) btagDiscriminator = -0.05;
         m_histogram.at("jet_btagDiscriminator")->Fill(btagDiscriminator, weight);
         if(btagDiscriminator < btagDiscriminator_min) btagDiscriminator_min = btagDiscriminator;
@@ -261,7 +261,7 @@ void AnalyzerControlPlots::fillHistos(const EventMetadata&,
         double pt1st = jet1st.pt();
         if(pt1st >= 500.) pt1st = 499.;
         m_histogram.at("jet1st_pt")->Fill(jet1st.pt());
-        double btagDiscriminator1st = recoObjects.jetBTagCSV_->at(index1st);
+        double btagDiscriminator1st = recoObjects.jetBtags_->at(index1st);
         if(btagDiscriminator1st < -0.1) btagDiscriminator1st = -0.09;
         m_histogram.at("jet1st_btagDiscriminator")->Fill(btagDiscriminator1st);
     }

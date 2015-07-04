@@ -44,15 +44,7 @@ void RecoObjects::clear()
     lepDzVertex0_ = 0;
     //lepTrigger_ = 0;
     jets_ = 0;
-    jetBTagTCHE_ = 0;
-    //jetBTagTCHP_ = 0;
-    jetBTagSSVHE_ = 0;
-    //jetBTagSSVHP_ = 0;
-    //jetBTagJetProbability_ = 0;
-    //jetBTagJetBProbability_ = 0;
-    jetBTagCSV_ = 0;
-    jetBTagCSVv2_ = 0;
-    //jetBTagCSVMVA_ = 0;
+    jetBtags_ = 0;
     jetChargeGlobalPtWeighted_ = 0;
     jetChargeRelativePtWeighted_ = 0;
     jetPfCandidateTrack_ = 0;

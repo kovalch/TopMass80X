@@ -49,15 +49,7 @@ struct RecoObjects{
     std::vector<double>* lepDzVertex0_;
     //std::vector<int>* lepTrigger_;
     VLV* jets_;
-    std::vector<double>* jetBTagTCHE_;
-    //std::vector<double>* jetBTagTCHP_;
-    std::vector<double>* jetBTagSSVHE_;
-    //std::vector<double>* jetBTagSSVHP_;
-    //std::vector<double>* jetBTagJetProbability_;
-    //std::vector<double>* jetBTagJetBProbability_;
-    std::vector<double>* jetBTagCSV_;
-    std::vector<double>* jetBTagCSVv2_;
-    //std::vector<double>* jetBTagCSVMVA_;
+    std::vector<double>* jetBtags_;
     std::vector<double>* jetChargeGlobalPtWeighted_;
     std::vector<double>* jetChargeRelativePtWeighted_;
     std::vector<LV>* jetPfCandidateTrack_;

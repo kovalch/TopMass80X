@@ -116,8 +116,8 @@ std::vector<MvaVariablesBase*> MvaVariablesTopJets::fillVariables(const tth::Rec
     const VLV& allLeptons(*recoObjects.allLeptons_);
     const VLV& jets(*recoObjects.jets_);
     const LV& met(*recoObjects.met_);
-    const std::vector<double>& jetBtag(*recoObjects.jetBTagCSV_);
-    const std::vector<double>& jetCharge(recoObjects.m_userDoubles_.at("jetCharges"));
+    const std::vector<double>& jetBtags(*recoObjects.jetBtags_);
+    const std::vector<double>& jetCharges(recoObjects.m_userDoubles_.at("jetCharges"));
     
     const LV& lepton(allLeptons.at(recoObjectIndices.leptonIndex_));
     const LV& antiLepton(allLeptons.at(recoObjectIndices.antiLeptonIndex_));
@@ -156,9 +156,9 @@ std::vector<MvaVariablesBase*> MvaVariablesTopJets::fillVariables(const tth::Rec
         // Variables for MVA
         const LV& bjet = jets.at(bIndex);
         const LV& antiBjet = jets.at(antiBIndex);
-        const double& bjetBtagDiscriminator = jetBtag.at(bIndex);
-        const double& antiBjetBtagDiscriminator = jetBtag.at(antiBIndex);
-        const double jetChargeDiff = jetCharge.at(antiBIndex) - jetCharge.at(bIndex);
+        const double& bjetBtagDiscriminator = jetBtags.at(bIndex);
+        const double& antiBjetBtagDiscriminator = jetBtags.at(antiBIndex);
+        const double jetChargeDiff = jetCharges.at(antiBIndex) - jetCharges.at(bIndex);
         if(jetChargeDiff<0. || jetChargeDiff>2.){
             std::cerr<<"ERROR! Difference in jet charge is (value = "<<jetChargeDiff
                      <<"), but definition allows only values in [0,2]\n...break\n"<<std::endl;
