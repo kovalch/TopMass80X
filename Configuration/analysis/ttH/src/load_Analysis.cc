@@ -87,18 +87,18 @@ void load_Analysis(const TString& validFilenamePattern,
                                                                                 corrections.pileupScenario_, systematic);
     
     // Set up lepton efficiency scale factors
-    const LeptonScaleFactors leptonScaleFactors(corrections.electronSFInputFile_.data(), corrections.muonSFInputFile_.data(), systematic);
+    const LeptonScaleFactors leptonScaleFactors(corrections.electronSFInputFile_, corrections.muonSFInputFile_, systematic);
     
     // Set up trigger efficiency scale factors
-    TriggerScaleFactors triggerScaleFactors(corrections.triggerSFInputSuffix_.data(), channels, systematic);
+    TriggerScaleFactors triggerScaleFactors(corrections.triggerSFInputSuffix_, channels, systematic);
     
     // Set up JER systematic scale factors (null-pointer means no application)
     const JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors(0);
-    if(systematic.type() == Systematic::jer) jetEnergyResolutionScaleFactors = new JetEnergyResolutionScaleFactors(corrections.jerUncertaintySourceName_.data(), systematic);
+    if(systematic.type() == Systematic::jer) jetEnergyResolutionScaleFactors = new JetEnergyResolutionScaleFactors(corrections.jerUncertaintySourceName_, systematic);
     
     // Set up JES systematic scale factors (null-pointer means no application)
     const JetEnergyScaleScaleFactors* jetEnergyScaleScaleFactors(0);
-    if(systematic.type() == Systematic::jes) jetEnergyScaleScaleFactors = new JetEnergyScaleScaleFactors(corrections.jesUncertaintySourceFile_.data(), systematic);
+    if(systematic.type() == Systematic::jes) jetEnergyScaleScaleFactors = new JetEnergyScaleScaleFactors(corrections.jesUncertaintySourceFile_, systematic);
     
     // Set up top-pt reweighting scale factors (null-pointer means no application)
     const TopPtScaleFactors* topPtScaleFactors(0);
@@ -397,7 +397,7 @@ void load_Analysis(const TString& validFilenamePattern,
         // Set up btag efficiency scale factors
         // This has to be done only after potentially setting systematic from file, since it is varied with signal systematics
         BtagScaleFactors btagScaleFactors("BTagEff", "selectionRoot/BTagEff",
-                                          corrections.btagHeavyFlavourFile_.data(), corrections.btagLightFlavourFile_.data(),
+                                          corrections.btagHeavyFlavourFile_, corrections.btagLightFlavourFile_,
                                           channels, systematicForBtagEfficiencies, corrections.btagCorrectionMode_);
         
         // Configure selector
