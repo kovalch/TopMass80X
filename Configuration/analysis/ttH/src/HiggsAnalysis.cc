@@ -671,33 +671,61 @@ void HiggsAnalysis::recoObjectSelection(std::vector<int>& allLeptonIndices,
     common::selectIndices(allLeptonIndices, allLeptons, common::LVpt, selections.leptonPtCut_);
     common::orderIndices(allLeptonIndices, allLeptons, common::LVpt);
     
-    // Get indices of leptons and antiLeptons separated by charge, and get the leading ones if they exist
+    // Select 2 leptons for dilepton system, if available
+    // In 8 TeV combine always highest-pt antilepton with highest-pt lepton
+    // In 13 TeV select from all leptons those with highest pt, independent of charge
     const std::vector<int>& lepPdgId = *recoObjects.lepPdgId_;
-    leptonIndices = allLeptonIndices;
-    antiLeptonIndices = allLeptonIndices;
-    common::selectIndices(leptonIndices, lepPdgId, 0);
-    common::selectIndices(antiLeptonIndices, lepPdgId, 0, false);
-    const int numberOfLeptons = leptonIndices.size();
-    const int numberOfAntiLeptons = antiLeptonIndices.size();
-    if(numberOfLeptons > 0) leptonIndex = leptonIndices.at(0);
-    if(numberOfAntiLeptons > 0) antiLeptonIndex = antiLeptonIndices.at(0);
-    
-    // In case of an existing opposite-charge dilepton system,
-    // get their indices for leading and next-to-leading lepton,
-    // and their indices in the right order for trigger scale factor
-    if(numberOfLeptons>0 && numberOfAntiLeptons>0){
-        // Indices for leading and next-to-leading lepton
-        leadingLeptonIndex = leptonIndex;
-        nLeadingLeptonIndex = antiLeptonIndex;
-        common::orderIndices(leadingLeptonIndex, nLeadingLeptonIndex, allLeptons, common::LVpt);
+    if(analysisConfig_.general().era_ == Era::run1_8tev){
+        // Get indices of leptons and antiLeptons separated by charge, and get the leading ones if they exist
+        leptonIndices = allLeptonIndices;
+        antiLeptonIndices = allLeptonIndices;
+        common::selectIndices(leptonIndices, lepPdgId, 0);
+        common::selectIndices(antiLeptonIndices, lepPdgId, 0, false);
+        const int numberOfLeptons = leptonIndices.size();
+        const int numberOfAntiLeptons = antiLeptonIndices.size();
+        if(numberOfLeptons > 0) leptonIndex = leptonIndices.at(0);
+        if(numberOfAntiLeptons > 0) antiLeptonIndex = antiLeptonIndices.at(0);
         
-        // Indices for trigger scale factor
-        // In ee and mumu channel leptonX must be the highest pt lepton, i.e. this is already correct
-        // In emu channel leptonX must be electron
-        leptonXIndex = leadingLeptonIndex;
-        leptonYIndex = nLeadingLeptonIndex;
-        if(std::abs(lepPdgId.at(leptonXIndex)) != std::abs(lepPdgId.at(leptonYIndex))){
-            common::orderIndices(leptonYIndex, leptonXIndex, lepPdgId, true);
+        // In case of an existing opposite-charge dilepton system,
+        // get their indices for leading and next-to-leading lepton,
+        // and their indices in the right order for trigger scale factor
+        if(numberOfLeptons>0 && numberOfAntiLeptons>0){
+            // Indices for leading and next-to-leading lepton
+            leadingLeptonIndex = leptonIndex;
+            nLeadingLeptonIndex = antiLeptonIndex;
+            common::orderIndices(leadingLeptonIndex, nLeadingLeptonIndex, allLeptons, common::LVpt);
+            
+            // Indices for trigger scale factor
+            // In ee and mumu channel leptonX must be the highest pt lepton, i.e. this is already correct
+            // In emu channel leptonX must be electron
+            leptonXIndex = leadingLeptonIndex;
+            leptonYIndex = nLeadingLeptonIndex;
+            if(std::abs(lepPdgId.at(leptonXIndex)) != std::abs(lepPdgId.at(leptonYIndex))){
+                common::orderIndices(leptonYIndex, leptonXIndex, lepPdgId, true);
+            }
+        }
+    }
+    else{
+        const int numberOfAllLeptons = allLeptonIndices.size();
+        // Get leading and next-to-leading lepton, and assign indices
+        if(numberOfAllLeptons > 0){
+            leadingLeptonIndex = allLeptonIndices.at(0);
+            if(lepPdgId.at(leadingLeptonIndex) > 0) leptonIndex = leadingLeptonIndex;
+            else antiLeptonIndex = leadingLeptonIndex;
+        }
+        if(numberOfAllLeptons > 1){
+            nLeadingLeptonIndex = allLeptonIndices.at(1);
+            if(lepPdgId.at(nLeadingLeptonIndex)>0 && leptonIndex<0) leptonIndex = nLeadingLeptonIndex;
+            else if(lepPdgId.at(nLeadingLeptonIndex)<0 && antiLeptonIndex<0) antiLeptonIndex = nLeadingLeptonIndex;
+            
+            // Indices for trigger scale factor
+            // In ee and mumu channel leptonX must be the highest pt lepton, i.e. this is already correct
+            // In emu channel leptonX must be electron
+            leptonXIndex = leadingLeptonIndex;
+            leptonYIndex = nLeadingLeptonIndex;
+            if(std::abs(lepPdgId.at(leptonXIndex)) != std::abs(lepPdgId.at(leptonYIndex))){
+                common::orderIndices(leptonYIndex, leptonXIndex, lepPdgId, true);
+            }
         }
     }
     
