@@ -629,7 +629,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     //                       kinematicReconstructionSolutions,
     //                       genObjectIndices, recoObjectIndices,
     //                       genLevelWeights, recoLevelWeights,
-    //                       weight, selectionStep);
+    //                       weight, additionalJetFlavourId, selectionStep);
 
     // ++++ Control Plots ++++
     
@@ -1196,7 +1196,7 @@ void HiggsAnalysis::eventByEventInfo(const EventMetadata& eventMetadata,
                                      const KinematicReconstructionSolutions&,
                                      const tth::GenObjectIndices&, const tth::RecoObjectIndices& recoObjectIndices,
                                      const tth::GenLevelWeights&, const tth::RecoLevelWeights& recoLevelWeights,
-                                     const double&, const std::string&)
+                                     const double&, const int additionalJetFlavourId, const std::string&)
 {
     // Store event information to string
     std::stringstream eventInfoString;
@@ -1286,7 +1286,7 @@ void HiggsAnalysis::eventByEventInfo(const EventMetadata& eventMetadata,
                     << "," << jetIndices.size()
                     << "," << bjetIndices.size()
                     << "," << recoLevelWeights.weightBtagSF_
-                    << "," << -999
+                    << "," << additionalJetFlavourId
                     << "\n";
 
     // Store event information to string

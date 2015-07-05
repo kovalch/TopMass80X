@@ -143,7 +143,7 @@ private:
                           const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                           const tth::GenObjectIndices& genObjectIndices, const tth::RecoObjectIndices& recoObjectIndices,
                           const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
-                          const double& defaultWeight, const std::string& stepShort);
+                          const double& defaultWeight, const int additionalJetFlavourId, const std::string& stepShort);
     
     /// Fill all analysers and histograms in one method
     void fillAll(const std::string& selectionStep,
