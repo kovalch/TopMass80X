@@ -71,7 +71,7 @@ void EventWeightMCSystematic::produce(edm::Event& evt, const edm::EventSetup& se
 }
 
 /////////////////////////////////////////////////////////////////////////////////
-
+#ifndef CMSSW_LEQ_5
 void EventWeightMCSystematic::endRun(edm::Run const& run, const edm::EventSetup& setup)
 {
     if(!printLHE_) return;
@@ -92,6 +92,6 @@ void EventWeightMCSystematic::endRun(edm::Run const& run, const edm::EventSetup&
 	edm::LogWarning ("EventWeightMCSystematic") << "Can't get LHE header!" ;
     }
 }
-
+#endif
 // Define this as a plug-in                                                                             
 DEFINE_FWK_MODULE(EventWeightMCSystematic);              

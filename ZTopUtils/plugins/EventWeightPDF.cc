@@ -92,7 +92,7 @@ void EventWeightPDF::produce(edm::Event& evt, const edm::EventSetup& setup)
 }
 
 /////////////////////////////////////////////////////////////////////////////////
-
+#ifndef CMSSW_LEQ_5
 void EventWeightPDF::endRun(edm::Run const& run, const edm::EventSetup& setup)
 {
     if(!printLHE_) return;
@@ -113,7 +113,7 @@ void EventWeightPDF::endRun(edm::Run const& run, const edm::EventSetup& setup)
 	edm::LogWarning ("EventWeightPDF") << "Can't get LHE header!" ;
     }
 }
-
+#endif
 
 // Define this as a plug-in                                                                             
 DEFINE_FWK_MODULE(EventWeightPDF);              
