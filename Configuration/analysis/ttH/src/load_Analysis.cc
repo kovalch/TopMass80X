@@ -17,6 +17,7 @@
 #include <Rtypes.h>
 
 #include "HiggsAnalysis.h"
+#include "AnalysisConfig.h"
 #include "analysisHelpers.h"
 #include "JetCategories.h"
 #include "JetCharge.h"
@@ -46,79 +47,6 @@
 
 
 
-/// Set pileup distribution file corresponding to data sample in use
-/// The file ending is automatically adjusted for different systematics
-//constexpr const char* PileupInputFILE = "Data_PUDist_19624pb.root";
-//constexpr const char* PileupInputFILE = "Data_PUDist_19789pb.root";
-constexpr const char* PileupInputFILE = "Data_PUDist_Full2012ReReco_FinalRecommendation.root";
-
-
-
-/// Input file for electron ID scale factor
-//constexpr const char* ElectronSFInputFILE = "ElectronSFtop12028.root";
-//constexpr const char* ElectronSFInputFILE = "ElectronSFtop12028_19fb.root";
-constexpr const char* ElectronSFInputFILE = "ElectronSF_198fbReReco.root";
-
-/// Input file for muon ID scale factor
-//constexpr const char* MuonSFInputFILE = "MuonSFtop12028.root";
-//constexpr const char* MuonSFInputFILE = "MuonSFtop12028_19fb.root";
-constexpr const char* MuonSFInputFILE = "MuonSF_198fbReReco.root";
-
-
-
-/// File ending of dilepton trigger scale factors input file
-//constexpr const char* TriggerSFInputSUFFIX = ".root";
-//constexpr const char* TriggerSFInputSUFFIX = "_19fb.root";
-constexpr const char* TriggerSFInputSUFFIX = "_rereco198fb.root";
-
-
-
-/// Source for the uncertainties associated to JER
-//constexpr const char* JerUncertaintySourceNAME = "jer2011";
-constexpr const char* JerUncertaintySourceNAME = "jer2012";
-
-
-
-/// File containing the uncertainties associated to JES
-//constexpr const char* JesUncertaintySourceFILE = "Fall12_V7_DATA_UncertaintySources_AK5PFchs.txt";
-//constexpr const char* JesUncertaintySourceFILE = "Summer13_V1_DATA_UncertaintySources_AK5PFchs.txt";
-//constexpr const char* JesUncertaintySourceFILE = "Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt";
-constexpr const char* JesUncertaintySourceFILE = "Summer13_V5_DATA_UncertaintySources_AK5PFchs.txt";
-
-
-
-/// The correction mode for the b-tagging
-//constexpr Btag::CorrectionMode BtagCorrectionMODE = Btag::noCorrection;
-//constexpr Btag::CorrectionMode BtagCorrectionMODE = Btag::randomNumberRetag;
-constexpr Btag::CorrectionMode BtagCorrectionMODE = Btag::discriminatorReweight;
-
-/// File for the official heavy flavour scale factors for b-tag discriminator reweighting
-constexpr const char* BtagHeavyFlavourFILE = "csv_rwt_hf_20pt_8_20_14.root";
-
-/// File for the official light flavour scale factors for b-tag discriminator reweighting
-constexpr const char* BtagLightFlavourFILE = "csv_rwt_lf_20pt_8_20_14.root";
-
-
-
-/// File containing the fits for the MVA MET recoil corrections in data
-constexpr const char* MvaMetRecoilDataFILE = "METrecoil_Fits_DataSummer2013.root";
-
-/// File containing the fits for the MVA MET recoil corrections in MC
-constexpr const char* MvaMetRecoilMcFILE = "METrecoil_Fits_MCSummer2013.root";
-
-
-
-/// Histogram containing the 2D distributions of MVA weights
-constexpr const char* Mva2dWeightsFILE = "mvaOutput/Nominal/combined/weights/weights2d.root";
-
-
-
-
-
-
-
-
-
 void load_Analysis(const TString& validFilenamePattern,
                    const int part,
                    const Channel::Channel& channel,
@@ -131,6 +59,11 @@ void load_Analysis(const TString& validFilenamePattern,
                    const Long64_t& maxEvents,
                    const Long64_t& skipEvents)
 {
+    // Read analysis config from text file
+    const AnalysisConfig analysisConfig;
+    const AnalysisConfig::Corrections& corrections = analysisConfig.corrections();
+    //analysisConfig.print();
+    
     // Set up the channels to run over
     std::vector<Channel::Channel> channels;
     if(channel != Channel::undefined) channels.push_back(channel);
@@ -150,21 +83,22 @@ void load_Analysis(const TString& validFilenamePattern,
     }
     
     // Set up pileup reweighter
-    const PileupScaleFactors* const pileupScaleFactors = new PileupScaleFactors(PileupInputFILE, "Summer12", "S10", systematic);
+    const PileupScaleFactors* const pileupScaleFactors = new PileupScaleFactors(corrections.pileupInputFile_, corrections.pileupMcEra_,
+                                                                                corrections.pileupScenario_, systematic);
     
     // Set up lepton efficiency scale factors
-    const LeptonScaleFactors leptonScaleFactors(ElectronSFInputFILE, MuonSFInputFILE, systematic);
+    const LeptonScaleFactors leptonScaleFactors(corrections.electronSFInputFile_, corrections.muonSFInputFile_, systematic);
     
     // Set up trigger efficiency scale factors
-    TriggerScaleFactors triggerScaleFactors(TriggerSFInputSUFFIX, channels, systematic);
+    TriggerScaleFactors triggerScaleFactors(corrections.triggerSFInputSuffix_, channels, systematic);
     
     // Set up JER systematic scale factors (null-pointer means no application)
     const JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors(0);
-    if(systematic.type() == Systematic::jer) jetEnergyResolutionScaleFactors = new JetEnergyResolutionScaleFactors(JerUncertaintySourceNAME, systematic);
+    if(systematic.type() == Systematic::jer) jetEnergyResolutionScaleFactors = new JetEnergyResolutionScaleFactors(corrections.jerUncertaintySourceName_, systematic);
     
     // Set up JES systematic scale factors (null-pointer means no application)
     const JetEnergyScaleScaleFactors* jetEnergyScaleScaleFactors(0);
-    if(systematic.type() == Systematic::jes) jetEnergyScaleScaleFactors = new JetEnergyScaleScaleFactors(JesUncertaintySourceFILE, systematic);
+    if(systematic.type() == Systematic::jes) jetEnergyScaleScaleFactors = new JetEnergyScaleScaleFactors(corrections.jesUncertaintySourceFile_, systematic);
     
     // Set up top-pt reweighting scale factors (null-pointer means no application)
     const TopPtScaleFactors* topPtScaleFactors(0);
@@ -216,7 +150,7 @@ void load_Analysis(const TString& validFilenamePattern,
     
     // Set up event yield histograms
     AnalyzerEventYields* analyzerEventYields(0);
-    analyzerEventYields = new AnalyzerEventYields({"0a", "0b", "1", "2", "3", "4", "5", "6", "7", "4zWindow", "5zWindow", "6zWindow", "7zWindow"}, {"7"}, jetCategories);
+    analyzerEventYields = new AnalyzerEventYields({"0a", "0b", "0", "1a", "1", "2", "3", "4", "5", "6", "7", "4zWindow", "5zWindow", "6zWindow", "7zWindow"}, {"7"}, jetCategories);
     v_analyzer.push_back(analyzerEventYields);
     
     // Set up Drell-Yan scaling histograms
@@ -268,7 +202,7 @@ void load_Analysis(const TString& validFilenamePattern,
     // Set up DijetAnalyzer
     AnalyzerDijet* analyzerDijet(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::dijet) != v_analysisMode.end()){
-        analyzerDijet = new AnalyzerDijet(Mva2dWeightsFILE, "correct_step7_cate0_cate1_cate2_d144", "", {"0b"}, {"7"}, jetCategories, false, true);
+        analyzerDijet = new AnalyzerDijet("mvaOutput/Nominal/combined/weights/weights2d.root", "correct_step7_cate0_cate1_cate2_d144", "", {"0"}, {"7"}, jetCategories, false, true);
         v_analyzer.push_back(analyzerDijet);
         genStudiesTtbb = true;
     }
@@ -276,7 +210,7 @@ void load_Analysis(const TString& validFilenamePattern,
     // Set up event weight analyzer
     AnalyzerEventWeight* analyzerEventWeight(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::weight) != v_analysisMode.end()){
-        analyzerEventWeight = new AnalyzerEventWeight({"0b", "1", "2", "3", "4", "5", "6", "7"}, {"7"}, jetCategories);
+        analyzerEventWeight = new AnalyzerEventWeight({"0", "1", "2", "3", "4", "5", "6", "7"}, {"7"}, jetCategories);
         v_analyzer.push_back(analyzerEventWeight);
     }
     
@@ -297,7 +231,7 @@ void load_Analysis(const TString& validFilenamePattern,
     // Set up MVA validation for top system jet assignment
     AnalyzerMvaTopJets* analyzerMvaTopJets(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::mvaTopA) != v_analysisMode.end()){
-        analyzerMvaTopJets = new AnalyzerMvaTopJets(Mva2dWeightsFILE, {"7"}, {"7"}, jetCategories);
+        analyzerMvaTopJets = new AnalyzerMvaTopJets("mvaOutput/Nominal/combined/weights/weights2d.root", {"7"}, {"7"}, jetCategories);
         v_analyzer.push_back(analyzerMvaTopJets);
     }
     
@@ -328,7 +262,7 @@ void load_Analysis(const TString& validFilenamePattern,
     
     
     // Set up the analysis
-    HiggsAnalysis* selector = new HiggsAnalysis();
+    HiggsAnalysis* selector = new HiggsAnalysis(analysisConfig);
     selector->SetAnalysisOutputBase("selectionRoot");
     selector->SetKinematicReconstruction(kinematicReconstruction, kinematicReconstructionScaleFactors);
     selector->SetJetCharge(jetCharge);
@@ -462,8 +396,9 @@ void load_Analysis(const TString& validFilenamePattern,
         
         // Set up btag efficiency scale factors
         // This has to be done only after potentially setting systematic from file, since it is varied with signal systematics
-        BtagScaleFactors btagScaleFactors("BTagEff", "selectionRoot/BTagEff", BtagHeavyFlavourFILE, BtagLightFlavourFILE,
-                                          channels, systematicForBtagEfficiencies, BtagCorrectionMODE);
+        BtagScaleFactors btagScaleFactors("BTagEff", "selectionRoot/BTagEff",
+                                          corrections.btagHeavyFlavourFile_, corrections.btagLightFlavourFile_,
+                                          channels, systematicForBtagEfficiencies, corrections.btagCorrectionMode_);
         
         // Configure selector
         selector->SetTopSignal(isTopSignal);
@@ -500,9 +435,9 @@ void load_Analysis(const TString& validFilenamePattern,
             
             // Split specific samples into subsamples and run the selector
             if(isDrellYan){ // For splitting of Drell-Yan sample in decay modes ee, mumu, tautau
-                if(selector->useMvaMet() && !metRecoilCorrector){
+                if(analysisConfig.selections().mvaMet_ && !metRecoilCorrector){
                     // Initialise recoil corrector for MVA MET in Drell-Yan samples (null-pointer means no application)
-                    metRecoilCorrector = new MetRecoilCorrector(MvaMetRecoilDataFILE, MvaMetRecoilMcFILE);
+                    metRecoilCorrector = new MetRecoilCorrector(corrections.mvaMetRecoilDataFile_, corrections.mvaMetRecoilMcFile_);
                     selector->SetMetRecoilCorrector(metRecoilCorrector);
                 }
                 if(part==0 || part==-1){ // output is DY->ee

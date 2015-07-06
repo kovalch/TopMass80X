@@ -25,6 +25,7 @@
 #include <TError.h>
 
 #include "PlotterDiffXS.h"
+#include "AnalysisConfig.h"
 #include "higgsUtils.h"
 #include "Samples.h"
 #include "DilepSVDFunctions.h"
@@ -38,9 +39,10 @@
 
 
 PlotterDiffXS::PlotterDiffXS(const char* outputDir,
-                             const Samples& samples,
-                             const double luminosity):
+                             const AnalysisConfig& analysisConfig,
+                             const Samples& samples):
 outputDir_(outputDir),
+analysisConfig_(analysisConfig),
 samples_(samples),
 fileReader_(RootFileReader::getInstance()),
 inputDirTheoryTop_(tth::DATA_PATH_TTH() + "/" + "theoryPredictions"),
@@ -62,8 +64,7 @@ sampleTypesTtbar_(std::vector<Sample::SampleType>(0)),
 YAxis_(""),
 XAxis_(""),
 logX_(false),
-logY_(false),
-luminosity_(luminosity)
+logY_(false)
 {
     // Suppress default info that canvas is printed
     gErrorIgnoreLevel = 1001;
@@ -395,7 +396,7 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     updateHistoAxis(axisHisto);
     
     // Put additional stuff to histogram
-    common::drawCmsLabels(0, 8, samples_.luminosityInInversePb()/1000.);
+    common::drawCmsLabels(analysisConfig_.plotStyle().cmsLabel_, Era::energyInTev(analysisConfig_.general().era_), analysisConfig_.general().luminosity_/1000.);
     legend->Draw("same");
     common::drawRatioPad(canvas, 0., 2.4, "#frac{MC}{Data}");
     
@@ -473,7 +474,7 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const std::map<TString, T
     TH1* h_ttbar_gen = m_inputHistos.at("ttbar_gen");
     
     // Initial values for the cross section calculation
-    const ValueError luminosity(luminosity_, 0.);
+    const ValueError luminosity(samples_.luminosityInInversePb(), 0.);
     const ValueError br_dilepton(0.06391, 0.00063);
     const ValueError xsection_tt_dilepton(241.5*br_dilepton.v, 8.5*br_dilepton.v);
 //     const ValueError xsection_tt_dilepton(234000.0*br_dilepton.v, 14290.0*br_dilepton.v);
@@ -780,7 +781,7 @@ void PlotterDiffXS::writeResponseMatrix(const Channel::Channel& channel, const S
     gPad->SetRightMargin(0.15);
     
     // Put additional stuff to histogram
-    common::drawCmsLabels(0, 8, samples_.luminosityInInversePb()/1000.);
+    common::drawCmsLabels(analysisConfig_.plotStyle().cmsLabel_, Era::energyInTev(analysisConfig_.general().era_), analysisConfig_.general().luminosity_/1000.);
 
     // Create Directory for Output Plots and write them
     const TString eventFileString = common::assignFolder(outputDir_, channel, systematic);
@@ -932,7 +933,7 @@ void PlotterDiffXS::drawPurityStability(TH2* histo2d, TString name)const
     leg->AddEntry(g_stability, "Stability", "p");
     leg->Draw();
     
-    common::drawCmsLabels(0, 8, samples_.luminosityInInversePb()/1000.);
+    common::drawCmsLabels(analysisConfig_.plotStyle().cmsLabel_, Era::energyInTev(analysisConfig_.general().era_), analysisConfig_.general().luminosity_/1000.);
     
     // Storing the same canvas with a different name
     gPad->Print(name);

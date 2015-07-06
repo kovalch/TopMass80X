@@ -36,7 +36,11 @@
 // ------------------------------------- Basic TSelector methods for the processing of a sample -------------------------------------
 
 
-AnalysisBase::AnalysisBase(TTree*):
+AnalysisBase::AnalysisBase(const Era::Era era,
+                           const Btag::Algorithm btagAlgorithm,
+                           const Btag::WorkingPoint btagWorkingPoint,
+                           const bool mvaMet,
+                           TTree*):
 chain_(0),
 eventMetadata_(0),
 recoObjects_(0),
@@ -71,13 +75,64 @@ jetEnergyScaleScaleFactors_(0),
 btagScaleFactors_(0),
 topPtScaleFactors_(0),
 isSampleForBtagEfficiencies_(false),
-mvaMet_(false),
+eeTriggers_(0),
+emuTriggers_(0),
+mumuTriggers_(0),
+btagAlgorithm_(btagAlgorithm),
+btagWorkingPoint_(btagWorkingPoint),
+mvaMet_(mvaMet),
 metRecoilCorrector_(0),
 trueLevelWeightSum_(0.),
 trueLevelNoRenormalisationWeightSum_(0.)
 {
     this->clearBranches();
     this->clearBranchVariables();
+    
+    // Sanity checks of configuration
+    if(era == Era::run1_8tev){
+        if(btagAlgorithm != Btag::csv){
+            std::cerr<<"Error in constructor of AnalysisBase()! Specified era does not allow b-tagger (era, b-tagger): "
+                     <<Era::convert(era)<<" , "<<Btag::convertAlgorithm(btagAlgorithm)<<"\n...break\n"<<std::endl;
+            exit(55);
+        }
+    }
+    else if(era == Era::run2_13tev_50ns){
+        if(btagAlgorithm != Btag::csvv2){
+            std::cerr<<"Error in constructor of AnalysisBase()! Specified era does not allow b-tagger (era, b-tagger): "
+                     <<Era::convert(era)<<" , "<<Btag::convertAlgorithm(btagAlgorithm)<<"\n...break\n"<<std::endl;
+            exit(55);
+        }
+    }
+    else if(era == Era::run2_13tev_25ns){
+        if(btagAlgorithm != Btag::csvv2){
+            std::cerr<<"Error in constructor of AnalysisBase()! Specified era does not allow b-tagger (era, b-tagger): "
+                     <<Era::convert(era)<<" , "<<Btag::convertAlgorithm(btagAlgorithm)<<"\n...break\n"<<std::endl;
+            exit(55);
+        }
+    }
+    else{
+        std::cerr<<"Error in constructor of AnalysisBase()! Specified era invalid: "
+                 <<Era::convert(era)<<"\n...break\n"<<std::endl;
+        exit(55);
+    }
+    
+    // Set up trigger bits
+    if(era == Era::run1_8tev){
+        eeTriggers_ = 0x40000;
+        emuTriggers_ = 0x2000 + 0x4000;
+        mumuTriggers_ = 0x8 + 0x20;
+    }
+    else if(era == Era::run2_13tev_50ns){
+        // FIXME: Set proper values
+        eeTriggers_ = 0;
+        emuTriggers_ = 0;
+        mumuTriggers_ = 0;
+    }
+    else if(era == Era::run2_13tev_25ns){
+        eeTriggers_ = 0x40000;
+        emuTriggers_ = 0x800 + 0x100;
+        mumuTriggers_ = 0x20 + 0x1 + 0x4;
+    }
 }
 
 
@@ -88,6 +143,7 @@ void AnalysisBase::Begin(TTree*)
     
     TSelector::Begin(0);
     
+    btagScaleFactors_->algorithmAndWorkingPoint(btagAlgorithm_, btagWorkingPoint_);
     eventCounter_ = 0;
 }
 
@@ -228,6 +284,7 @@ void AnalysisBase::Init(TTree *tree)
     this->SetEventMetadataBranchAddresses();
     this->SetRecoBranchAddresses();
     this->SetTriggerBranchAddresses();
+    this->SetFirstVertMultiBranchAddress();
     if(isMC_) this->SetCommonGenBranchAddresses();
     if(isMC_) this->SetVertMultiTrueBranchAddress();
     if(isMC_) this->SetWeightGeneratorBranchAddress();
@@ -443,14 +500,7 @@ void AnalysisBase::clearBranches()
     b_lepDzVertex0 = 0;
     b_lepTrigger = 0;
     b_jet = 0;
-    b_jetBTagTCHE = 0;
-    b_jetBTagTCHP = 0;
-    b_jetBTagSSVHE = 0;
-    b_jetBTagSSVHP = 0;
-    b_jetBTagJetProbability = 0;
-    b_jetBTagJetBProbability = 0;
-    b_jetBTagCSV = 0;
-    b_jetBTagCSVMVA = 0;
+    b_jetBtags = 0;
     b_jetChargeGlobalPtWeighted = 0;
     b_jetChargeRelativePtWeighted = 0;
     b_jetPfCandidateTrack = 0;
@@ -489,6 +539,10 @@ void AnalysisBase::clearBranches()
     b_associatedGenJetForMET = 0;
     b_jetPartonFlavour = 0;
     b_jetPartonFlavourForMET = 0;
+    
+    
+    // nTuple branch for testing if first vertex is good
+    b_firstVertMulti = 0;
     
     
     // nTuple branch for true vertex multiplicity
@@ -599,20 +653,23 @@ void AnalysisBase::clearBranchVariables()
     //triggerBitsTau_ = 0;
     //firedTriggers_ = 0;
     
-    // Set values to null for true vertex multiplicity
-    vertMultiTrue_ = 0;
+    // Set values to dummy for true vertex multiplicity
+    firstVertMulti_ = -999;
     
-    // Set values to null for generator event weight
-    weightGenerator_ = 0;
+    // Set values to dummy for true vertex multiplicity
+    vertMultiTrue_ = -999;
+    
+    // Set values to dummy for generator event weight
+    weightGenerator_ = -999.;
     
     // Set values to null for PDF weight
     weightPDF_ = 0;
     
-    // Set values to null for Top decay branch
-    topDecayMode_ = 0;
+    // Set values to dummy for Top decay branch
+    topDecayMode_ = -999;
     
-    // Set values to null for Higgs decay branch
-    higgsDecayMode_ = 0;
+    // Set values to dummy for Higgs decay branch
+    higgsDecayMode_ = -999;
     
     // Set values to null for Z decay branch
     v_genZDecayMode_ = 0;
@@ -645,14 +702,24 @@ void AnalysisBase::SetRecoBranchAddresses()
         chain_->SetBranchAddress("lepDzVertex0", &recoObjects_->lepDzVertex0_, &b_lepDzVertex0);
     //chain_->SetBranchAddress("lepTrigger", &recoObjects_->lepTrigger_, &b_lepTrigger);
     chain_->SetBranchAddress("jets", &recoObjects_->jets_, &b_jet);
-    chain_->SetBranchAddress("jetBTagTCHE", &recoObjects_->jetBTagTCHE_, &b_jetBTagTCHE);
-    //chain_->SetBranchAddress("jetBTagTCHP", &recoObjects_->jetBTagTCHP_, &b_jetBTagTCHP);
-    chain_->SetBranchAddress("jetBTagSSVHE", &recoObjects_->jetBTagSSVHE_, &b_jetBTagSSVHE);
-    //chain_->SetBranchAddress("jetBTagSSVHP", &recoObjects_->jetBTagSSVHP_, &b_jetBTagSSVHP);
-    //chain_->SetBranchAddress("jetBTagJetProbability", &recoObjects_->jetBTagJetProbability_, &b_jetBTagJetProbability);
-    //chain_->SetBranchAddress("jetBTagJetBProbability", &recoObjects_->jetBTagJetBProbability_, &b_jetBTagJetBProbability);
-    chain_->SetBranchAddress("jetBTagCSV", &recoObjects_->jetBTagCSV_, &b_jetBTagCSV);
-    //chain_->SetBranchAddress("jetBTagCSVMVA", &recoObjects_->jetBTagCSVMVA_, &b_jetBTagCSVMVA);
+    if(btagAlgorithm_ == Btag::csv){
+        chain_->SetBranchAddress("jetBTagCSV", &recoObjects_->jetBtags_, &b_jetBtags);
+    }
+    else if(btagAlgorithm_ == Btag::csvv2){
+        chain_->SetBranchAddress("jetBTagCSVv2", &recoObjects_->jetBtags_, &b_jetBtags);
+    }
+    else{
+        //chain_->SetBranchAddress("jetBTagTCHE", &recoObjects_->jetBtags_, &b_jetBtags);
+        //chain_->SetBranchAddress("jetBTagTCHP", &recoObjects_->jetBtags_, &b_jetBtags);
+        //chain_->SetBranchAddress("jetBTagSSVHE", &recoObjects_->jetBtags_, &b_jetBtags);
+        //chain_->SetBranchAddress("jetBTagSSVHP", &recoObjects_->jetBtags_, &b_jetBtags);
+        //chain_->SetBranchAddress("jetBTagJetProbability", &recoObjects_->jetBtags_, &b_jetBtags);
+        //chain_->SetBranchAddress("jetBTagJetBProbability", &recoObjects_->jetBtags_, &b_jetBtags);
+        //chain_->SetBranchAddress("jetBTagCSVMVA", &recoObjects_->jetBtags_, &b_jetBtags);
+        std::cerr<<"ERROR in AnalysisBase::SetRecoBranchAddresses()! Requested b-tag algorithm not implemented: "
+                 <<Btag::convertAlgorithm(btagAlgorithm_)<<"\n...break\n"<<std::endl;
+        exit(237);
+    }
     if(chain_->GetBranch("jetChargeGlobalPtWeighted")) // new variable, keep check a while for compatibility
         chain_->SetBranchAddress("jetChargeGlobalPtWeighted", &recoObjects_->jetChargeGlobalPtWeighted_, &b_jetChargeGlobalPtWeighted);
     if(chain_->GetBranch("jetChargeRelativePtWeighted")) // new variable, keep check a while for compatibility
@@ -733,6 +800,14 @@ void AnalysisBase::SetCommonGenBranchAddresses()
         chain_->SetBranchAddress("associatedGenJetForMET", &commonGenObjects_->associatedGenJetForMET_, &b_associatedGenJetForMET);
         //chain_->SetBranchAddress("jetPartonFlavourForMET", &commonGenObjects_->jetPartonFlavourForMET_, &b_jetPartonFlavourForMET);
     }
+}
+
+
+
+void AnalysisBase::SetFirstVertMultiBranchAddress()
+{
+    if(chain_->GetBranch("firstVertMulti")) // new variable, keep check a while for compatibility
+        chain_->SetBranchAddress("firstVertMulti", &firstVertMulti_, &b_firstVertMulti);
 }
 
 
@@ -921,14 +996,7 @@ void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
     if(b_lepDzVertex0) b_lepDzVertex0->GetEntry(entry);
     //b_lepTrigger->GetEntry(entry);
     b_jet->GetEntry(entry);
-    //b_jetBTagTCHE->GetEntry(entry);
-    //b_jetBTagTCHP->GetEntry(entry);
-    //b_jetBTagSSVHE->GetEntry(entry);
-    //b_jetBTagSSVHP->GetEntry(entry);
-    //b_jetBTagJetProbability->GetEntry(entry);
-    //b_jetBTagJetBProbability->GetEntry(entry);
-    b_jetBTagCSV->GetEntry(entry);
-    //b_jetBTagCSVMVA->GetEntry(entry);
+    b_jetBtags->GetEntry(entry);
     b_met->GetEntry(entry);
     b_vertMulti->GetEntry(entry);
     // Reading of jetProperty branches can be switched off(on) by (un)commenting this line, but jetChargeRelativePtWeighted needs to exist always for ttH workflow
@@ -986,6 +1054,13 @@ void AnalysisBase::GetCommonGenBranchesEntry(const Long64_t& entry)const
     b_jetPartonFlavour->GetEntry(entry);
     if(b_associatedGenJetForMET) b_associatedGenJetForMET->GetEntry(entry);
     //if(b_jetPartonFlavourForMET) b_jetPartonFlavourForMET->GetEntry(entry);
+}
+
+
+
+void AnalysisBase::GetFirstVertMultiEntry(const Long64_t& entry)const
+{
+    if(b_firstVertMulti) b_firstVertMulti->GetEntry(entry);
 }
 
 
@@ -1323,25 +1398,36 @@ void AnalysisBase::addRecoDoubles(const std::string& name, const std::vector<dou
 // ------------------------------------- Methods for event and object selection -------------------------------------
 
 
-void AnalysisBase::setBtagAlgorithmAndWorkingPoint(const Btag::Algorithm& algorithm,
-                                                   const Btag::WorkingPoint& workingPoint)
-{
-    btagScaleFactors_->algorithmAndWorkingPoint(algorithm, workingPoint);
-}
-
-
-
-double AnalysisBase::btagCutValue()const
-{
-    return static_cast<double>(btagScaleFactors_->getWPDiscrValue());
-}
-
-
-
 bool AnalysisBase::failsDrellYanGeneratorSelection(const std::vector<int>& v_zDecayMode)const
 {
     if(checkZDecayMode_ && !checkZDecayMode_(v_zDecayMode)) return true;
     return false;
+}
+
+
+
+bool AnalysisBase::failsDileptonTrigger(const Long64_t& entry)const
+{
+    this->GetTriggerBranchesEntry(entry);
+    
+    if (((triggerBits_ & mumuTriggers_) && channelPdgIdProduct_ == -13*13)     // mumu triggers in rightmost byte
+        || ((triggerBits_ & emuTriggers_) && channelPdgIdProduct_ == -11*13)   // emu in 2nd byte
+        || ((triggerBits_ & eeTriggers_) && channelPdgIdProduct_ == -11*11))   // ee in 3rd byte
+    {
+        return false;
+    }
+    return true;
+}
+
+
+
+bool AnalysisBase::firstVertexIsGood(const Long64_t& entry)const
+{
+    this->GetFirstVertMultiEntry(entry);
+    
+    // If branch does not exist (value=-999), always return true
+    if(firstVertMulti_ == 0) return false;
+    return true;
 }
 
 
@@ -1360,29 +1446,9 @@ bool AnalysisBase::hasLeptonPair(const int leadingLeptonIndex, const int nLeadin
 
 
 
-bool AnalysisBase::failsDileptonTrigger(const Long64_t& entry)const
+double AnalysisBase::btagCutValue()const
 {
-    this->GetTriggerBranchesEntry(entry);
-
-    //our triggers (bits: see the ntuplewriter!)
-    constexpr int mumuTriggers = 0x8 + 0x20; //17/8 + 17Tr8
-    constexpr int emuTriggers = 0x2000 + 0x4000;
-    constexpr int eeTriggers = 0x40000;
-
-    if (((triggerBits_ & mumuTriggers) && channelPdgIdProduct_ == -13*13)     // mumu triggers in rightmost byte
-        || ((triggerBits_ & emuTriggers) && channelPdgIdProduct_ == -11*13)   // emu in 2nd byte
-        || ((triggerBits_ & eeTriggers) && channelPdgIdProduct_ == -11*11))  // ee in 3rd byte
-    {
-        return false;
-    }
-    return true;
-}
-
-
-
-void AnalysisBase::mvaMet()
-{
-    mvaMet_ = true;
+    return static_cast<double>(btagScaleFactors_->getWPDiscrValue());
 }
 
 
@@ -1770,13 +1836,13 @@ double AnalysisBase::getJetHT(const std::vector<int>& jetIndices, const VLV& jet
 KinematicReconstructionSolutions AnalysisBase::kinematicReconstructionSolutions(const int leptonIndex, const int antiLeptonIndex,
                                                                                 const std::vector<int>& jetIndices, const std::vector<int>& bjetIndices,
                                                                                 const VLV& allLeptons, const VLV& jets,
-                                                                                const std::vector<double>& jetBTagCSV, const LV& met)const
+                                                                                const std::vector<double>& jetBtags, const LV& met)const
 {
     // If kinematic reconstruction is not initialised, do not run it but return dummy
     if(!kinematicReconstruction_) return KinematicReconstructionSolutions();
     
     return kinematicReconstruction_->solutions({leptonIndex}, {antiLeptonIndex}, jetIndices, bjetIndices,
-                                               allLeptons, jets, jetBTagCSV, met);
+                                               allLeptons, jets, jetBtags, met);
 }
 
 

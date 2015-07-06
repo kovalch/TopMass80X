@@ -18,8 +18,8 @@ public:
         /// Constructor
         General();
         
-        /// Print variables to screen
-        void print()const;
+        /// Print variables, return as string, and optionally print to screen
+        std::string print(const bool screen =false)const;
         
         /// Analysis era
         Era::Era era_;
@@ -38,12 +38,18 @@ public:
         /// Constructor
         Corrections();
         
-        /// Print variables to screen
-        void print()const;
+        /// Print variables, return as string, and optionally print to screen
+        std::string print(const bool screen =false)const;
         
-        /// Set pileup distribution file corresponding to data sample in use
+        /// Pileup distribution file corresponding to data sample in use
         /// The file ending is automatically adjusted for different systematics
         std::string pileupInputFile_;
+        
+        /// Pileup MC era
+        std::string pileupMcEra_;
+        
+        /// Pileup scenario
+        std::string pileupScenario_;
         
         /// File ending of dilepton trigger scale factors input file
         std::string triggerSFInputSuffix_;
@@ -83,8 +89,8 @@ public:
         /// Constructor
         Selections();
         
-        /// Print variables to screen
-        void print()const;
+        /// Print variables, return as string, and optionally print to screen
+        std::string print(const bool screen =false)const;
         
         /// Lepton eta selection (absolute value)
         double leptonEtaCut_;
@@ -128,6 +134,45 @@ public:
     
     
     
+    /// Struct for sample compostion
+    struct SampleComposition{
+        /// Constructor
+        SampleComposition();
+        
+        /// Print variables, return as string, and optionally print to screen
+        std::string print(const bool screen =false)const;
+        
+        /// Whether to use pseudodata and how
+        /// 0: use real data
+        /// 1: use pseudodata as stacksum
+        int pseudodata_;
+        
+        /// Level of merging for different samples
+        /// 0: no merging, use all defined processes individually
+        /// 1-x: different merging schemes
+        int mergeLevel_;
+    };
+    
+    
+    
+    /// Struct for plot style
+    struct PlotStyle{
+        /// Constructor
+        PlotStyle();
+        
+        /// Print variables, return as string, and optionally print to screen
+        std::string print(const bool screen =false)const;
+        
+        /// CMS label
+        /// -1: none
+        ///  0: CMS
+        ///  1: CMS preliminary
+        ///  2: CMS private work
+        int cmsLabel_;
+    };
+    
+    
+    
     /// Constructor reading in config file
     AnalysisConfig(const std::string& configfilename ="config.txt");
     
@@ -139,14 +184,20 @@ public:
     /// Return constant reference of struct general
     const General& general()const{return general_;}
     
-    /// Return constant reference of struct general
+    /// Return constant reference of struct object/event corrections
     const Corrections& corrections()const{return corrections_;}
     
-    /// Return constant reference of struct general
+    /// Return constant reference of struct object selections
     const Selections& selections()const{return selections_;}
     
-    /// Print variables to screen for all structs
-    void print()const;
+    /// Return constant reference of struct sample compostion
+    const SampleComposition& sampleComposition()const{return sampleComposition_;}
+    
+    /// Return constant reference of struct plot style
+    const PlotStyle& plotStyle()const{return plotStyle_;}
+    
+    /// Print variables for all structs, return as string, and optionally print to screen
+    std::string print(const bool screen =false)const;
     
     
     
@@ -160,6 +211,12 @@ private:
     
     /// Struct holding object selections
     Selections selections_;
+    
+    /// Struct holding sample compostion
+    SampleComposition sampleComposition_;
+    
+    /// Struct holding plot style
+    PlotStyle plotStyle_;
 };
 
 

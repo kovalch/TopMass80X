@@ -97,7 +97,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
     const std::vector<double>& jetChargeRelativePtWeighted = *recoObjects.jetChargeRelativePtWeighted_;
     //const int& recoBjetFromTopIndex = genObjectIndices.recoBjetFromTopIndex_;
     //const int& recoAntiBjetFromTopIndex = genObjectIndices.recoAntiBjetFromTopIndex_;
-    const std::vector<double>& jetBTagCSV = *recoObjects.jetBTagCSV_;
+    const std::vector<double>& jetBtags = *recoObjects.jetBtags_;
     
     // b-hadron + c-hadron information
     const std::vector<int>& bHadFlavour = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadFlavour_ : std::vector<int>(0);
@@ -263,7 +263,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         
         // Add some control plots
         m_histogram["h_trueBJetPtInitially"]->Fill(trueBJetPt, weight);
-        m_histogram["h_trueBJetCSVvalue"]->Fill(jetBTagCSV.at(jetIdx), weight);
+        m_histogram["h_trueBJetCSVvalue"]->Fill(jetBtags.at(jetIdx), weight);
         
         int trueBJetTrackMultiplicity = 0;
         
@@ -626,7 +626,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         
         // Min. flight distance plots
         if (secondaryVertexMultiplicityPerJet!=0) m_histogram["h_secondaryVertexMinFlighDistanceValue"]->Fill(minSecondaryVertexFlightDistanceValue, weight);
-        ((TH2D*)m_histogram["h_secondaryVertexMinFlightDistanceValueVsCSV"])->Fill(minSecondaryVertexFlightDistanceValue,jetBTagCSV.at(jetIdx), weight);
+        ((TH2D*)m_histogram["h_secondaryVertexMinFlightDistanceValueVsCSV"])->Fill(minSecondaryVertexFlightDistanceValue,jetBtags.at(jetIdx), weight);
         
         // Secondary vertex information for pfCandidates
         std::vector<int> secondaryVertexSelTrackMatchedToPfCandidateIndex;

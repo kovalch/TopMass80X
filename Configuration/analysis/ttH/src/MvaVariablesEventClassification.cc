@@ -61,7 +61,7 @@ MvaVariablesEventClassification* MvaVariablesEventClassification::fillVariables(
     using ROOT::Math::VectorUtil::DeltaR;
     
     // Access relevant objects and indices
-    const std::vector<double>& jetBtag(*recoObjects.jetBTagCSV_);
+    const std::vector<double>& jetBtags(*recoObjects.jetBtags_);
     const VLV& leptons(*recoObjects.allLeptons_);
     const VLV& jets(*recoObjects.jets_);
     
@@ -72,7 +72,7 @@ MvaVariablesEventClassification* MvaVariablesEventClassification::fillVariables(
     double ptSumJets(0.);
     for(auto i_index = recoObjectIndices.jetIndices_.begin(); i_index != recoObjectIndices.jetIndices_.end(); ++i_index){
         // Calculate the btag-discriminator averages, setting values<0. to 0.
-        const double& btagDiscriminator(jetBtag.at(*i_index));
+        const double& btagDiscriminator(jetBtags.at(*i_index));
         const double btagDiscriminatorPositive(btagDiscriminator>=0. ? btagDiscriminator : 0.);
         if(std::find(recoObjectIndices.bjetIndices_.begin(), recoObjectIndices.bjetIndices_.end(), *i_index) != recoObjectIndices.bjetIndices_.end()){
             btagDiscriminatorSumTagged += btagDiscriminatorPositive;

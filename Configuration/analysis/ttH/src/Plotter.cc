@@ -20,6 +20,7 @@
 #include <TError.h>
 
 #include "Plotter.h"
+#include "AnalysisConfig.h"
 #include "higgsUtils.h"
 #include "Samples.h"
 #include "../../common/include/sampleHelpers.h"
@@ -31,10 +32,11 @@
 
 
 Plotter::Plotter(const char* outputDir,
+                 const AnalysisConfig& analysisConfig,
                  const Samples& samples,
                  const DrawMode::DrawMode& drawMode):
 outputDir_(outputDir),
-topLeftLabelId_(1),
+analysisConfig_(analysisConfig),
 samples_(samples),
 drawMode_(drawMode),
 fileReader_(RootFileReader::getInstance()),
@@ -153,8 +155,9 @@ bool Plotter::prepareDataset(const std::vector<Sample>& v_sample,
                 std::cout<<"Histogram ("<<name_<<") not found e.g. in file ("<<sample.inputFile()<<")\n";
             p_sampleHist = SampleHistPair(sample, 0);
             allHistosAvailable = false;
-        } else {
-            if(hist->GetSumw2N()<1) hist->Sumw2();
+        }
+        else {
+            if(hist->GetSumw2N() < 1) hist->Sumw2();
             // Apply weights
             if(sample.sampleType() != Sample::data){
                 const double& weight = v_weight.at(iSample);
@@ -366,11 +369,11 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     // Draw data histogram and stack
     firstHistToDraw->SetLineColor(0);
     firstHistToDraw->Draw();
-    if(dataHist.second) dataHist.second->Draw("same E1 X0");
+    if(dataHist.second) dataHist.second->Draw("same E X0");
     if(stack) stack->Draw("same HIST");
     gPad->RedrawAxis();
     stacksum_statBand->Draw("same E2");  // error bars for stack (which, stat or combined with syst ?)
-    if(dataHist.second) dataHist.second->Draw("same E1 X0");
+    if(dataHist.second) dataHist.second->Draw("same E X0");
     for(const auto& higgsHist : higgsHists){
         higgsHist.second->Draw("same HIST");
     }
@@ -395,20 +398,20 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     canvas->RedrawAxis();
     
     // Put additional stuff to histogram
-    common::drawCmsLabels(0, 8, samples_.luminosityInInversePb()/1000.);
-//     if(topLeftLabelId_==1) this->drawTopLeftLabel(Channel::label(channel));
-//     else if(topLeftLabelId_==2) this->drawTopLeftLabel(Systematic::convertType(systematic.type())+=Systematic::convertVariation(systematic.variation()));
+    common::drawCmsLabels(analysisConfig_.plotStyle().cmsLabel_, Era::energyInTev(analysisConfig_.general().era_), analysisConfig_.general().luminosity_/1000.);
+    //this->drawTopLeftLabel(Channel::label(channel));
+    //this->drawTopLeftLabel(Systematic::convertType(systematic.type())+=Systematic::convertVariation(systematic.variation()));
     for(TPaveText* label : significanceLabels) if(label) label->Draw("same");
     legend->Draw("SAME");
     if(dataHist.second && stacksum){
         common::drawRatioPad(canvas, 0.5, 1.7, "#frac{Data}{MC}");
         
         TH1* ratio_histo = common::ratioHistogram(dataHist.second, stacksum, 1);
-        common::setHistoStyle(ratio_histo, -1,-1,2);
-        ratio_histo->Draw("same E");
+        common::setHistoStyle(ratio_histo, -1,-1, 2);
+        ratio_histo->Draw("same E X0");
         
         TH1* ratio_statBand = common::ratioHistogram(stacksum, stacksum, 1);
-        common::setHistoStyle(ratio_statBand, -1,-1,-1, -1,-1,-1, 3354,1);
+        common::setHistoStyle(ratio_statBand, -1,-1,-1, -1,-1,-1, 3354, 1);
         ratio_statBand->Draw("same E2");
     }
 
@@ -497,6 +500,7 @@ void Plotter::setStyle(SampleHistPair& sampleHistPair)
     if(sample.sampleType()==Sample::data || sample.sampleType()==Sample::pseudodata){
         hist->SetMarkerStyle(20);
         hist->SetMarkerSize(1.);
+        hist->SetLineWidth(2);
     }
 }
 

@@ -7,6 +7,7 @@
 
 #include "TString.h"
 
+#include "AnalysisConfig.h"
 #include "MvaFactoryEventClassification.h"
 #include "mvaSetup.h"
 #include "Samples.h"
@@ -20,28 +21,20 @@
 
 
 
-/// Set data luminosity in pb-1
-constexpr double Luminosity = 19712.;
-
-/// Set relative luminosity uncertainty
-constexpr double LuminosityUNCERTAINTY = 0.026;
-
-
-
-
-
-
 void trainMvaEventClassification(const std::vector<Channel::Channel>& v_channel,
                                  const std::vector<Systematic::Systematic>& v_systematic,
                                  const std::vector<GlobalCorrection::GlobalCorrection> v_globalCorrection)
 {
+    // Read analysis config from text file
+    const AnalysisConfig analysisConfig;
+    
     // Set up scale factors
     const bool dyCorrection = std::find(v_globalCorrection.begin(), v_globalCorrection.end(), GlobalCorrection::dy) != v_globalCorrection.end();
     const bool ttbbCorrection = std::find(v_globalCorrection.begin(), v_globalCorrection.end(), GlobalCorrection::ttbb) != v_globalCorrection.end();
-    const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(v_channel, v_systematic, Luminosity, LuminosityUNCERTAINTY, dyCorrection, ttbbCorrection);
+    const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(analysisConfig, v_channel, v_systematic, dyCorrection, ttbbCorrection);
     
     // Access all samples
-    const Samples samples("FileLists_mvaInput_mvaEvent", v_channel, v_systematic, globalScaleFactors);
+    const Samples samples("FileLists_mvaInput_mvaEvent", analysisConfig, v_channel, v_systematic, globalScaleFactors);
     
     // MVA training configurations
     const mvaSetup::MvaConfig d1("!H:!V:NTrees=300:nEventsMin=40:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.15:UseRandomisedTrees=False:UseNVars=13:nCuts=30:PruneMethod=CostComplexity:PruneStrength=-1",

@@ -45,7 +45,11 @@ class AnalysisBase : public TSelector
 public:
 
     /// Constructor
-    AnalysisBase(TTree* =0);
+    AnalysisBase(const Era::Era era,
+                 const Btag::Algorithm btagAlgorithm,
+                 const Btag::WorkingPoint btagWorkingPoint,
+                 const bool mvaMet,
+                 TTree* =0);
 
     /// Destructor
     virtual ~AnalysisBase(){};
@@ -182,26 +186,22 @@ protected:
     
 // ----------------------- Protected methods for event and object selection -----------------------
     
+    /// Select events from Drell-Yan samples which need to be removed due to generator selection
+    bool failsDrellYanGeneratorSelection(const std::vector<int>& v_zDecayMode)const;
+    
+    /// Check if event was triggered with the same dilepton trigger as the specified analysis channel
+    bool failsDileptonTrigger(const Long64_t& entry)const;
+    
+    /// Check if first primary vertex is good
+    bool firstVertexIsGood(const Long64_t& entry)const;
+    
     /// Check if opposite-charge dilepton combination exists,
     /// and check if lepton pair is correct flavour combination for the specified analysis channel (ee, emu, mumu)
     bool hasLeptonPair(const int leadingLeptonIndex, const int nLeadingLeptonIndex,
                        const std::vector<int>& lepPdgId)const;
     
-    /// Check if event was triggered with the same dilepton trigger as the specified analysis channel
-    bool failsDileptonTrigger(const Long64_t& entry)const;
-    
-    /// Set the b-tag algoritm and working point used for b-tag corrections and also for the discriminator cut value
-    void setBtagAlgorithmAndWorkingPoint(const Btag::Algorithm& algorithm,
-                                         const Btag::WorkingPoint& workingPoint);
-    
     /// Returns the b-tag discriminator cut value associated to the algorithm and working point set in the b-tag tool
     double btagCutValue()const;
-    
-    /// Select events from Drell-Yan samples which need to be removed due to generator selection
-    bool failsDrellYanGeneratorSelection(const std::vector<int>& v_zDecayMode)const;
-
-    /// Set usage of MVA MET instead of PF MET
-    void mvaMet();
     
     
     
@@ -327,7 +327,7 @@ protected:
     KinematicReconstructionSolutions kinematicReconstructionSolutions(const int leptonIndex, const int antiLeptonIndex,
                                                                       const std::vector<int>& jetIndices, const std::vector<int>& bjetIndices,
                                                                       const VLV& allLeptons, const VLV& jets,
-                                                                      const std::vector<double>& jetBTagCSV, const LV& met)const;
+                                                                      const std::vector<double>& jetBtags, const LV& met)const;
     
     /// Get H_t of jets
     double getJetHT(const std::vector<int>& jetIndices, const VLV& jets)const;
@@ -417,6 +417,9 @@ private:
     /// Access event entry for nTuple branches for trigger bits
     void GetTriggerBranchesEntry(const Long64_t& entry)const;
     
+    /// Access event entry for nTuple branch for testing if first vertex is good
+    void GetFirstVertMultiEntry(const Long64_t& entry)const;
+    
     /// Access event entry for nTuple branch of true vertex multiplicity
     void GetVertMultiTrueEntry(const Long64_t& entry)const;
     
@@ -463,6 +466,9 @@ private:
     
     /// Set addresses of nTuple branches holding generator information for all MC samples
     void SetCommonGenBranchAddresses();
+    
+    /// Set address of nTuple branch for testing if first vertex is good
+    void SetFirstVertMultiBranchAddress();
     
     /// Set address of nTuple branch of true vertex multiplicity
     void SetVertMultiTrueBranchAddress();
@@ -534,14 +540,7 @@ private:
     TBranch* b_lepDzVertex0;
     TBranch* b_lepTrigger;
     TBranch* b_jet;
-    TBranch* b_jetBTagTCHE;
-    TBranch* b_jetBTagTCHP;
-    TBranch* b_jetBTagSSVHE;
-    TBranch* b_jetBTagSSVHP;
-    TBranch* b_jetBTagJetProbability;
-    TBranch* b_jetBTagJetBProbability;
-    TBranch* b_jetBTagCSV;
-    TBranch* b_jetBTagCSVMVA;
+    TBranch* b_jetBtags;
     TBranch* b_jetChargeGlobalPtWeighted;
     TBranch* b_jetChargeRelativePtWeighted;
     TBranch* b_jetPfCandidateTrack;
@@ -580,6 +579,10 @@ private:
     TBranch* b_associatedGenJetForMET;
     TBranch* b_jetPartonFlavour;
     TBranch* b_jetPartonFlavourForMET;
+    
+    
+    /// nTuple branch for testing if first vertex is good
+    TBranch* b_firstVertMulti;
     
     
     /// nTuple branch of true vertex multiplicity
@@ -701,6 +704,9 @@ private:
     //UInt_t triggerBitsTau_;
     //std::vector<std::string>* firedTriggers_;
     
+    /// Variables associated to nTuple branch for testing if first vertex is good
+    Int_t firstVertMulti_;
+    
     /// Variables associated to nTuple branch of true vertex multiplicity
     Int_t vertMultiTrue_;
     
@@ -793,8 +799,23 @@ private:
     /// Whether the sample should be used for production of btag efficiencies
     bool isSampleForBtagEfficiencies_;
     
+    /// Trigger bits for ee
+    int eeTriggers_;
+    
+    /// Trigger bits for emu
+    int emuTriggers_;
+    
+    /// Trigger bits for mumu
+    int mumuTriggers_;
+    
+    /// Specified b-tag algorithm
+    const Btag::Algorithm btagAlgorithm_;
+    
+    /// Specified b-tag working point
+    const Btag::WorkingPoint btagWorkingPoint_;
+    
     /// Whether to use MVA MET
-    bool mvaMet_;
+    const bool mvaMet_;
     
     /// Pointer to the Met Recoil correction tools
     const MetRecoilCorrector* metRecoilCorrector_;

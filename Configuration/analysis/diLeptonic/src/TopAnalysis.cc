@@ -33,6 +33,9 @@
 
 
 
+/// Analysis era
+constexpr Era::Era ERA = Era::run1_8tev;
+
 ///top production xsec in pb
 constexpr double TOPXSEC = 234.;
 
@@ -90,15 +93,14 @@ constexpr double GenDeltaRLeptonJetCUT = -1.;
 
 
 TopAnalysis::TopAnalysis():
+AnalysisBase(ERA, BtagALGO, BtagWP, MvaMET),
 kinRecoOnTheFly_(false),
 doClosureTest_(false),
 closureFunction_(nullptr),
 closureMaxEvents_(0),
 runViaTau_(false),
 binnedControlPlots_(0)
-{
-    if(MvaMET) this->mvaMet();
-}
+{}
 
 
 
@@ -108,14 +110,10 @@ void TopAnalysis::Begin(TTree*)
     // Defaults from AnalysisBase
     AnalysisBase::Begin(0);
     
-    // Set b-tagging working point
-    this->setBtagAlgorithmAndWorkingPoint(BtagALGO, BtagWP);
-    
     // Set up selection steps of tree handlers
     for(TreeHandlerBase* treeHandler : v_treeHandler_){
         if(treeHandler) treeHandler->book();
     }
-    
 }
 
 
@@ -878,12 +876,12 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     // Get b-jet indices, apply selection cuts
     // and apply b-tag efficiency MC correction using random number based tag flipping (if requested correction mode is applied)
     // and order b-jets by btag discriminator (beginning with the highest value)
-    const std::vector<double>& jetBTagCSV = *recoObjects.jetBTagCSV_;
+    const std::vector<double>& jetBtags = *recoObjects.jetBtags_;
     const std::vector<int>& jetPartonFlavour = *commonGenObjects.jetPartonFlavour_;
     std::vector<int> bjetIndices = jetIndices;
-    selectIndices(bjetIndices, jetBTagCSV, this->btagCutValue());
-    this->retagJets(bjetIndices, jetIndices, jets, jetPartonFlavour, jetBTagCSV);
-    orderIndices(bjetIndices, jetBTagCSV);
+    selectIndices(bjetIndices, jetBtags, this->btagCutValue());
+    this->retagJets(bjetIndices, jetIndices, jets, jetPartonFlavour, jetBtags);
+    orderIndices(bjetIndices, jetBtags);
     const int numberOfBjets = bjetIndices.size();
     const bool hasBtag = numberOfBjets > 0;
     
@@ -903,7 +901,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     const double weightLeptonSF = this->weightLeptonSF(leadingLeptonIndex, nLeadingLeptonIndex, allLeptons, lepPdgId);
     const double weightTriggerSF = this->weightTriggerSF(leptonXIndex, leptonYIndex, allLeptons);
     const double weightNoPileup = trueLevelWeightNoPileup*weightTriggerSF*weightLeptonSF;
-    const double weightBtagSF = this->weightBtagSF(jetIndices, jets, jetPartonFlavour, jetBTagCSV);
+    const double weightBtagSF = this->weightBtagSF(jetIndices, jets, jetPartonFlavour, jetBtags);
     const double weightKinReco = this->weightKinReco();
     
     // The weight to be used for filling the histograms
@@ -959,7 +957,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     }
 
     // Access kinematic reconstruction info
-    const KinematicReconstructionSolutions kinematicReconstructionSolutions = !this->makeBtagEfficiencies() ? this->kinematicReconstructionSolutions(leptonIndex, antiLeptonIndex, jetIndices, bjetIndices, allLeptons, jets, jetBTagCSV, met) : kinematicReconstructionSolutionsDummy;
+    const KinematicReconstructionSolutions kinematicReconstructionSolutions = !this->makeBtagEfficiencies() ? this->kinematicReconstructionSolutions(leptonIndex, antiLeptonIndex, jetIndices, bjetIndices, allLeptons, jets, jetBtags, met) : kinematicReconstructionSolutionsDummy;
     const bool hasSolution = kinematicReconstructionSolutions.numberOfSolutions();
     
     this->fillAll(selectionStep,
@@ -1129,7 +1127,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     }
     
     // Fill b-tagging efficiencies if required for given correction mode, and in case do not process further steps
-    this->fillBtagEfficiencyHistos(jetIndices, jetBTagCSV, jets, jetPartonFlavour, weight);
+    this->fillBtagEfficiencyHistos(jetIndices, jetBtags, jets, jetPartonFlavour, weight);
     if(this->makeBtagEfficiencies()) return kTRUE;
 
     //=== CUT ===

@@ -59,32 +59,51 @@ puReweighter_(new ztop::PUReweighter())
 {
     std::cout<<"--- Beginning preparation of pileup reweighter\n";
     
-    if(mcEra == "Summer12"){
-        if(pileupScenario == "S10"){
-            puReweighter_->setMCDistrSum12("S10");
-        }
-        else{
-            std::cerr<<"ERROR in constructor of PileupScaleFactors! Given pileup tag is not defined (MC era, pileup tag): "
-                     <<mcEra<<" , "<<pileupScenario<<"\n...break\n"<<std::endl;
-            exit(33);
-        }
+    if(inputFilename.empty() || mcEra.empty() || pileupScenario.empty()){
+        std::cout<<"At least one of required inputs is empty\n"
+                 <<"MC era: "<<mcEra<<"\n"
+                 <<"MC pileup scenario: "<<pileupScenario<<"\n"
+                 <<"Data pileup file: "<<inputFilename<<"\n"
+                 <<"Set scale factors = 1.\n";
+        puReweighter_->switchOff(true);
     }
     else{
-        std::cerr<<"ERROR in constructor of PileupScaleFactors! Given MC era is not defined: "
-                 <<mcEra<<"\n...break\n"<<std::endl;
-        exit(33);
+        // Set MC pileup distribution
+        if(mcEra == "Summer12"){
+            if(pileupScenario == "S10"){
+                puReweighter_->setMCDistrSum12("S10");
+            }
+            else{
+                std::cerr<<"ERROR in constructor of PileupScaleFactors! Given pileup MC scenario is not defined or invalid for MC era (MC era, MC pileup scenario): "
+                         <<mcEra<<" , "<<pileupScenario<<"\n...break\n"<<std::endl;
+                exit(33);
+            }
+        }
+        else{
+            std::cerr<<"ERROR in constructor of PileupScaleFactors! Given MC era is not defined: "
+                     <<mcEra<<"\n...break\n"<<std::endl;
+            exit(33);
+        }
+        
+        // Set data pileup distribution
+        TString pileupInput(common::DATA_PATH_COMMON());
+        pileupInput.Append("/").Append(inputFilename);
+        if(systematic.type() == Systematic::pu){
+            if(systematic.variation() == Systematic::up) pileupInput.ReplaceAll(".root", "_sysUp.root");
+            else if(systematic.variation() == Systematic::down) pileupInput.ReplaceAll(".root", "_sysDown.root");
+        }
+        std::cout<<"Using PU input file:\n"<<pileupInput<<std::endl;
+        puReweighter_->setDataTruePUInput(pileupInput.Data());
     }
-    
-    TString pileupInput(common::DATA_PATH_COMMON());
-    pileupInput.Append("/").Append(inputFilename);
-    if(systematic.type() == Systematic::pu){
-        if(systematic.variation() == Systematic::up) pileupInput.ReplaceAll(".root", "_sysUp.root");
-        else if(systematic.variation() == Systematic::down) pileupInput.ReplaceAll(".root", "_sysDown.root");
-    }
-    std::cout<<"Using PU input file:\n"<<pileupInput<<std::endl;
-    puReweighter_->setDataTruePUInput(pileupInput.Data());
     
     std::cout<<"=== Finishing preparation of pileup reweighter\n\n";
+}
+
+
+
+PileupScaleFactors::~PileupScaleFactors()
+{
+    if(puReweighter_) delete puReweighter_;
 }
 
 
@@ -104,8 +123,8 @@ double PileupScaleFactors::getSF(const size_t trueVertexMultiplicity)const
 
 
 
-LeptonScaleFactors::LeptonScaleFactors(const char* electronSFInputFileName,
-                                       const char* muonSFInputFileName,
+LeptonScaleFactors::LeptonScaleFactors(const std::string& electronSFInputFileName,
+                                       const std::string& muonSFInputFileName,
                                        const Systematic::Systematic& systematic):
 h2_electronSFpteta_(0),
 h2_muonSFpteta_(0)
@@ -118,85 +137,74 @@ h2_muonSFpteta_(0)
         else if(systematic.variation() == Systematic::down) systematicInternal = vary_down;
     }
     
-    for(const auto& lepton : {electron, muon}){
-        std::string inputFileName(common::DATA_PATH_COMMON());
-        inputFileName.append("/");
-        std::string histogramName;
-        if(lepton == electron){
-            inputFileName.append(electronSFInputFileName);
-            histogramName = "ElectronIdIsoSF";
-            h2_electronSFpteta_ = this->prepareSF(inputFileName, histogramName, systematicInternal);
-        }
-        else if(lepton == muon){
-            inputFileName.append(muonSFInputFileName);
-            histogramName = "MuonIdIsoSF";
-            h2_muonSFpteta_ = this->prepareSF(inputFileName, histogramName, systematicInternal);
-        }
-    }
+    // Access electron scale factor
+    std::cout<<"Electron:\n";
+    h2_electronSFpteta_ = this->prepareSF(electronSFInputFileName, "ElectronIdIsoSF", systematicInternal);
+    if(h2_electronSFpteta_) std::cout<<"ID/iso scale factors found - will be used\n";
     
-    const bool electronInputFound(h2_electronSFpteta_);
-    const bool muonInputFound(h2_muonSFpteta_);
-    if(electronInputFound || muonInputFound){
-        std::cout<<"Found lepton Id/Iso scale factors for: ";
-        if(electronInputFound) std::cout<<"electron , ";
-        if(muonInputFound) std::cout<<"muon , ";
-        std::cout<<std::endl;
-    }
-    if(!electronInputFound || !muonInputFound){
-        std::cout<<"Could NOT find lepton Id/Iso scale factors for: ";
-        if(!electronInputFound) std::cout<<"electron , ";
-        if(!muonInputFound) std::cout<<"muon , ";
-        std::cout<<std::endl;
-    }
+    // Access muon scale factor
+    std::cout<<"Muon:\n";
+    h2_muonSFpteta_ = this->prepareSF(muonSFInputFileName, "MuonIdIsoSF", systematicInternal);
+    if(h2_muonSFpteta_) std::cout<<"ID/iso scale factors found - will be used\n";
     
     std::cout<<"=== Finishing preparation of lepton scale factors\n\n";
 }
 
 
 
-const TH2* LeptonScaleFactors::prepareSF(const std::string& inputFileName,
+const TH2* LeptonScaleFactors::prepareSF(const std::string& sfInputFileName,
                                          const std::string& histogramName,
                                          const LeptonScaleFactors::SystematicInternal& systematic)const
 {
-    // Access file containing scale factors
-    TFile scaleFactorFile(inputFileName.c_str());
-    if (scaleFactorFile.IsZombie()){
-        std::cout<<"File containing lepton Id/Iso scale factors not found: "<<inputFileName
-                 <<"\nAssuming ScaleFactor = 1.\n";
+    if(sfInputFileName.empty()){
+        std::cout<<"Input filename is empty - Set scale factors = 1.\n";
         return 0;
     }
-
+    
+    // Check if file containing scale factors exists, and open in case
+    std::string inputFileName(common::DATA_PATH_COMMON());
+    inputFileName.append("/");
+    inputFileName.append(sfInputFileName);
+    std::ifstream inputfile(inputFileName);
+    if(!inputfile.is_open()){
+        std::cerr<<"Error in LeptonScaleFactors::prepareSF()! File containing lepton ID/iso scale factors not found: "<<inputFileName
+                 <<"\n...break\n"<<std::endl;
+        exit(39);
+    }
+    inputfile.close();
+    TFile scaleFactorFile(inputFileName.c_str());
+    
     // Access histogram containing scale factors
     TH2* h_scaleFactorPtEta(0);
     h_scaleFactorPtEta = dynamic_cast<TH2*>(scaleFactorFile.Get(histogramName.c_str()));
     if(!h_scaleFactorPtEta){
-        std::cout<<"TH2 for lepton Id/Iso scale factors not found: "<<histogramName
-                 <<"\nAssuming ScaleFactor = 1.\n";
-        return 0;
+        std::cerr<<"Error in LeptonScaleFactors::prepareSF()! TH2 for lepton Id/Iso scale factors not found: "<<histogramName
+                 <<"\n...break\n"<<std::endl;
+        exit(39);
     }
-
+    
     // Apply systematic variations
     if(systematic != nominal){
         double factor(0.);
         if(systematic == vary_up) factor = 1.;
         else if(systematic == vary_down) factor = -1.;
         else{
-            std::cerr<<"ERROR in LeptonScaleFactors! Systematic with undefined behaviour requested\n...break\n"<<std::endl;
-            exit(21);
+            std::cerr<<"Error in LeptonScaleFactors::prepareSF()! Systematic with undefined behaviour requested\n...break\n"<<std::endl;
+            exit(39);
         }
 
-        for (int i = 1; i <= h_scaleFactorPtEta->GetNbinsX(); ++i) {
-            for (int j = 1; j <= h_scaleFactorPtEta->GetNbinsY(); ++j) {
-                h_scaleFactorPtEta->SetBinContent(i, j,
-                    h_scaleFactorPtEta->GetBinContent(i,j) + factor*h_scaleFactorPtEta->GetBinError(i,j));
+        for(int iBinX = 1; iBinX <= h_scaleFactorPtEta->GetNbinsX(); ++iBinX){
+            for(int iBinY = 1; iBinY <= h_scaleFactorPtEta->GetNbinsY(); ++iBinY){
+                h_scaleFactorPtEta->SetBinContent(iBinX, iBinY,
+                    h_scaleFactorPtEta->GetBinContent(iBinX, iBinY) + factor*h_scaleFactorPtEta->GetBinError(iBinX, iBinY));
             }
         }
     }
-
+    
     // Store histogram in memory and close file
     h_scaleFactorPtEta->SetDirectory(0);
     scaleFactorFile.Close();
-
+    
     return h_scaleFactorPtEta;
 }
 
@@ -205,28 +213,16 @@ const TH2* LeptonScaleFactors::prepareSF(const std::string& inputFileName,
 double LeptonScaleFactors::getSFDilepton(const int leadingLeptonIndex, const int nLeadingLeptonIndex,
                                          const VLV& leptons, const std::vector<int>& lepPdgIds)const
 {
-    if(!h2_electronSFpteta_ || !h2_muonSFpteta_) return 1.;
-
+    double result(1.);
+    
     const LV& leadingLepton(leptons.at(leadingLeptonIndex));
     const LV& nLeadingLepton(leptons.at(nLeadingLeptonIndex));
-    const int leadingPdgId(std::abs(lepPdgIds.at(leadingLeptonIndex)));
-    const int nLeadingPdgId(std::abs(lepPdgIds.at(nLeadingLeptonIndex)));
-
-    if(leadingPdgId==11 && nLeadingPdgId==11)
-        return ScaleFactorHelpers::get2DSF(h2_electronSFpteta_, leadingLepton.Eta(), leadingLepton.pt()) *
-                ScaleFactorHelpers::get2DSF(h2_electronSFpteta_, nLeadingLepton.Eta(), nLeadingLepton.pt());
-    if(leadingPdgId==13 && nLeadingPdgId==13)
-        return ScaleFactorHelpers::get2DSF(h2_muonSFpteta_, leadingLepton.Eta(), leadingLepton.pt()) *
-                ScaleFactorHelpers::get2DSF(h2_muonSFpteta_, nLeadingLepton.Eta(), nLeadingLepton.pt());
-    if(leadingPdgId==13 && nLeadingPdgId==11)
-        return ScaleFactorHelpers::get2DSF(h2_muonSFpteta_, leadingLepton.Eta(), leadingLepton.pt()) *
-                ScaleFactorHelpers::get2DSF(h2_electronSFpteta_, nLeadingLepton.Eta(), nLeadingLepton.pt());
-    if(leadingPdgId==11 && nLeadingPdgId==13)
-        return ScaleFactorHelpers::get2DSF(h2_electronSFpteta_, leadingLepton.Eta(), leadingLepton.pt()) *
-                ScaleFactorHelpers::get2DSF(h2_muonSFpteta_, nLeadingLepton.Eta(), nLeadingLepton.pt());
-    std::cout<<"WARNING in method getLeptonIDSF! LeptonPdgIds are not as expected (pdgId1, pdgId2): "
-             <<leadingPdgId<<" , "<<nLeadingPdgId<<"\n...will return scale factor = 1.\n";
-    return 1.;
+    const int leadingPdgId(lepPdgIds.at(leadingLeptonIndex));
+    const int nLeadingPdgId(lepPdgIds.at(nLeadingLeptonIndex));
+    result *= this->leptonSF(leadingLepton, leadingPdgId);
+    result *= this->leptonSF(nLeadingLepton, nLeadingPdgId);
+    
+    return result;
 }
 
 
@@ -234,26 +230,34 @@ double LeptonScaleFactors::getSFDilepton(const int leadingLeptonIndex, const int
 double LeptonScaleFactors::getSFAllLeptons(const std::vector<int>& allLeptonIndices,
                                            const VLV& leptons, const std::vector<int>& lepPdgIds)const
 {
-    if(!h2_electronSFpteta_ || !h2_muonSFpteta_) return 1.;
-
     double result(1.);
 
     for(const int index : allLeptonIndices){
-        const int absPdgId(std::abs(lepPdgIds.at(index)));
-        const TH2* histo(0);
-        if(absPdgId==11) histo = h2_electronSFpteta_;
-        else if(absPdgId==13) histo = h2_muonSFpteta_;
-        else{
-            std::cout<<"WARNING in method scaleFactorAllLeptons! LeptonPdgId is not as expected: "
-                    <<absPdgId<<"\n...will use scale factor = 1.\n";
-            continue;
-        }
-        result *= ScaleFactorHelpers::get2DSF(histo, leptons.at(index).eta(), leptons.at(index).pt());
+        const LV& lepton = leptons.at(index);
+        const int pdgId(lepPdgIds.at(index));
+        result *= this->leptonSF(lepton, pdgId);
     }
 
     return result;
 }
 
+
+
+double LeptonScaleFactors::leptonSF(const LV& lepton, const int pdgId)const
+{
+    const int absPdgId(std::abs(pdgId));
+    const TH2* histo(0);
+    if(absPdgId == 11) histo = h2_electronSFpteta_;
+    else if(absPdgId == 13) histo = h2_muonSFpteta_;
+    else{
+        std::cout<<"WARNING in method scaleFactorAllLeptons! LeptonPdgId is not as expected: "
+                <<absPdgId<<"\n...will use scale factor = 1.\n";
+        return 1.;
+    }
+    if(!histo) return 1.;
+    
+    return ScaleFactorHelpers::get2DSF(histo, lepton.eta(), lepton.pt());
+}
 
 
 
@@ -270,7 +274,7 @@ double LeptonScaleFactors::getSFAllLeptons(const std::vector<int>& allLeptonIndi
 
 
 
-TriggerScaleFactors::TriggerScaleFactors(const char* inputFileSuffix,
+TriggerScaleFactors::TriggerScaleFactors(const std::string& inputFileSuffix,
                                          const std::vector<Channel::Channel>& channels,
                                          const Systematic::Systematic& systematic):
 h2_eeSFeta_(0),
@@ -280,46 +284,52 @@ h2_channelSF_(0)
 {
     std::cout<<"--- Beginning preparation of trigger scale factors\n";
     
-    SystematicInternal systematicInternal(nominal);
-    if(systematic.type() == Systematic::trig){
-        if(systematic.variation() == Systematic::up) systematicInternal = vary_up;
-        else if(systematic.variation() == Systematic::down) systematicInternal = vary_down;
+    if(inputFileSuffix.empty()){
+        std::cout<<"Input file suffix is empty\nSet scale factors = 1.\n";
     }
-    
-    bool someChannelFound(false);
-    bool someChannelNotFound(false);
-    std::stringstream channelsFound;
-    std::stringstream channelsNotFound;
-    
-    std::vector<TString> triggerInputFileNames;
-    for(const auto& channel : channels){
-        const TString channelName = Channel::convert(channel);
-        TString fullName(common::DATA_PATH_COMMON());
-        fullName.Append("/triggerSummary_");
-        fullName.Append(channelName);
-        fullName.Append(inputFileSuffix);
-        triggerInputFileNames.push_back(fullName);
-        const TH2* const h2_triggerSF = this->prepareSF(fullName, systematicInternal);
-        if(channel == Channel::ee) h2_eeSFeta_ = h2_triggerSF;
-        else if(channel == Channel::emu) h2_emuSFeta_ = h2_triggerSF;
-        else if(channel == Channel::mumu) h2_mumuSFeta_ = h2_triggerSF;
-        else{
-            std::cerr<<"ERROR in TriggerScaleFactors! Invalid channel requested: "
-                     <<channelName<<"\n...break\n"<<std::endl;
-            exit(23);
+    else{
+        SystematicInternal systematicInternal(nominal);
+        if(systematic.type() == Systematic::trig){
+            if(systematic.variation() == Systematic::up) systematicInternal = vary_up;
+            else if(systematic.variation() == Systematic::down) systematicInternal = vary_down;
         }
-        if(h2_triggerSF){
-            someChannelFound = true;
-            channelsFound<<channelName<<" , ";
+        
+        bool someChannelFound(false);
+        bool someChannelNotFound(false);
+        std::stringstream channelsFound;
+        std::stringstream channelsNotFound;
+        
+        std::vector<TString> triggerInputFileNames;
+        for(const auto& channel : channels){
+            const TString channelName = Channel::convert(channel);
+            TString fullName(common::DATA_PATH_COMMON());
+            fullName.Append("/triggerSummary_");
+            fullName.Append(channelName);
+            fullName.Append(inputFileSuffix);
+            triggerInputFileNames.push_back(fullName);
+            const TH2* const h2_triggerSF = this->prepareSF(fullName, systematicInternal);
+            if(channel == Channel::ee) h2_eeSFeta_ = h2_triggerSF;
+            else if(channel == Channel::emu) h2_emuSFeta_ = h2_triggerSF;
+            else if(channel == Channel::mumu) h2_mumuSFeta_ = h2_triggerSF;
+            else{
+                std::cerr<<"ERROR in constructor of TriggerScaleFactors! Invalid channel requested: "
+                         <<channelName<<"\n...break\n"<<std::endl;
+                exit(23);
+            }
+            if(h2_triggerSF){
+                someChannelFound = true;
+                channelsFound<<channelName<<" , ";
+            }
+            else{
+                someChannelNotFound = true;
+                channelsNotFound<<channelName<<" , ";
+            }
         }
-        else{
-            someChannelNotFound = true;
-            channelsNotFound<<channelName<<" , ";
-        }
+        
+        if(someChannelFound) std::cout<<"Found trigger scale factors for requested channels: "<<channelsFound.str()<<"\n";
+        if(someChannelNotFound) std::cout<<"Could NOT find trigger scale factors for requested channels: "<<channelsNotFound.str()
+                                         <<"\nSet scale factors for those not found = 1.\n";
     }
-    
-    if(someChannelFound) std::cout<<"Found trigger scale factors for requested channels: "<<channelsFound.str()<<"\n";
-    if(someChannelNotFound)  std::cout<<"Could NOT find trigger scale factors for requested channels: "<<channelsNotFound.str()<<"\n";
     
     std::cout<<"=== Finishing preparation of trigger scale factors\n\n";
 }
@@ -328,19 +338,20 @@ h2_channelSF_(0)
 
 const TH2* TriggerScaleFactors::prepareSF(const TString& fileName, const SystematicInternal& systematic)const
 {
+    // Check if file exists, and open in case
+    // Do not exit if not existing, as other channels might have valid scale factors
+    std::ifstream inputfile(fileName);
+    if(!inputfile.is_open()) return 0;
+    inputfile.close();
     TFile trigEfficiencies(fileName);
-    if(trigEfficiencies.IsZombie()){
-        std::cout << "Trigger efficiencies not found. Assuming ScaleFactor = 1.\n";
-        std::cout << "Currently triggerEfficieny files can be found in diLeptonic/data folder\n\n";
-        return 0;
-    }
     
-    //Right now pT efficiency flat ==> Not used
     TH2* h_TrigSFeta(0);
-    h_TrigSFeta = dynamic_cast<TH2*>(trigEfficiencies.Get("scalefactor eta2d with syst"));
+    const TString histoName("scalefactor eta2d with syst");
+    h_TrigSFeta = dynamic_cast<TH2*>(trigEfficiencies.Get(histoName));
     if(!h_TrigSFeta){
-        std::cout<<"TH2 >>TH scalefactor eta<< is not in the file "<<trigEfficiencies.GetName()<<"\n";
-        return 0;
+        std::cerr<<"Error in TriggerScaleFactors::prepareSF()! Histogram not found (file, histogram): "
+                 <<fileName<<" , "<<histoName<<"\n...break\n"<<std::endl;
+        exit(24);
     }
     
     if(systematic != nominal){
@@ -348,13 +359,13 @@ const TH2* TriggerScaleFactors::prepareSF(const TString& fileName, const Systema
         if(systematic == vary_up) factor = 1.;
         else if(systematic == vary_down) factor = -1.;
         else{
-            std::cerr<<"ERROR in TriggerScaleFactors! Systematic with undefined behaviour requested\n...break\n"<<std::endl;
+            std::cerr<<"ERROR in TriggerScaleFactors::prepareSF()! Systematic with undefined behaviour requested\n...break\n"<<std::endl;
             exit(24);
         }
 
-        for(int i = 1; i <= h_TrigSFeta->GetNbinsX(); ++i){
-            for(int j = 1; j <= h_TrigSFeta->GetNbinsY(); ++j){
-                h_TrigSFeta->SetBinContent(i, j, h_TrigSFeta->GetBinContent(i,j) + factor*h_TrigSFeta->GetBinError(i,j));
+        for(int iBinX = 1; iBinX <= h_TrigSFeta->GetNbinsX(); ++iBinX){
+            for(int iBinY = 1; iBinY <= h_TrigSFeta->GetNbinsY(); ++iBinY){
+                h_TrigSFeta->SetBinContent(iBinX, iBinY, h_TrigSFeta->GetBinContent(iBinX,iBinY) + factor*h_TrigSFeta->GetBinError(iBinX,iBinY));
             }
         }
     }
@@ -412,10 +423,10 @@ double TriggerScaleFactors::getSF(const int leptonXIndex, const int leptonYIndex
 
 
 
-BtagScaleFactors::BtagScaleFactors(const char* efficiencyInputDir,
-                                   const char* efficiencyOutputDir,
-                                   const char* inputFileHeavyFlavour,
-                                   const char* inputFileLightFlavour,
+BtagScaleFactors::BtagScaleFactors(const std::string& efficiencyInputDir,
+                                   const std::string& efficiencyOutputDir,
+                                   const std::string& inputFileHeavyFlavour,
+                                   const std::string& inputFileLightFlavour,
                                    const std::vector<Channel::Channel>& channels,
                                    const Systematic::Systematic& systematic,
                                    const Btag::CorrectionMode& correctionMode):
@@ -682,8 +693,8 @@ bool BtagScaleFactors::makeEfficiencies()const
 
 
 
-void BtagScaleFactors::prepareEfficiencies(const char* efficiencyInputDir,
-                                           const char* efficiencyOutputDir,
+void BtagScaleFactors::prepareEfficiencies(const std::string& efficiencyInputDir,
+                                           const std::string& efficiencyOutputDir,
                                            const std::vector<Channel::Channel>& channels,
                                            const Systematic::Systematic& systematic)
 {
@@ -696,7 +707,7 @@ void BtagScaleFactors::prepareEfficiencies(const char* efficiencyInputDir,
     // Checking whether files with btag efficiencies exist for all channels
     bool allInputFilesAvailable(true);
     for(const auto& channel : channels){
-        TString btagInputFile = common::accessFolder(efficiencyInputDir, channel, systematic, true);
+        TString btagInputFile = common::accessFolder(efficiencyInputDir.data(), channel, systematic, true);
         if(btagInputFile == "") allInputFilesAvailable = false;
         btagInputFile.Append(filename);
         
@@ -729,7 +740,7 @@ void BtagScaleFactors::prepareEfficiencies(const char* efficiencyInputDir,
         this->setMakeEff(true);
         // Setting the root file names for storing btagging efficiencies for each channel in the map
         for(const auto& channel : channels){
-            const TString btagOutputFile = common::assignFolder(efficiencyOutputDir, channel, systematic).Append(filename);
+            const TString btagOutputFile = common::assignFolder(efficiencyOutputDir.data(), channel, systematic).Append(filename);
             m_channelFilename_[channel] = btagOutputFile;
         }
     }
@@ -862,7 +873,7 @@ void BtagScaleFactors::produceEfficiencies()
 
 
 
-void BtagScaleFactors::prepareDiscriminatorReweighting(const char* inputFileHeavyFlavour, const char* inputFileLightFlavour)
+void BtagScaleFactors::prepareDiscriminatorReweighting(const std::string& inputFileHeavyFlavour, const std::string& inputFileLightFlavour)
 {
     TString inputFolder = common::DATA_PATH_COMMON();
     inputFolder.Append("/");
@@ -882,7 +893,7 @@ void BtagScaleFactors::prepareDiscriminatorReweighting(const char* inputFileHeav
 
 
 
-JetEnergyResolutionScaleFactors::JetEnergyResolutionScaleFactors(const char* scaleFactorSource,
+JetEnergyResolutionScaleFactors::JetEnergyResolutionScaleFactors(const std::string& scaleFactorSource,
                                                                  const Systematic::Systematic& systematic)
 {
     std::cout<<"--- Beginning preparation of JER scale factors\n";
@@ -1050,7 +1061,7 @@ int JetEnergyResolutionScaleFactors::jetEtaBin(const LV& jet)const
 
 
 
-JetEnergyScaleScaleFactors::JetEnergyScaleScaleFactors(const char* jesUncertaintySourceFile,
+JetEnergyScaleScaleFactors::JetEnergyScaleScaleFactors(const std::string& jesUncertaintySourceFile,
                                                        const Systematic::Systematic& systematic):
 jetCorrectionUncertainty_(0),
 varyUp_(false)
@@ -1071,7 +1082,7 @@ varyUp_(false)
     std::string inputFileName(common::DATA_PATH_COMMON());
     inputFileName.append("/");
     inputFileName.append(jesUncertaintySourceFile);
-    jetCorrectionUncertainty_ = new ztop::JetCorrectionUncertainty(ztop::JetCorrectorParameters(inputFileName.data(), "Total"));
+    jetCorrectionUncertainty_ = new ztop::JetCorrectionUncertainty(ztop::JetCorrectorParameters(inputFileName, "Total"));
     
     if(systematicInternal == vary_up){
         varyUp_ = true;

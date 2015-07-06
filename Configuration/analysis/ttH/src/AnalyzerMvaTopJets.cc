@@ -434,7 +434,7 @@ void AnalyzerMvaTopJets::fillBestWeightHistos(const std::vector<float>& v_mvaWei
         if(index==antiBFromTopIndex || index==bFromTopIndex) continue;
         remainingJetIndices.push_back(index);
     }
-    common::orderIndices(remainingJetIndices, *recoObjects.jetBTagCSV_);
+    common::orderIndices(remainingJetIndices, *recoObjects.jetBtags_);
     
     
     // Calculations requiring the presence of at least 4 jets

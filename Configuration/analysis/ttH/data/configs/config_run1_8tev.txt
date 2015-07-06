@@ -19,6 +19,8 @@
 [ corrections ]
     
     pileupInputFile = Data_PUDist_Full2012ReReco_FinalRecommendation.root
+    pileupMcEra = Summer12
+    pileupScenario = S10
     
     triggerSFInputSuffix = _rereco198fb.root
     
@@ -60,6 +62,24 @@
     genDeltaRLeptonJetCut = -1.
     
 [ end - objectSelection ]
+
+
+
+[ sampleComposition ]
+    
+    pseudodata = 0
+    mergeLevel = 1
+    
+[ end - sampleComposition ]
+
+
+
+[ plotStyle ]
+    
+    cmsLabel = 0
+    
+[ end -plotStyle ]
+
 
 
 

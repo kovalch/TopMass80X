@@ -7,6 +7,7 @@
 #include <TString.h>
 
 #include "GlobalScaleFactors.h"
+#include "AnalysisConfig.h"
 #include "LuminosityScaleFactors.h"
 #include "DyScaleFactors.h"
 #include "HfFracScaleFactors.h"
@@ -24,15 +25,14 @@
 
 
 
-GlobalScaleFactors::GlobalScaleFactors(const std::vector<Channel::Channel>& v_channel,
+GlobalScaleFactors::GlobalScaleFactors(const AnalysisConfig& analysisConfig,
+                                       const std::vector<Channel::Channel>& v_channel,
                                        const std::vector<Systematic::Systematic>& v_systematic,
-                                       const double& luminosityInInversePb,
-                                       const double& luminosityUncertaintyRelative,
                                        const bool dyCorrection,
                                        const bool hfFracCorrection,
                                        const bool writeToFile):
-luminosityInInversePb_(luminosityInInversePb),
-luminosityUncertaintyRelative_(luminosityUncertaintyRelative),
+luminosityInInversePb_(analysisConfig.general().luminosity_),
+luminosityUncertaintyRelative_(analysisConfig.general().luminosityUncertainty_),
 luminosityScaleFactors_(0),
 dyScaleFactors_(0),
 hfFracScaleFactors_(0),
@@ -48,7 +48,7 @@ rootFileReader_(RootFileReader::getInstance())
         if(std::find(v_channel.begin(), v_channel.end(), Channel::emu) == v_channel.end()) v_channelForCorrections.push_back(Channel::emu);
         if(std::find(v_channel.begin(), v_channel.end(), Channel::mumu) == v_channel.end()) v_channelForCorrections.push_back(Channel::mumu);
     }
-    Samples scalingSamples("FileLists_plot", v_channelForCorrections, v_systematic, 0);
+    Samples scalingSamples("FileLists_plot", analysisConfig, v_channelForCorrections, v_systematic, 0);
     
     // Produce luminosity scale factors
     luminosityScaleFactors_ = new LuminosityScaleFactors(scalingSamples, rootFileReader_,
@@ -63,7 +63,6 @@ rootFileReader_(RootFileReader::getInstance())
     
     // Produce ttbb scale factors
     if(hfFracCorrection){
-        // FIXME: implement scaling here
         hfFracScaleFactors_ = new HfFracScaleFactors(scalingSamples, rootFileReader_, writeToFile);
         scalingSamples.setGlobalWeights(this);
     }

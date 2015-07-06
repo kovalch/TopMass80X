@@ -8,6 +8,7 @@ class TString;
 #include "SamplesFwd.h"
 #include "../../common/include/sampleHelpers.h"
 
+class AnalysisConfig;
 class RootFileReader;
 class LuminosityScaleFactors;
 class DyScaleFactors;
@@ -23,10 +24,9 @@ class  GlobalScaleFactors{
 public:
     
     /// Constructor setting up all requested scale factors for all specified channels and systematics
-    GlobalScaleFactors(const std::vector<Channel::Channel>& v_channel,
+    GlobalScaleFactors(const AnalysisConfig& analysisConfig,
+                       const std::vector<Channel::Channel>& v_channel,
                        const std::vector<Systematic::Systematic>& v_systematic,
-                       const double& luminosityInInversePb =1.,
-                       const double& luminosityUncertaintyRelative =1.,
                        const bool dyCorrection =false,
                        const bool hfFracCorrection =false,
                        const bool writeToFile =false);

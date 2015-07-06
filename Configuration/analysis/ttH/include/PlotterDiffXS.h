@@ -20,6 +20,8 @@ class TPad;
 #include "Sample.h"
 #include "../../common/include/sampleHelpers.h"
 
+class AnalysisConfig;
+
 
 
 
@@ -30,8 +32,8 @@ public:
     
     /// Constructor
     PlotterDiffXS(const char* outputDir,
-                  const Samples& samples,
-                  const double luminosity);
+                  const AnalysisConfig& analysisConfig,
+                  const Samples& samples);
     
     /// Destructor
     ~PlotterDiffXS(){};
@@ -97,6 +99,9 @@ private:
     /// Output folder name
     const char* outputDir_;
     
+    /// Reference to the analysis config
+    const AnalysisConfig& analysisConfig_;
+    
     /// Samples to be analysed
     const Samples& samples_;
     
@@ -149,7 +154,6 @@ private:
     bool logX_, logY_; // The variable logX_ is not used at all...
     
     /// Data for cross section calculation
-    double luminosity_;
     struct ValueError {
         double v; double e;
         ValueError(double val, double err):v(val), e(err){}

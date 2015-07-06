@@ -11,6 +11,7 @@ class TTree;
 #include "../../common/include/AnalysisBase.h"
 #include "../../common/include/classesFwd.h"
 
+class AnalysisConfig;
 class MvaTreeHandlerBase;
 class AnalyzerBase;
 class EventMetadata;
@@ -36,7 +37,7 @@ class HiggsAnalysis : public AnalysisBase{
 public:
     
     /// Constructor
-    HiggsAnalysis(TTree* =0);
+    HiggsAnalysis(const AnalysisConfig& analysisConfig, TTree* =0);
     
     /// Destructor
     virtual ~HiggsAnalysis();
@@ -135,14 +136,14 @@ private:
                                const std::vector<int>& jetIndices, const VLV& jets,
                                const TopGenObjects& topGenObjects)const;
     
-    /// Event by event information for synchronisations
+    /// Fill string containing event by event information for synchronisations
     void eventByEventInfo(const EventMetadata& eventMetadata,
-			  const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
-			  const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-			  const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
-			  const tth::GenObjectIndices& genObjectIndices, const tth::RecoObjectIndices& recoObjectIndices,
-			  const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
-			  const double& defaultWeight, const std::string& stepShort);
+                          const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+                          const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
+                          const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
+                          const tth::GenObjectIndices& genObjectIndices, const tth::RecoObjectIndices& recoObjectIndices,
+                          const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
+                          const double& defaultWeight, const int additionalJetFlavourId, const std::string& stepShort);
     
     /// Fill all analysers and histograms in one method
     void fillAll(const std::string& selectionStep,
@@ -161,6 +162,9 @@ private:
     void clearAll();
     
     
+    
+    /// Reference to the analysis config
+    const AnalysisConfig& analysisConfig_;
     
     /// For a Higgs sample inclusive in decay, select H->bbbar or H->other decay (no separation for default value -999)
     int inclusiveHiggsDecayMode_;
@@ -183,9 +187,9 @@ private:
     /// Pointer to the jet charge instance
     const JetCharge* jetCharge_;
     
-    /// Fill string containing event by event information for synchronisations
-    TString  eventInfo_;
-
+    /// String containing event by event information for synchronisations
+    std::string eventInfo_;
+    
     /// All analysers of type AnalyzerBase
     std::vector<AnalyzerBase*> v_analyzer_;
     

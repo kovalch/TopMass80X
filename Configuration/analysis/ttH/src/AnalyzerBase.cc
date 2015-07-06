@@ -405,13 +405,13 @@ void AnalyzerHfFracScaling::fillHistos(const EventMetadata&,
     int nBJets = recoObjectIndices.bjetIndices_.size();
     m_histogram.at("btag_multiplicity")->Fill(nBJets, weight);    
     
-    // Checking whether the sample is data or MC 
+    // Check whether the sample is data or MC 
     double svMass_scale = commonGenObjects.valuesSet_ ? 0.98 : 1.0;
     // Getting info about secondary vertices
-    const std::vector<int>&  jetSecondaryVertexJetIndex = (recoObjects.valuesSet_) ? *recoObjects.jetSecondaryVertexJetIndex_ : std::vector<int>(0);
-    const std::vector<LV>&  jetSecondaryVertex = (recoObjects.valuesSet_) ? *recoObjects.jetSecondaryVertex_ : std::vector<LV>(0);
+    const std::vector<int>&  jetSecondaryVertexJetIndex = (recoObjects.valuesSet_) ? *recoObjects.jetSecondaryVertexJetIndex_ : std::vector<int>();
+    const std::vector<LV>&  jetSecondaryVertex = (recoObjects.valuesSet_) ? *recoObjects.jetSecondaryVertex_ : std::vector<LV>();
 
-    // Filling secondary vertex related properties for each b-tagged jet
+    // Fill secondary vertex related properties for each b-tagged jet
     for(int bJetId : bJetIndices) {
         int nSV_bjet = 0;
         double massSV_bjet = 0.;
@@ -425,17 +425,17 @@ void AnalyzerHfFracScaling::fillHistos(const EventMetadata&,
         m_histogram.at("secondaryVertex_massMcCorrectedPerBjet")->Fill(massSV_bjet*svMass_scale, weight);
     }
     
-    // Plotting the discriminant value for the probe jet (cross-check by the tag-and-probe method)
+    // Plot the discriminant value for the probe jet (cross-check by the tag-and-probe method)
     std::vector<int> jetIndices(recoObjectIndices.jetIndices_);
     if(jetIndices.size()>=3 && bJetIndices.size()>=2) {
-        const std::vector<double>& allJetsBtagDiscriminant = (recoObjects.valuesSet_) ? *recoObjects.jetBTagCSV_ : std::vector<double>(0);
-        common::orderIndices(jetIndices, allJetsBtagDiscriminant);
+        const std::vector<double>& jetBtags = (recoObjects.valuesSet_) ? *recoObjects.jetBtags_ : std::vector<double>();
+        common::orderIndices(jetIndices, jetBtags);
         // The last jet (smallest discriminant value) is the probe jet
         if(jetIndices.size()>=3 && bJetIndices.size()>=2 && bJetIndices.size()<=3) {
-            m_histogram.at("probeJet_btagDiscriminator_2or3btags")->Fill(allJetsBtagDiscriminant.at(jetIndices.at(2)), weight);
+            m_histogram.at("probeJet_btagDiscriminator_2or3btags")->Fill(jetBtags.at(jetIndices.at(2)), weight);
         }
         if(jetIndices.size()>=4 && bJetIndices.size()>=3 && bJetIndices.size()<=4) {
-            m_histogram.at("probeJet_btagDiscriminator_3or4btags")->Fill(allJetsBtagDiscriminant.at(jetIndices.at(3)), weight);
+            m_histogram.at("probeJet_btagDiscriminator_3or4btags")->Fill(jetBtags.at(jetIndices.at(3)), weight);
         }
     }
 

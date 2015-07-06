@@ -45,12 +45,13 @@ class PileupScaleFactors{
 public:
     
     /// Constructor setting up data and MC input
+    /// If some required input is empty, set scale factors = 1.
     PileupScaleFactors(const std::string& inputFilename,
                        const std::string& mcEra, const std::string& pileupScenario,
                        const Systematic::Systematic& systematic);
     
     /// Destructor
-    ~PileupScaleFactors(){}
+    ~PileupScaleFactors();
     
     
     
@@ -75,8 +76,9 @@ class LeptonScaleFactors{
 public:
     
     /// Constructor
-    LeptonScaleFactors(const char* electronSFInputFileName,
-                       const char* muonSFInputFileName,
+    /// If input for specific lepton type is empty, set for this lepton type scale factors = 1.
+    LeptonScaleFactors(const std::string& electronSFInputFileName,
+                       const std::string& muonSFInputFileName,
                        const Systematic::Systematic& systematic);
     
     /// Destructor
@@ -96,9 +98,6 @@ public:
     
 private:
     
-    /// Enumeration for lepton types
-    enum Lepton{electron, muon};
-    
     /// Enumeration for possible systematics
     enum SystematicInternal{nominal, vary_up, vary_down};
     
@@ -106,6 +105,9 @@ private:
     const TH2* prepareSF(const std::string& inputFileName,
                          const std::string& histogramName,
                          const SystematicInternal& systematic)const;
+    
+    /// Get per-lepton scale factor
+    double leptonSF(const LV& lepton, const int lepPdgId)const;
     
     
     
@@ -126,7 +128,7 @@ class TriggerScaleFactors{
 public:
     
     /// Constructor
-    TriggerScaleFactors(const char* inputFileSuffix,
+    TriggerScaleFactors(const std::string& inputFileSuffix,
                         const std::vector<Channel::Channel>& channels,
                         const Systematic::Systematic& systematic);
     
@@ -182,10 +184,10 @@ class BtagScaleFactors : public ztop::bTagBase{
 public:
     
     /// Constructor
-    BtagScaleFactors(const char* efficiencyInputDir,
-                     const char* efficiencyOutputDir,
-                     const char* inputFileHeavyFlavour,
-                     const char* inputFileLightFlavour,
+    BtagScaleFactors(const std::string& efficiencyInputDir,
+                     const std::string& efficiencyOutputDir,
+                     const std::string& inputFileHeavyFlavour,
+                     const std::string& inputFileLightFlavour,
                      const std::vector<Channel::Channel>& channels,
                      const Systematic::Systematic& systematic,
                      const Btag::CorrectionMode& correctionMode);
@@ -261,8 +263,8 @@ private:
     
     /// Prepare the b-tag efficiencies in MC, i.e. check whether they exist already or whether they need to be produced
     /// and set up the tool accordingly
-    void prepareEfficiencies(const char* efficiencyInputDir,
-                             const char* efficiencyOutputDir,
+    void prepareEfficiencies(const std::string& efficiencyInputDir,
+                             const std::string& efficiencyOutputDir,
                              const std::vector<Channel::Channel>& channels,
                              const Systematic::Systematic& systematic);
     
@@ -270,7 +272,7 @@ private:
     void loadEfficiencies();
     
     /// Prepare the discriminator reweighting, i.e. check whether the file with the official scale factors can be found
-    void prepareDiscriminatorReweighting(const char* inputFileHeavyFlavour, const char* inputFileLightFlavour);
+    void prepareDiscriminatorReweighting(const std::string& inputFileHeavyFlavour, const std::string& inputFileLightFlavour);
     
     
     /// Get b-tag per-event scale factor for selections >=1 b-tag
@@ -313,7 +315,7 @@ class JetEnergyResolutionScaleFactors{
 public:
     
     /// Constructor
-    JetEnergyResolutionScaleFactors(const char* scaleFactorSource,
+    JetEnergyResolutionScaleFactors(const std::string& scaleFactorSource,
                                     const Systematic::Systematic& systematic);
     
     /// Destructor
@@ -371,7 +373,7 @@ class JetEnergyScaleScaleFactors{
 public:
     
     /// Constructor
-    JetEnergyScaleScaleFactors(const char* jesUncertaintySourceFile,
+    JetEnergyScaleScaleFactors(const std::string& jesUncertaintySourceFile,
                                const Systematic::Systematic& systematic);
     
     /// Destructor

@@ -135,7 +135,7 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
 
 
 
-void AnalyzerControlPlots::fillHistos(const EventMetadata& eventMetadata,
+void AnalyzerControlPlots::fillHistos(const EventMetadata&,
                                       const RecoObjects& recoObjects, const CommonGenObjects&,
                                       const TopGenObjects&,
                                       const KinematicReconstructionSolutions&,
@@ -214,7 +214,7 @@ void AnalyzerControlPlots::fillHistos(const EventMetadata& eventMetadata,
         m_histogram["jet_pt"]->Fill(recoObjects.jets_->at(index).Pt(), weight);
         m_histogram["jet_eta"]->Fill(recoObjects.jets_->at(index).Eta(), weight);
         m_histogram["jet_phi"]->Fill(recoObjects.jets_->at(index).Phi(), weight);
-        double btagDiscriminator = recoObjects.jetBTagCSV_->at(index);
+        double btagDiscriminator = recoObjects.jetBtags_->at(index);
         if(btagDiscriminator < -0.1) btagDiscriminator = -0.05;
         //m_histogram["jet_btagDiscriminator"]->Fill(btagDiscriminator, weight);
         //m_histogram["jet_chargeGlobalPtWeighted"]->Fill(recoObjects.jetChargeGlobalPtWeighted_->at(index), weight);

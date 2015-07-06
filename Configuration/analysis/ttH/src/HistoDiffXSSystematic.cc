@@ -8,6 +8,7 @@
 
 #include <TString.h>
 
+#include "AnalysisConfig.h"
 #include "Samples.h"
 #include "GlobalScaleFactors.h"
 #include "EventYields.h"
@@ -25,6 +26,9 @@ void HistoSystematic(const std::vector<std::string>& v_plot,
                      const std::vector<Channel::Channel>& v_channel,
                      const std::vector<Systematic::Systematic>& v_systematic)
 {
+    // Read analysis config from text file
+    const AnalysisConfig analysisConfig;
+    
     // Set up systematic variations
     std::vector<Systematic::Variation> v_variation;
     v_variation.push_back(Systematic::Variation::up);
@@ -66,7 +70,7 @@ void HistoSystematic(const std::vector<std::string>& v_plot,
     }
     
     // Create Plotter
-    PlotterDiffXSSystematic plotter("Plots_diffXS_systematic", m_inputRootFileNames);
+    PlotterDiffXSSystematic plotter("Plots_diffXS_systematic", analysisConfig, m_inputRootFileNames);
     
     // Access the histoList specifying printing parameters of histograms
     const std::string histoListFile(tth::DATA_PATH_TTH() + "/" + "HistoList_DiffXS_systematic");
