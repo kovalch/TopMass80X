@@ -80,9 +80,10 @@ struct sample {
   int color;
   int line;
   double size; // EFFECTIVE sample size
+  int marker;
   double genMass, genJES;
-  sample(bool d, bool sys, bool c_, bool r, bool de, bool cal, const char* i, const char* l, int c = kBlack, int li = 1, double s = 0)
-  : data(d), systematic(sys), cr(c_), rad(r), drawerror(de), calibration(cal), id(i), label(l), color(c), line(li), size(s) {}
+  sample(bool d, bool sys, bool c_, bool r, bool de, bool cal, const char* i, const char* l, int c = kBlack, int li = 1, double s = 0, int ma = 1)
+  : data(d), systematic(sys), cr(c_), rad(r), drawerror(de), calibration(cal), id(i), label(l), color(c), line(li), size(s), marker(ma) {}
 };
 
 std::string itos(int number)
@@ -92,7 +93,7 @@ std::string itos(int number)
    return ss.str();
 }
 
-void differentialMass(int iBinning = 12)
+void differentialMass(int iBinning = 0)
 {
   bool fixme = false;
   
@@ -111,9 +112,9 @@ void differentialMass(int iBinning = 12)
   std::vector<sample>::iterator cit;
   //std::vector<std::vector<double> > values;
   
-  samples.push_back(sample(true,  false,  true,  true, false, false, "Run2012", "Data", kBlack, 0));
+  samples.push_back(sample(true,  false,  true,  true, false, false, "Run2012", "Data", kBlack, 0, 0, 20));
   
-  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJetsMS1725_1.00", "MG+MS, Pythia Z2*", kRed+1, 0, 62131965./1.2));
+  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJetsMS1725_1.00", "MG+MS, Pythia Z2*", kRed+1, 0, 62131965./1.2, 24));
   samples.push_back(sample(false,  true,  true,  true,  true, false, "Summer12_TTJets1725_MGDecays_Z2", "MG, Pythia Z2*", kRed+1, 0, 56000000./1.2));
   
   samples.push_back(sample(false,  true, false, false, false, false, "Summer12_TTJetsMS1725_flavor:up_FlavorPureBottom", "MG, b-JES up", kBlue+1, 2, 62131965./1.2));
@@ -145,12 +146,12 @@ void differentialMass(int iBinning = 12)
   samples.push_back(sample(false,  true, false, false, false, false, "Summer12_TTJetsMS1725_1.00_frag", "MG, rbLEP", kGreen+1, 2, 62131965./1.2));
   
   //*
-  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJets1725_MGDecays_P11", "MG, Pythia P11", kMagenta+1, 5, 27000000./1.2));
-  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJets1725_MGDecays_P11noCR", "MG, Pythia P11noCR", kCyan+1, 6, 27000000./1.2));
-  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJets1725_powheg", "Powheg, Pythia Z2*", kGreen+1, 9, 21675970./1.2));
-  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJets1725_powheg_herwig", "Powheg, Herwig 6", kOrange+2, 7, 27684235./1.2));
-  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJets1725_mcatnlo_herwig", "MC@NLO, Herwig 6", kBlue+1, 2, 32852589.*0.7718/1.2));
-  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJets1725_sherpa", "Sherpa", kYellow+1, 3, 44000000./1.2));
+  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJets1725_MGDecays_P11", "MG, Pythia P11", kMagenta+1, 5, 27000000./1.2, 25));
+  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJets1725_MGDecays_P11noCR", "MG, Pythia P11noCR", kCyan+1, 6, 27000000./1.2, 26));
+  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJets1725_powheg", "Powheg, Pythia Z2*", kGreen+1, 9, 21675970./1.2, 27));
+  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJets1725_powheg_herwig", "Powheg, Herwig 6", kOrange+2, 7, 27684235./1.2, 28));
+  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJets1725_mcatnlo_herwig", "MC@NLO, Herwig 6", kBlue+1, 2, 32852589.*0.7718/1.2, 29));
+  samples.push_back(sample(false, false,  true,  true,  true, false, "Summer12_TTJets1725_sherpa", "Sherpa", kYellow+1, 3, 44000000./1.2, 30));
   
   //*/
   
@@ -411,9 +412,9 @@ void differentialMass(int iBinning = 12)
       
       it->results[iObs].profile->SetLineColor(it->color);
       it->results[iObs].profile->SetLineWidth(2);
-      it->results[iObs].profile->SetLineStyle(it->line);
-      if (it->data) it->results[iObs].profile->SetMarkerStyle(20);
-      else          it->results[iObs].profile->SetMarkerStyle(1);
+      //it->results[iObs].profile->SetLineStyle(it->line);
+      it->results[iObs].profile->SetMarkerStyle(it->marker);
+      it->results[iObs].profile->SetMarkerColor(it->color);
       
       it->results[iObs].profileDiff = (TH1F*) it->results[iObs].profile->Clone();
       
@@ -471,10 +472,34 @@ void differentialMass(int iBinning = 12)
         if (newMax > maxVal[iObs]) maxVal[iObs] = newMax;
       }
       
+      // error histos
       it->results[iObs].error = (TH1F*)it->results[iObs].profileDiff->Clone();
-      it->results[iObs].error->SetMarkerStyle(0);
+      //it->results[iObs].error->SetMarkerStyle(0);
       it->results[iObs].error->SetFillColor(it->color-11);
       it->results[iObs].error->SetFillStyle(3254);
+      
+      // shift MC points
+      //TF1 *f1 = new TF1("f1","1+0.1*x",-2,2);
+      //it->results[iObs].profileDiff->Multiply(f1,1);
+      //Double_t shift = 20.; //0.5*it->results[iObs].profileDiff->GetBinWidth(1);
+      //it->results[iObs].profileDiff->GetXaxis()->SetLimits(
+      //  it->results[iObs].profileDiff->GetXaxis()->GetXmin()+shift,
+      //  it->results[iObs].profileDiff->GetXaxis()->GetXmax()+shift
+      //);
+      
+      //*
+      const int nbins = samples[0].results[iObs].profile->GetNbinsX()+1;
+      std::cout << "nbins " << nbins << std::endl;
+      double bins[nbins];
+      double shift = 0.;
+      if (it->marker > 20) shift = (it->results[iObs].profileDiff->GetXaxis()->GetXmax() - it->results[iObs].profileDiff->GetXaxis()->GetXmin()) / 100. / nbins * 8. * (it->marker-27.);
+      if (it->marker >= 27) shift = (it->results[iObs].profileDiff->GetXaxis()->GetXmax() - it->results[iObs].profileDiff->GetXaxis()->GetXmin()) / 100. / nbins * 8. * (it->marker-27.+1.);
+      for (int i = 1; i < nbins+1; i++) {
+        bins[i-1] = it->results[iObs].profileDiff->GetXaxis()->GetBinLowEdge(i)+shift;
+        std::cout << it->results[iObs].profileDiff->GetXaxis()->GetBinLowEdge(i) << std::endl;
+      }
+      it->results[iObs].profileDiff->GetXaxis()->Set(nbins-1, bins);
+      //*/
     }
   }
   
@@ -574,8 +599,8 @@ void differentialMass(int iBinning = 12)
     //*
     if (doCalibration && iBinning == 16) {
       if (iObs == 1 || iObs == 2 || iObs == 4) {
-        minRange = -5.;
-        maxRange =  5.;
+        minRange = -2.0;
+        maxRange =  4.5;
       }
       if (iObs == 3) {
         minRange = -0.05;
@@ -590,7 +615,11 @@ void differentialMass(int iBinning = 12)
     if (doCalibration == false) hNull[iObs]->GetYaxis()->SetTitle(sObsNice[iObs]);
     else                        hNull[iObs]->GetYaxis()->SetTitle(sObsNiceCal[iObs]);
     if (iObs == 0) hNull[iObs]->GetYaxis()->SetTitleOffset(1.75);
-    hNull[iObs]->Draw("E,X0");
+    hNull[iObs]->Draw("E");
+    
+    //TF1* f0 = new TF1("f0","0", 0., 2000.);
+    //f0->SetLineColor(kGray+2);
+    //f0->Draw("same");
     
     TLegend* leg0 = new TLegend(0.25, 0.75, 0.55, 0.925);
     leg0->SetTextSize(0.03);
@@ -605,7 +634,7 @@ void differentialMass(int iBinning = 12)
     //if (!doCalibration) {
       for (it = samples.begin(); it != samples.end(); ++it) {
         if (!it->data && !it->systematic && !it->calibration && it->drawerror) {
-          it->results[iObs].error->Draw("SAME,E2");
+          //it->results[iObs].error->Draw("SAME,E2");
         }
       }
     //}
@@ -619,11 +648,11 @@ void differentialMass(int iBinning = 12)
       }
       else if (!it->systematic && !it->calibration //&& !doCalibration
               ) {
-        it->results[iObs].profileDiff->Draw("SAME");
+        it->results[iObs].profileDiff->Draw("E,X0,SAME");
         ++legEntry;
         // 2 columns
-        if (legEntry > 4) leg1->AddEntry(it->results[iObs].error, it->label, "LF");
-        else              leg0->AddEntry(it->results[iObs].error, it->label, "LF");
+        if (legEntry > 4) leg1->AddEntry(it->results[iObs].error, it->label, "P");
+        else              leg0->AddEntry(it->results[iObs].error, it->label, "P");
       }
     }
     hNull[iObs]->Draw("SAME,E,X0");
@@ -639,6 +668,7 @@ void differentialMass(int iBinning = 12)
     
     leg0->Draw();
     leg1->Draw();
+    
     if (!doCalibration) {
       if (iObs == 1 || iObs == 2) {
         TPaveLabel* gevLabel = DrawLabel("[GeV]", 0.06, 0.26, 0.2);
