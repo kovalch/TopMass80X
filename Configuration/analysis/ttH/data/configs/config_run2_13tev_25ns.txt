@@ -47,7 +47,7 @@
     leptonPtCut = 20.
     
     jetEtaCut = 2.4
-    jetPtCut = 20.
+    jetPtCut = 30.
     deltaRLeptonJetCut = 0.4
     lead2JetPtCut = 30.
     
