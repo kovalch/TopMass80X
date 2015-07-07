@@ -894,6 +894,10 @@ void SystematicUncertainties::deriveSystematics()
     myfile << buffer;
     
     if (it->second.linear) {
+      for(auto& var : sample.variables) {
+        mergedUncertaintiesUp  [var] = std::abs(mergedUncertaintiesUp  [var]);
+        mergedUncertaintiesDown[var] = std::abs(mergedUncertaintiesDown[var]);
+      }
       sprintf(buffer, "- linear & %.2lf & %.3lf & %.2lf \\tabularnewline\n", std::max(mergedUncertaintiesUp[sample.variables[0]], mergedUncertaintiesDown[sample.variables[0]]), std::max(mergedUncertaintiesUp[sample.variables[1]], mergedUncertaintiesDown[sample.variables[1]]), std::max(mergedUncertaintiesUp[sample.variables[2]], mergedUncertaintiesDown[sample.variables[2]]));
       printf("- linear                        \t  %.2lf             %.3lf             %.2lf           \n", std::max(mergedUncertaintiesUp[sample.variables[0]], mergedUncertaintiesDown[sample.variables[0]]), std::max(mergedUncertaintiesUp[sample.variables[1]], mergedUncertaintiesDown[sample.variables[1]]), std::max(mergedUncertaintiesUp[sample.variables[2]], mergedUncertaintiesDown[sample.variables[2]]));
       myfile << buffer;
