@@ -15,6 +15,7 @@ namespace AnalysisMode{
     enum AnalysisMode{
         cp,         // Basic control plots analyser
         dda,        // Double differential analyser
+        btop,       // Boosted top analyser
         ddaTree,    // Produce Tree for double differential analysis
         btopTree,   // Produce Tree for boosted top analysis
         kinReco,    // kin. Reco. efficiency analyser
@@ -35,7 +36,7 @@ namespace AnalysisMode{
     
     /// All analysis modes allowed for analysis
     const std::vector<AnalysisMode> allowedAnalysisModes
-        {cp, dda, ddaTree, btopTree, kinReco, dijet, charge, match, playg, weight, genEvent, mvaTopP, mvaTopA, mvaEventP, mvaEventA, mvaChargeP, mvaChargeA};
+        {cp, dda, btop, ddaTree, btopTree, kinReco, dijet, charge, match, playg, weight, genEvent, mvaTopP, mvaTopA, mvaEventP, mvaEventA, mvaChargeP, mvaChargeA};
     
     
     

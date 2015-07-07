@@ -15,6 +15,7 @@ AnalysisMode::AnalysisMode AnalysisMode::convert(const TString& analysisMode)
 {
     if(analysisMode == "cp") return cp;
     if(analysisMode == "dda") return dda;
+    if(analysisMode == "btop") return btop;
     if(analysisMode == "ddaTree") return ddaTree;
     if(analysisMode == "btopTree") return btopTree;
     if(analysisMode == "kinReco") return kinReco;
@@ -40,6 +41,7 @@ TString AnalysisMode::convert(const AnalysisMode& analysisMode)
 {
     if(analysisMode == cp) return "cp";
     if(analysisMode == dda) return "dda";
+    if(analysisMode == btop) return "btop";
     if(analysisMode == ddaTree) return "ddaTree";
     if(analysisMode == btopTree) return "btopTree";
     if(analysisMode == kinReco) return "kinReco";
