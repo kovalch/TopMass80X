@@ -118,6 +118,27 @@ void common::orderIndices(std::vector<int>& v_index, const VLV& v_lv, const comm
 
 
 
+void common::selectIndicesLeptonIso(std::vector<int>& v_index, const VLV& v_lvLep, const VLV& v_lvJet)
+{
+    std::vector<int> result;
+    for(const int index : v_index){
+        bool isReject = 0;
+        for(const LV& jet : v_lvJet){
+            TLorentzVector jetTLV = common::LVtoTLV(jet);
+            TLorentzVector lepTLV = common::LVtoTLV(v_lvLep.at(index));
+            double dR = jetTLV.DeltaR(lepTLV);
+            double relPt = (lepTLV.Vect().Cross(jetTLV.Vect()).Mag())/(jetTLV.Vect().Mag());
+            if(dR < 0.5 && relPt < 15)isReject=1;
+        }
+        if(!isReject)result.push_back(index);
+    }
+    
+    v_index.clear();
+    v_index = result;
+}
+
+
+
 void common::selectIndices(std::vector<int>& v_index, const VLV& v_lv, const common::LVParameter& parameter,
                           const double cutValue, const bool lowerThreshold)
 {

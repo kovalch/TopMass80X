@@ -107,6 +107,9 @@ namespace common{
     void selectIndices(std::vector<int>& v_index, const std::vector<int>& v_variable0, const std::vector<double>& v_variable, 
                                          const double cutValue, const bool lowerThreshold =true);
     
+    /// Function to select from a vector of lepton indices those whose fulfill iso-selection criteria
+    void selectIndicesLeptonIso(std::vector<int>& v_index, const VLV& v_lvLep, const VLV& v_lvJet);
+    
     /// Function returning the index of a vector whose parameter of the LVs has the most extreme value (in case of several, will be the first one found)
     /// Result is (if maximumValue==true): Index of element with maximum value of LV parameter
     /// Result is (if maximumValue==false): Index of element with minimum value of LV parameter
