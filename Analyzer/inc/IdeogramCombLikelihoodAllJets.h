@@ -22,8 +22,12 @@ private:
   double PUNJES1(double *x, double *p);
   
   double PBKG(double *x, double *p);
+  double PBKGSPLINE(double *x, double *p);
   double PBKGJES(double *x, double *p, const std::vector<double> &q);
   double PBKGJES1(double *x, double *p);
+  double PBKGJESSPLINE(double *x, double *p);
+
+  static double spline(double *xx, double *p);
   
   static std::vector<double> parsCP_;
   static std::vector<double> parsWP_;
@@ -48,10 +52,12 @@ private:
   static double fWP_;
   static double fUN_;
 
+
   double fSig_;
 
   static double IntegrationRangeMax_;
   static double PBKGintegral_;
+  static double PBKGJESintegral_;
   
   typedef std::pair<double,double> ScanPoint;
   typedef std::map<ScanPoint,double> ScanPointMap; 

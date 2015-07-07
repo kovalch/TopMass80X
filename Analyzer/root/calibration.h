@@ -20,7 +20,8 @@ private:
   TString selection_, samplePath_, fVar1_, fVar2_, fVar3_, fWeight_, fChannel_;
   std::string activeBranches_;
 
-  int maxPermutations_;
+  const int maxPermutations_;
+  //const double maxMtop_;
 
   enum channelID {kAllJets, kMuonJets, kElectronJets, kLeptonJets, kMaxChannels};
   int channelID_;

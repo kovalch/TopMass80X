@@ -17,6 +17,11 @@
 #include "TGraph.h"
 #include "TLegend.h"
 
+#include "TFile.h"
+#include "TH2D.h"
+#include "TH1D.h"
+#include "TF2.h"
+
 #include "Math/Minimizer.h"
 #include "Math/Factory.h"
 #include "Math/Functor.h"
@@ -215,6 +220,16 @@ void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimize
 
   // do the minimization
   min->Minimize();
+  //print cov matrix
+  /*
+  std::cout << "covariance matrix:\n";
+  for(unsigned int i = 0; i < 4 ; ++i) {
+    for(unsigned int j = 0 ; j < 4; ++j) {
+      std::cout << min->CovMatrix(i,j) << " ";
+    }
+    std::cout << '\n';
+  }
+  */
   for(unsigned int i = 0; i < toFit.size(); ++i){
     // Set the free variables to be minimized!
     if     (toFit[i] == kMass) { SetValue("mass"+nameFreeVariables, min->X()[0], min->Errors()[0]); }
@@ -223,24 +238,27 @@ void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimize
     else if(toFit[i] == kFCP ) { SetValue("fCP" +nameFreeVariables, min->X()[3], min->Errors()[3]); }
   }
   SetValue("Entries", entries_, sqrt(entries_));
-  
-  std::cout << "covariance matrix:\n";
-  for(unsigned int i = 0; i < 4 ; ++i) {
-    for(unsigned int j = 0 ; j < 4; ++j) {
-      std::cout << min->CovMatrix(i,j) << " ";
-    }
-    std::cout << '\n';
-  } 
   /*
-  std::cout << '\n\n';
   for(short i=0; i<4; ++i){
     for(short j=0; j<4; ++j){
       std::cout << min->Correlation(i,j) << " ";
     }
     std::cout << std::endl;
   }
-  //*/
+  */
   // DRAW
+  if (po::GetOption<bool>("temPlot")) {
+    if(channelID_ == Helper::kAllJets){
+      if(nameFreeVariables == "_mTop_JES_fSig"){
+	PlotResult2(min);
+      }
+    }
+    else{
+      if(nameFreeVariables == "_mTop_JES"){
+        PlotResult2(min);
+      }
+    }
+  }
   if (po::GetOption<bool>("minPlot")) {
     if(channelID_ == Helper::kAllJets){
       if(nameFreeVariables == "_mTop_JES_fSig_fCP"){
@@ -298,6 +316,15 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
   Helper helper;
 
   TCanvas canv("canv", "Top mass", 500, 500);
+  canv.SetFrameFillColor(kRed);
+  canv.SetFrameFillStyle(1001);
+  /*
+  canv.Update();
+  canv.GetFrame()->SetFillColor(21);
+  canv.GetFrame()->SetBorderSize(12);
+  canv.GetFrame()->SetFillStyle(1001);
+  canv.Modified();
+  */
   canv.SetLeftMargin (0.20);
   canv.SetRightMargin(0.04);
   canv.cd();
@@ -306,15 +333,15 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
   double* contourxs = new double[numPoints+1];
   double* contourys = new double[numPoints+1];
 
-  int lineColor = kWhite;
-  int lineWidth = 2;
+  int lineColor = kBlack;
+  int lineWidth = 1;
 
   min->SetErrorDef(9.);
   min->Contour(x, y, numPoints, contourxs, contourys);
   contourxs[numPoints] = contourxs[0]; contourys[numPoints] = contourys[0];
   TGraph gr3(numPoints+1, contourxs, contourys);
   gr3.SetNameTitle("gr3","gr3");
-  gr3.SetFillColor(kOrange-9);
+  gr3.SetFillColor(kSpring-9);
   gr3.SetLineColor(lineColor);
   gr3.SetLineWidth(lineWidth);
 
@@ -322,8 +349,8 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
   min->Contour(x, y, numPoints, contourxs, contourys);
   contourxs[numPoints] = contourxs[0]; contourys[numPoints] = contourys[0];
   TGraph gr2(numPoints+1, contourxs, contourys);
-  gr2.SetNameTitle("gr2","gr2");
-  gr2.SetFillColor(kAzure+7);
+  gr2.SetNameTitle("gr2","gr2");	
+  gr2.SetFillColor(kAzure+1);
   gr2.SetLineColor(lineColor);
   gr2.SetLineWidth(lineWidth);
 
@@ -332,7 +359,7 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
   contourxs[numPoints] = contourxs[0]; contourys[numPoints] = contourys[0];
   TGraph gr1(numPoints+1, contourxs, contourys);
   gr1.SetNameTitle("gr1","gr1");
-  gr1.SetFillColor(kAzure-6);
+  gr1.SetFillColor(kViolet+9);
   gr1.SetLineColor(lineColor);
   gr1.SetLineWidth(lineWidth);
 
@@ -358,24 +385,18 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
 
   TGraph gr0(1, &min->X()[x], &min->X()[y]);
   gr0.SetNameTitle("gr0","gr0");
-  gr0.SetMarkerColor(kOrange+9);
-  gr0.SetMarkerStyle(34);
+  gr0.SetMarkerColor(kWhite);
+  gr0.SetMarkerStyle(2);
   gr0.SetMarkerSize(2);
   gr0.Draw("P,SAME");
-  
-  TGraph gr0red(1, &min->X()[x], &min->X()[y]);
-  gr0red.SetMarkerColor(kWhite);
-  gr0red.SetMarkerStyle(28);
-  gr0red.SetMarkerSize(2);
-  gr0red.Draw("P,SAME");
 
   TLegend leg0(0.70, 0.75, 0.93, 0.92);
   leg0.SetFillStyle(1001);
   leg0.SetFillColor(kWhite);
   leg0.SetBorderSize(1);
-  leg0.AddEntry(&gr1, "-2#Delta log(L) < 1", "F");
-  leg0.AddEntry(&gr2, "-2#Delta log(L) < 4", "F");
-  leg0.AddEntry(&gr3, "-2#Delta log(L) < 9", "F");
+  leg0.AddEntry(&gr1, "-2#Delta log(L) = 1", "F");
+  leg0.AddEntry(&gr2, "-2#Delta log(L) = 4", "F");
+  leg0.AddEntry(&gr3, "-2#Delta log(L) = 9", "F");
   leg0.Draw();
 
   // draw tangents to -2#Delta log(L) = 1 ellipse
@@ -404,6 +425,42 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
 
   delete[] contourxs;
   delete[] contourys;
+}
+
+double IdeogramAnalyzerMinimizer::evalAllJets(double *x, double *p)
+{
+  IdeogramCombLikelihoodAllJets like;
+  like.SetFixedParams(1, x[0], x[1], 0, 0, 0, 0, 0, 1);
+  like.SetActive(true);
+  double pNew[] = {p[0],p[1],p[2],p[3]};
+  double val = like.Evaluate(pNew,0);
+  return val;
+}
+
+void IdeogramAnalyzerMinimizer::PlotResult2(ROOT::Math::Minimizer* min, IdeogramAnalyzerMinimizer::allowedVariables x, IdeogramAnalyzerMinimizer::allowedVariables y){
+  TFile* histFile = TFile::Open("tmpTESThistos.root","RECREATE");
+  TH1D* histT = new TH1D("histT","",po::GetOption<double>("templates.maxTopMass")-100,100,po::GetOption<double>("templates.maxTopMass"));
+  TH1D* histW = new TH1D("histW","",110,65,120);
+  TH2D* hist = new TH2D("hist","",po::GetOption<double>("templates.maxTopMass")-100,100,po::GetOption<double>("templates.maxTopMass"),110,65,120);
+  
+  TF2* func = new TF2("func",evalAllJets,100,po::GetOption<double>("templates.maxTopMass"),65,120,4);
+  func->SetParameters(min->X()[x],min->X()[y], min->X()[kFSig], po::GetOption<double>("templates.fCP"));
+  for(int i=1; i<histT->GetNbinsX(); ++i){
+    double x = histT->GetBinCenter(i);
+    for(int j=1; j<histW->GetNbinsX(); ++j){
+      double y = histW->GetBinCenter(j);
+      double val = func->Eval(x,y);
+      histT->Fill(x,val);
+      histW->Fill(y,val);
+      hist->Fill(x,y,val);
+    } // end for j
+  } // end for i
+  histFile->cd();
+  histT->Write();
+  histW->Write();
+  hist->Write();
+  func->Write();
+  histFile->Close();
 }
 
 // cleanup needed to run pseudo-experiments

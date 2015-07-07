@@ -43,6 +43,9 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("minPlot", boost::program_options::value<bool>()->default_value(false),
             "Plot IdeogramMin result\n"
         )
+        ("temPlot", boost::program_options::value<bool>()->default_value(false),
+            "Plot IdeogramMin templates\n"
+        )
         ("constrainJSF", boost::program_options::value<bool>()->default_value(true),
             "Add Gaussian constraint to JSF\n"
         )
@@ -163,6 +166,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("templates.ele_parsUNJES", boost::program_options::value<std::string>()->default_value(""))
         ("templates.parsBKG", boost::program_options::value<std::string>()->default_value(""))
         ("templates.parsBKGJES", boost::program_options::value<std::string>()->default_value(""))
+        ("templates.maxTopMass", boost::program_options::value<double>()->default_value(215.))
         ("calibration.massOffset", boost::program_options::value<std::string>()->default_value("0.0"))
         ("calibration.massSlopeMass", boost::program_options::value<std::string>()->default_value("0.0"))
         ("calibration.massSlopeJES", boost::program_options::value<std::string>()->default_value("0.0"))
@@ -187,7 +191,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("calibration.ele_jesSlopeMass", boost::program_options::value<std::string>()->default_value("0.0"))
         ("calibration.ele_jesSlopeJES", boost::program_options::value<std::string>()->default_value("0.0"))
         ("calibration.ele_jesSlopeMassJES", boost::program_options::value<std::string>()->default_value("0.0"))
-
+        ("skimmer.mcweight", boost::program_options::value<double>()->default_value(-1.0))
         ;
 
     boost::program_options::store(boost::program_options::parse_command_line(ac, av, desc), *programOptions_);

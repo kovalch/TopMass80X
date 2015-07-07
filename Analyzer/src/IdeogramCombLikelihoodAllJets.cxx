@@ -31,8 +31,9 @@ double IdeogramCombLikelihoodAllJets::fCP_(-1);
 double IdeogramCombLikelihoodAllJets::fWP_(-1);
 double IdeogramCombLikelihoodAllJets::fUN_(-1);
 
-double IdeogramCombLikelihoodAllJets::IntegrationRangeMax_(215.);
+double IdeogramCombLikelihoodAllJets::IntegrationRangeMax_(-1);
 double IdeogramCombLikelihoodAllJets::PBKGintegral_(-1);
+double IdeogramCombLikelihoodAllJets::PBKGJESintegral_(-1);
 IdeogramCombLikelihoodAllJets::ScanPointMap IdeogramCombLikelihoodAllJets::PWPnormalizations_;
 IdeogramCombLikelihoodAllJets::ScanPointMap IdeogramCombLikelihoodAllJets::PUNnormalizations_;
 
@@ -40,6 +41,10 @@ IdeogramCombLikelihoodAllJets::IdeogramCombLikelihoodAllJets() :
   fSig_(-1.)
   {
   bool onlyCP = false;
+
+  // parameters for mTop correct permutations
+  if(IntegrationRangeMax_ < 0.)
+    IntegrationRangeMax_ = po::GetOption<double>("templates.maxTopMass");
 
   // parameters for mTop correct permutations
   if(!parsCP_.size())
@@ -114,8 +119,8 @@ IdeogramCombLikelihoodAllJets::IdeogramCombLikelihoodAllJets() :
   // parameters for mTop background
   if(!parsBKG_.size()){
     parsBKG_ = readParameters("templates.parsBKG");
-    parsBKG_.push_back(-1);
-    parsBKG_.push_back(-1);
+    parsBKG_.push_back(-1); // normalization of gamma
+    parsBKG_.push_back(-1); // normalization of landau
   }
 
   // parameters for JES background
@@ -151,6 +156,10 @@ double IdeogramCombLikelihoodAllJets::Evaluate(double *x, double *p) {
     fCP_ -= 0.5*p[6];
     fWP_ -= 0.5*p[6];
     fUN_ += p[6];
+    if(fUN_ == 0){
+      fCP_ -= p[6];
+      fWP_ += p[6];
+    }
   }
 
   //if(fSigOfMtop){
@@ -203,7 +212,8 @@ double IdeogramCombLikelihoodAllJets::Evaluate(double *x, double *p) {
   return p[0] * (fSig_ * (fCP_ * PCP (x,p) * (PCPJES1 (x,p))
 		       +  fWP_ * PWP (x,p) * (PWPJES1 (x,p))
      +  ((fUN_==0) ? 0 : (fUN_ * PUN (x,p) * (PUNJES1 (x,p)))) )
-	       + (1.-fSig_)    * PBKG(x,p) * (PBKGJES1(x,p)));
+		 //    + (1.-fSig_)    * PBKG(x,p) * (PBKGJES1(x,p)));
+           + (1.-fSig_)    * PBKGSPLINE(x,p) * (PBKGJESSPLINE(x,p)));
 }
 
 
@@ -305,7 +315,8 @@ double IdeogramCombLikelihoodAllJets::PJES(double* x, double* p, const std::vect
   double t2 = (p[2] - mu) / sigma2;
   
   static const double sqrt2  = sqrt(2.0);
-  double N = sqrt2/(sigma1+sigma2);
+  static const double sqrtPi = sqrt(TMath::Pi());
+  double N = sqrt2/(sigma1+sigma2)/sqrtPi;
   
   if(t1 < 0)
     return N * TMath::Exp(-t1*t1/2);
@@ -337,9 +348,10 @@ double IdeogramCombLikelihoodAllJets::PJESOTHER(double* x, double* p, const std:
   double t3 = (p[2] - (mu + shift3)) / sigma3;
   
   static const double sqrt2 = sqrt(2.0);
-  double N1 = norm1/(sqrt2*sigma1);
-  double N2 = norm2/(sqrt2*sigma2);
-  double N3 = norm3/(sqrt2*sigma3);
+  static const double sqrtPi = sqrt(TMath::Pi());
+  double N1 = norm1/(sqrt2*sigma1)/sqrtPi;
+  double N2 = norm2/(sqrt2*sigma2)/sqrtPi;
+  double N3 = norm3/(sqrt2*sigma3)/sqrtPi;
 
   return ((N1 * TMath::Exp(-t1*t1/2)) + (N2 * TMath::Exp(-t2*t2/2)) + (N3 * TMath::Exp(-t3*t3/2)));
 }
@@ -373,6 +385,23 @@ double IdeogramCombLikelihoodAllJets::PBKG(double *x, double *p)
   return PBKGintegral_*gammaland(&p[1],&q[0]);
 }
 
+double IdeogramCombLikelihoodAllJets::PBKGSPLINE(double * x, double *p)
+{
+  static const double min = 100;
+  static const double max = IntegrationRangeMax_;
+
+  if(PBKGintegral_ < 0.){
+    TF1 func = TF1("func", spline, min, max, parsBKG_.size());
+    func.SetParameters(&parsBKG_[0]);
+    PBKGintegral_ = 1. / func.Integral(min,max);
+  }
+  if(p[1] < min || p[1] > max) return 0;
+  double result = PBKGintegral_*spline(&p[1], &parsBKG_[0]);
+  assert(result >= 0);
+  assert(result == result);
+  return result;
+}
+
 double IdeogramCombLikelihoodAllJets::PBKGJES1(double *x, double *p)
 {
   const std::vector<double> &q = parsBKGJES_;
@@ -389,14 +418,60 @@ double IdeogramCombLikelihoodAllJets::PBKGJES(double *x, double *p, const std::v
   double t1 = (p[2] - mu) / sigma1;
   double t2 = (p[2] - mu) / sigma2;
   
-  static const double sqrt2 = sqrt(2);
-  double N = sqrt2/(sigma1+sigma2);
-  
+  static const double sqrt2  = sqrt(2.0);
+  static const double sqrtPi = sqrt(TMath::Pi());
+  double N = sqrt2/(sigma1+sigma2)/sqrtPi;
+
   if(t1 < 0)
     return N * TMath::Exp(-t1*t1/2);
   else
     return N * TMath::Exp(-t2*t2/2);
 }
+
+double IdeogramCombLikelihoodAllJets::PBKGJESSPLINE(double * x, double *p)
+{
+  static const double min = 70;
+  static const double max = 120;
+
+  if(PBKGJESintegral_ < 0.){
+    TF1 func = TF1("func", spline, min, max, parsBKGJES_.size());
+    func.SetParameters(&parsBKGJES_[0]);
+    PBKGJESintegral_ = 1. / func.Integral(min,max);
+  }
+  if(p[2] < min || p[2] > max) return 0;
+  double result = PBKGJESintegral_*spline(&p[2], &parsBKGJES_[0]);
+  assert(result >= 0);
+  assert(result == result);
+  return result;
+}
+
+double IdeogramCombLikelihoodAllJets::spline(double *xx, double *p) {
+  const double x(xx[0]);
+  const int fNp = p[0];
+  const double fXmin = p[1], fXmax = p[2];
+
+  const double *fX = &p[3];
+  const double *fY = &p[fNp+3];
+  const double *fB = &p[2*fNp+3];
+  const double *fC = &p[3*fNp+3];
+  const double *fD = &p[4*fNp+3];
+
+  int klow=0;
+  if(x<=fXmin) klow=0;
+  else if(x>=fXmax) klow=fNp-1;
+  else {
+    int khig=fNp-1, khalf;
+    // Non equidistant knots, binary search
+    while(khig-klow>1)
+      if(x>fX[khalf=(klow+khig)/2]) klow=khalf;
+      else khig=khalf;
+  }
+  // Evaluate now
+  double dx=x-fX[klow];
+  double erg = (fY[klow]+dx*(fB[klow]+dx*(fC[klow]+dx*fD[klow])));
+  return erg >=0 ? erg : -erg;
+}
+
 
 IdeogramCombLikelihoodAllJets::~IdeogramCombLikelihoodAllJets()
 {
