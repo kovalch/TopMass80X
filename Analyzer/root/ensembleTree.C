@@ -37,28 +37,28 @@
 //double crossSection   = 247.0;
 //double peLumi         = 18352.0;
 
-const int nJES = 5;
+// const int nJES = 5;
+// const int nMasses = 7;
+// enum styles          { kDown1, kDown2, kNominal, kUp1, kUp2 };
+// int color_ [] = { kRed+1, kMagenta, kBlue+1, kCyan, kGreen+1 };
+// int marker_[] = { 23, 23, 20, 22, 22 };
+// double genJES[]       = {0.96, 0.98, 1.00, 1.02, 1.04};
+// //double genJESError[]  = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
+// double genMass[]      = {166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5};
+// double genMassError[] = { 1e-6,  1e-6,  1e-6,  1e-6,  1e-6,  1e-6,  1e-6};
+// double genMassN[]     = {27078777, 39518234, 24439341, 62131965, 26489020, 40244328, 24359161};
+// double maxMCWeight[]  = {1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8};
+
+const int nJES = 3;
 const int nMasses = 7;
-enum styles          { kDown1, kDown2, kNominal, kUp1, kUp2 };
-int color_ [] = { kRed+1, kMagenta, kBlue+1, kCyan, kGreen+1 };
-int marker_[] = { 23, 23, 20, 22, 22 };
-double genJES[]       = {0.96, 0.98, 1.00, 1.02, 1.04};
-//double genJESError[]  = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
+int color_ [] = { kRed+1, kBlue+1, kGreen+1 };
+int marker_[] = { 23, 20, 22 };
+double genJES[]       = {0.98, 1.00, 1.02};
+double genJESError[]  = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
 double genMass[]      = {166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5};
 double genMassError[] = { 1e-6,  1e-6,  1e-6,  1e-6,  1e-6,  1e-6,  1e-6};
 double genMassN[]     = {27078777, 39518234, 24439341, 62131965, 26489020, 40244328, 24359161};
 double maxMCWeight[]  = {1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8};
-
-//const int nJES = 3;
-//const int nMasses = 7;
-//int color_ [] = { kRed+1, kBlue+1, kGreen+1 };
-//int marker_[] = { 23, 20, 22 };
-//double genJES[]       = {0.98, 1.00, 1.02};
-////double genJESError[]  = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
-//double genMass[]      = {166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5};
-//double genMassError[] = { 1e-6,  1e-6,  1e-6,  1e-6,  1e-6,  1e-6,  1e-6};
-//double genMassN[]     = {27078777, 39518234, 24439341, 62131965, 26489020, 40244328, 24359161};
-//double maxMCWeight[]  = {1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8};
 
 double crossSection   = 245.794;
 double peLumi         = 18191.6;
@@ -222,9 +222,9 @@ void ensembleTree()
   //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150122_1600/"); // oldTEST
   //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150202_1400/"); // older
   //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150211_1800/"); // older fixed Mixing
-  TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150211_1801/"); // older fixed Mixing
-  //sFile += "ensemble_S12_Uncalibrated.root";
-  sFile += "ensemble_S12_Calibrated.root";
+  TString sFile("/afs/desy.de/user/s/stadie/xxl-af-cms/topmass/CMSSW_5_3_14_patch2/src/TopMass/Analyzer/"); // older fixed Mixing
+  sFile += "ensemble_S12_Uncalibrated.root";
+  //sFile += "ensemble_S12_Calibrated.root";
 
   std::cout << "Doing calibration on: " << sFile << std::endl;
   TFile* fEnsemble = new TFile(sFile);
@@ -250,15 +250,19 @@ void ensembleTree()
   TH2D* h2Mass = new TH2D("h2Mass", "h2Mass", 1000, 150, 200, 1000, 0.9, 1.1);
   TH2D* h2JES = new TH2D("h2JES", "h2JES", 1000, 150, 200, 1000, 0.9, 1.1);
   
+
+
   for (int iJES = 0; iJES < nJES; iJES++) {
     for (int iMass = 0; iMass < nMasses; ++iMass) {
       //TString sel("mass_mTop_JES_fSig_fCP>0 & JES_mTop_JES_fSig_fCP>0 & JES_mTop_JES_fSig_fCP_Error>0.00 & JES_mTop_JES_fSig_fCP_Error<10.0 & mass_mTop_JES_fSig_fCP_Error>0.5 & mass_mTop_JES_fSig_fCP_Error<2.5 & abs(mass_mTop_JES_fSig_fCP_Pull)<100 & genMass=="); sel+=genMass[iMass]; sel+=" & genJES=="; sel+=genJES[iJES];
       //TString sel("mass_mTop_JES>0 & JES_mTop_JES>0 & genMass=="); sel+=genMass[iMass]; sel+=" & genJES=="; sel+=genJES[iJES];
       TString sel("mass_mTop_JES_fSig_fCP>0 & JES_mTop_JES_fSig_fCP>0 & fSig_mTop_JES_fSig_fCP>0 & fCP_mTop_JES_fSig_fCP>0 & genMass=="); sel+=genMass[iMass]; sel+=" & genJES=="; sel+=genJES[iJES];
+      //TString sel("mass_mTop_JES_fSig>0 & JES_mTop_JES_fSig>0 & fSig_mTop_JES_fSig>0 & genMass=="); sel+=genMass[iMass]; sel+=" & genJES=="; sel+=genJES[iJES];
       double entries = tree->GetEntries(sel);
       
       TF1* gausMassBias = new TF1("gausMassBias", "gaus");
       tree->Fit("gausMassBias", "mass_mTop_JES_fSig_fCP", sel, "Q0");
+      //tree->Fit("gausMassBias", "mass_mTop_JES_fSig", sel, "Q0");
       
       mass[iJES][iMass]          = genMass[iMass];
       massBias[iJES][iMass]      = gausMassBias->GetParameter(1) - genMass[iMass];
@@ -266,6 +270,7 @@ void ensembleTree()
         
       TF1* gausJESBias = new TF1("gausJESBias", "gaus");
       tree->Fit("gausJESBias", "JES_mTop_JES_fSig_fCP", sel, "Q0");
+      //tree->Fit("gausJESBias", "JES_mTop_JES_fSig", sel, "Q0");
       
       JES[iJES][iMass]          = genJES[iJES];
       JESBias[iJES][iMass]      = gausJESBias->GetParameter(1) - genJES[iJES];
@@ -281,13 +286,15 @@ void ensembleTree()
       
       TF1* gausMassPull = new TF1("gausMassPull", "gaus");
       tree->Fit("gausMassPull", "mass_mTop_JES_fSig_fCP_Pull", sel, "Q0");
-      
+      //tree->Fit("gausMassPull", "mass_mTop_JES_fSig_Pull", sel, "Q0");
+ 
       double eff = 0.000838398;
       massPull[iJES][iMass]      = gausMassPull->GetParameter(2);
       massPullError[iJES][iMass] = sqrt(1./2. * (maxMCWeight[iMass]/(genMassN[iMass]*eff) + 1./(entries-1.)));
       
       TF1* gausJESPull = new TF1("gausJESPull", "gaus");
       tree->Fit("gausJESPull", "JES_mTop_JES_fSig_fCP_Pull", sel, "Q0");
+      //tree->Fit("gausJESPull", "JES_mTop_JES_fSig_Pull", sel, "Q0");
       
       JESPull[iJES][iMass]      = gausJESPull->GetParameter(2);
       JESPullError[iJES][iMass] = sqrt(1./2. * maxMCWeight[iMass]/(genMassN[iMass]*eff) + 1./(entries-1.));
@@ -411,8 +418,11 @@ void ensembleTree()
     gMass[1]->Fit("topMass1DUncertaintyFit", "EM0");
   }
   if(sFile.Contains("Calibrated")){
-    mgMass->SetMinimum(-0.45);
-    mgMass->SetMaximum( 0.45);
+    mgMass->SetMinimum(-1.06);
+    mgMass->SetMaximum( 1.06);
+  } else {
+    mgMass->SetMinimum(-2.15);
+    mgMass->SetMaximum( 2.15);
   }
   mgMass->Draw("AP");
   gPad->SetBottomMargin(0.005);
@@ -472,8 +482,11 @@ void ensembleTree()
     gJES[2]->Fit("linearFit104", "EM");
   }
   if(sFile.Contains("Calibrated")){
-    mgJES->SetMinimum(-0.0045);
-    mgJES->SetMaximum( 0.0045);
+    mgJES->SetMinimum(-0.0106);
+    mgJES->SetMaximum( 0.0106);
+  } else {
+    mgJES->SetMinimum(-0.0215);
+    mgJES->SetMaximum( 0.0215);
   }
   mgJES->Draw("AP");
   gPad->SetTopMargin(0.005);

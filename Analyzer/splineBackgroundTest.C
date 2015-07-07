@@ -5,6 +5,10 @@
 #include "TF1.h"
 #include "TH1D.h"
 #include "TSpline.h"
+#include "TLegend.h"
+
+//const char* cuts = "jet.jet[0].Pt() > 60 && jet.jet[1].Pt() > 60 && jet.jet[2].Pt() > 60 && jet.jet[3].Pt() > 60 && jet.jet[5].Pt() > 30 && top.fitProb > 0.10 && jet.jet[0].Pt() > 100 && top.fitTop1[0].M() < 240";
+const char* cuts = "jet.jet[0].Pt() > 60 && jet.jet[1].Pt() > 60 && jet.jet[2].Pt() > 60 && jet.jet[3].Pt() > 60 && jet.jet[5].Pt() > 30 && top.fitProb > 0.10";
 
 
 void printSpline(TSpline3* sp) {
@@ -27,19 +31,31 @@ void printSpline(TSpline3* sp) {
   std::cout << '\n';
 }
 
+
+void scaledHist(const TH1D* h, const TH1D* href, TH1D* hvar, TF1* fvar) {
+  hvar->Add(fvar);
+  hvar->Divide(href);
+  for(int i = 0 ; i <= hvar->GetNbinsX() ; ++i) {
+    if(hvar->GetBinContent(i) < 0.5) hvar->SetBinContent(i,0.5);
+    if(hvar->GetBinContent(i) > 2.0) hvar->SetBinContent(i,2.0);
+  }
+  hvar->Multiply(h);
+  hvar->Scale(h->Integral()/hvar->Integral());
+}  
+
 void splineBackgroundTest()
 {
   TChain* eventTree = new TChain("analyzeKinFit/eventTree");
-  //eventTree->Add("Run2012_Background_alljets.root");
+  eventTree->Add("data/Background_MJP12.root");
   //eventTree->Add("Run2012_Mixing8_alljets.root");
-  eventTree->Add("data/job_QCDMixing_MJPS12D*.root");
+  //eventTree->Add("data/mix6_QCDMixing_MJPS12*.root");
   
   TCanvas* canv = new TCanvas("canv","",600,600);  
   canv->SetMargin(0.15,0.05,0.15,0.05);
-  //TH1D* wBkg = new TH1D("wBkg", ";m_{W}^{reco} [GeV];a.u.", 120, 65, 125); int rebin = 8; eventTree->Draw("(top.recoW1.M()+top.recoW2.M())/2.0>>wBkg","jet.jet[0].Pt() > 60 && jet.jet[1].Pt() > 60 && jet.jet[2].Pt() > 60 && jet.jet[3].Pt() > 60","norm");
-  TH1D* wBkg = new TH1D("wBkg", ";m_{W}^{reco} [GeV];a.u.", 120, 65, 125); int rebin = 8; eventTree->Draw("(top.recoW1.M()+top.recoW2.M())/2.0>>wBkg","jet.jet[0].Pt() > 60 && jet.jet[1].Pt() > 60 && jet.jet[2].Pt() > 60 && jet.jet[3].Pt() > 60","norm");
-  //TH1D* wBkg = new TH1D("wBkg", ";m_{t}^{fit} [GeV];a.u.", 120, 95, 215); int rebin = 8; eventTree->Draw("top.fitTop1.M()>>wBkg","jet.jet[0].Pt() > 60 && jet.jet[1].Pt() > 60 && jet.jet[2].Pt() > 60 && jet.jet[3].Pt() > 60","norm");
-  //TH1D* wBkg = new TH1D("wBkg", ";m_{t}^{fit} [GeV];a.u.", 156, 91, 559); int rebin = 6; eventTree->Draw("top.fitTop1.M()>>wBkg","jet.jet[0].Pt() > 60 && jet.jet[1].Pt() > 60 && jet.jet[2].Pt() > 60 && jet.jet[3].Pt() > 60","norm");
+  TH1D* wBkg = new TH1D("wBkg", ";m_{W}^{reco} [GeV];a.u.", 105, 60, 130); int rebin = 5; eventTree->Draw("(top.recoW1.M()+top.recoW2.M())/2.0>>wBkg",cuts,"norm");
+  //TH1D* wBkg = new TH1D("wBkg", ";m_{W}^{reco} [GeV];a.u.", 120, 65, 125); int rebin = 8; eventTree->Draw("(top.recoW1.M()+top.recoW2.M())/2.0>>wBkg",cuts,"norm");
+  //TH1D* wBkg = new TH1D("wBkg", ";m_{t}^{fit} [GeV];a.u.", 120, 91, 320); int rebin = 8; eventTree->Draw("top.fitTop1.M()>>wBkg",cuts,"norm");
+  //TH1D* wBkg = new TH1D("wBkg", ";m_{t}^{fit} [GeV];a.u.", 105, 80, 600); int rebin = 5; eventTree->Draw("top.fitTop1.M()>>wBkg",cuts,"norm");
   TH1D* wBkgTmp = (TH1D*)wBkg->Clone("wBkgTmp");
   wBkgTmp->Rebin(rebin);
   wBkg->Scale(rebin);
@@ -62,7 +78,7 @@ void splineBackgroundTest()
 }
 
 
-void makeSysSplines(TH1D* h, TF1* f, int ipar, double scale_up, double scale_down, int rebin = 8)
+void makeSysSplines(TH1D* h, TF1* f, int ipar, double scale_up, double scale_down, int rebin = 8, TH1D* halt = 0)
 {
   static int cid = 0;
   TString cst="c";
@@ -74,48 +90,79 @@ void makeSysSplines(TH1D* h, TF1* f, int ipar, double scale_up, double scale_dow
   h->SetStats(0);
   h->SetLineWidth(2);
   h->SetLineColor(kBlack);
+  h->SetMarkerStyle(20);
   h->GetXaxis()->SetTitleSize(0.05);
   h->GetYaxis()->SetTitleSize(0.05);
   h->GetYaxis()->SetTitleOffset(1.2);
-  
+  TH1D* h2= (TH1D*)h->Clone("h2");
   f->SetLineColor(kBlack);
   h->Fit(f);
+  h->SetMaximum(1.2*h->GetMaximum());
   double par = f->GetParameter(ipar);
 
   TH1D* hRef = (TH1D*)h->Clone("hRef");
 
   TH1D* hUp = (TH1D*)h->Clone("hUp");
   hUp->SetLineColor(2);
+  hUp->SetMarkerColor(2);
   TH1D* hDown = (TH1D*)h->Clone("hDown");
   hDown->SetLineColor(3);
+  hDown->SetMarkerColor(3);
   hRef->Reset();
   hUp->Reset();
   hDown->Reset();
 
   hRef->Add(f);
-  f->SetParameter(ipar,par*scale_up);
-  hUp->Add(f);
-  f->SetParameter(ipar,par*scale_down);
-  hDown->Add(f);
-  hUp->DrawCopy("same");
-  hDown->DrawCopy("same");
+  TF1* fup = (TF1*)f->Clone("fup");
+  fup->SetLineColor(2);
+  fup->SetParName(ipar,"modup");
+  fup->SetParameter(ipar,par*scale_up);
+  scaledHist(h,hRef,hUp,fup);
+  
+  TF1* fdown = (TF1*)f->Clone("fdown");
+  fdown->SetLineColor(3);
+  fdown->SetParName(ipar,"moddown");
+  fdown->SetParameter(ipar,par*scale_down);  
+  scaledHist(h,hRef,hDown,fdown);
+
+  fup->DrawCopy("same");
+  fdown->DrawCopy("same");
 
   hRef->Rebin(rebin);
-  hRef->Scale(1/hRef->Integral());
+  hRef->Scale(1.0/hRef->Integral());
   hUp->Rebin(rebin);
-  hUp->Scale(1/hUp->Integral());
+  hUp->Scale(1.0/hUp->Integral());
   hDown->Rebin(rebin);
-  hDown->Scale(1/hDown->Integral());
-  
+  hDown->Scale(1.0/hDown->Integral());
+  h2->Rebin(rebin);
+  h2->Scale(1.0/h2->Integral());
 
-  TSpline3* s3ref = new TSpline3(hRef);
+
+  if(halt) {
+    halt->SetLineColor(1);
+    halt->SetMarkerStyle(4);
+    halt->Scale(h->Integral()/halt->Integral());
+    halt->DrawCopy("P same");
+  }
+  TLegend * leg1 = new TLegend(0.60,0.68,0.97,0.94);
+  leg1->SetFillStyle(0);
+  leg1->SetLineColor(0);
+  leg1->AddEntry(h,"default background","p");
+  leg1->AddEntry(f,"fit to default bkg","l");
+  leg1->AddEntry(fup,"up variation","l");
+  leg1->AddEntry(fdown,"down variation","l");
+  if(halt) leg1->AddEntry(halt,"control region","p");
+  leg1->Draw("same");
+
+  TSpline3* s3ref = new TSpline3(h2);
   TSpline3* s3up = new TSpline3(hUp);
   TSpline3* s3down = new TSpline3(hDown);
 
   cst="c";
   TCanvas* canv2= new TCanvas(cst+=cid++,"",600,600);
-  canv2->SetMargin(0.15,0.05,0.15,0.05);
-  hRef->Draw();
+  canv2->SetMargin(0.15,0.05,0.15,0.05); 
+  h2->SetMaximum(1.2*h2->GetMaximum());
+  h2->Draw();
   hUp->Draw("same");
   hDown->Draw("same");
 
@@ -129,7 +176,19 @@ void makeSysSplines(TH1D* h, TF1* f, int ipar, double scale_up, double scale_dow
   
   s3ref->Draw("PL same");
   s3up->Draw("PL same");
-  s3down->Draw("PL same");
+  s3down->Draw("PL same");  
+  if(halt) {
+    
+    halt->SetLineColor(1);
+    halt->SetMarkerStyle(4);
+    halt->Rebin(rebin);
+    halt->Scale(1.0/hRef->Integral());
+    halt->DrawCopy("P same");
+    TSpline3* s3alt = new TSpline3(halt);
+    s3alt->Draw("PL same");  
+    std::cout << "alt:\n";
+    printSpline(s3alt);
+  }
   //s3ref->SaveAs("sys_splineWref"); 
   //s3up->SaveAs("sys_splineWup"); 
   //s3down->SaveAs("sys_splineWdown");
@@ -140,6 +199,16 @@ void makeSysSplines(TH1D* h, TF1* f, int ipar, double scale_up, double scale_dow
   printSpline(s3up);
   std::cout << "down:\n";
   printSpline(s3down);
+
+  TLegend * leg = new TLegend(0.60,0.73,0.97,0.94);
+  leg->SetFillStyle(0);
+  leg->SetLineColor(0);
+  leg->AddEntry(h2,"default background","pl");
+  leg->AddEntry(hUp,"up variation","pl");
+  leg->AddEntry(hDown,"down variation","pl");
+  if(halt) leg->AddEntry(halt,"control region","pl");
+
+  leg->Draw("same");
 
   TString hst = h->GetName();
   hst+=1;
@@ -156,30 +225,39 @@ void makeSysSplines(TH1D* h, TF1* f, int ipar, double scale_up, double scale_dow
 void splineBackgroundTestSys()
 {
   TChain* eventTree = new TChain("analyzeKinFit/eventTree");
-  //eventTree->Add("Run2012_Background_alljets.root");
-  //eventTree->Add("Run2012_Mixing8_alljets.root");
-  eventTree->Add("data/job_QCDMixing_MJPS12D*.root");
+  eventTree->Add("data/Background_MJP12.root");
+  TChain* eventTree2 = new TChain("analyzeKinFit/eventTree");
+  eventTree2->Add("data/mix6_QCDMixing_MJPS12*.root");
   
-  TH1D* wBkg = new TH1D("wBkg", ";m_{W}^{reco} [GeV];a.u.", 120, 65, 125); 
-  eventTree->Draw("(top.recoW1.M()+top.recoW2.M())/2.0>>wBkg","jet.jet[0].Pt() > 60 && jet.jet[1].Pt() > 60 && jet.jet[2].Pt() > 60 && jet.jet[3].Pt() > 60","goff");
+  TH1D* wBkg = new TH1D("wBkg", ";m_{W}^{reco} [GeV];a.u.", 105, 60, 130);
+  TH1D* wBkg2 =  (TH1D*)wBkg->Clone("wBkg2");
+  eventTree2->Draw("(top.recoW1.M()+top.recoW2.M())/2.0>>wBkg2",cuts,"goff");
+  eventTree->Draw("(top.recoW1.M()+top.recoW2.M())/2.0>>wBkg",cuts,"goff");
   
-  TF1* ag = new TF1("ag", "[3]*(x<[0]?TMath::Gaus(x,[0],[1],0):TMath::Gaus(x,[0],[2],0))", 65, 125);
+  
+
+  
+  TF1* ag = new TF1("ag", "[3]*(x<[0]?TMath::Gaus(x,[0],[1],0):TMath::Gaus(x,[0],[2],0))", 60, 130);
   ag->SetParameters(93.1875,8.05005,6.44822,0.1);
   std::cout << "W:\n";
-  makeSysSplines(wBkg,ag,0,1.0134,0.9866,8);
+  makeSysSplines(wBkg,ag,0,1.0134,0.9866,5,wBkg2);
+  //makeSysSplines(wBkg,ag,0,1.02,0.98,5,wBkg2);
 
-
-  TH1D* tBkg = new TH1D("tBkg", ";m_{t}^{fit} [GeV];a.u.", 156, 91, 559); 
-  eventTree->Draw("top.fitTop1.M()>>tBkg","jet.jet[0].Pt() > 60 && jet.jet[1].Pt() > 60 && jet.jet[2].Pt() > 60 && jet.jet[3].Pt() > 60","goff");
+  //return;
+  TH1D* tBkg = new TH1D("tBkg", ";m_{t}^{fit} [GeV];a.u.", 105, 80, 600); 
+  TH1D* tBkg2 =  (TH1D*)tBkg->Clone("tBkg2");
+  eventTree2->Draw("top.fitTop1.M()>>tBkg2",cuts,"goff");
+  eventTree->Draw("top.fitTop1.M()>>tBkg",cuts,"goff");
   
-  TF1* gd = new TF1("gd", "[3]*TMath::GammaDist(x,[0],[1],[2])", 91, 559);
+  TF1* gd = new TF1("gd", "[3]*TMath::GammaDist(x,[0],[1],[2])",80, 600);
   gd->SetParameters(3.5,100,40);
   //ag->SetParameters(1.148*3.5,100,40);
   //ag->SetParameters(1.084*3.5,100,40);
   //ag->SetParameters(0.852*3.5,100,40);
   //ag->SetParameters(0.915*3.5,100,40);
   std::cout << "top:\n";
-  makeSysSplines(tBkg,gd,0,1.084,0.915,6);
+  //makeSysSplines(tBkg,gd,0,1.084,0.915,5,tBkg2);
+  makeSysSplines(tBkg,gd,0,1.15,0.85,5,tBkg2);
 }
 
 

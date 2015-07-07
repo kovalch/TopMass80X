@@ -184,7 +184,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("calibration.ele_jesSlopeMass", boost::program_options::value<std::string>()->default_value("0.0"))
         ("calibration.ele_jesSlopeJES", boost::program_options::value<std::string>()->default_value("0.0"))
         ("calibration.ele_jesSlopeMassJES", boost::program_options::value<std::string>()->default_value("0.0"))
-
+        ("skimmer.mcweight", boost::program_options::value<double>()->default_value(-1.0))
         ;
 
     boost::program_options::store(boost::program_options::parse_command_line(ac, av, desc), *programOptions_);

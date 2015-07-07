@@ -52,6 +52,7 @@ private:
   static double fWP_;
   static double fUN_;
 
+
   double fSig_;
 
   static double IntegrationRangeMax_;

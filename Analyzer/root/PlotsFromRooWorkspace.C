@@ -113,12 +113,19 @@ void plotter(std::string prefix, std::vector<std::string> samples, std::vector<s
       else{
         std::string datasetName = "dataset_"; datasetName += samples[j].substr(4,1);
         std::cout << datasetName << std::endl;
-        if     (pdfs[i].find("_jes100mass1725") != std::string::npos) ws->data((datasetName+"_17").c_str())->plotOn(frame, RooFit::MarkerColor(color_[i]));
-        else if(pdfs[i].find("_jes100mass1665") != std::string::npos) ws->data((datasetName+"_2" ).c_str())->plotOn(frame, RooFit::MarkerColor(color_[i]),RooFit::Rescale(2.65));
-        else if(pdfs[i].find("_jes100mass1785") != std::string::npos) ws->data((datasetName+"_32").c_str())->plotOn(frame, RooFit::MarkerColor(color_[i]),RooFit::Rescale(2.25));
-        else if(pdfs[i].find("_jes096mass1725") != std::string::npos) ws->data((datasetName+"_15").c_str())->plotOn(frame, RooFit::MarkerColor(color_[i]),RooFit::Rescale(1.2));
-        else if(pdfs[i].find("_jes104mass1725") != std::string::npos) ws->data((datasetName+"_19").c_str())->plotOn(frame, RooFit::MarkerColor(color_[i]),RooFit::Rescale(0.88));
+        //if     (pdfs[i].find("_jes100mass1725") != std::string::npos) ws->data((datasetName+"_17").c_str())->plotOn(frame, RooFit::MarkerColor(color_[i]));
+        //else if(pdfs[i].find("_jes100mass1665") != std::string::npos) ws->data((datasetName+"_2" ).c_str())->plotOn(frame, RooFit::MarkerColor(color_[i]),RooFit::Rescale(2.65));
+        //else if(pdfs[i].find("_jes100mass1785") != std::string::npos) ws->data((datasetName+"_32").c_str())->plotOn(frame, RooFit::MarkerColor(color_[i]),RooFit::Rescale(2.25));
+        //else if(pdfs[i].find("_jes096mass1725") != std::string::npos) ws->data((datasetName+"_15").c_str())->plotOn(frame, RooFit::MarkerColor(color_[i]),RooFit::Rescale(1.2));
+        //else if(pdfs[i].find("_jes104mass1725") != std::string::npos) ws->data((datasetName+"_19").c_str())->plotOn(frame, RooFit::MarkerColor(color_[i]),RooFit::Rescale(0.88));
+        //ws->pdf(pdfs[i].c_str())->plotOn(frame, RooFit::LineColor(color_[i]));
+	if     (pdfs[i].find("_jes100mass1725") != std::string::npos) ws->data((datasetName+"_17").c_str())->plotOn(frame, RooFit::MarkerColor(color_[i]));
+        else if(pdfs[i].find("_jes100mass1665") != std::string::npos) ws->data((datasetName+"_2" ).c_str())->plotOn(frame, RooFit::MarkerColor(color_[i]),RooFit::Rescale(1.05));
+        else if(pdfs[i].find("_jes100mass1785") != std::string::npos) ws->data((datasetName+"_32").c_str())->plotOn(frame, RooFit::MarkerColor(color_[i]),RooFit::Rescale(1.0));
+        else if(pdfs[i].find("_jes096mass1725") != std::string::npos) ws->data((datasetName+"_15").c_str())->plotOn(frame, RooFit::MarkerColor(color_[i]),RooFit::Rescale(1.15));
+        else if(pdfs[i].find("_jes104mass1725") != std::string::npos) ws->data((datasetName+"_19").c_str())->plotOn(frame, RooFit::MarkerColor(color_[i]),RooFit::Rescale(0.9));
         ws->pdf(pdfs[i].c_str())->plotOn(frame, RooFit::LineColor(color_[i]));
+	
       }
     }
     frame->Draw();

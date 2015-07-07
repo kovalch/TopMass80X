@@ -219,6 +219,16 @@ void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimize
 
   // do the minimization
   min->Minimize();
+  //print cov matrix
+  /*
+  std::cout << "covariance matrix:\n";
+  for(unsigned int i = 0; i < 4 ; ++i) {
+    for(unsigned int j = 0 ; j < 4; ++j) {
+      std::cout << min->CovMatrix(i,j) << " ";
+    }
+    std::cout << '\n';
+  }
+  */
   for(unsigned int i = 0; i < toFit.size(); ++i){
     // Set the free variables to be minimized!
     if     (toFit[i] == kMass) { SetValue("mass"+nameFreeVariables, min->X()[0], min->Errors()[0]); }
@@ -251,12 +261,12 @@ void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimize
   if (po::GetOption<bool>("minPlot")) {
     if(channelID_ == Helper::kAllJets){
       if(nameFreeVariables == "_mTop_JES_fSig_fCP"){
-      //if(nameFreeVariables == "_mTop_JES_fSig"){
+	//if(nameFreeVariables == "_mTop_JES_fSig"){
         PlotResult(min, kMass, kJES );
         PlotResult(min, kMass, kFSig);
         PlotResult(min, kMass, kFCP );
         PlotResult(min, kJES , kFSig);
-        PlotResult(min, kJES , kFCP );
+	PlotResult(min, kJES , kFCP );
         PlotResult(min, kFSig, kFCP );
       }
     }
@@ -313,6 +323,7 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
   min->Contour(x, y, numPoints, contourxs, contourys);
   contourxs[numPoints] = contourxs[0]; contourys[numPoints] = contourys[0];
   TGraph gr2(numPoints+1, contourxs, contourys);
+  gr2.SetNameTitle("gr2","gr2");	
   gr2.SetFillColor(kAzure+1);
   gr2.SetLineColor(lineColor);
   gr2.SetLineWidth(lineWidth);
@@ -321,10 +332,12 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
   min->Contour(x, y, numPoints, contourxs, contourys);
   contourxs[numPoints] = contourxs[0]; contourys[numPoints] = contourys[0];
   TGraph gr1(numPoints+1, contourxs, contourys);
+  gr1.SetNameTitle("gr1","gr1");
   gr1.SetFillColor(kViolet+9);
   gr1.SetLineColor(lineColor);
   gr1.SetLineWidth(lineWidth);
 
+  
   std::string plotNamePostfix("_");
   if     (x == kMass) { gr3.GetXaxis()->SetTitle("m_{t} [GeV]"); plotNamePostfix += "mass_"; }
   else if(x == kJES ) { gr3.GetXaxis()->SetTitle("JSF");         plotNamePostfix += "JES_" ; }
@@ -345,6 +358,7 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
   gr1.Draw("C,SAME");
 
   TGraph gr0(1, &min->X()[x], &min->X()[y]);
+  gr0.SetNameTitle("gr0","gr0");
   gr0.SetMarkerColor(kWhite);
   gr0.SetMarkerStyle(2);
   gr0.SetMarkerSize(2);

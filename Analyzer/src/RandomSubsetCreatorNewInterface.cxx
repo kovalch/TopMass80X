@@ -92,8 +92,9 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
     PrepareEvents(samplePathLept_+fIdentifier_+std::string("_electron/job_*.root"), Helper::kLeptonJets);
     if(fLumiLept_>0 || fLumiJets_>0){
       //PrepareEvents(samplePathJets_+"QCDMixing_MJPS12_v1_data.root", Helper::kAllJets);
-      //PrepareEvents(samplePathJets_+"Run2012_Background_alljets.root", Helper::kAllJets);
-      PrepareEvents(samplePathJets_+"Run2012_Mixing8_fix_alljets.root", Helper::kAllJets);
+      PrepareEvents(samplePathJets_+"Background_MJP12.root", Helper::kAllJets);
+      //PrepareEvents(samplePathJets_+"Run2012_Mixing8_fix_alljets.root", Helper::kAllJets);
+      //PrepareEvents(samplePathJets_+"mix6_QCDMixing_MJPS12.root", Helper::kAllJets);
       if(fSigLept_<1.) {
         PrepareEvents(""+samplePathLept_+"Summer12_WJets_muon/job_*.root", Helper::kLeptonJets);
         PrepareEvents(""+samplePathLept_+"Summer12_singleTop_muon/job_*.root", Helper::kLeptonJets);
@@ -112,8 +113,9 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
           //PrepareEvents(samplePath_+"QCDMixing_MJPS12_v1_data.root");
           //PrepareEvents(samplePath_+"Run2012_Background_alljets.root");
           //PrepareEvents(samplePath_+"Run2012_Mixing8_alljets.root");
-          PrepareEvents(samplePath_+"Run2012_Mixing8_fix_alljets.root");
-      }
+	  //PrepareEvents(samplePath_+"mix6_QCDMixing_MJPS12.root");
+          PrepareEvents(samplePath_+"Background_MJP12.root");
+      }                   
     }
     if (channelID_ == Helper::kMuonJets || channelID_ == Helper::kLeptonJets) {
       PrepareEvents(samplePath_+fIdentifier_+std::string("_muon/job_*.root"), Helper::kLeptonJets, po::GetOption<double>("analysisConfig.signalFactor"));
@@ -302,23 +304,29 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file, con
       weight->UpdateFormulaLeaves();
       sel   ->UpdateFormulaLeaves();
     }
+    //std::cout << sel->GetNdata() << " " << weight->GetNdata() << '\n';
     if(!f1    ->GetNdata()) continue;
     if(!f2    ->GetNdata()) continue;
     if(!f3    ->GetNdata()) continue;
     if(!f4    ->GetNdata()) continue;
     if(!binning->GetNdata()) continue;
-    if(!weight->GetNdata()) continue;
+    //if(!weight->GetNdata()) continue;
+    weight->GetNdata();
     if(!sel   ->GetNdata()) continue;
     int filledPermutations = 0;
     for(int j = 0, l = std::min(((currentID == Helper::kAllJets) ? maxPermutations_ : 4), sel->GetNdata()); j < l; ++j){
       if(!sel->EvalInstance(j)) continue;
-      if(!weight->EvalInstance(j)) continue;
+      //if(!weight->EvalInstance(j)) continue;
       
       int bin = 0;
       for (const auto& boundary : vBinning_) {
         if (binning->EvalInstance(j) > boundary) ++bin;
       }
-      sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), f4->EvalInstance(j), weight->EvalInstance(j)*sampleFactor, filledPermutations++, bin);
+      if(weight->EvalInstance(j)) {
+	sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), f4->EvalInstance(j), weight->EvalInstance(j)*sampleFactor, filledPermutations++, bin);
+      } else {
+	sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), f4->EvalInstance(j), 1.0*sampleFactor, filledPermutations++, bin);
+      }
     }
     if(filledPermutations) ++selected;
   }

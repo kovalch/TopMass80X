@@ -34,8 +34,8 @@ struct ensemble {
   : file(f), takeLargest(t), expectedJES(j), reference(r) {}
 };
 
-std::string path("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper/lepton");
-//std::string path("/nfs/dust/cms/user/eschliec/TopMass/topmass_140401_1201c/Z2_S12_ABS_JES_100_172_5");
+//std::string path("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper/lepton");
+std::string path("/nfs/dust/cms/user/stadie/TopMass/syspdfct0/Z2_S12_ABS_JES_100_172_5/");
 
 std::string itos(int number)
 {
@@ -48,19 +48,19 @@ void ensembleTreeSysLeptonJetsPDF()
 {
   std::vector<ensemble> ensembles;
   
-  TString massName   = "mass_mTop_JES";
-  TString  jesName   =  "JES_mTop_JES";
-  TString mass1dName = "mass_mTop";
-
-  //TString massName   = "mass_mTop_JES_fSig_fCP";
-  //TString  jesName   =  "JES_mTop_JES_fSig_fCP";
+  //TString massName   = "mass_mTop_JES";
+  //TString  jesName   =  "JES_mTop_JES";
   //TString mass1dName = "mass_mTop";
+
+  TString massName   = "mass_mTop_JES_fSig_fCP";
+  TString  jesName   =  "JES_mTop_JES_fSig_fCP";
+  TString mass1dName = "mass_mTop_fSig_fCP";
 
   double massMin =  1000.;
   double massMax = -1000.;
   
   for (int i = 0; i < 147; ++i) {
-    ensembles.push_back(ensemble(std::string("/nobkg_pdf_weight/")+itos(i)+std::string("/job_*.root")));
+    ensembles.push_back(ensemble(std::string("/pdf_weight/")+itos(i)+std::string("/job_*.root")));
   }
   
   for (int i = 0; i < (int) ensembles.size(); ++i) {    

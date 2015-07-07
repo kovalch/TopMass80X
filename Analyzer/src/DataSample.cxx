@@ -1,5 +1,6 @@
 #include "DataSample.h"
 
+
 void DataSample::Clear()
 {
   nEvents = 0;

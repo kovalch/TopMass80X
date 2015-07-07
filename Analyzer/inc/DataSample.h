@@ -21,7 +21,7 @@ public:
     int leptonFlavour;
     double weight;
   };
-
+  DataSample() : nEvents(0), maxWeight(0) {}
   void Clear();
   void Fill(double topMass, double wMass, double prob, int leptonFlavour, double weight, int index, int bin);
   //template<class T> void Fill(double topMass, double wMass, double prob, double weight, T index) = delete;

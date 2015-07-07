@@ -782,8 +782,8 @@ void TopMassControlPlots::doPlots()
     samples.push_back(MySample("t#bar{t}", "Summer12_TTJetsMS1725_1.00_alljets*", kSig, kRed+1, 1, 1., "", 0.04/po::GetOption<double>("templates.fSig")));
 
     if(plotSelectedForPlotting.find("MassVariationPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("m_{t} = 169.5 GeV", "Summer12_TTJetsMS1695_1.00_alljets*", kSigVar, kBlue+1 , 3, 1.6543027719));
-      samples.push_back(MySample("m_{t} = 175.5 GeV", "Summer12_TTJetsMS1755_1.00_alljets*", kSigVar, kGreen+1, 2, 1.4689820107)); 
+      samples.push_back(MySample("m_{t} = 169.5 GeV", "Summer12_TTJetsMS1695_1.00_alljets*", kSigVar, kBlue+1 , 3));
+      samples.push_back(MySample("m_{t} = 175.5 GeV", "Summer12_TTJetsMS1755_1.00_alljets*", kSigVar, kGreen+1, 2)); 
     }
 
     // JES
@@ -806,11 +806,11 @@ void TopMassControlPlots::doPlots()
     
     // MCGeneratorPlots
     if(plotSelectedForPlotting.find("MCGeneratorPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("t#bar{t}, Powheg+Pythia6 Z2*", "Summer12_TTJets1725_powheg_alljets*", kSigVar, kGreen+1, 9, 2.866398366));
-      samples.push_back(MySample("t#bar{t} scaleup", "Summer12_TTJetsMS1725_scaleup_alljets*", kSigVar, kRed+1, 1, 1.4825704688));
-      samples.push_back(MySample("t#bar{t} scaledown", "Summer12_TTJetsMS1725_scaledown_alljets*", kSigVar, kRed+1, 1, 1.5815027348));
-      samples.push_back(MySample("t#bar{t} matchingup", "Summer12_TTJetsMS1725_matchingup_alljets*", kSigVar, kRed+1, 1, 1.675483644));
-      samples.push_back(MySample("t#bar{t} matchingdown", "Summer12_TTJetsMS1725_matchingdown_alljets*", kSigVar, kRed+1, 1, 1.8245605031));
+      samples.push_back(MySample("t#bar{t}, Powheg+Pythia6 Z2*", "Summer12_TTJets1725_powheg_alljets*", kSigVar, kGreen+1, 9));
+      samples.push_back(MySample("t#bar{t} scaleup", "Summer12_TTJetsMS1725_scaleup_alljets*", kSigVar, kRed+1, 1));
+      samples.push_back(MySample("t#bar{t} scaledown", "Summer12_TTJetsMS1725_scaledown_alljets*", kSigVar, kRed+1, 1));
+      samples.push_back(MySample("t#bar{t} matchingup", "Summer12_TTJetsMS1725_matchingup_alljets*", kSigVar, kRed+1, 1));
+      samples.push_back(MySample("t#bar{t} matchingdown", "Summer12_TTJetsMS1725_matchingdown_alljets*", kSigVar, kRed+1, 1));
       samples.push_back(MySample("t#bar{t}, top pt reweighting", "Summer12_TTJetsMS1725_1.00_alljets*", kSigVar, kBlack, 1, 1., "weight.combinedWeight|weight.combinedWeight*sqrt(exp(0.156-0.00137*top.genpartonTop1.Pt())*exp(0.156-0.00137*top.genpartonTop2.Pt()))"));
     }
 
@@ -855,9 +855,11 @@ void TopMassControlPlots::doPlots()
       samples.push_back(MySample("t#bar{t}, JES = 1.04", "Z2_S12_ABS_JES_104_172_5_MadSpin_sig", kSigVar, kGreen+1  , 1));
     }
     */
-    //samples.push_back(MySample("Background", "Run2012_Background_alljets*", kBkg, kYellow, 1));
+    //samples.push_back(MySample("Background", "Background_MJP12*", kBkg, kYellow, 1));
     //samples.push_back(MySample("Background", "Run2012_Mixing8_alljets*", kBkg, kYellow, 1)); 
-    samples.push_back(MySample("Background", "Run2012_Mixing8_fix_alljets*", kBkg, kYellow, 1)); 
+    //samples.push_back(MySample("Background", "Run2012_Mixing8_fix_alljets*", kBkg, kYellow, 1)); 
+    //samples.push_back(MySample("Background", "job_QCDMixing_MJPS12*", kBkg, kYellow, 1)); 
+    samples.push_back(MySample("Background", "mix6_QCDMixing_MJPS12*", kBkg, kYellow, 1)); 
   }
   
 
@@ -1946,9 +1948,13 @@ void TopMassControlPlots::doPlots()
         for(TH1F* sig : hist.Sig1D()) {
           if(!(channelID == Helper::kAllJets && TString(sig->GetTitle()).Contains("unmatched"))) leg0->AddEntry( sig, sig->GetTitle(), "F" );
         }
-        hist.DataContainsMC()==false ? leg0->AddEntry( hist.Data1D(), hist.Data1D()->GetTitle(), "P" ) : leg0->AddEntry( hist.Data1D(), hist.Data1D()->GetTitle(), "L" );
-        
-        for(TH1F* bkg : hist.Bkg1D()) leg1->AddEntry( bkg, bkg->GetTitle(), "F" );
+	if (channelID == Helper::kAllJets) {
+	  for(TH1F* bkg : hist.Bkg1D()) leg1->AddEntry( bkg, bkg->GetTitle(), "F" );
+	  hist.DataContainsMC()==false ? leg1->AddEntry( hist.Data1D(), hist.Data1D()->GetTitle(), "P" ) : leg1->AddEntry( hist.Data1D(), hist.Data1D()->GetTitle(), "L" );
+	} else {
+	  hist.DataContainsMC()==false ? leg0->AddEntry( hist.Data1D(), hist.Data1D()->GetTitle(), "P" ) : leg0->AddEntry( hist.Data1D(), hist.Data1D()->GetTitle(), "L" );
+	  for(TH1F* bkg : hist.Bkg1D()) leg1->AddEntry( bkg, bkg->GetTitle(), "F" );
+        }
       }
       else {
         TLegend *currentLeg = leg0;
