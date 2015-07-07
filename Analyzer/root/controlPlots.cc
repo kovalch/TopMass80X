@@ -436,6 +436,12 @@ void TopMassControlPlots::doPlots()
     hists.push_back(MyHistogram("recoW2Mass"    , "top.recoW2.M()"   , "", ";m_{W,lep}^{reco} [GeV]; Permutations / 5 GeV", 60, 0, 300));
   }
   
+    if(plotSelectedForPlotting.find("LeptonJetsSearch")!=plotSelectedForPlotting.end()){
+    hists.push_back(MyHistogram("SearchFitTop1Mass"    , "top.fitTop1.M()"   , "", ";m_{t}^{fit} [GeV]; Permutations / 20 GeV", 50, 300, 1300));
+    hists.push_back(MyHistogram("SearchMET", "top.recoW2Prod2[0].Pt()", "", ";p_{T}^{miss} [GeV]; Events", 50, 0, 1000));
+    hists.push_back(MyHistogram("SearchNu", "top.fitW2Prod2[0].Pt()", "", ";p_{T}^{#nu} [GeV]; Events", 50, 0, 1000));
+  }
+  
   if(plotSelectedForPlotting.find("ChargedHiggs")!=plotSelectedForPlotting.end()){
     hists.push_back(MyHistogram("recoW1MassTopCut"    , "top.recoW1.M()"   , "abs(top.recoTop1.M()-172.5) < 10.", ";m_{W}^{reco} [GeV]; Permutations / 2 GeV", 100, 0, 200));
   }
