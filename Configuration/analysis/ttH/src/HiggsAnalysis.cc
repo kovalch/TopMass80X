@@ -630,7 +630,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     //                       genObjectIndices, recoObjectIndices,
     //                       genLevelWeights, recoLevelWeights,
     //                       weight, additionalJetFlavourId, selectionStep);
-
+    
     // ++++ Control Plots ++++
     
     this->fillAll(selectionStep,
@@ -1278,7 +1278,7 @@ void HiggsAnalysis::eventByEventInfo(const EventMetadata& eventMetadata,
     const VLV& allJets = *recoObjects.jets_;
     const std::vector<int>& jetIndices = recoObjectIndices.jetIndices_;
     
-    // Jets, always fill 4 values, use dummy if less available
+    // Jet pt, always fill 4 values, use dummy if less available
     const size_t nJet = jetIndices.size()>=4 ? 4 : jetIndices.size();
     for(size_t iJet = 0; iJet < nJet; ++iJet){
         const int jetIndex = jetIndices.at(iJet);
@@ -1290,22 +1290,19 @@ void HiggsAnalysis::eventByEventInfo(const EventMetadata& eventMetadata,
         for(size_t iJet = 0; iJet < n; ++iJet) eventInfoString << "," << "-999";
     }
     
-    // Reco b-tagged jet collection and information
-    const std::vector<int>& bjetIndices = recoObjectIndices.bjetIndices_;
+    // Jet b-tag, always fill 4 values, use dummy if less available
     const std::vector<double>& jetBtags = *recoObjects.jetBtags_;
-    
-    // B-jets, always fill 4 values, use dummy if less available
-    size_t nBjet = bjetIndices.size()>=4 ? 4 : bjetIndices.size();
-    for(size_t iBjet = 0; iBjet < nBjet; ++iBjet){
-        const int bjetIndex = bjetIndices.at(iBjet);
-        eventInfoString  << std::setprecision(3) << "," << jetBtags.at(bjetIndex);
+    for(size_t iJet = 0; iJet < nJet; ++iJet){
+        const int jetIndex = jetIndices.at(iJet);
+        eventInfoString  << std::setprecision(3) << "," << jetBtags.at(jetIndex);
     }
-    if(nBjet < 4){
-        const size_t n = 4 - bjetIndices.size();
-        for(size_t iBjet = 0; iBjet < n; ++iBjet) eventInfoString << "," << "-999";
+    if(nJet < 4){
+        const size_t n = 4 - jetIndices.size();
+        for(size_t iJet = 0; iJet < n; ++iJet) eventInfoString << "," << "-999";
     }
     
-    // MET collection and information 
+    // Collections of b jets and MET
+    const std::vector<int>& bjetIndices = recoObjectIndices.bjetIndices_;
     const LV& met = *recoObjects.met_;
     
     eventInfoString << std::setprecision(3) 
