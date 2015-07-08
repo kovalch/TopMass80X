@@ -33,9 +33,10 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
 {
     TString name;
     
-    // Vertices
-    name = "vertex_multiplicity";
-    //m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Primary Vertex Multiplicity;N Vertex;Events",50,0,50));
+    name ="vertMulti";
+    m_histogram[name] = this->store(new TH1D ( "vertMulti", "Primary Vertex Multiplicity", 30, 0, 30 ));
+    name ="vertMulti_noPU";
+    m_histogram[name] = this->store(new TH1D ( "vertMulti_noPU", "Primary Vertex Multiplicity (no Pileup)", 30, 0, 30 ));
     
     // Leptons
     name = "lepton_multiplicity";
@@ -73,7 +74,7 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
 
     // Dilepton
     name = "dilepton_mass";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Dilepton mass;m^{l^{+}l^{-}} [GeV];Events",50,0,350));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Dilepton mass;m^{l^{+}l^{-}} [GeV];Events",100,0,400));
     name = "dilepton_pt";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Dilepton p_{t};p_{t}^{l^{+}l^{-}} [GeV];Events",50,0,300));
     name = "dilepton_rapidity";
@@ -140,12 +141,14 @@ void AnalyzerControlPlots::fillHistos(const EventMetadata&,
                                       const TopGenObjects&,
                                       const KinematicReconstructionSolutions&,
                                       const ttbar::RecoObjectIndices& recoObjectIndices, const ttbar::GenObjectIndices&,
-                                      const ttbar::GenLevelWeights&, const ttbar::RecoLevelWeights&,
+                                      const ttbar::GenLevelWeights&, const ttbar::RecoLevelWeights& recoLevelWeights,
                                       const double& weight, const TString&,
                                       std::map< TString, TH1* >& m_histogram)
 {
-    // Vertices
-    //m_histogram["vertex_multiplicity"]->Fill(recoObjects.vertMulti_, weight);
+    
+    double weightPU = recoLevelWeights.weightPU_;
+    m_histogram["vertMulti"]->Fill(recoObjects.vertMulti_, weight);
+    m_histogram["vertMulti_noPU"]->Fill(recoObjects.vertMulti_, weight/weightPU);
     
     // Leptons
     m_histogram["lepton_multiplicity"]->Fill(recoObjectIndices.allLeptonIndices_.size(), weight);

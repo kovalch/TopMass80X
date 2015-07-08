@@ -63,7 +63,7 @@ class TopAnalysis : public AnalysisBase
     TH2 *h_GenRecoHT;
     TH1 *h_VisGenHT, *h_HypHT, *h_RecoHT;
 
-    TH1 *h_vertMulti, *h_vertMulti_noPU, *h_MET;
+    TH1 *h_MET;
 
     TH1 *h_jetpT,*h_jetHT;
     TH1 *h_MuonpT, *h_MuonEta;

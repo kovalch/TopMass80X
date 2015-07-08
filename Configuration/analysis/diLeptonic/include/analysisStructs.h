@@ -31,7 +31,7 @@ namespace ttbar{
     
     struct RecoLevelWeights{
         RecoLevelWeights(const double& weightLeptonSF, const double& weightTriggerSF, const double& weightBtagSF,
-                         const double& weightNoPileup,const double& weight);
+                         const double& weightNoPileup, const double& weightPU, const double& weight);
         ~RecoLevelWeights(){}
         
         #ifndef __CINT__
@@ -40,6 +40,7 @@ namespace ttbar{
         const double& weightBtagSF_;
         
         const double& weightNoPileup_;
+        const double& weightPU_;
         const double& weight_;
         #endif
     };

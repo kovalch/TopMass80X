@@ -199,8 +199,6 @@ void TopAnalysis::SlaveBegin(TTree*)
     h_diLepMassFull = store(new TH1D ( "DIMFull", "DiLepton Mass (Full Range)", 100, 0, 300 ));
     h_diLepMassFull_fullSel = store(new TH1D ( "DIMFull_fullSel", "DiLepton Mass (Full Range)", 100, 0, 300 ));
     
-    h_vertMulti = store(new TH1D ( "vertMulti", "Primary Vertex Multiplicity", 30, 0, 30 ));
-    h_vertMulti_noPU = store(new TH1D ( "vertMulti_noPU", "Primary Vertex Multiplicity (no Pileup)", 30, 0, 30 ));
     h_MET = store(new TH1D ( "MET", "Missing Transverse Energy", 80, 0, 400 ));
     h_jetpT = store(new TH1D ( "jetpT", "jet pT", 80, 0, 400 ));
     h_jetHT = store(new TH1D ( "jetHT", "jet HT", 80, 0, 1000 ));
@@ -788,7 +786,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     
     const ttbar::GenObjectIndices genObjectIndices(-1, -1, -1, -1, -1, -1, -1, -1,genVisJetIndices);
     const ttbar::RecoObjectIndices recoObjectIndicesDummy({0},{0},{0},0,0,0,0,0,0,{0},{0});
-    ttbar::RecoLevelWeights recoLevelWeightsDummy(0,0,0,0,0);
+    ttbar::RecoLevelWeights recoLevelWeightsDummy(0,0,0,0,0,0);
     
     const RecoObjects recoObjectsDummy;
     
@@ -908,7 +906,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     double weight = weightNoPileup*weightPU;
     
     ttbar::RecoLevelWeights recoLevelWeights(weightLeptonSF, weightTriggerSF, weightBtagSF,
-                                             weightNoPileup, weight);
+                                             weightNoPileup, weightPU, weight);
     
     this->fillAll(selectionStep,
                   eventMetadata,
@@ -938,11 +936,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     selectionStep = "3";
     // with at least 20 GeV invariant mass
     if (dilepton.M() < 20.) return kTRUE;
-    
-    // weight even without PU reweighting
-    h_vertMulti_noPU->Fill(recoObjects.vertMulti_, weightNoPileup);
-    
-    h_vertMulti->Fill(recoObjects.vertMulti_, weight);
     
     h_TrigSF->Fill(weightTriggerSF, 1.);
     h_LepSF->Fill(weightLeptonSF, 1.);
