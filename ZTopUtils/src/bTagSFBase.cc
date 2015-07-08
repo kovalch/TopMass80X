@@ -136,11 +136,11 @@ float bTagSFBase::getWPDiscrValue(const std::string& tagger, BTagEntry::Operatin
 	// csvv2 taken from https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideBTagging
 	else if(tagger == "csvv2"){
 		if(op == BTagEntry::OP_LOOSE)
-			return 0.423;
+			return 0.605;
 		else if(op == BTagEntry::OP_MEDIUM)
-			return 0.814;
+			return 0.890;
 		else if(op == BTagEntry::OP_TIGHT)
-			return 0.941;
+			return 0.970;
 	}
 	else{
 		std::string errstr="bTagSFBase::getWPDiscrValue: tagger string unknown\navailable:\n";
