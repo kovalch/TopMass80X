@@ -133,15 +133,25 @@ float bTagSFBase::getWPDiscrValue(const std::string& tagger, BTagEntry::Operatin
 		else if(op == BTagEntry::OP_TIGHT)
 			return 0.898;
 	}
-	// csvv2 taken from https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideBTagging
+	//pre 50 ns  csvv2 taken from https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideBTagging for TTH synchronisation
 	else if(tagger == "csvv2"){
 		if(op == BTagEntry::OP_LOOSE)
-			return 0.605;
+			return 0.423;
 		else if(op == BTagEntry::OP_MEDIUM)
-			return 0.890;
+			return 0.814;
 		else if(op == BTagEntry::OP_TIGHT)
-			return 0.970;
+			return 0.941;
 	}
+        //50 ns csvv2 btagging working points
+        else if(tagger == "csvv2_50ns"){
+                if(op == BTagEntry::OP_LOOSE)
+                        return 0.605;
+                else if(op == BTagEntry::OP_MEDIUM)
+                        return 0.890;
+                else if(op == BTagEntry::OP_TIGHT)
+                        return 0.970;
+        }
+
 	else{
 		std::string errstr="bTagSFBase::getWPDiscrValue: tagger string unknown\navailable:\n";
 		errstr+="csv\ncsvv1\n";
