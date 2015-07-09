@@ -313,7 +313,6 @@ void TopAnalysis::SlaveBegin(TTree*)
     h_GenRecoMet = store(new TH2D("GenRecoMet", "Missing ET in the event", 500, 0, 500, 500, 0, 500));
     h_VisGenMet = store(new TH1D("VisGenMet", "MET (VisGEN)", 500, 0, 500));
     h_RecoMet = store(new TH1D("RecoMet", "Reconstructed MET", 500, 0, 500));
-    h_HypMet = store(new TH1D("HypMet","MET ", 500, 0, 500));
 
     h_GenRecoHT = store(new TH2D("GenRecoHT", "HT in the event", 800, 0, 800, 800, 0, 800));
     h_VisGenHT = store(new TH1D("VisGenHT", "HT (VisGEN)", 800, 0, 800));
@@ -1319,7 +1318,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     h_HypToppTTTRestFrame->Fill(top.Pt(), weight);
     h_HypAntiToppTTTRestFrame->Fill(antitop.Pt(), weight);
 
-    h_HypMet->Fill(met.Pt(), weight);
     h_HypHT->Fill(jetHT, weight);
 
     h_HypTopMass->Fill(hypTop.M(), weight);
