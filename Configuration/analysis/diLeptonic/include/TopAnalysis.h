@@ -46,7 +46,6 @@ class TopAnalysis : public AnalysisBase
 
     TH1 *h_HypTTBarMass, *h_HypTTBarRapidity, *h_HypTTBarpT;
     TH1 *h_HypLLBarMass, *h_HypLLBarpT;
-    TH1 *h_HypMet;
 
     TH1 *h_VisGenTTBarMass,*h_VisGenTTBarRapidity,*h_VisGenTTBarpT;
     TH1 *h_VisGenTopRapidity,*h_VisGenAntiTopRapidity;
