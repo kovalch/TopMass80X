@@ -699,35 +699,35 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         {"ttbarDileptonNotauBbbar.root", "ttbarDileptonOnlytauBbbar.root"},
         Sample::pseudodata
     );
-
     
-    result["ttbarDileptonPlusBbbar"] = Sample(
+    
+    result["ttbarPlusBbbar"] = Sample(
         "t#bar{t}b#bar{b}",
         18,
         831.76,
         8.5/831.76, -1.,
-        {"ttbarDileptonNotauBbbar.root", "ttbarDileptonOnlytauBbbar.root"},
+        {"ttbarDileptonNotauBbbar.root", "ttbarDileptonOnlytauBbbar.root", "ttbarNotdileptonBbbar.root"},
         Sample::ttbb
     );
-
-    result["ttbarDileptonPlusB"] = Sample(
+    
+    result["ttbarPlusB"] = Sample(
         "t#bar{t}b",
         12,
         831.76,
         8.5/831.76, -1.,
-        {"ttbarDileptonNotauB.root", "ttbarDileptonOnlytauB.root"},
+        {"ttbarDileptonNotauB.root", "ttbarDileptonOnlytauB.root", "ttbarNotdileptonB.root"},
         Sample::ttb
     );
-
-    result["ttbarDileptonPlus2B"] = Sample(
+    
+    result["ttbarPlus2B"] = Sample(
         "t#bar{t}2b",
         28,
         831.76,
         8.5/831.76, -1.,
-        {"ttbarDileptonNotau2b.root", "ttbarDileptonOnlytau2b.root"},
+        {"ttbarDileptonNotau2b.root", "ttbarDileptonOnlytau2b.root", "ttbarNotdilepton2b.root"},
         Sample::tt2b
     );
-
+    
     result["ttbarDileptonPlusCcbar"] = Sample(
         "t#bar{t}c#bar{c}",
         kMagenta-10,
@@ -737,7 +737,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         {"ttbarDileptonPlustauCcbar.root"},
         Sample::ttcc
     );
-
+    
     result["ttbarDileptonPlusOther"] = Sample(
         "t#bar{t}Other",
         23,
@@ -795,7 +795,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         0.047, 0.039,
         {"www.root"}
     );
-
+    
     result["wwz"] = Sample(
         "Triboson",
         kYellow-7,
@@ -1154,9 +1154,9 @@ std::vector<TString> SampleDefinitions::selectAndOrderSamples13TeV(const int pse
         "ttbarbkg",
         "ttbarDileptonPlusOther",
         "ttbarDileptonPlusCcbar",
-        "ttbarDileptonPlus2B",
-        "ttbarDileptonPlusB",
-        "ttbarDileptonPlusBbbar",
+        "ttbarPlus2B",
+        "ttbarPlusB",
+        "ttbarPlusBbbar",
         "ttbargjets",
         "ttbarW",
         "ttbarZ",

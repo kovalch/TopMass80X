@@ -474,8 +474,8 @@ void load_Analysis(const TString& validFilenamePattern,
             }
             else if(isTopSignal && !isHiggsSignal && !isTtbarV){ // For splitting of ttbar in production modes associated with heavy flavours, and decays via taus
                 if(selectedSystematic.type() == Systematic::pdf) selector->SetPdfVariation(systematicId);
-                const std::set<int> allowedPartIds({0, 101, 201, 102, 202, 103, 203, 4, -1});
-                if(part==0 || part==-1){ // output is ttbar+other: both leptons from W->e/mu or W->tau->e/mu
+                const std::set<int> allowedPartIds({0, 101, 201, 301, 102, 202, 302, 103, 203, 303, 4, -1});
+                if(part==0 || part==-1){ // output is tt+other: both leptons from W->e/mu or W->tau->e/mu
                     selector->SetAdditionalBjetMode(0);
                     TString modifiedOutputfilename(outputfilename);
                     modifiedOutputfilename.ReplaceAll("plustau", "PlustauOther");
@@ -484,52 +484,74 @@ void load_Analysis(const TString& validFilenamePattern,
                     chain.Process(selector, "", maxEvents, skipEvents);
                     selector->SetSampleForBtagEfficiencies(false);
                 }
-                if(part==101 || part==-1){ // output is ttbar+b: both leptons from W->e/mu
+                if(part==101 || part==-1){ // output is tt+b: both leptons from W->e/mu
                     selector->SetAdditionalBjetMode(101);
                     TString modifiedOutputfilename(outputfilename);
                     modifiedOutputfilename.ReplaceAll("plustau", "NotauB");
                     selector->SetOutputfilename(modifiedOutputfilename);
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
-                if(part==201 || part==-1){ // output is ttbar+b: 1+ lepton from W->tau->e/mu
+                if(part==201 || part==-1){ // output is tt+b: 1+ lepton from W->tau->e/mu
                     selector->SetAdditionalBjetMode(201);
                     TString modifiedOutputfilename(outputfilename);
                     modifiedOutputfilename.ReplaceAll("plustau", "OnlytauB");
                     selector->SetOutputfilename(modifiedOutputfilename);
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
-                if(part==102 || part==-1){ // output is ttbar+b with 2+ b-hadrons/jet: both leptons from W->e/mu
+                if(part==102 || part==-1){ // output is tt+2b with 2+ b-hadrons/jet: both leptons from W->e/mu
                     selector->SetAdditionalBjetMode(102);
                     TString modifiedOutputfilename(outputfilename);
                     modifiedOutputfilename.ReplaceAll("plustau", "Notau2b");
                     selector->SetOutputfilename(modifiedOutputfilename);
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
-                if(part==202 || part==-1){ // output is ttbar+b with 2+ b-hadrons/jet: 1+ lepton from W->tau->e/mu
+                if(part==202 || part==-1){ // output is tt+2b with 2+ b-hadrons/jet: 1+ lepton from W->tau->e/mu
                     selector->SetAdditionalBjetMode(202);
                     TString modifiedOutputfilename(outputfilename);
                     modifiedOutputfilename.ReplaceAll("plustau", "Onlytau2b");
                     selector->SetOutputfilename(modifiedOutputfilename);
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
-                if(part==103 || part==-1){ // output is ttbar+bbbar: both leptons from W->e/mu
+                if(part==103 || part==-1){ // output is tt+bb: both leptons from W->e/mu
                     selector->SetAdditionalBjetMode(103);
                     TString modifiedOutputfilename(outputfilename);
                     modifiedOutputfilename.ReplaceAll("plustau", "NotauBbbar");
                     selector->SetOutputfilename(modifiedOutputfilename);
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
-                if(part==203 || part==-1){ // output is ttbar+bbbar: 1+ lepton from W->tau->e/mu
+                if(part==203 || part==-1){ // output is tt+bb: 1+ lepton from W->tau->e/mu
                     selector->SetAdditionalBjetMode(203);
                     TString modifiedOutputfilename(outputfilename);
                     modifiedOutputfilename.ReplaceAll("plustau", "OnlytauBbbar");
                     selector->SetOutputfilename(modifiedOutputfilename);
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
-                if(part==4 || part==-1){ // output is ttbar+ccbar: both leptons from W->e/mu or W->tau->e/mu
+                if(part==4 || part==-1){ // output is tt+cc: both leptons from W->e/mu or W->tau->e/mu
                     selector->SetAdditionalBjetMode(4);
                     TString modifiedOutputfilename(outputfilename);
                     modifiedOutputfilename.ReplaceAll("plustau", "PlustauCcbar");
+                    selector->SetOutputfilename(modifiedOutputfilename);
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                // FIXME: Workaround as long as ttbarbg is not contained in ntuples
+                if(part==301 || part==-1){ // output is tt+b: at least one hadronic W decay
+                    selector->SetAdditionalBjetMode(301);
+                    TString modifiedOutputfilename(outputfilename);
+                    modifiedOutputfilename.ReplaceAll("Dileptonplustau", "NotdileptonB");
+                    selector->SetOutputfilename(modifiedOutputfilename);
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                if(part==302 || part==-1){ // output is tt+2b with 2+ b-hadrons/jet: at least one hadronic W decay
+                    selector->SetAdditionalBjetMode(302);
+                    TString modifiedOutputfilename(outputfilename);
+                    modifiedOutputfilename.ReplaceAll("Dileptonplustau", "Notdilepton2b");
+                    selector->SetOutputfilename(modifiedOutputfilename);
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                if(part==303 || part==-1){ // output is tt+bb: at least one hadronic W decay
+                    selector->SetAdditionalBjetMode(303);
+                    TString modifiedOutputfilename(outputfilename);
+                    modifiedOutputfilename.ReplaceAll("Dileptonplustau", "NotdileptonBbbar");
                     selector->SetOutputfilename(modifiedOutputfilename);
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }

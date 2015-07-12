@@ -50,6 +50,11 @@ for systematic in "${systematics[@]}" ; do
         $LA -f ttbarH125tobbbar -c $channel -s $systematic $@ &
         $LA -f ttbarH125incl -p 0 -c $channel -s $systematic $@ &
         $LA -f ttbarH125incl -p 1 -c $channel -s $systematic $@ &
+        # FIXME: Workaround as long as ttbarbg is not contained in ntuples
+        w
+        $LA -f ttbarsignalplustau.root -p 301 -c $channel -s $systematic $@ &
+        $LA -f ttbarsignalplustau.root -p 302 -c $channel -s $systematic $@ &
+        $LA -f ttbarsignalplustau.root -p 303 -c $channel -s $systematic $@ &
     done
 
     for channel in ee emu mumu; do

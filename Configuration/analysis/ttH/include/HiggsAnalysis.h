@@ -91,6 +91,14 @@ private:
     /// Select events from Top signal that satisfy flavour of the additional jets
     bool failsAdditionalJetFlavourSelection(const int topDecayMode, const int additionalJetFlavourId)const;
     
+    /// Select events from Top signal that satisfy flavour of the additional jets
+    /// Scheme of 8 TeV, specific treatment of pseudo-additional b jets (i.e. jets radiated after top weak decay), and only for dileptonic processes
+    bool failsAdditionalJetFlavourSelection8tev(int additionalBjetMode, const int additionalJetFlavourId)const;
+    
+    /// Select events from Top signal that satisfy flavour of the additional jets
+    /// Scheme of 13 TeV, separate by additional jets independent of their origin, for all ttbar processes
+    bool failsAdditionalJetFlavourSelection13tev(int additionalBjetMode, const int additionalJetFlavourId)const;
+    
     
     
     /// Calculate jet charges for all jets in event

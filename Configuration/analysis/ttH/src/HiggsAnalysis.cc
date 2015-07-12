@@ -6,6 +6,7 @@
 #include <utility>
 #include <algorithm>
 #include <iomanip>
+#include <set>
 
 #include <TTree.h>
 #include <TString.h>
@@ -137,7 +138,7 @@ void HiggsAnalysis::SlaveBegin(TTree *)
 void HiggsAnalysis::SlaveTerminate()
 {
     this->clearAll();
-
+    
     // Defaults from AnalysisBase
     AnalysisBase::SlaveTerminate();
 }
@@ -148,16 +149,16 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
 {
     // Defaults from AnalysisBase
     if(!AnalysisBase::Process(entry)) return kFALSE;
-
-
+    
+    
     // Entry for object structs are not yet read, so reset
     this->resetObjectStructEntry();
-
-
+    
+    
     // Define the selection steps as strings
     std::string selectionStep("");
-
-
+    
+    
     // === CUT ===
     // No cut application
     selectionStep = "0a";
@@ -169,7 +170,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const TopGenObjects topGenObjectsDummy;
     const HiggsGenObjects higgsGenObjectsDummy;
     const KinematicReconstructionSolutions kinematicReconstructionSolutionsDummy;
-
+    
     // Set up dummies for weights and indices, as needed for generic functions
     const tth::GenObjectIndices genObjectIndicesDummy({}, {}, {}, {}, {}, {}, {}, -1, -1, -1, -1);
     const tth::RecoObjectIndices recoObjectIndicesDummy({}, {}, {}, -1, -1, -1, -1, -1, -1, {}, {}, {});
@@ -293,8 +294,11 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // === CUT ===
     selectionStep = "1a";
     
+    // Temporary workaround, do not apply trigger, dilepton and MET selections for 13 TeV baseline 
+    const bool era8tev = analysisConfig_.general().era_ == Era::run1_8tev;
+    
     // Check if event was triggered with the same dilepton trigger as the specified analysis channel
-    if(this->failsDileptonTrigger(entry)) return kTRUE;
+    if(era8tev) if(this->failsDileptonTrigger(entry)) return kTRUE;
     
     // ++++ Control Plots ++++
     
@@ -415,7 +419,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     selectionStep = "3";
     
     // ...with at least 20 GeV invariant mass
-    if(dilepton.M() < 20.) return kTRUE;
+    if(era8tev) if(dilepton.M() < 20.) return kTRUE;
     
     // ++++ Control Plots ++++
 
@@ -434,13 +438,13 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     selectionStep = "4";
     
     // Exclude the Z window in analysis cutflow, but keep these events for Drell-Yan corrections
-    const bool isZregion = dilepton.M() > 76. && dilepton.M() < 106.;
-    const bool isEmu = this->channel() == Channel::emu;
+    const bool isZregion = dilepton.M()>76. && dilepton.M()<106.;
+    const bool isEmu = era8tev ? this->channel()==Channel::emu : true;
     
     // ++++ Z-window plots ++++
     
     if(isZregion){
-        this->fillAll("4zWindow",
+        this->fillAll(selectionStep+"zWindow",
                       eventMetadataDummy,
                       recoObjects, commonGenObjects,
                       topGenObjectsDummy, higgsGenObjectsDummy,
@@ -474,7 +478,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // ++++ Z-window plots ++++
     
     if(isZregion){
-        this->fillAll("5zWindow",
+        this->fillAll(selectionStep+"zWindow",
                       eventMetadataDummy,
                       recoObjects, commonGenObjects,
                       topGenObjectsDummy, higgsGenObjectsDummy,
@@ -503,12 +507,12 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     selectionStep = "6";
     
     // Require MET > 40 GeV in non-emu channels
-    if(!(hasMet || isEmu)) return kTRUE;
+    if(era8tev) if(!(hasMet || isEmu)) return kTRUE;
     
     // ++++ Z-window plots ++++
     
     if(isZregion){
-        this->fillAll("6zWindow",
+        this->fillAll(selectionStep+"zWindow",
                       eventMetadataDummy,
                       recoObjects, commonGenObjects,
                       topGenObjectsDummy, higgsGenObjectsDummy,
@@ -551,7 +555,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // ++++ Z-window plots ++++
     
     if(isZregion){
-        this->fillAll("7zWindow",
+        this->fillAll(selectionStep+"zWindow",
                       eventMetadataDummy,
                       recoObjects, commonGenObjects,
                       topGenObjectsDummy, higgsGenObjectsDummy,
@@ -1021,33 +1025,47 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const int topDecayMode, c
     if(this->makeBtagEfficiencies()) return false;
     
     // Check steering parameter if any separation is requested
-    int additionalBjetMode(additionalBjetMode_);
+    const int additionalBjetMode(additionalBjetMode_);
     if(additionalBjetMode == -999) return false;
     
     // topDecayMode contains the decay of the top (*10) + the decay of the antitop (plus 100 or 200 for non-b decays of tops)
     // 1=hadron, 2=e, 3=mu, 4=tau->hadron, 5=tau->e, 6=tau->mu
     // i.e. 23 == top decays to e, tbar decays to mu
     const int decay = topDecayMode % 100;
+    static const std::set<int> dileptonDirect({22, 23, 32, 33});
+    static const std::set<int> dileptonIndirect({25, 26, 35, 36, 52, 53, 55, 56, 62, 63, 65, 66});
     
-    // Extract part telling how leptonic tau decays should be treated
-    const int viaTauMode = additionalBjetMode / 100;
-    if(viaTauMode == 0){
-        // any dileptonic final state allowed
+    // Extract part telling how different ttbar decays should be treated
+    const int ttbarMode = additionalBjetMode / 100;
+    if(ttbarMode == 0){
+        // Any final state allowed
     }
-    else if(viaTauMode == 1){
-        // both leptons from W->e/mu
-        if(!(decay/10 < 4 && decay%10 < 4)) return true;
+    else if(ttbarMode == 1){
+        // Dilepton, both leptons from W->e/mu
+        if(!dileptonDirect.count(decay)) return true;
     }
-    else if(viaTauMode == 2){
-        // at least 1 lepton from W->tau->e/mu
-        if(!(decay/10 > 4 || decay%10 > 4)) return true;
+    else if(ttbarMode == 2){
+        // Dilepton, at least 1 lepton from W->tau->e/mu
+        if(!dileptonIndirect.count(decay)) return true;
+    }
+    else if(ttbarMode == 3){
+        // Single lepton or fully hadronic
+        if(dileptonDirect.count(decay) || dileptonIndirect.count(decay)) return true;
     }
     else{
-        std::cerr<<"ERROR in HiggsAnalysis::failsAdditionalJetFlavourSelection()! Undefined tau mode requested: "
-                 <<viaTauMode<<"\n...break\n"<<std::endl;
+        std::cerr<<"ERROR in HiggsAnalysis::failsAdditionalJetFlavourSelection()! Undefined ttbar mode requested: "
+                 <<ttbarMode<<"\n...break\n"<<std::endl;
         exit(421);
     }
     
+    if(analysisConfig_.general().era_ == Era::run1_8tev) return this->failsAdditionalJetFlavourSelection8tev(additionalBjetMode, additionalJetFlavourId);
+    else return this->failsAdditionalJetFlavourSelection13tev(additionalBjetMode, additionalJetFlavourId);
+}
+
+
+
+bool HiggsAnalysis::failsAdditionalJetFlavourSelection8tev(int additionalBjetMode, const int additionalJetFlavourId)const
+{
     // additionalJetFlavourId contains number of jets from top (*100)
     // + the second digit encodes the flavour of the additional jets and whether they stem from before or after the top weak decay
     // + the last digit encodes the number of jets of this flavour, and the number of hadrons contained in them
@@ -1076,7 +1094,47 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const int topDecayMode, c
         if(jetId==0 || (jetId>4 && jetId<20) ||  jetId>30) return false;
     }
     else{
-        std::cerr<<"ERROR in HiggsAnalysis::failsAdditionalJetFlavourSelection()! Undefined additional jet mode requested: "
+        std::cerr<<"ERROR in HiggsAnalysis::failsAdditionalJetFlavourSelection8tev()! Undefined additional jet mode requested: "
+                 <<additionalBjetMode<<"\n...break\n"<<std::endl;
+        exit(422);
+    }
+    
+    return true;
+}
+
+
+
+bool HiggsAnalysis::failsAdditionalJetFlavourSelection13tev(int additionalBjetMode, const int additionalJetFlavourId)const
+{
+    // additionalJetFlavourId contains number of jets from top (*100)
+    // + the second digit encodes the flavour of the additional jets
+    // + the last digit encodes the number of jets of this flavour, and the number of hadrons contained in them
+    const int jetId = additionalJetFlavourId % 100;
+    
+    // Leave only part telling which additional jets should be present
+    additionalBjetMode %= 100;
+    if(additionalBjetMode == 4){
+        // tt+cc
+        if(jetId>40 && jetId<46) return false;
+    }
+    else if(additionalBjetMode == 3){
+        // tt+bb
+        if(jetId>52 && jetId<56) return false;
+    }
+    else if(additionalBjetMode == 2){
+        // tt+2b
+        if(jetId == 52) return false;
+    }
+    else if(additionalBjetMode == 1){
+        // tt+b
+        if(jetId == 51) return false;
+    }
+    else if(additionalBjetMode == 0){
+        // tt+LF
+        if(jetId==0) return false;
+    }
+    else{
+        std::cerr<<"ERROR in HiggsAnalysis::failsAdditionalJetFlavourSelection13tev()! Undefined additional jet mode requested: "
                  <<additionalBjetMode<<"\n...break\n"<<std::endl;
         exit(422);
     }

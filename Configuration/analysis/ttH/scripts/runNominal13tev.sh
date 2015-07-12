@@ -28,6 +28,11 @@ for channel in ee emu mumu; do
     $LA -f ttbarH125tobbbar -c $channel $@ &
     $LA -f ttbarH125incl -p 0 -c $channel $@ &
     $LA -f ttbarH125incl -p 1 -c $channel $@ &
+    # FIXME: Workaround as long as ttbarbg is not contained in ntuples
+    w
+    $LA -f ttbarsignalplustau.root -p 301 -c $channel $@ &
+    $LA -f ttbarsignalplustau.root -p 302 -c $channel $@ &
+    $LA -f ttbarsignalplustau.root -p 303 -c $channel $@ &
 done
 
 for channel in ee emu mumu; do
