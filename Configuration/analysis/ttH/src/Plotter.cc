@@ -325,7 +325,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     
     // Create legend
     const int nLegendEntries = stacksum_statBand ? stackHists.size()+higgsHists.size()+1 : stackHists.size()+higgsHists.size();
-    TLegend* legend = common::createLegend(0.61, 0.55, 2, nLegendEntries, 0.03);
+    TLegend* legend = common::createLegend(0.55, 0.55, 2, nLegendEntries, 0.03);
     
     // Create the stack and add entries to legend
     THStack* stack(0);
