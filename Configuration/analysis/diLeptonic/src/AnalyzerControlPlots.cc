@@ -130,23 +130,22 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
 
     // Met
     name = "met_et";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met E_{t};E_{t}^{met};Events",50,0,300));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met E_{t};E_{t}^{met};Events",500,0,500));
     name = "met_phi";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met #phi;#phi^{met};Events",50,-3.2,3.2));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met #phi;#phi^{met};Events",100,-3.2,3.2));
     name = "met_eta";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met #eta;#eta^{met};Events",50,-3.2,3.2));
-    name = "met_pt";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Met p_{T};p_{T}^{met};Events", 500, 0, 500));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met #eta;#eta^{met};Events",100,-3.2,3.2));
     
-    
+    name = "met_res";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met Resolution;MET^{true}-MET^{reco};Events",200,-100,100));
     
 }
 
 
 
 void AnalyzerControlPlots::fillHistos(const EventMetadata&,
-                                      const RecoObjects& recoObjects, const CommonGenObjects&,
-                                      const TopGenObjects&,
+                                      const RecoObjects& recoObjects, const CommonGenObjects& ,
+                                      const TopGenObjects& topGenObjects,
                                       const KinematicReconstructionSolutions&,
                                       const ttbar::RecoObjectIndices& recoObjectIndices, const ttbar::GenObjectIndices&,
                                       const ttbar::GenLevelWeights&, const ttbar::RecoLevelWeights& recoLevelWeights,
@@ -267,12 +266,14 @@ void AnalyzerControlPlots::fillHistos(const EventMetadata&,
     
     // Met
     const LV& met = *recoObjects.met_;
-    //const LV& met = *recoObjects.mvamet_;
 
-    m_histogram["met_et"]->Fill(met.E(), weight);
+    m_histogram["met_et"]->Fill(met.Pt(), weight);
     m_histogram["met_phi"]->Fill(met.Phi(), weight);
     m_histogram["met_eta"]->Fill(met.Eta(), weight);
-    m_histogram["met_pt"]->Fill(met.Pt(), weight);
+    if(topGenObjects.valuesSet_){
+        m_histogram["met_res"]->Fill(topGenObjects.GenMet_->Pt() - met.Pt(),weight);
+    }
+    
 }
 
 
