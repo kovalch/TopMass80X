@@ -41,6 +41,8 @@ inputDir_(inputDir)
 
 void TreeHandlerBase::book()
 {
+    TSelectorList* output = new TSelectorList();
+    selectorList_ = output;
     for(const auto& stepShort : selectionSteps_){
         const TString step = ttbar::stepName(stepShort);
         this->addStep(step);
@@ -61,6 +63,7 @@ void TreeHandlerBase::addStep(const TString& step)
     // Book the step
     m_stepVariables_[step] = std::vector<VariablesBase*>();
     m_stepTree_[step] = new TTree(prefix_+"treeVariables"+step, prefix_+"treeVariables");
+    this->store(m_stepTree_[step]);
     this->bookBranches(m_stepTree_[step],variables_);
 }
 
@@ -111,18 +114,20 @@ void TreeHandlerBase::writeTrees(const TString& outputFilename,
     TFile outputFile(f_savename, "RECREATE");
     std::cout<<"\nOutput file for input trees: "<<f_savename<<"\n";
     
-    // Produce input TTree and store it in output
-    TSelectorList* output = new TSelectorList();
-    this->writeTrees(output);
-    
     // Write file and cleanup
-    TIterator* it = output->MakeIterator();
+    TIterator* it = selectorList_->MakeIterator();
     while(TObject* obj = it->Next()){
         obj->Write();
     }
+    
+    std::cout<<"tree variables multiplicity per step (step, no. of entries):\n";
+    for(auto stepTree : m_stepTree_){
+        std::cout<<"\t"<<stepTree.first<<" , "<< stepTree.second->GetEntries() <<"\n";
+    }
+    
     outputFile.Close();
-    output->SetOwner();
-    output->Clear();
+    selectorList_->SetOwner();
+    selectorList_->Clear();
 }
 
 
