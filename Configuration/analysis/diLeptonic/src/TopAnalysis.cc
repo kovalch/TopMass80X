@@ -65,7 +65,7 @@ constexpr Btag::Algorithm BtagALGO = Btag::csv;
 constexpr Btag::WorkingPoint BtagWP = Btag::L;
 
 /// PF MET or MVA MET
-constexpr bool MvaMET = false;
+constexpr bool MvaMET = true;
 
 /// MET selection for same-flavour channels (ee, mumu)
 constexpr double MetCUT = 40.;
