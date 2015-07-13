@@ -106,7 +106,7 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
     name = "jet_phi";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet #phi;#phi^{jet};Jets",50,-3.2,3.2));
     name = "jet_btagDiscriminator";
-    //m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b-tag Discriminator d;d;Jets",60,-0.1,1.1));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b-tag Discriminator d;d;Jets",100,-0.1,1.1));
     name = "jet_chargeGlobalPtWeighted";
     //m_histogram[name] = this->store(new TH1D(prefix_+name+step, "jetChargeGlobalPtWeighted c_{glob}^{jet}; c_{glob}^{jet};# jets", 110, -1.1, 1.1));
     name = "jet_chargeRelativePtWeighted";
@@ -241,7 +241,7 @@ void AnalyzerControlPlots::fillHistos(const EventMetadata&,
         m_histogram["jet_phi"]->Fill(recoObjects.jets_->at(index).Phi(), weight);
         double btagDiscriminator = recoObjects.jetBtags_->at(index);
         if(btagDiscriminator < -0.1) btagDiscriminator = -0.05;
-        //m_histogram["jet_btagDiscriminator"]->Fill(btagDiscriminator, weight);
+        m_histogram["jet_btagDiscriminator"]->Fill(btagDiscriminator, weight);
         //m_histogram["jet_chargeGlobalPtWeighted"]->Fill(recoObjects.jetChargeGlobalPtWeighted_->at(index), weight);
         //m_histogram["jet_chargeRelativePtWeighted"]->Fill(recoObjects.jetChargeRelativePtWeighted_->at(index), weight);
     }
