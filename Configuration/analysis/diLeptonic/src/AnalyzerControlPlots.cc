@@ -168,14 +168,10 @@ void AnalyzerControlPlots::fillHistos(const EventMetadata&,
     
     m_histogram["lepton_multiplicity"]->Fill(recoObjectIndices.allLeptonIndices_.size(), weight);
     for(const int index : recoObjectIndices.leptonIndices_){
-        //m_histogram["lepton_pt"]->Fill(recoObjects.allLeptons_->at(index).Pt(), weight);
-        //m_histogram["lepton_eta"]->Fill(recoObjects.allLeptons_->at(index).Eta(), weight);
         m_histogram["lepton_phi"]->Fill(recoObjects.allLeptons_->at(index).Phi(), weight);
         //m_histogram["lepton_dxy"]->Fill(recoObjects.lepDxyVertex0_->at(index), weight);
     }
     for(const int index : recoObjectIndices.antiLeptonIndices_){
-        //m_histogram["lepton_pt"]->Fill(recoObjects.allLeptons_->at(index).Pt(), weight);
-        //m_histogram["lepton_eta"]->Fill(recoObjects.allLeptons_->at(index).Eta(), weight);
         m_histogram["lepton_phi"]->Fill(recoObjects.allLeptons_->at(index).Phi(), weight);
         //m_histogram["lepton_dxy"]->Fill(recoObjects.lepDxyVertex0_->at(index), weight);
     }
@@ -193,12 +189,12 @@ void AnalyzerControlPlots::fillHistos(const EventMetadata&,
     const int antiLeptonIndex = recoObjectIndices.antiLeptonIndices_.size()>0 ? recoObjectIndices.antiLeptonIndices_.at(0) : -1;
     const bool hasLeptonPair = (leptonIndex!=-1 && antiLeptonIndex!=-1);
     
-    m_histogram["lepton_pt"]->Fill(recoObjects.allLeptons_->at(leptonIndex).Pt(), weight);
-    m_histogram["lepton_pt"]->Fill(recoObjects.allLeptons_->at(antiLeptonIndex).Pt(), weight);
-    m_histogram["lepton_eta"]->Fill(recoObjects.allLeptons_->at(leptonIndex).Eta(), weight);
-    m_histogram["lepton_eta"]->Fill(recoObjects.allLeptons_->at(antiLeptonIndex).Eta(), weight);
-    
-    
+    if(hasLeptonPair){
+        m_histogram["lepton_pt"]->Fill(recoObjects.allLeptons_->at(leptonIndex).Pt(), weight);
+        m_histogram["lepton_pt"]->Fill(recoObjects.allLeptons_->at(antiLeptonIndex).Pt(), weight);
+        m_histogram["lepton_eta"]->Fill(recoObjects.allLeptons_->at(leptonIndex).Eta(), weight);
+        m_histogram["lepton_eta"]->Fill(recoObjects.allLeptons_->at(antiLeptonIndex).Eta(), weight);
+    }
     
     // Leading lepton and antilepton
     int leadingLeptonIndex(leptonIndex);
