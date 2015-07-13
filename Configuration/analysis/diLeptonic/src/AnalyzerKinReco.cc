@@ -204,6 +204,13 @@ void AnalyzerKinReco::bookHistos(const TString& step, std::map<TString, TH1*>& m
         name = "ABSvsGenTTBarMass_posWeight";
         m_histogram[name] = store(new TProfile (prefix_+name+step, "ABS vs Gen", 200, 0, 2000));
         
+        name = "recoABSvsGenToppT";
+        m_histogram[name] = store(new TProfile (prefix_+name+step, "reco ABS vs Gen", 200, 0.1, 1000.1));
+        name = "recoABSvsGenTopRapidity";
+        m_histogram[name] = store(new TProfile (prefix_+name+step, "reco ABS vs Gen", 200, -5, 5));
+        name = "recoABSvsGenTTBarMass";
+        m_histogram[name] = store(new TProfile (prefix_+name+step, "reco ABS vs Gen", 200, 0, 2000));
+        
 }
 
 
@@ -329,6 +336,14 @@ void AnalyzerKinReco::fillHistos(const EventMetadata& eventMetadata,
         
         TLorentzVector genttbar = gentop + gentopbar;
         TLorentzVector recottbar = recotop + recotopbar;
+        
+        if(std::fabs(recotop.Pt()-gentop.Pt())/gentop.Pt()<1000000) 
+            m_histogram["recoABSvsGenToppT"]->Fill(gentop.Pt(),std::fabs(recotop.Pt()-gentop.Pt())/gentop.Pt());
+        if(std::fabs(recotop.Rapidity()-gentop.Rapidity())/std::fabs(gentop.Rapidity())<1000000)
+            m_histogram["recoABSvsGenTopRapidity"]->Fill(gentop.Rapidity(),std::fabs(recotop.Rapidity()-gentop.Rapidity())/std::fabs(gentop.Rapidity()));
+        if(std::fabs(recottbar.M()-genttbar.M())/genttbar.M()<1000000)
+            m_histogram["recoABSvsGenTTBarMass"]->Fill(genttbar.M(),std::fabs(recottbar.M()-genttbar.M())/genttbar.M());
+
         //if((gentop.Pt()>300 && recotop.Pt()>300) || (gentopbar.Pt()>300 && recotopbar.Pt()>300)){
 	if( recotop.Pt()>300 || recotopbar.Pt()>300 ){
             ((TH2D*)m_histogram["mtt_true_vs_reco_pTt300"])->Fill(recottbar.M(),genttbar.M(),weight);
