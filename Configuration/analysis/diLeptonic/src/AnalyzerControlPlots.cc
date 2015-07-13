@@ -39,6 +39,10 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
     m_histogram[name] = this->store(new TH1D ( prefix_+name+step, "Primary Vertex Multiplicity (no Pileup)", 30, 0, 30 ));
     
     // Leptons
+    name = "pfiso_mu";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Moun isolation;Muon isolation;Events",2000,0,2));
+    name = "pfiso_e";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Electron isolation;Electron isolation;Events",2000,0,2));
     name = "lepton_multiplicity";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Lepton multiplicity;N leptons;Events",21,-0.5,20.5));
     name = "lepton_pt";
@@ -155,6 +159,14 @@ void AnalyzerControlPlots::fillHistos(const EventMetadata&,
     m_histogram["vertMulti_noPU"]->Fill(recoObjects.vertMulti_, weight/weightPU);
     
     // Leptons
+    
+    for(const int index : recoObjectIndices.allLeptonIndices_){
+        if(std::abs(recoObjects.lepPdgId_->at(index))==11)
+        m_histogram["pfiso_e"]->Fill(recoObjects.lepPfIso_->at(index), weight);
+        if(std::abs(recoObjects.lepPdgId_->at(index))==13)
+        m_histogram["pfiso_mu"]->Fill(recoObjects.lepPfIso_->at(index), weight);
+    }
+    
     m_histogram["lepton_multiplicity"]->Fill(recoObjectIndices.allLeptonIndices_.size(), weight);
     for(const int index : recoObjectIndices.leptonIndices_){
         //m_histogram["lepton_pt"]->Fill(recoObjects.allLeptons_->at(index).Pt(), weight);
