@@ -310,11 +310,15 @@ void load_Analysis(const TString& validFilenamePattern,
             filenameBase.ReplaceAll(".root", sstream.str());
         }
         
-        // For ttbar dilepton sample, adjust basic filename to represent physics process (signal --> Dilepton)
-        // In case of systematic ttbar dilepton sample, remove from filename part identifying the systematic (will be identified by output folder)
+        // For ttbar samples, adjust basic filename to represent physics process (signal --> Dilepton, bg --> Notdilepton)
+        // In case of systematic ttbar sample, remove from filename part identifying the systematic (will be identified by output folder)
         if(filenameBase.BeginsWith("ttbarsignal")){
             if(filenameBase.BeginsWith("ttbarsignalplustau")) filenameBase = "ttbarsignalplustau.root";
             filenameBase.ReplaceAll("signal", "Dilepton");
+        }
+        else if(filenameBase.BeginsWith("ttbarbg")){
+            if(filenameBase.BeginsWith("ttbarbg")) filenameBase = "ttbarbg.root";
+            filenameBase.ReplaceAll("bg", "Notdilepton");
         }
         
         // Open nTuple file
@@ -351,6 +355,7 @@ void load_Analysis(const TString& validFilenamePattern,
         const bool isMC = o_isMC->GetString() == "1";
         const bool isHiggsSignal(o_isHiggsSignal && o_isHiggsSignal->GetString()=="1");
         const bool isHiggsInclusive(isHiggsSignal && samplename->GetString()=="ttbarhiggsinclusive");
+        const bool isTtbarNotdilepton(samplename->GetString() == "ttbarbg");
         const bool isTtbarV(samplename->GetString()=="ttbarw" || samplename->GetString()=="ttbarz");
         const bool isDrellYan(samplename->GetString()=="dy1050" || samplename->GetString()=="dy50inf");
         
@@ -472,9 +477,9 @@ void load_Analysis(const TString& validFilenamePattern,
                 // Reset the selection
                 selector->SetTrueLevelDYChannel(0);
             }
-            else if(isTopSignal && !isHiggsSignal && !isTtbarV){ // For splitting of ttbar in production modes associated with heavy flavours, and decays via taus
+            else if(isTopSignal && !isHiggsSignal && !isTtbarV){ // For splitting of ttbar dilepton in production modes associated with heavy flavours, and decays via taus
                 if(selectedSystematic.type() == Systematic::pdf) selector->SetPdfVariation(systematicId);
-                const std::set<int> allowedPartIds({0, 101, 201, 301, 102, 202, 302, 103, 203, 303, 4, -1});
+                const std::set<int> allowedPartIds({0, 101, 201, 102, 202, 103, 203, 4, -1});
                 if(part==0 || part==-1){ // output is tt+other: both leptons from W->e/mu or W->tau->e/mu
                     selector->SetAdditionalBjetMode(0);
                     TString modifiedOutputfilename(outputfilename);
@@ -533,28 +538,6 @@ void load_Analysis(const TString& validFilenamePattern,
                     selector->SetOutputfilename(modifiedOutputfilename);
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
-                // FIXME: Workaround as long as ttbarbg is not contained in ntuples
-                if(part==301 || part==-1){ // output is tt+b: at least one hadronic W decay
-                    selector->SetAdditionalBjetMode(301);
-                    TString modifiedOutputfilename(outputfilename);
-                    modifiedOutputfilename.ReplaceAll("Dileptonplustau", "NotdileptonB");
-                    selector->SetOutputfilename(modifiedOutputfilename);
-                    chain.Process(selector, "", maxEvents, skipEvents);
-                }
-                if(part==302 || part==-1){ // output is tt+2b with 2+ b-hadrons/jet: at least one hadronic W decay
-                    selector->SetAdditionalBjetMode(302);
-                    TString modifiedOutputfilename(outputfilename);
-                    modifiedOutputfilename.ReplaceAll("Dileptonplustau", "Notdilepton2b");
-                    selector->SetOutputfilename(modifiedOutputfilename);
-                    chain.Process(selector, "", maxEvents, skipEvents);
-                }
-                if(part==303 || part==-1){ // output is tt+bb: at least one hadronic W decay
-                    selector->SetAdditionalBjetMode(303);
-                    TString modifiedOutputfilename(outputfilename);
-                    modifiedOutputfilename.ReplaceAll("Dileptonplustau", "NotdileptonBbbar");
-                    selector->SetOutputfilename(modifiedOutputfilename);
-                    chain.Process(selector, "", maxEvents, skipEvents);
-                }
                 if(allowedPartIds.count(part) < 1){
                     std::cerr<<"ERROR in load_Analysis()! Specified part for ttbar+HF separation is not allowed (sample, part): "
                              <<outputfilename<<" , "<<part<<"\n...break\n"<<std::endl;
@@ -565,6 +548,53 @@ void load_Analysis(const TString& validFilenamePattern,
                 }
                 // Reset the selection
                 selector->SetPdfVariation(-1);
+                selector->SetAdditionalBjetMode(-999);
+            }
+            else if(isTtbarNotdilepton && analysisConfig.general().era_!=Era::run1_8tev){ // For splitting of ttbar non-dilepton in production modes associated with heavy flavours
+                // FIXME: Check for era is workaround as long as 8tev ntuples do not have tt+xx ID
+                if(part==0 || part==-1){ // output is tt+other
+                    selector->SetAdditionalBjetMode(0);
+                    TString modifiedOutputfilename(outputfilename);
+                    modifiedOutputfilename.ReplaceAll("Notdilepton", "NotdileptonOther");
+                    selector->SetOutputfilename(modifiedOutputfilename);
+                    selector->SetSampleForBtagEfficiencies(true);
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                    selector->SetSampleForBtagEfficiencies(false);
+                }
+                if(part==1 || part==-1){ // output is tt+b
+                    selector->SetAdditionalBjetMode(1);
+                    TString modifiedOutputfilename(outputfilename);
+                    modifiedOutputfilename.ReplaceAll("Notdilepton", "NotdileptonB");
+                    selector->SetOutputfilename(modifiedOutputfilename);
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                if(part==2 || part==-1){ // output is tt+2b with 2+ b-hadrons/jet
+                    selector->SetAdditionalBjetMode(2);
+                    TString modifiedOutputfilename(outputfilename);
+                    modifiedOutputfilename.ReplaceAll("Notdilepton", "Notdilepton2b");
+                    selector->SetOutputfilename(modifiedOutputfilename);
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                if(part==3 || part==-1){ // output is tt+bb
+                    selector->SetAdditionalBjetMode(3);
+                    TString modifiedOutputfilename(outputfilename);
+                    modifiedOutputfilename.ReplaceAll("Notdilepton", "NotdileptonBbbar");
+                    selector->SetOutputfilename(modifiedOutputfilename);
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                if(part==4 || part==-1){ // output is tt+cc
+                    selector->SetAdditionalBjetMode(4);
+                    TString modifiedOutputfilename(outputfilename);
+                    modifiedOutputfilename.ReplaceAll("Notdilepton", "NotdileptonCcbar");
+                    selector->SetOutputfilename(modifiedOutputfilename);
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                if(part >= 5){
+                    std::cerr<<"ERROR in load_Analysis()! Specified part for ttbar non-dilepton separation is not allowed (sample, part): "
+                             <<outputfilename<<" , "<<part<<"\n...break\n"<<std::endl;
+                    exit(647);
+                }
+                // Reset the selection
                 selector->SetAdditionalBjetMode(-999);
             }
             else if(isHiggsInclusive){ // For splitting of ttH inclusive decay in H->bb and other decays
