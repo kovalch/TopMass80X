@@ -728,32 +728,23 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         Sample::tt2b
     );
     
-    result["ttbarDileptonPlusCcbar"] = Sample(
+    result["ttbarPlusCcbar"] = Sample(
         "t#bar{t}c#bar{c}",
         kMagenta-10,
         831.76,
         // Plus 50% up/down uncertainty
         0.5, -1.,
-        {"ttbarDileptonPlustauCcbar.root"},
+        {"ttbarDileptonPlustauCcbar.root", "ttbarNotdileptonCcbar.root"},
         Sample::ttcc
     );
     
-    result["ttbarDileptonPlusOther"] = Sample(
+    result["ttbarPlusOther"] = Sample(
         "t#bar{t}Other",
         23,
         831.76,
         8.5/831.76, -1.,
-        {"ttbarDileptonPlustauOther.root"},
+        {"ttbarDileptonPlustauOther.root", "ttbarNotdileptonOther.root"},
         Sample::ttother
-    );
-    
-    result["ttbarbkg"] = Sample(
-        "t#bar{t}Other",
-        23,
-        831.76,
-        8.5/831.76, -1.,
-        {"ttbarbg.root"},
-        Sample::ttNoDilepton
     );
     
     result["singletop"] = Sample(
@@ -1151,9 +1142,8 @@ std::vector<TString> SampleDefinitions::selectAndOrderSamples13TeV(const int pse
         "www",
         "wwz",
         "zzz",
-        "ttbarbkg",
-        "ttbarDileptonPlusOther",
-        "ttbarDileptonPlusCcbar",
+        "ttbarPlusOther",
+        "ttbarPlusCcbar",
         "ttbarPlus2B",
         "ttbarPlusB",
         "ttbarPlusBbbar",
