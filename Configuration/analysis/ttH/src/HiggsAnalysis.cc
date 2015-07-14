@@ -627,13 +627,13 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                                                    matchedBjetFromHiggsIndex, matchedAntiBjetFromHiggsIndex);
     
     // Event by event information
-    //this->eventByEventInfo(eventMetadata,
-    //                       recoObjects, commonGenObjects,
-    //                       topGenObjects, higgsGenObjects,
-    //                       kinematicReconstructionSolutions,
-    //                       genObjectIndices, recoObjectIndices,
-    //                       genLevelWeights, recoLevelWeights,
-    //                       weight, additionalJetFlavourId, selectionStep);
+    this->eventByEventInfo(eventMetadata,
+                           recoObjects, commonGenObjects,
+                           topGenObjects, higgsGenObjects,
+                           kinematicReconstructionSolutions,
+                           genObjectIndices, recoObjectIndices,
+                           genLevelWeights, recoLevelWeights,
+                           weight, additionalJetFlavourId, selectionStep);
     
     // ++++ Control Plots ++++
     
