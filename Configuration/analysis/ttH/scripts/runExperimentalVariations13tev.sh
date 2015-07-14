@@ -50,30 +50,34 @@ for systematic in "${systematics[@]}" ; do
         $LA -f ttbarH125tobbbar -c $channel -s $systematic $@ &
         $LA -f ttbarH125incl -p 0 -c $channel -s $systematic $@ &
         $LA -f ttbarH125incl -p 1 -c $channel -s $systematic $@ &
-        # FIXME: Workaround as long as ttbarbg is not contained in ntuples
-        w
-        $LA -f ttbarsignalplustau.root -p 301 -c $channel -s $systematic $@ &
-        $LA -f ttbarsignalplustau.root -p 302 -c $channel -s $systematic $@ &
-        $LA -f ttbarsignalplustau.root -p 303 -c $channel -s $systematic $@ &
     done
-
+    
     for channel in ee emu mumu; do
         w
         $LA -f dy50inf -p 0 -c $channel -s $systematic $@ &
         $LA -f dy50inf -p 1 -c $channel -s $systematic $@ &
         $LA -f dy50inf -p 2 -c $channel -s $systematic $@ &
     done
-
+    
     for channel in ee emu mumu; do
         w
         $LA -f dy1050 -p 0 -c $channel -s $systematic $@ &
         $LA -f dy1050 -p 1 -c $channel -s $systematic $@ &
         $LA -f dy1050 -p 2 -c $channel -s $systematic $@ &
     done
-
+    
+    for channel in ee emu mumu; do
+        w
+        $LA -f ttbarbg.root -p 0 -c $channel -s $systematic $@ &
+        $LA -f ttbarbg.root -p 1 -c $channel -s $systematic $@ &
+        $LA -f ttbarbg.root -p 2 -c $channel -s $systematic $@ &
+        w
+        $LA -f ttbarbg.root -p 3 -c $channel -s $systematic $@ &
+        $LA -f ttbarbg.root -p 4 -c $channel -s $systematic $@ &
+    done
 
     for channel in ee emu mumu; do
-        for pattern in qcd single ttbarbg.root wtol wwtoall wztoall zztoall ttbarW ttbarZ ttgamma www wwz zzz; do
+        for pattern in qcd single wtol wwtoall wztoall zztoall ttbarW ttbarZ ttgamma www wwz zzz; do
             w
             $LA -f $pattern -c $channel -s $systematic $@ &
         done

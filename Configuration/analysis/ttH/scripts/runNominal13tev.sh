@@ -28,11 +28,6 @@ for channel in ee emu mumu; do
     $LA -f ttbarH125tobbbar -c $channel $@ &
     $LA -f ttbarH125incl -p 0 -c $channel $@ &
     $LA -f ttbarH125incl -p 1 -c $channel $@ &
-    # FIXME: Workaround as long as ttbarbg is not contained in ntuples
-    w
-    $LA -f ttbarsignalplustau.root -p 301 -c $channel $@ &
-    $LA -f ttbarsignalplustau.root -p 302 -c $channel $@ &
-    $LA -f ttbarsignalplustau.root -p 303 -c $channel $@ &
 done
 
 for channel in ee emu mumu; do
@@ -58,7 +53,17 @@ for channel in ee emu mumu; do
 done
 
 for channel in ee emu mumu; do
-    for pattern in qcd single ttbarbg.root wtol wwtoall wztoall zztoall ttbarW ttbarZ ttgamma www wwz zzz; do
+    w
+    $LA -f ttbarbg.root -p 0 -c $channel $@ &
+    $LA -f ttbarbg.root -p 1 -c $channel $@ &
+    $LA -f ttbarbg.root -p 2 -c $channel $@ &
+    w
+    $LA -f ttbarbg.root -p 3 -c $channel $@ &
+    $LA -f ttbarbg.root -p 4 -c $channel $@ &
+done
+
+for channel in ee emu mumu; do
+    for pattern in qcd single wtol wwtoall wztoall zztoall ttbarW ttbarZ ttgamma www wwz zzz; do
         w
         $LA -f $pattern -c $channel $@ &
     done
