@@ -291,7 +291,7 @@ void AnalysisBase::Init(TTree *tree)
     this->SetPdfBranchAddress();
     this->SetTopDecayBranchAddress();
     if(isTtbarPlusTauSample_ && topPtScaleFactors_) this->SetGenTopBranchAddresses();
-    if(isTtbarPlusTauSample_) this->SetGenExtraTopJetBranchAddress();
+    if(isTtbarSample_) this->SetGenExtraTopJetBranchAddress();
     if(isTopSignal_) this->SetTopSignalBranchAddresses();
     if(isHiggsSignal_) this->SetHiggsDecayBranchAddress();
     if(isHiggsSignal_) this->SetHiggsSignalBranchAddresses();
@@ -856,7 +856,9 @@ void AnalysisBase::SetZDecayBranchAddress()
 
 void AnalysisBase::SetGenExtraTopJetBranchAddress()
 {
-    chain_->SetBranchAddress("genExtraTopJetNumberId", &topGenObjects_->genExtraTopJetNumberId_, &b_genExtraTopJetNumberId);
+    // FIXME: Workaround not having tt+xx ID in ttbarbg in 8 TeV
+    if(chain_->GetBranch("genExtraTopJetNumberId"))
+        chain_->SetBranchAddress("genExtraTopJetNumberId", &topGenObjects_->genExtraTopJetNumberId_, &b_genExtraTopJetNumberId);
 }
 
 
@@ -937,8 +939,6 @@ void AnalysisBase::SetTopSignalBranchAddresses()
     //    chain_->SetBranchAddress("genCHadLeptonHadronIndex", &topGenObjects_->genCHadLeptonHadronIndex_, &b_genCHadLeptonHadronIndex);
     //if(chain_->GetBranch("genCHadLeptonViaTau")) // new variable, keep check a while for compatibility
     //    chain_->SetBranchAddress("genCHadLeptonViaTau", &topGenObjects_->genCHadLeptonViaTau_, &b_genCHadLeptonViaTau);
-    
-    this->SetGenExtraTopJetBranchAddress();
 }
 
 
@@ -1138,7 +1138,8 @@ void AnalysisBase::GetZDecayModeEntry(const Long64_t& entry)const
 
 void AnalysisBase::GetGenExtraTopJetNumberIdEntry(const Long64_t& entry)const
 {
-    b_genExtraTopJetNumberId->GetEntry(entry);
+    // FIXME: Workaround not having tt+xx ID in ttbarbg in 8 TeV
+    if(b_genExtraTopJetNumberId) b_genExtraTopJetNumberId->GetEntry(entry);
 }
 
 
@@ -1202,7 +1203,6 @@ void AnalysisBase::GetTopSignalBranchesEntry(const Long64_t& entry)const
     //if(b_genCHadLeptonIndex) b_genCHadLeptonIndex->GetEntry(entry);
     //if(b_genCHadLeptonHadronIndex) b_genCHadLeptonHadronIndex->GetEntry(entry);
     //if(b_genCHadLeptonViaTau) b_genCHadLeptonViaTau->GetEntry(entry);
-    this->GetGenExtraTopJetNumberIdEntry(entry);
 }
 
 
@@ -1890,7 +1890,7 @@ std::vector<int> AnalysisBase::zDecayModes(const Long64_t& entry)const
 
 int AnalysisBase::additionalJetFlavourId(const Long64_t& entry)const
 {
-    if(!isTtbarPlusTauSample_) return -1;
+    if(!isTtbarSample_) return -1;
     this->GetGenExtraTopJetNumberIdEntry(entry);
     
     return topGenObjects_->genExtraTopJetNumberId_;
