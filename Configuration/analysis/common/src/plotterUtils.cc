@@ -1135,16 +1135,25 @@ TH1* common::absoluteHistogram(TH1* histo)
 
 void common::drawCmsLabels(const int cmsprelim, const double& energy, const double& luminosityInInverseFb, const double& textSize)
 {
-
-    const char *text = "%2.1f fb^{-1} (%2.f TeV)";
-
+    // Define luminosity label based on amount of luminosity
+    double luminosity(-999.);
+    const char* text(0);
+    if(luminosityInInverseFb >= 1.){
+        luminosity = luminosityInInverseFb;
+        text = "%2.1f fb^{-1} (%2.f TeV)";
+    }
+    else{
+        luminosity = luminosityInInverseFb*1000.;
+        text = "%2.1f pb^{-1} (%2.f TeV)";
+    }
+    
     TPaveText *label = new TPaveText();
     label->SetX1NDC(gStyle->GetPadLeftMargin());
     label->SetY1NDC(1.0-gStyle->GetPadTopMargin());
     label->SetX2NDC(1.0-gStyle->GetPadRightMargin());
     label->SetY2NDC(1.0);
     label->SetTextFont(42);
-    label->AddText(Form(text, luminosityInInverseFb, energy));
+    label->AddText(Form(text, luminosity, energy));
     label->SetFillStyle(0);
     label->SetBorderSize(0);
     if (textSize!=0) label->SetTextSize(textSize);
