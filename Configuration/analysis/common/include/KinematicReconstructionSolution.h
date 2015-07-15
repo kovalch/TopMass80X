@@ -33,7 +33,8 @@ public:
                                     const LV& neutrino, const LV& antiNeutrino,
                                     const double& reconstructedTopMass,
                                     const int numberOfBtags,
-                                    const std::map<WeightType, double>& m_weight);
+                                    const std::map<WeightType, double>& m_weight,
+                                    const bool isNoSmearSol_ = false);
     
     /// Copy constructor
     KinematicReconstructionSolution(const KinematicReconstructionSolution& kinematicReconstructionSolution);
@@ -80,6 +81,8 @@ public:
     
     const std::map<WeightType, double>& weightMap()const{return m_weight_;}
     
+    const bool isNoSmearSol()const{return isNoSmearSol_;}
+    
     
     
 private:
@@ -106,6 +109,9 @@ private:
     
     // Weights
     const std::map<WeightType, double> m_weight_;
+    
+    // Is there solution without smearing
+    const bool isNoSmearSol_;
 };
 
 

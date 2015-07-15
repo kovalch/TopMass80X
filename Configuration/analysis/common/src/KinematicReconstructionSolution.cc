@@ -24,7 +24,8 @@ antiTop_(LV(0.,0.,0.,0.)),
 neutrino_(LV(0.,0.,0.,0.)),
 antiNeutrino_(LV(0.,0.,0.,0.)),
 reconstructedTopMass_(-999.),
-numberOfBtags_(-1)
+numberOfBtags_(-1),
+isNoSmearSol_(false)
 {}
 
 
@@ -42,7 +43,8 @@ neutrino_(kinematicReconstructionSolution.neutrino_),
 antiNeutrino_(kinematicReconstructionSolution.antiNeutrino_),
 reconstructedTopMass_(kinematicReconstructionSolution.reconstructedTopMass_),
 numberOfBtags_(kinematicReconstructionSolution.numberOfBtags_),
-m_weight_(kinematicReconstructionSolution.m_weight_)
+m_weight_(kinematicReconstructionSolution.m_weight_),
+isNoSmearSol_(kinematicReconstructionSolution.isNoSmearSol_)
 {}
 
 
@@ -54,7 +56,8 @@ KinematicReconstructionSolution::KinematicReconstructionSolution(const VLV* cons
                                                                  const LV& neutrino, const LV& antiNeutrino,
                                                                  const double& reconstructedTopMass,
                                                                  const int numberOfBtags,
-                                                                 const std::map<WeightType, double>& m_weight):
+                                                                 const std::map<WeightType, double>& m_weight,
+                                                                 const bool isNoSmearSol):
 allLeptons_(v_allLeptons),
 allJets_(v_allJets),
 leptonIndex_(leptonIndex),
@@ -67,7 +70,8 @@ neutrino_(neutrino),
 antiNeutrino_(antiNeutrino),
 reconstructedTopMass_(reconstructedTopMass),
 numberOfBtags_(numberOfBtags),
-m_weight_(m_weight)
+m_weight_(m_weight),
+isNoSmearSol_(isNoSmearSol)
 {}
 
 
@@ -266,6 +270,7 @@ const KinematicReconstructionSolution& KinematicReconstructionSolutions::solutio
     const size_t index = m_weightIndexNoBtags_.at(weightType).at(solutionNumber);
     return v_solution_.at(v_solutionNoBtags_.at(index));
 }
+
 
 
 

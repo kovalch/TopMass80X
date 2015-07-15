@@ -263,10 +263,14 @@ std::vector<KinematicReconstructionSolution> KinematicReconstruction::solutionsP
             std::map<KinematicReconstructionSolution::WeightType, double> m_weight;
             m_weight[KinematicReconstructionSolution::defaultForMethod] = weight;
             m_weight[KinematicReconstructionSolution::averagedSumSmearings_mlb] = weight;
+            KinematicReconstruction_LSroutines tp_NOsm(80.4, 80.4);
+            tp_NOsm.setConstraints(antiLepton, lepton, jet1, jet2, met.px(), met.py());
+            bool isNoSmearSol = false;
+            if(tp_NOsm.getNsol()>0)isNoSmearSol  = true;
             const KinematicReconstructionSolution solution(&allLeptons, &allJets,
                                                            leptonIndex, antiLeptonIndex, jetIndex1, jetIndex2,
                                                            top, antiTop, neutrino, antiNeutrino,
-                                                           TopMASS, numberOfBtags, m_weight);
+                                                           TopMASS, numberOfBtags, m_weight, isNoSmearSol);
             result.push_back(solution);
         }
     }
@@ -358,14 +362,6 @@ bool KinematicReconstruction::solutionSmearing(KinematicReconstruction_MeanSol& 
         
         TVector3 vX_reco =  - b_temp.Vect() - bbar_temp.Vect() - l_temp.Vect() - al_temp.Vect() - met_temp.Vect();
         
-//         KinematicReconstruction_LSroutines tp_NOsm(80.4,80.4);
-//                 tp_NOsm.setConstraints(al_temp, l_temp, b_temp, bbar_temp, met_temp.Px(), met_temp.Py());
-//                 bool isNoSmearedSol=0;
-//                 if(tp_NOsm.getNsol()>0)isNoSmearedSol  = 1;
-                
-        // Loop over all smearings
-        //int nSM = -1;
-        //if(isNoSmearedSol||1)nSM=100;
         for(int sm=0; sm<100; ++sm){
             TLorentzVector b_sm=b_temp;
             TLorentzVector bbar_sm=bbar_temp;
