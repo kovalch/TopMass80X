@@ -43,9 +43,9 @@ void plotsForLimitTool()
             if (!histo_signalmc) std::cout<<"\n\tWe didn't find the signalmc histogram!!\n";
             
             // Access integral values to determine observation and rates
-            std::cout<<"The integral for data is = "<<histo_data->Integral(0,histo_data->GetNbinsX()+1)<<std::endl;
-            std::cout<<"The integral for bkgd is = "<<histo_bkg->Integral(0,histo_bkg->GetNbinsX()+1)<<std::endl;
-            std::cout<<"The integral for signal is = "<<histo_signalmc->Integral(0,histo_signalmc->GetNbinsX()+1)<<std::endl;
+            std::cout<<"The integral for data is = "<<histo_data->Integral()<<std::endl;
+            std::cout<<"The integral for bkgd is = "<<histo_bkg->Integral()<<std::endl;
+            std::cout<<"The integral for signal is = "<<histo_signalmc->Integral()<<std::endl;
             
             TFile* outputFile(0);
             outputFile = new TFile("mvaEventA_mvaWeight_"+*sample+".root","RECREATE");
@@ -65,8 +65,8 @@ void plotsForLimitTool()
             if (!histo_bkg) std::cout<<"\n\tWe didn't find the bckg histogram!!\n";
             if (!histo_signalmc) std::cout<<"\n\tWe didn't find the signalmc histogram!!\n";
             
-            std::cout<<"The integral for"+*sample+"bkgd is = "<<histo_bkg->Integral(0,histo_bkg->GetNbinsX()+1)<<std::endl;
-            std::cout<<"The integral for"+*sample+"signal is = "<<histo_signalmc->Integral(0,histo_signalmc->GetNbinsX()+1)<<std::endl;
+            std::cout<<"The integral for"+*sample+"bkgd is = "<<histo_bkg->Integral()<<std::endl;
+            std::cout<<"The integral for"+*sample+"signal is = "<<histo_signalmc->Integral()<<std::endl;
             
             TFile* outputFile(0);
             outputFile = new TFile("mvaEventA_mvaWeight_"+*sample+".root","RECREATE");
