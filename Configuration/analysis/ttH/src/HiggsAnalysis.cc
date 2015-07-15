@@ -1131,7 +1131,9 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection13tev(int additionalBjetMo
     }
     else if(additionalBjetMode == 0){
         // tt+LF
-        if(jetId==0) return false;
+        // FIXME: Workaround for ntuples not yet having tt+xx ID in ttbarbg samples (all events are put in tt+LF)
+        //if(jetId == 0) return false;
+        if(jetId <= 0) return false;
     }
     else{
         std::cerr<<"ERROR in HiggsAnalysis::failsAdditionalJetFlavourSelection13tev()! Undefined additional jet mode requested: "
