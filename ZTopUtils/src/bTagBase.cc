@@ -703,6 +703,21 @@ void bTagBase::initWorkingpoints() {
     minpt_.at(csvv2t_wp) = 20;
     maxpt_.at(csvv2t_wp) = 800;
 
+    // -------
+    // WP from:
+    //pre 50 ns  csvv2 
+    // -------
+    wpvals_.at(csvv2l_50ns_wp) = 0.605;
+    minpt_.at(csvv2l_50ns_wp) = 20;
+    maxpt_.at(csvv2l_50ns_wp) = 800;
+
+    wpvals_.at(csvv2m_50ns_wp) = 0.890;
+    minpt_.at(csvv2m_50ns_wp) = 20;
+    maxpt_.at(csvv2m_50ns_wp) = 800;
+ 
+    wpvals_.at(csvv2t_50ns_wp) = 0.970;
+    minpt_.at(csvv2t_50ns_wp) = 20;
+    maxpt_.at(csvv2t_50ns_wp) = 800;
 
 }
 
@@ -713,6 +728,9 @@ std::string bTagBase::getWorkingPointString()const{
     else if (wp_ == csvv2l_wp) return "csvv2l";
     else if (wp_ == csvv2m_wp) return "csvv2m";
     else if (wp_ == csvv2t_wp) return "csvv2t";
+    else if (wp_ == csvv2_50nsl_wp) return "csvv2l_50ns";
+    else if (wp_ == csvv2_50nsm_wp) return "csvv2m_50ns";
+    else if (wp_ == csvv2_50nst_wp) return "csvv2t_50ns";
     else return "notDef";
 }
 
@@ -872,6 +890,16 @@ float bTagBase::BJetSF(const float & pt, const float& abs_eta,
         } else if (wp_ == csvv2t_wp) {
             //std::cout<<"*** Working at 13 TeV: CSVv2 tagger is used. BJetSFs for all WPs are not available yet. The default output is '1'. ***"<<std::endl;
             return 1; 
+
+        } else if (wp_ == csvv2l_50ns_wp) {
+            //std::cout<<"*** Working at 13 TeV (50 ns): CSVv2 tagger is used. BJetSFs for all WPs are not available yet. The default output is '1'. ***"<<std::endl;
+            return 1; 
+        } else if (wp_ == csvv2m_50ns_wp) {
+            //std::cout<<"*** Working at 13 TeV (50 ns): CSVv2 tagger is used. BJetSFs for all WPs are not available yet. The default output is '1'. ***"<<std::endl;
+            return 1; 
+        } else if (wp_ == csvv2t_50ns_wp) {
+            //std::cout<<"*** Working at 13 TeV (50 ns): CSVv2 tagger is used. BJetSFs for all WPs are not available yet. The default output is '1'. ***"<<std::endl;
+            return 1; 
         }
 
         //----------------END OF WORKING POINTS-----------------//
@@ -923,6 +951,15 @@ float bTagBase::CJetSF(const float &pt, const float &abs_eta, float multiplier) 
     } else if (wp_ == csvv2t_wp) {
         //std::cout<<"*** Working at 13 TeV: CSVv2 tagger is used. CJetSFs for all WPs are not available yet. The default output is '1'. ***"<<std::endl;
         return 1;	
+    }else if (wp_ == csvv2l_50ns_wp) {
+        //std::cout<<"*** Working at 13 TeV (50 ns): CSVv2 tagger is used. CJetSFs for all WPs are not available yet. The default output is '1'. ***"<<std::endl;
+        return 1; 
+    } else if (wp_ == csvv2m_50ns_wp) {
+        //std::cout<<"*** Working at 13 TeV (50 ns): CSVv2 tagger is used. CJetSFs for all WPs are not available yet. The default output is '1'. ***"<<std::endl;
+        return 1; 
+    } else if (wp_ == csvv2t_50ns_wp) {
+        //std::cout<<"*** Working at 13 TeV (50 ns): CSVv2 tagger is used. CJetSFs for all WPs are not available yet. The default output is '1'. ***"<<std::endl;
+        return 1;   
     }
 
     //----------------END OF WORKING POINTS-----------------//
@@ -1076,6 +1113,15 @@ float bTagBase::LJetSF(const float& pt, const float& abs_eta, float multiplier) 
             return 1; 
         } else if (wp_ == csvv2t_wp) {
             //std::cout<<"*** Working at 13 TeV: CSVv2 tagger is used. LJetSFs for all WPs are not available yet. The default output is '1'. ***"<<std::endl;
+            return 1;    
+        } else if (wp_ == csvv2l_50ns_wp) {
+            //std::cout<<"*** Working at 13 TeV (50 ns): CSVv2 tagger is used. LJetSFs for all WPs are not available yet. The default output is '1'. ***"<<std::endl;
+            return 1; 
+        } else if (wp_ == csvv2m_50ns_wp) {
+            //std::cout<<"*** Working at 13 TeV (50 ns): CSVv2 tagger is used. LJetSFs for all WPs are not available yet. The default output is '1'. ***"<<std::endl;
+            return 1; 
+        } else if (wp_ == csvv2t_50ns_wp) {
+            //std::cout<<"*** Working at 13 TeV (50 ns): CSVv2 tagger is used. LJetSFs for all WPs are not available yet. The default output is '1'. ***"<<std::endl;
             return 1;    
         }
 
