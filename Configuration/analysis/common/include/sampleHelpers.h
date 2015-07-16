@@ -42,6 +42,7 @@ namespace Btag{
     enum Algorithm{
         csv,
         csvv2,
+        csvv2_50ns,
         undefinedAlgorithm
     };
     

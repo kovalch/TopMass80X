@@ -62,6 +62,7 @@ Btag::Algorithm Btag::convertAlgorithm(const std::string& algo)
 {
     if(algo == "csv") return csv;
     if(algo == "csvv2") return csvv2;
+    if(algo == "csvv2_50ns") return csvv2_50ns;
     if(algo == "") return undefinedAlgorithm;
     std::cerr<<"Error in Btag::convertAlgorithm()! Following conversion is not implemented: "
              <<algo<<"\n...break\n"<<std::endl;
@@ -74,6 +75,7 @@ std::string Btag::convertAlgorithm(const Btag::Algorithm& algo)
 {
     if(algo == csv) return "csv";
     if(algo == csvv2) return "csvv2";
+    if(algo == csvv2_50ns) return "csvv2_50ns";
     if(algo == undefinedAlgorithm) return "";
     std::cerr<<"Error in Btag::convertAlgorithm()! Conversion is not implemented\n...break\n"<<std::endl;
     exit(96);
