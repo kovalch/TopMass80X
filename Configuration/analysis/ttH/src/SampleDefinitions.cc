@@ -120,6 +120,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV(const int mergeLevel)
         {"singletop_tw.root", "singleantitop_tw.root"}
     );
     
+    
     result["ww"] = Sample(
         "Diboson",
         10,
@@ -661,6 +662,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
     // Cross sections from:
     // - ttbar from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO
     // - ttH from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNYellowReportPageAt1314TeV
+    // - QCD, ttbarW, ttbarZ from https://cms-pdmv.cern.ch/mcm/requests?page=0
     // - most samples from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat13TeV
     // - exceptions defined inline
     // FIXME: Update everywhere below correct cross sections AND uncertainties
@@ -671,7 +673,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         kBlack,
         1.,
         0., -1.,
-        {},
+        {"run2015B.root"},
         Sample::data
     );
     
@@ -682,7 +684,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "Pseudodata",
         kBlack,
         831.76,
-        8.5/831.76, -1.,
+        8.5/831.76, -1.,  //FIXME: Update uncertainties
         // Place for specific reweighted ROOT files to be used instead of standard MC files defined below (one per sample)
         {},
         Sample::pseudodata
@@ -695,7 +697,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         kBlack,
         // Scale cross section by factor 2
         2.*831.76,
-        8.5/831.76, -1.,
+        8.5/831.76, -1.,  //FIXME: Update uncertainties
         {"ttbarDileptonNotauBbbar.root", "ttbarDileptonOnlytauBbbar.root"},
         Sample::pseudodata
     );
@@ -705,7 +707,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "t#bar{t}b#bar{b}",
         18,
         831.76,
-        8.5/831.76, -1.,
+        8.5/831.76, -1., //FIXME: Update uncertainties
         {"ttbarDileptonNotauBbbar.root", "ttbarDileptonOnlytauBbbar.root", "ttbarNotdileptonBbbar.root"},
         Sample::ttbb
     );
@@ -714,7 +716,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "t#bar{t}b",
         12,
         831.76,
-        8.5/831.76, -1.,
+        8.5/831.76, -1., //FIXME: Update uncertainties
         {"ttbarDileptonNotauB.root", "ttbarDileptonOnlytauB.root", "ttbarNotdileptonB.root"},
         Sample::ttb
     );
@@ -723,7 +725,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "t#bar{t}2b",
         28,
         831.76,
-        8.5/831.76, -1.,
+        8.5/831.76, -1., //FIXME: Update uncertainties
         {"ttbarDileptonNotau2b.root", "ttbarDileptonOnlytau2b.root", "ttbarNotdilepton2b.root"},
         Sample::tt2b
     );
@@ -733,7 +735,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         kMagenta-10,
         831.76,
         // Plus 50% up/down uncertainty
-        0.5, -1.,
+        0.5, -1., //FIXME: Update uncertainties
         {"ttbarDileptonPlustauCcbar.root", "ttbarNotdileptonCcbar.root"},
         Sample::ttcc
     );
@@ -742,72 +744,73 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "t#bar{t}Other",
         23,
         831.76,
-        8.5/831.76, -1.,
+        8.5/831.76, -1., //FIXME: Update uncertainties
         {"ttbarDileptonPlustauOther.root", "ttbarNotdileptonOther.root"},
         Sample::ttother
     );
+    
     
     result["singletop"] = Sample(
         "Single Top",
         kAzure-9,
         35.6,
-        0.76/35.6, -1.,
+        1.92/35.6, -1.,
         {"singletop_tw.root", "singleantitop_tw.root"}
     );
     
     result["ww"] = Sample(
         "Diboson",
         10,
-        56.0,
-        3.05/56., -1.,
+        11.0,
+        3.05/11., -1., //FIXME: Update uncertainties
         {"wwtoall.root"}
     );
     
     result["wz"] = Sample(
         "Diboson",
         10,
-        33.6,
-        1.84/33.6, -1.,
+        66.1,
+        1.84/66.1, -1., //FIXME: Update uncertainties
         {"wztoall.root"}
     );
     
     result["zz"] = Sample(
         "Diboson",
         10,
-        17.,
-        0.7/17., -1.,
+        31.8,     
+        0.7/31.8, -1., //FIXME: Update uncertainties
         {"zztoall.root"}
     );
     
     result["www"] = Sample(
         "Triboson",
         kYellow-7,
-        8.058E-2,
-        0.047, 0.039,
+        8.058E-2,      //FIXME: Update XS
+        0.047, 0.039, //FIXME: Update uncertainties
         {"www.root"}
     );
     
     result["wwz"] = Sample(
         "Triboson",
         kYellow-7,
-        5.795E-2,
-        0.056, 0.046,
+        5.795E-2,      //FIXME: Update XS
+        0.056, 0.046, //FIXME: Update uncertainties
         {"wwz.root"}
     );
     
     result["zzz"] = Sample(
         "Triboson",
         kYellow-7,
-        5.527E-3,
-        0.027, 0.024,
+        5.527E-3,  //FIXME: Update XS
+        0.027, 0.024,  //FIXME: Update uncertainties
         {"zzz.root"}
     );
     
     result["dyee1050"] = Sample(
         "Z / #gamma* #rightarrow ee/#mu#mu",
         kPink+8,
-        860.5,
-        39.34/860.5, 38.84/860.5,
+        3.*860.5,
+        39.34/860.5, 38.84/860.5,  //FIXME: Update uncertainties
         {"dyee1050.root"},
         Sample::dyee
     );
@@ -815,8 +818,8 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
     result["dyee50inf"] = Sample(
         "Z / #gamma* #rightarrow ee/#mu#mu",
         kPink+8,
-        6025.2,
-        39.25/6025.2, 38.97/6025.2,
+        3.*2008.4,
+        39.25/(3.*2008.4), 38.97/(3.*2008.4),  //FIXME: Update uncertainties
         {"dyee50inf.root"},
         Sample::dyee
     );
@@ -824,8 +827,8 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
     result["dymumu1050"] = Sample(
         "Z / #gamma* #rightarrow ee/#mu#mu",
         kPink+8,
-        860.5,
-        39.34/860.5, 38.84/860.5,
+        3*860.5,
+        39.34/(3*860.5), 38.84/(3*860.5),  //FIXME: Update uncertainties
         {"dymumu1050.root"},
         Sample::dymumu
     );
@@ -833,8 +836,8 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
     result["dymumu50inf"] = Sample(
         "Z / #gamma* #rightarrow ee/#mu#mu",
         kPink+8,
-        6025.2,
-        39.25/6025.2, 38.97/6025.2,
+        3.*2008.4,
+        39.25/(3.*2008.4), 38.97/(3.*2008.4),  //FIXME: Update uncertainties
         {"dymumu50inf.root"},
         Sample::dymumu
     );
@@ -842,8 +845,8 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
     result["dytautau1050"] = Sample(
         "Z / #gamma* #rightarrow #tau#tau",
         kPink+1,
-        860.5,
-        39.34/860.5, 38.84/860.5,
+        3*860.5,
+        39.34/(3*860.5), 38.84/(3*860.5),  //FIXME: Update uncertainties
         {"dytautau1050.root"},
         Sample::dytautau
     );
@@ -851,8 +854,8 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
     result["dytautau50inf"] = Sample(
         "Z / #gamma* #rightarrow #tau#tau",
         kPink+1,
-        6025.2,
-        39.25/6025.2, 38.97/6025.2,
+        3.*2008.4,
+        39.25/(3.*2008.4), 38.97/(3.*2008.4),  //FIXME: Update uncertainties
         {"dytautau50inf.root"},
         Sample::dytautau
     );
@@ -861,7 +864,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "W+Jets",
         kSpring+2,
         61526.7,
-        422.3/61526.7, 416.6/61526.7,
+        422.3/61526.7, 416.6/61526.7,  //FIXME: Update uncertainties
         {"wtolnu.root"}
     );
     
@@ -869,7 +872,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "QCD Multijet",
         kOrange-2,
         3.640E8*3.7E-4,
-        0.5, -1.,
+        0.5, -1.,  
         {"qcdmu15.root"}
     );
     
@@ -916,25 +919,57 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
     result["qcdem2030"] = Sample(
         "QCD Multijet",
         kOrange-2,
-        2.886E8*10.10E-3,
+        557600000*0.0096,
         0.5, -1.,
         {"qcdem2030.root"}
     );
     
-    result["qcdem3080"] = Sample(
+    result["qcdem3050"] = Sample(
         "QCD Multijet",
         kOrange-2,
-        7.433E7*62.10E-3,
+        136000000*0.073,
         0.5, -1.,
-        {"qcdem3080.root"}
+        {"qcdem3050.root"}
     );
     
-    result["qcdem80170"] = Sample(
+    result["qcdem5080"] = Sample(
         "QCD Multijet",
         kOrange-2,
-        1.191E6*153.9E-3,
+        19800000*0.146,
         0.5, -1.,
-        {"qcdem80170.root"}
+        {"qcdem5080.root"}
+    );
+    
+    result["qcdem80120"] = Sample(
+        "QCD Multijet",
+        kOrange-2,
+        2800000*0.125,
+        0.5, -1.,
+        {"qcdem80120.root"}
+    );
+    
+    result["qcdem120170"] = Sample(
+        "QCD Multijet",
+        kOrange-2,
+        477000*0.132,
+        0.5, -1.,
+        {"qcdem120170.root"}
+    );
+    
+    result["qcdem170300"] = Sample(
+        "QCD Multijet",
+        kOrange-2,
+        114000*0.165,
+        0.5, -1.,
+        {"qcdem170300.root"}
+    );
+    
+    result["qcdem300inf"] = Sample(
+        "QCD Multijet",
+        kOrange-2,
+        9000*0.15,
+        0.5, -1.,
+        {"qcdem300inf.root"}
     );
     
     result["qcdbcem2030"] = Sample(
@@ -965,7 +1000,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "t#bar{t}W",
         kTeal+4,
         1.152,
-        0.073/1.152, -1.,
+        0.073/1.152, -1., //FIXME: Update uncertainties
         {"ttbarW.root"}
     );
     
@@ -973,7 +1008,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "t#bar{t}Z",
         kTeal+1,
         2.232,
-        0.031/2.232, -1.,
+        0.031/2.232, -1.,  //FIXME: Update uncertainties
         {"ttbarZ.root"},
         Sample::ttZ
     );
@@ -981,8 +1016,8 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
     result["ttbargjets"] = Sample(
         "t#bar{t}#gamma",
         kTeal+3,
-        1.8,
-        0.25, -1.,
+        1.8,         //FIXME: Update XS
+        0.25, -1.,   //FIXME: Update uncertainties
         {"ttgjets.root"}
     );
     
@@ -990,7 +1025,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "t#bar{t}H Other",
         kSpring+9,
         0.5085,
-        0.09, 0.12, 
+        0.09, 0.12,  //FIXME: Update uncertainties
         {"ttbarH125inclusiveOther.root"},
         Sample::ttHother
     );
@@ -999,7 +1034,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "t#bar{t}H (b#bar{b} via incl.)",
         kRed,
         0.5085,
-        0.09, 0.12, 
+        0.09, 0.12,  //FIXME: Update uncertainties
         {"ttbarH125inclusiveBbbar.root"},
         Sample::ttHbb
     );
@@ -1008,7 +1043,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "t#bar{t}H (b#bar{b})",
         2,
         0.5085*0.577,
-        0.09*0.577, 0.12*0.577,
+        0.09*0.577, 0.12*0.577,  //FIXME: Update uncertainties
         {"ttbarH125tobbbar.root"},
         Sample::ttHbb
     );
@@ -1017,7 +1052,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "t#bar{t}H120 Other",
         kTeal+6,
         0.1459,
-        0.09, 0.12,
+        0.09, 0.12,   //FIXME: Update uncertainties
         {"ttbarH120inclusiveOther.root"},
         Sample::ttHother
     );
@@ -1026,7 +1061,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "t#bar{t}H120 (b#bar{b} via incl.)",
         kSpring+12,
         0.1459,
-        0.09, 0.12,
+        0.09, 0.12,  //FIXME: Update uncertainties
         {"ttbarH120inclusiveBbbar.root"},
         Sample::ttHbb
     );
@@ -1035,7 +1070,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "t#bar{t}H120 (b#bar{b})",
         5,
         0.1459*0.648,
-        0.09*0.648, 0.12*0.648,
+        0.09*0.648, 0.12*0.648,  //FIXME: Update uncertainties
         {"ttbarH120tobbbar.root"},
         Sample::ttHbb
     );
@@ -1044,7 +1079,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "t#bar{t}H122.5 Other",
         kTeal+7,
         0.1373,
-        0.09, 0.12,
+        0.09, 0.12,  //FIXME: Update uncertainties
         {"ttbarH1225inclusiveOther.root"},
         Sample::ttHother
     );
@@ -1053,7 +1088,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "t#bar{t}H122.5 (b#bar{b} via incl.)",
         kSpring+13,
         0.1373,
-        0.09, 0.12,
+        0.09, 0.12,  //FIXME: Update uncertainties
         {"ttbarH1225inclusiveBbbar.root"},
         Sample::ttHbb
     );
@@ -1062,7 +1097,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "t#bar{t}H127.5 Other",
         kTeal+8,
         0.1218,
-        0.09, 0.12,
+        0.09, 0.12,  //FIXME: Update uncertainties
         {"ttbarH1275inclusiveOther.root"},
         Sample::ttHother
     );
@@ -1071,7 +1106,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "t#bar{t}H127.5 (b#bar{b} via incl.)",
         kSpring+14,
         0.1218,
-        0.09, 0.12,
+        0.09, 0.12,  //FIXME: Update uncertainties
         {"ttbarH1275inclusiveBbbar.root"},
         Sample::ttHbb
     );
@@ -1080,7 +1115,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "t#bar{t}H130 Other",
         kTeal+9,
         0.1149,
-        0.09, 0.12,
+        0.09, 0.12,  //FIXME: Update uncertainties
         {"ttbarH130inclusiveOther.root"},
         Sample::ttHother
     );
@@ -1089,7 +1124,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "t#bar{t}H130 (b#bar{b} via incl.)",
         kSpring+15,
         0.1149,
-        0.09, 0.12,
+        0.09, 0.12,  //FIXME: Update uncertainties
         {"ttbarH130inclusiveBbbar.root"},
         Sample::ttHbb
     );
@@ -1098,7 +1133,7 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         "t#bar{t}H130 (b#bar{b})",
         6,
         0.1149*0.494,
-        0.09*0.494, 0.12*0.494,
+        0.09*0.494, 0.12*0.494,  //FIXME: Update uncertainties
         {"ttbarH130tobbbar.root"},
         Sample::ttHbb
     );
@@ -1123,8 +1158,12 @@ std::vector<TString> SampleDefinitions::selectAndOrderSamples13TeV(const int pse
         "qcdmu80120",
         "qcdmu120170",
         "qcdem2030",
-        "qcdem3080",
-        "qcdem80170",
+        "qcdem3050",
+        "qcdem5080",
+        "qcdem80120",
+        "qcdem120170",
+        "qcdem170300",
+        "qcdem300inf",
         "qcdbcem2030",
         "qcdbcem3080",
         "qcdbcem80170",
