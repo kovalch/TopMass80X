@@ -81,7 +81,7 @@ public:
     
     const std::map<WeightType, double>& weightMap()const{return m_weight_;}
     
-    const bool isNoSmearSol()const{return isNoSmearSol_;}
+    bool isNoSmearSol()const{return isNoSmearSol_;}
     
     
     
