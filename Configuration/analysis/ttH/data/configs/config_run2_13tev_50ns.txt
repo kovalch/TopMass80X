@@ -1,0 +1,86 @@
+##
+## Config file for steering the analysis
+## For definition of variables see their description in AnalysisConfig.h
+##
+
+
+
+[ general ]
+    
+    era = run2_13tev_50ns
+    
+    luminosity = 10000.
+    luminosityUncertainty = 0.10
+    
+[ end - general ]
+
+
+
+[ corrections ]
+    
+    pileupInputFile = 
+    pileupMcEra = 
+    pileupScenario = 
+    
+    triggerSFInputSuffix = 
+    
+    electronSFInputFile = 
+    muonSFInputFile = 
+    
+    jerUncertaintySourceName = jer2012
+    jesUncertaintySourceFile = Summer13_V5_MC_Uncertainty_AK5PFchs.txt
+    
+    btagCorrectionMode = discriminatorReweight
+    btagHeavyFlavourFile = csv_rwt_hf_IT_FlatSF.root
+    btagLightFlavourFile = csv_rwt_lf_IT_FlatSF.root
+    
+    mvaMetRecoilDataFile = 
+    mvaMetRecoilMcFile = 
+    
+[ end - corrections ]
+
+
+
+[ objectSelection ]
+    
+    leptonEtaCut = 2.4
+    leptonPtCut = 20.
+    
+    jetEtaCut = 2.4
+    jetPtCut = 20.
+    deltaRLeptonJetCut = 0.4
+    lead2JetPtCut = 30.
+    
+    btagAlgorithm = csvv2
+    btagWorkingPoint = M
+    
+    mvaMet = false
+    metCut = 40.
+    
+    genJetEtaCut = 2.4
+    genJetPtCut = 20.
+    genDeltaRLeptonJetCut = -1.
+    
+[ end - objectSelection ]
+
+
+
+[ sampleComposition ]
+    
+    pseudodata = 0
+    mergeLevel = 1
+    
+[ end - sampleComposition ]
+
+
+
+[ plotStyle ]
+    
+    cmsLabel = 0
+    
+[ end -plotStyle ]
+
+
+
+
+
