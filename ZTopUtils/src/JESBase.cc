@@ -138,46 +138,49 @@ void JESBase::setFile(std::string pathToFile, bool quiet) {
             "CorrelationGroupFlavor", //39
             "CorrelationGroupUncorrelated",//40
     };
-
-    if (is2012_) {
-        for (int isrc = 0; isrc < nsrc12; isrc++) {
-            const char *name = srcnames12[isrc];
-            sourcenames_[name] = isrc;
-            bool got = true;
-            JetCorrectionUncertainty *unc = 0;
-            try {
-                unc = new JetCorrectionUncertainty(
-                        JetCorrectorParameters(pathToFile.data(), name));
+    
+    if(!totalOnly_){
+        if (is2012_) {
+            for (int isrc = 0; isrc < nsrc12; isrc++) {
+                const char *name = srcnames12[isrc];
+                sourcenames_[name] = isrc;
+                bool got = true;
+                JetCorrectionUncertainty *unc = 0;
+                try {
+                    unc = new JetCorrectionUncertainty(
+                            JetCorrectorParameters(pathToFile.data(), name));
+                }
+                catch(std::runtime_error &rte) {
+                    std::cout << "JESBase::setFile: Uncertainty for source " << name
+                            << " not found! Skipping" << std::endl;
+                    got = false;
+                    sleep(2);
+                }
+                if (got)
+                    vsrc_.push_back(unc);
             }
-            catch(std::runtime_error &rte) {
-                std::cout << "JESBase::setFile: Uncertainty for source " << name
-                        << " not found! Skipping" << std::endl;
-                got = false;
-                sleep(2);
+        } else {
+            for (int isrc = 0; isrc < nsrc; isrc++) {
+                const char *name = srcnames[isrc];
+                sourcenames_[name] = isrc;
+                bool got = true;
+                JetCorrectionUncertainty *unc = 0;
+                try {
+                    unc = new JetCorrectionUncertainty(
+                            JetCorrectorParameters(pathToFile.data(), name));
+                }
+                catch(std::runtime_error &rte) {
+                    std::cout << "JESBase::setFile: Uncertainty for source " << name
+                            << " not found! Skipping" << std::endl;
+                    got = false;
+                    sleep(2);
+                }
+                if (got)
+                    vsrc_.push_back(unc);
             }
-            if (got)
-                vsrc_.push_back(unc);
-        }
-    } else {
-        for (int isrc = 0; isrc < nsrc; isrc++) {
-            const char *name = srcnames[isrc];
-            sourcenames_[name] = isrc;
-            bool got = true;
-            JetCorrectionUncertainty *unc = 0;
-            try {
-                unc = new JetCorrectionUncertainty(
-                        JetCorrectorParameters(pathToFile.data(), name));
-            }
-            catch(std::runtime_error &rte) {
-                std::cout << "JESBase::setFile: Uncertainty for source " << name
-                        << " not found! Skipping" << std::endl;
-                got = false;
-                sleep(2);
-            }
-            if (got)
-                vsrc_.push_back(unc);
         }
     }
+    
     totalunc_ = new JetCorrectionUncertainty(
             JetCorrectorParameters(pathToFile.data(), "Total"));
 }

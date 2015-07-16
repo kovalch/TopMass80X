@@ -33,6 +33,7 @@ public:
         is2012_ = true;
         totalunc_ = 0;
         noupdown_=0;
+        totalOnly_ = false;
     }
     JESBase(const ztop::JESBase &);
     JESBase & operator =(const ztop::JESBase &);
@@ -44,7 +45,8 @@ public:
         is2012_ = is;
         std::cout << "JES mode changed; set File again!" << std::endl;
     }
-
+    void setTotalOnly(bool is){totalOnly_ = is;}
+    
 
     /**
      * ADDS! a source with name to the sources to be varied
@@ -110,7 +112,10 @@ protected:
     std::vector<unsigned int> sources_;
     std::map<std::string,unsigned int> sourcenames_;
     bool is2012_;
-
+    
+    /// For usage of files not having individual JES uncertainties defined, but only total
+    bool totalOnly_;
+    
     std::vector<int> restricttoflav_;
 
     void copyFrom(const ztop::JESBase &);
