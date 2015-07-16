@@ -51,7 +51,7 @@
     deltaRLeptonJetCut = 0.4
     lead2JetPtCut = 30.
     
-    btagAlgorithm = csvv2
+    btagAlgorithm = csvv2_50ns
     btagWorkingPoint = M
     
     mvaMet = false
