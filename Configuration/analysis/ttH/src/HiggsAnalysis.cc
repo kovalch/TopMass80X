@@ -295,10 +295,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     selectionStep = "1a";
     
     // Temporary workaround, do not apply trigger, dilepton and MET selections for 13 TeV baseline 
-    const bool era8tev = analysisConfig_.general().era_ == Era::run1_8tev;
+    const bool notEra13tev25ns = analysisConfig_.general().era_ != Era::run2_13tev_25ns;
     
     // Check if event was triggered with the same dilepton trigger as the specified analysis channel
-    if(era8tev) if(this->failsDileptonTrigger(entry)) return kTRUE;
+    if(notEra13tev25ns && analysisConfig_.general().era_!=Era::run2_13tev_50ns) if(this->failsDileptonTrigger(entry)) return kTRUE;
     
     // ++++ Control Plots ++++
     
@@ -419,7 +419,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     selectionStep = "3";
     
     // ...with at least 20 GeV invariant mass
-    if(era8tev) if(dilepton.M() < 20.) return kTRUE;
+    if(notEra13tev25ns) if(dilepton.M() < 20.) return kTRUE;
     
     // ++++ Control Plots ++++
 
@@ -439,7 +439,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     // Exclude the Z window in analysis cutflow, but keep these events for Drell-Yan corrections
     const bool isZregion = dilepton.M()>76. && dilepton.M()<106.;
-    const bool isEmu = era8tev ? this->channel()==Channel::emu : true;
+    const bool isEmu = notEra13tev25ns ? this->channel()==Channel::emu : true;
     
     // ++++ Z-window plots ++++
     
@@ -507,7 +507,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     selectionStep = "6";
     
     // Require MET > 40 GeV in non-emu channels
-    if(era8tev) if(!(hasMet || isEmu)) return kTRUE;
+    if(notEra13tev25ns) if(!(hasMet || isEmu)) return kTRUE;
     
     // ++++ Z-window plots ++++
     
