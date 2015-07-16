@@ -1135,9 +1135,13 @@ systematicInternal_(undefined)
         
         // Configure systematic scaling
         jetEnergyScaleBase_ = new ztop::JESBase();
+        // FIXME: Using files of JES uncertainties containing only Total requires some workaround:
+        // - Switch on setTotalOnly(true);
+        // - Comment setSource("Total");
+        jetEnergyScaleBase_->setTotalOnly(true);
         jetEnergyScaleBase_->setFile(inputFileName, true);
         jetEnergyScaleBase_->setIs2012(true);
-        jetEnergyScaleBase_->setSource("Total");
+        //jetEnergyScaleBase_->setSource("Total");
         jetEnergyScaleBase_->clearRestrictToFlavour();
         if(systematicInternal_ == vary_up) jetEnergyScaleBase_->setSystematics("up");
         else if(systematicInternal_ == vary_down) jetEnergyScaleBase_->setSystematics("down");
