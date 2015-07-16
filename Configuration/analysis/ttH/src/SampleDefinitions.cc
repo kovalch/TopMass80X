@@ -103,12 +103,12 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV(const int mergeLevel)
         Sample::ttother
     );
     
-    result["ttbarbkg"] = Sample(
+    result["ttbarNotdilepton"] = Sample(
         "t#bar{t} Other",
         23,
         241.5,
         8.5/241.5, -1.,
-        {"ttbarbg.root"},
+        {"ttbarNotdilepton.root"},
         Sample::ttNoDilepton
     );
     
@@ -612,7 +612,7 @@ std::vector<TString> SampleDefinitions::selectAndOrderSamples8TeV(const int pseu
         "www",
         "wwz",
         "zzz",
-        "ttbarbkg",
+        "ttbarNotdilepton",
         "ttbarDileptonPlusOther",
         "ttbarDileptonPlusCcbar",
         "ttbarDileptonPlus2B",
@@ -748,7 +748,6 @@ std::map<TString, Sample> SampleDefinitions::samples13TeV(const int mergeLevel)
         {"ttbarDileptonPlustauOther.root", "ttbarNotdileptonOther.root"},
         Sample::ttother
     );
-    
     
     result["singletop"] = Sample(
         "Single Top",
