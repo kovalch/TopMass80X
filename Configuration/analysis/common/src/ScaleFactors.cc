@@ -21,9 +21,7 @@
 #include "classes.h"
 #include "utils.h"
 #include "TopAnalysis/ZTopUtils/interface/PUReweighter.h"
-#include "TopAnalysis/ZTopUtils/ext/interface/JetCorrectorParameters.h"
-#include "TopAnalysis/ZTopUtils/ext/interface/JetCorrectionUncertainty.h"
-
+#include "TopAnalysis/ZTopUtils/interface/JESBase.h"
 
 
 
@@ -1061,41 +1059,83 @@ int JetEnergyResolutionScaleFactors::jetEtaBin(const LV& jet)const
 
 
 
-JetEnergyScaleScaleFactors::JetEnergyScaleScaleFactors(const std::string& jesUncertaintySourceFile,
+JetEnergyScaleScaleFactors::JetEnergyScaleScaleFactors(const int correction,
+                                                       const std::string& jesUncertaintySourceFile,
                                                        const Systematic::Systematic& systematic):
-jetCorrectionUncertainty_(0),
-varyUp_(false)
+
+jetEnergyScaleBase_(0),
+correction_(correction),
+systematicInternal_(undefined)
 {
     std::cout<<"--- Beginning preparation of JES scale factors\n";
     
-    SystematicInternal systematicInternal(undefined);
+    // Check if correction type is valid
+    if(correction_ == 0){
+        std::cout<<"Use corrected jets from ntuple\n";
+    }
+    else if(correction_ == 1){
+        std::cout<<"Use uncorrected jets from ntuple, and NOT apply any correction (=raw jets)\n";
+    }
+    else if(correction_ == 2){
+        std::cout<<"Use uncorrected jets from ntuple, and apply correction\n";
+    }
+    
+    // Set up systematic type and check if valid
     if(systematic.type() == Systematic::jes){
-        if(systematic.variation() == Systematic::up) systematicInternal = vary_up;
-        else if(systematic.variation() == Systematic::down) systematicInternal = vary_down;
+        if(correction_ == 1){
+            std::cerr<<"ERROR in constructor of JetEnergyScaleScaleFactors! Cannot apply systematic to raw jets"
+                     <<"\n...break\n"<<std::endl;
+            exit(98);
+        }
+        if(systematic.variation() == Systematic::up){
+            std::cout<<"Apply systematic variation: up\n";
+            systematicInternal_ = vary_up;
+        }
+        else if(systematic.variation() == Systematic::down){
+            std::cout<<"Apply systematic variation: down\n";
+            systematicInternal_ = vary_down;
+        }
+        else{
+            std::cerr<<"ERROR in constructor of JetEnergyScaleScaleFactors! Systematic variation is invalid: "
+                 <<Systematic::convertVariation(systematic.variation())<<"\n...break\n"<<std::endl;
+            exit(98);
+        }
     }
     else{
-        std::cerr<<"ERROR in constructor of JetEnergyScaleScaleFactors! Systematic is invalid: "
-                 <<Systematic::convertType(systematic.type())<<"\n...break\n"<<std::endl;
-        exit(98);
+        std::cout<<"No systematic variation requested\n";
+        systematicInternal_ = nominal;
     }
     
-    std::string inputFileName(common::DATA_PATH_COMMON());
-    inputFileName.append("/");
-    inputFileName.append(jesUncertaintySourceFile);
-    jetCorrectionUncertainty_ = new ztop::JetCorrectionUncertainty(ztop::JetCorrectorParameters(inputFileName, "Total"));
+    // Set up corrector tool for systematic variation if needed
+    if(systematicInternal_ != nominal){
+        // Check existence of uncertainty file
+        if(jesUncertaintySourceFile.empty()){
+            std::cerr<<"ERROR in constructor of JetEnergyScaleScaleFactors! "
+                     <<"Systematic variation requested, but no uncertainty file specified\n...break\n"<<std::endl;
+            exit(98);
+        }
+        std::string inputFileName(common::DATA_PATH_COMMON());
+        inputFileName.append("/");
+        inputFileName.append(jesUncertaintySourceFile);
+        std::ifstream inputfile(inputFileName);
+        if(!inputfile.is_open()){
+            std::cerr<<"ERROR in constructor of JetEnergyScaleScaleFactors! Uncertainty file not found: "
+                     <<inputFileName<<"\n...break\n"<<std::endl;
+            exit(98);
+        }
+        inputfile.close();
+        
+        // Configure systematic scaling
+        jetEnergyScaleBase_ = new ztop::JESBase();
+        jetEnergyScaleBase_->setFile(inputFileName, true);
+        jetEnergyScaleBase_->setIs2012(true);
+        jetEnergyScaleBase_->setSource("Total");
+        jetEnergyScaleBase_->clearRestrictToFlavour();
+        if(systematicInternal_ == vary_up) jetEnergyScaleBase_->setSystematics("up");
+        else if(systematicInternal_ == vary_down) jetEnergyScaleBase_->setSystematics("down");
+    }
+    else if(correction_ == 2) jetEnergyScaleBase_ = new ztop::JESBase();
     
-    if(systematicInternal == vary_up){
-        varyUp_ = true;
-        std::cout<<"Apply systematic variation: up\n";
-    }
-    else if(systematicInternal == vary_down){
-        varyUp_ = false;
-        std::cout<<"Apply systematic variation: down\n";
-    }
-    else{
-        std::cerr<<"Error in constructor of JetEnergyScaleScaleFactors! Systematic variation not allowed\n...break\n"<<std::endl;
-        exit(624);
-    }
     
     std::cout<<"=== Finishing preparation of JES scale factors\n\n";
 }
@@ -1104,7 +1144,87 @@ varyUp_(false)
 
 JetEnergyScaleScaleFactors::~JetEnergyScaleScaleFactors()
 {
-    delete jetCorrectionUncertainty_;
+    if(jetEnergyScaleBase_) delete jetEnergyScaleBase_;
+}
+
+
+
+void JetEnergyScaleScaleFactors::configure(const std::string& jesL1CorrectionFile,
+                                           const std::string& jesL2CorrectionFile,
+                                           const std::string& jesL3CorrectionFile,
+                                           const std::string& jesL2L3CorrectionFile,
+                                           const bool isMc)const
+{
+    if(correction_ != 2) return;
+    
+    std::cout<<"--- Beginning configuration of JES corrections\n";
+    
+    // Order must correspond to one provided by JEC group, reflecting JES correction chain: "https://twiki.cern.ch/twiki/bin/view/CMS/IntroToJEC"
+    std::vector<std::string> v_file;
+    
+    std::string dataDir(common::DATA_PATH_COMMON());
+    dataDir.append("/");
+    
+    for(const std::string& filename : {jesL1CorrectionFile, jesL2CorrectionFile, jesL3CorrectionFile}){
+        // Check existence of uncertainty file
+        if(filename.empty()){
+            std::cerr<<"ERROR in JetEnergyScaleScaleFactors::configure()! "
+                     <<"Empty filename given for one of required corrections\n...break\n"<<std::endl;
+            exit(98);
+        }
+        std::string fullFilename(dataDir);
+        fullFilename.append(filename);
+        std::ifstream inputfile(fullFilename);
+        if(!inputfile.is_open()){
+            std::cerr<<"ERROR in JetEnergyScaleScaleFactors::configure()! Correction file not found: "
+                     <<fullFilename<<"\n...break\n"<<std::endl;
+            exit(98);
+        }
+        inputfile.close();
+        
+        // Add to vector
+        v_file.push_back(fullFilename);
+    }
+    for(size_t iCorrection = 0; iCorrection < 3; ++iCorrection){
+        std::cout<<"Found file for L"<<iCorrection<<": "<<v_file.at(iCorrection)<<"\n";
+    }
+    
+    if(!isMc){
+        if(jesL2L3CorrectionFile.empty()){
+            std::cout<<"Empty filename for correction L2L3, not applying this correction to data\n";
+        }
+        else{
+            std::string fullFilename(dataDir);
+            fullFilename.append(jesL2L3CorrectionFile);
+            std::ifstream inputfile(fullFilename);
+            if(!inputfile.is_open()){
+                std::cerr<<"ERROR in JetEnergyScaleScaleFactors::configure()! Correction file for L2L3 not found: "
+                         <<fullFilename<<"\n...break\n"<<std::endl;
+                exit(98);
+            }
+            inputfile.close();
+            v_file.push_back(fullFilename);
+            std::cout<<"Found file for L2L3: "<<fullFilename<<"\n";
+        }
+    }
+    
+    jetEnergyScaleBase_->configureFactorizedJetCorrector(v_file);
+    
+    std::cout<<"=== Finishing configuration of JES corrections\n\n";
+}
+
+
+
+void JetEnergyScaleScaleFactors::correctUncorrectedJets(VLV* v_jet, const std::vector<double>* v_jetArea, const double& rho)const
+{
+    for(size_t iJet = 0; iJet < v_jet->size(); ++iJet){
+        LV& jet = v_jet->at(iJet);
+        // Do not apply corrections for jets below 10 GeV, as there are none
+        if(jet.Et() < 10.) continue;
+        const double& jetArea = v_jetArea->at(iJet);
+        const double factor = jetEnergyScaleBase_->correctionForUncorrectedJet(jetArea, jet.eta(), jet.pt(), rho);
+        jet *= factor;
+    }
 }
 
 
@@ -1121,13 +1241,13 @@ void JetEnergyScaleScaleFactors::applyJetSystematic(VLV* v_jet)const
 
 
 
-void JetEnergyScaleScaleFactors::applyMetSystematic(VLV* v_jetForMet, LV* met)const
+void JetEnergyScaleScaleFactors::applyMetSystematic(const VLV* v_jetForMet, LV* met)const
 {
     // This loop corrects the jet collection used to modify the MET
     double deltaPx = 0.;
     double deltaPy = 0.;
     for(size_t iJet = 0; iJet < v_jetForMet->size(); ++iJet){
-        LV& jet = v_jetForMet->at(iJet);
+        LV jet = v_jetForMet->at(iJet);
         
         const double storedPx = jet.px();
         const double storedPy = jet.py();
@@ -1146,12 +1266,9 @@ void JetEnergyScaleScaleFactors::applyMetSystematic(VLV* v_jetForMet, LV* met)co
 
 void JetEnergyScaleScaleFactors::scaleJet(LV& jet)const
 {
-    jetCorrectionUncertainty_->setJetPt(jet.pt());
-    jetCorrectionUncertainty_->setJetEta(jet.eta());
-    const double uncertainty = jetCorrectionUncertainty_->getUncertainty(true);
-
-    if(varyUp_) jet *= 1. + uncertainty;
-    else jet *= 1. - uncertainty;
+    constexpr const int dummyJetPartonFlavour = -9999;
+    const double factor = jetEnergyScaleBase_->uncertaintyFactor(jet.pt(), jet.eta(), dummyJetPartonFlavour);
+    jet *= factor;
 }
 
 

@@ -96,9 +96,8 @@ void load_Analysis(const TString& validFilenamePattern,
     const JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors(0);
     if(systematic.type() == Systematic::jer) jetEnergyResolutionScaleFactors = new JetEnergyResolutionScaleFactors(corrections.jerUncertaintySourceName_, systematic);
     
-    // Set up JES systematic scale factors (null-pointer means no application)
-    const JetEnergyScaleScaleFactors* jetEnergyScaleScaleFactors(0);
-    if(systematic.type() == Systematic::jes) jetEnergyScaleScaleFactors = new JetEnergyScaleScaleFactors(corrections.jesUncertaintySourceFile_, systematic);
+    // Set up JES correction and systematic scale factors
+    const JetEnergyScaleScaleFactors* jetEnergyScaleScaleFactors = new JetEnergyScaleScaleFactors(0, corrections.jesUncertaintySourceFile_, systematic);
     
     // Set up top-pt reweighting scale factors (null-pointer means no application)
     const TopPtScaleFactors* topPtScaleFactors(0);
@@ -392,6 +391,9 @@ void load_Analysis(const TString& validFilenamePattern,
             channels.clear();
             channels.push_back(channelFromFile);
         }
+        
+        // Configure JES correction
+        jetEnergyScaleScaleFactors->configure("", "", "", "", isMC);
         
         // If no systematic is specified, read it from the file and use this (used for systematic variations of signal samples)
         const Systematic::Systematic selectedSystematic = systematic.type()==Systematic::undefinedType ? systematicFromFile : systematic;

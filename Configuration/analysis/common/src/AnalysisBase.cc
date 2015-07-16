@@ -45,6 +45,7 @@ chain_(0),
 eventMetadata_(0),
 recoObjects_(0),
 commonGenObjects_(0),
+jecObjects_(0),
 topGenObjects_(0),
 higgsGenObjects_(0),
 zGenObjects_(0),
@@ -158,6 +159,7 @@ void AnalysisBase::SlaveBegin(TTree*)
     eventMetadata_ = new EventMetadata();
     recoObjects_ = new RecoObjects();
     commonGenObjects_ = new CommonGenObjects();
+    jecObjects_ = new JecObjects();
     topGenObjects_ = new TopGenObjects();
     higgsGenObjects_ = new HiggsGenObjects();
     zGenObjects_ = new ZGenObjects();
@@ -176,6 +178,7 @@ void AnalysisBase::SlaveTerminate()
     if(eventMetadata_) delete eventMetadata_;
     if(recoObjects_) delete recoObjects_;
     if(commonGenObjects_) delete commonGenObjects_;
+    if(jecObjects_) delete jecObjects_;
     if(topGenObjects_) delete topGenObjects_;
     if(higgsGenObjects_) delete higgsGenObjects_;
     if(zGenObjects_) delete zGenObjects_;
@@ -291,6 +294,7 @@ void AnalysisBase::Init(TTree *tree)
     this->SetPdfBranchAddress();
     this->SetTopDecayBranchAddress();
     if(isTtbarPlusTauSample_ && topPtScaleFactors_) this->SetGenTopBranchAddresses();
+    this->SetJecBranchAddresses();
     if(isTtbarSample_) this->SetGenExtraTopJetBranchAddress();
     if(isTopSignal_) this->SetTopSignalBranchAddresses();
     if(isHiggsSignal_) this->SetHiggsDecayBranchAddress();
@@ -532,12 +536,17 @@ void AnalysisBase::clearBranches()
     
     
     // nTuple branches holding generator information for all MC samples
+    b_associatedGenJet = 0;
+    b_jetPartonFlavour = 0;
+    
+    
+    // nTuple branches needed for jet energy corrections
+    b_rho = 0;
+    b_jetArea = 0;
     b_jetJERSF = 0;
     b_jetForMET = 0;
     b_jetForMETJERSF = 0;
-    b_associatedGenJet = 0;
     b_associatedGenJetForMET = 0;
-    b_jetPartonFlavour = 0;
     b_jetPartonFlavourForMET = 0;
     
     
@@ -644,6 +653,7 @@ void AnalysisBase::clearBranchVariables()
     if(eventMetadata_) eventMetadata_->clear();
     if(recoObjects_) recoObjects_->clear();
     if(commonGenObjects_) commonGenObjects_->clear();
+    if(jecObjects_) jecObjects_->clear();
     if(topGenObjects_) topGenObjects_->clear();
     if(higgsGenObjects_) higgsGenObjects_->clear();
     if(zGenObjects_) zGenObjects_->clear();
@@ -701,7 +711,12 @@ void AnalysisBase::SetRecoBranchAddresses()
     if(chain_->GetBranch("lepDzVertex0")) // new variable, keep check a while for compatibility
         chain_->SetBranchAddress("lepDzVertex0", &recoObjects_->lepDzVertex0_, &b_lepDzVertex0);
     //chain_->SetBranchAddress("lepTrigger", &recoObjects_->lepTrigger_, &b_lepTrigger);
-    chain_->SetBranchAddress("jets", &recoObjects_->jets_, &b_jet);
+    if(jetEnergyScaleScaleFactors_->correction() == 0){
+        chain_->SetBranchAddress("jets", &recoObjects_->jets_, &b_jet);
+    }
+    else{
+        chain_->SetBranchAddress("uncorrectedJets", &recoObjects_->jets_, &b_jet);
+    }
     if(btagAlgorithm_ == Btag::csv){
         chain_->SetBranchAddress("jetBTagCSV", &recoObjects_->jetBtags_, &b_jetBtags);
     }
@@ -787,18 +802,31 @@ void AnalysisBase::SetTriggerBranchAddresses()
 
 void AnalysisBase::SetCommonGenBranchAddresses()
 {
-    if(jetEnergyResolutionScaleFactors_ || jetEnergyScaleScaleFactors_){
-        chain_->SetBranchAddress("jetsForMET", &commonGenObjects_->jetsForMET_, &b_jetForMET);
-    }
-    if(jetEnergyResolutionScaleFactors_){
-        chain_->SetBranchAddress("jetJERSF", &commonGenObjects_->jetJERSF_, &b_jetJERSF);
-        chain_->SetBranchAddress("jetForMETJERSF", &commonGenObjects_->jetForMETJERSF_, &b_jetForMETJERSF);
-    }
     chain_->SetBranchAddress("associatedGenJet", &commonGenObjects_->associatedGenJet_, &b_associatedGenJet);
     chain_->SetBranchAddress("jetPartonFlavour", &commonGenObjects_->jetPartonFlavour_, &b_jetPartonFlavour);
-    if(jetEnergyResolutionScaleFactors_){
-        chain_->SetBranchAddress("associatedGenJetForMET", &commonGenObjects_->associatedGenJetForMET_, &b_associatedGenJetForMET);
-        //chain_->SetBranchAddress("jetPartonFlavourForMET", &commonGenObjects_->jetPartonFlavourForMET_, &b_jetPartonFlavourForMET);
+}
+
+
+
+void AnalysisBase::SetJecBranchAddresses()
+{
+    if(jetEnergyScaleScaleFactors_->correction() == 2){
+        chain_->SetBranchAddress("rho", &jecObjects_->rho_, &b_rho);
+        chain_->SetBranchAddress("jetArea", &jecObjects_->jetArea_, &b_jetArea);
+    }
+    
+    if(isMC_){
+        if(jetEnergyResolutionScaleFactors_ || jetEnergyScaleScaleFactors_->systematicVariation()){
+            if(!mvaMet_) chain_->SetBranchAddress("jetsForMET", &jecObjects_->jetsForMET_, &b_jetForMET);
+        }
+        if(jetEnergyResolutionScaleFactors_){
+            chain_->SetBranchAddress("jetJERSF", &jecObjects_->jetJERSF_, &b_jetJERSF);
+            if(!mvaMet_){
+                chain_->SetBranchAddress("jetForMETJERSF", &jecObjects_->jetForMETJERSF_, &b_jetForMETJERSF);
+                chain_->SetBranchAddress("associatedGenJetForMET", &jecObjects_->associatedGenJetForMET_, &b_associatedGenJetForMET);
+                //chain_->SetBranchAddress("jetPartonFlavourForMET", &jecObjects_->jetPartonFlavourForMET_, &b_jetPartonFlavourForMET);
+            }
+        }
     }
 }
 
@@ -1045,13 +1073,23 @@ void AnalysisBase::GetCommonGenBranchesEntry(const Long64_t& entry)const
     // Check if branches' entry is already read
     if(commonGenObjects_->valuesSet_) return;
     commonGenObjects_->valuesSet_ = true;
-
-    // Concerning physics objects
-    if(b_jetForMET) b_jetForMET->GetEntry(entry);
-    if(b_jetJERSF) b_jetJERSF->GetEntry(entry);
-    if(b_jetForMETJERSF) b_jetForMETJERSF->GetEntry(entry);
+    
     b_associatedGenJet->GetEntry(entry);
     b_jetPartonFlavour->GetEntry(entry);
+}
+
+
+
+void AnalysisBase::GetJecBranchesEntry(const Long64_t& entry)const
+{
+    if(jecObjects_->valuesSet_) return;
+    jecObjects_->valuesSet_ = true;
+    
+    if(b_rho) b_rho->GetEntry(entry);
+    if(b_jetArea) b_jetArea->GetEntry(entry);
+    if(b_jetJERSF) b_jetJERSF->GetEntry(entry);
+    if(b_jetForMET) b_jetForMET->GetEntry(entry);
+    if(b_jetForMETJERSF) b_jetForMETJERSF->GetEntry(entry);
     if(b_associatedGenJetForMET) b_associatedGenJetForMET->GetEntry(entry);
     //if(b_jetPartonFlavourForMET) b_jetPartonFlavourForMET->GetEntry(entry);
 }
@@ -1255,7 +1293,17 @@ const RecoObjects& AnalysisBase::getRecoObjects(const Long64_t& entry)const
     if(recoObjects_->valuesSet_) return *recoObjects_;
     
     this->GetRecoBranchesEntry(entry);
+    const JecObjects& jecObjects = this->getJecObjects(entry);
     
+    // Apply correction for uncorrected jets
+    if(jetEnergyScaleScaleFactors_->correction() == 2){
+        VLV* v_jet = recoObjects_->jets_;
+        const std::vector<double>* v_jetArea = jecObjects.jetArea_;
+        const Double_t& rho = jecObjects.rho_;
+        jetEnergyScaleScaleFactors_->correctUncorrectedJets(v_jet, v_jetArea, rho);
+        // FIXME: What about propagation to pfMET? Need to store uncorrected MET in ntuple, and propagate corrections here
+    }
+        
     // Apply systematic variations in the following, of course only in MC
     if(!isMC_) return *recoObjects_;
     
@@ -1263,7 +1311,7 @@ const RecoObjects& AnalysisBase::getRecoObjects(const Long64_t& entry)const
         // Get references for all relevant objects for jet variation
         VLV* v_jet = recoObjects_->jets_;
         if(!commonGenObjects_->valuesSet_) this->GetCommonGenBranchesEntry(entry);
-        const std::vector<double>* v_jetJerSF = commonGenObjects_->jetJERSF_;
+        const std::vector<double>* v_jetJerSF = jecObjects.jetJERSF_;
         const VLV* v_associatedGenJet = commonGenObjects_->associatedGenJet_;
         // Apply systematic variation to jets
         jetEnergyResolutionScaleFactors_->applyJetSystematic(v_jet, v_jetJerSF, v_associatedGenJet);
@@ -1271,15 +1319,15 @@ const RecoObjects& AnalysisBase::getRecoObjects(const Long64_t& entry)const
         if(!mvaMet_){
             // Get references for all relevant objects for MET variation
             LV* met = recoObjects_->met_;
-            VLV* v_jetForMet = commonGenObjects_->jetsForMET_;
-            const std::vector<double>* v_jetForMetJerSF = commonGenObjects_->jetForMETJERSF_;
-            const VLV* v_associatedGenJetForMet = commonGenObjects_->associatedGenJetForMET_;
+            VLV* v_jetForMet = jecObjects.jetsForMET_;
+            const std::vector<double>* v_jetForMetJerSF = jecObjects.jetForMETJERSF_;
+            const VLV* v_associatedGenJetForMet = jecObjects.associatedGenJetForMET_;
             // Apply systematic variation to MET
             jetEnergyResolutionScaleFactors_->applyMetSystematic(v_jetForMet, met, v_jetForMetJerSF, v_associatedGenJetForMet);
         }
     }
     
-    if(jetEnergyScaleScaleFactors_){
+    if(jetEnergyScaleScaleFactors_->systematicVariation()){
         // Get references for all relevant objects for jet variation
         VLV* v_jet = recoObjects_->jets_;
         // Apply systematic variation to jets
@@ -1288,7 +1336,7 @@ const RecoObjects& AnalysisBase::getRecoObjects(const Long64_t& entry)const
         if(!mvaMet_){
             // Get references for all relevant objects for MET variation
             LV* met = recoObjects_->met_;
-            VLV* v_jetForMet = commonGenObjects_->jetsForMET_;
+            VLV* v_jetForMet = jecObjects.jetsForMET_;
             // Apply systematic variation to MET
             jetEnergyScaleScaleFactors_->applyMetSystematic(v_jetForMet, met);
         }
@@ -1303,9 +1351,19 @@ const CommonGenObjects& AnalysisBase::getCommonGenObjects(const Long64_t& entry)
 {
     if(!isMC_) return *commonGenObjects_;
     if(commonGenObjects_->valuesSet_) return *commonGenObjects_;
-
+    
     this->GetCommonGenBranchesEntry(entry);
     return *commonGenObjects_;
+}
+
+
+
+const JecObjects& AnalysisBase::getJecObjects(const Long64_t& entry)const
+{
+    if(jecObjects_->valuesSet_) return *jecObjects_;
+    
+    this->GetJecBranchesEntry(entry);
+    return *jecObjects_;
 }
 
 
@@ -1314,7 +1372,7 @@ const TopGenObjects& AnalysisBase::getTopGenObjects(const Long64_t& entry)const
 {
     if(!isTopSignal_) return *topGenObjects_;
     if(topGenObjects_->valuesSet_) return *topGenObjects_;
-
+    
     this->GetTopSignalBranchesEntry(entry);
     return *topGenObjects_;
 }
@@ -1325,7 +1383,7 @@ const HiggsGenObjects& AnalysisBase::getHiggsGenObjects(const Long64_t& entry)co
 {
     if(!isHiggsSignal_) return *higgsGenObjects_;
     if(higgsGenObjects_->valuesSet_) return *higgsGenObjects_;
-
+    
     this->GetHiggsSignalBranchesEntry(entry);
     return *higgsGenObjects_;
 }
@@ -1348,6 +1406,7 @@ void AnalysisBase::resetObjectStructEntry()const
     eventMetadata_->valuesSet_ = false;
     recoObjects_->valuesSet_ = false;
     commonGenObjects_->valuesSet_ = false;
+    jecObjects_->valuesSet_ = false;
     topGenObjects_->valuesSet_ = false;
     higgsGenObjects_->valuesSet_ = false;
     zGenObjects_->valuesSet_ = false;

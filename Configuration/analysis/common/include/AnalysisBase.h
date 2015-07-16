@@ -30,6 +30,7 @@ class TopPtScaleFactors;
 class EventMetadata;
 class RecoObjects;
 class CommonGenObjects;
+class JecObjects;
 class TopGenObjects;
 class HiggsGenObjects;
 class ZGenObjects;
@@ -158,6 +159,9 @@ protected:
     
     /// Get a constant reference to nTuple branches holding generator information for all MC samples
     const CommonGenObjects& getCommonGenObjects(const Long64_t& entry)const;
+    
+    /// Get a constant reference to nTuple branches for jet energy corrections
+    const JecObjects& getJecObjects(const Long64_t& entry)const;
     
     /// Get a constant reference to nTuple branches for Top signal samples on generator level
     const TopGenObjects& getTopGenObjects(const Long64_t& entry)const;
@@ -405,6 +409,9 @@ private:
     /// Access event entry for nTuple branches holding generator information for all MC samples
     void GetCommonGenBranchesEntry(const Long64_t& entry)const;
     
+    /// Access event entry for nTuple branches for jet energy corrections
+    void GetJecBranchesEntry(const Long64_t& entry)const;
+    
     /// Access event entry for nTuple branches for Top signal samples on generator level
     void GetTopSignalBranchesEntry(const Long64_t& entry)const;
     
@@ -466,6 +473,9 @@ private:
     
     /// Set addresses of nTuple branches holding generator information for all MC samples
     void SetCommonGenBranchAddresses();
+    
+    /// Set addresses of nTuple branches for jet energy corrections
+    void SetJecBranchAddresses();
     
     /// Set address of nTuple branch for testing if first vertex is good
     void SetFirstVertMultiBranchAddress();
@@ -562,7 +572,7 @@ private:
     TBranch* b_jetSecondaryVertexTrackMatchToSelectedTrackIndex;
     TBranch* b_jetPfCandidatePrimaryVertexId;
     TBranch* b_met;
-    TBranch* b_jetForMET;
+    TBranch* b_vertMulti;
     
     
     /// nTuple branches holding trigger bits
@@ -572,12 +582,17 @@ private:
     
     
     /// nTuple branches holding generator information for all MC samples
-    TBranch* b_jetJERSF;
-    TBranch* b_jetForMETJERSF;
-    TBranch* b_vertMulti;
     TBranch* b_associatedGenJet;
-    TBranch* b_associatedGenJetForMET;
     TBranch* b_jetPartonFlavour;
+    
+    
+    /// nTuple branches needed for jet energy corrections, some also for data, others MC only
+    TBranch* b_rho;
+    TBranch* b_jetArea;
+    TBranch* b_jetJERSF;
+    TBranch* b_jetForMET;
+    TBranch* b_jetForMETJERSF;
+    TBranch* b_associatedGenJetForMET;
     TBranch* b_jetPartonFlavourForMET;
     
     
@@ -688,6 +703,9 @@ private:
     
     /// Struct for holding variables associated to nTuple branches holding generator information for all MC samples
     CommonGenObjects* commonGenObjects_;
+    
+    /// Struct for holding variables associated to nTuple branches for jet energy corrections
+    JecObjects* jecObjects_;
     
     /// Struct for holding variables associated to nTuple branches for Top signal samples on generator level
     TopGenObjects* topGenObjects_;

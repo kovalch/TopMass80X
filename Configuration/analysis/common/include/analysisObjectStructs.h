@@ -88,12 +88,29 @@ struct CommonGenObjects{
     
     bool valuesSet_;
     
+    VLV* associatedGenJet_;
+    std::vector<int>* jetPartonFlavour_;
+};
+
+
+
+/// Struct for holding variables associated to nTuple branches for jet energy corrections
+struct JecObjects{
+    JecObjects();
+    ~JecObjects(){}
+    void clear();
+    
+    bool valuesSet_;
+    
+    // Needed also in data
+    Double_t rho_;
+    std::vector<double>* jetArea_;
+    
+    // Needed only in MC
     std::vector<double>* jetJERSF_;
     VLV* jetsForMET_;
     std::vector<double>* jetForMETJERSF_;
-    VLV* associatedGenJet_;
     VLV* associatedGenJetForMET_;
-    std::vector<int>* jetPartonFlavour_;
     //std::vector<int>* jetPartonFlavourForMET_;
 };
 
@@ -154,6 +171,7 @@ struct TopGenObjects{
     std::vector<int>* genCHadLeptonIndex_;
     std::vector<int>* genCHadLeptonHadronIndex_;
     std::vector<int>* genCHadLeptonViaTau_;
+    // FIXME: Really needed here, or only for selection in AnalysisBase ???
     int genExtraTopJetNumberId_;
 };
 
@@ -188,7 +206,6 @@ struct ZGenObjects{
     VLV* GenZStableLepton_;
     VLV* GenZStableAntiLepton_;
 };
-
 
 
 

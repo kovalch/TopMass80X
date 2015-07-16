@@ -13,7 +13,7 @@ class TSelectorList;
 
 namespace ztop{
     class PUReweighter;
-    class JetCorrectionUncertainty;
+    class JESBase;
 }
 
 #include "classesFwd.h"
@@ -372,8 +372,12 @@ class JetEnergyScaleScaleFactors{
     
 public:
     
-    /// Constructor
-    JetEnergyScaleScaleFactors(const std::string& jesUncertaintySourceFile,
+    /// Constructor defining which way of JES correction to apply
+    /// If correction == 0: Use corrected jets from ntuple
+    /// If correction == 1: Use uncorrected jets from ntuple
+    /// If correction == 2: Use uncorrected jets from ntuple and apply corrections
+    JetEnergyScaleScaleFactors(const int correction,
+                               const std::string& jesUncertaintySourceFile,
                                const Systematic::Systematic& systematic);
     
     /// Destructor
@@ -381,11 +385,27 @@ public:
     
     
     
+    /// Configure the factorised corrector
+    void configure(const std::string& jesL1CorrectionFile,
+                   const std::string& jesL2CorrectionFile,
+                   const std::string& jesL3CorrectionFile,
+                   const std::string& jesL2L3CorrectionFile,
+                   const bool isMc)const;
+    
+    /// Return ID of correction to be applied
+    int correction()const{return correction_;}
+    
+    /// Return whether systematic variation is applied
+    bool systematicVariation()const{return systematicInternal_==vary_up || systematicInternal_==vary_down;}
+    
+    /// Apply correction to uncorrected jet collection
+    void correctUncorrectedJets(VLV* v_jet, const std::vector<double>* v_jetArea, const double& rho)const;
+    
     /// Scale the jet collection
     void applyJetSystematic(VLV* v_jet)const;
     
     /// Scale the MET collection
-    void applyMetSystematic(VLV* v_jetForMet, LV* met)const;
+    void applyMetSystematic(const VLV* v_jetForMet, LV* met)const;
     
     
     
@@ -397,15 +417,18 @@ private:
     
     
     /// Enumeration for possible systematics
-    enum SystematicInternal{vary_up, vary_down, undefined};
+    enum SystematicInternal{nominal, vary_up, vary_down, undefined};
     
     
     
-    /// Object for retrieving uncertainty values
-    ztop::JetCorrectionUncertainty* jetCorrectionUncertainty_;
+    /// Pointer to jet energy scale base instance
+    ztop::JESBase* jetEnergyScaleBase_;
     
-    /// Variation upwards?
-    bool varyUp_;
+    /// ID of correction to be applied
+    const int correction_;
+    
+    /// Systematic variation
+    SystematicInternal systematicInternal_;
 };
 
 

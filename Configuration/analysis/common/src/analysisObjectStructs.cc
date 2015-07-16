@@ -85,15 +85,31 @@ void CommonGenObjects::clear()
 {
     valuesSet_ = false;
     
+    associatedGenJet_ = 0;
+    jetPartonFlavour_ = 0;
+}
+
+
+
+JecObjects::JecObjects()
+{
+    this->clear();
+}
+
+
+
+void JecObjects::clear()
+{
+    valuesSet_ = false;
+    
+    rho_ = -999.;
+    jetArea_ = 0;
     jetJERSF_ = 0;
     jetsForMET_ = 0;
     jetForMETJERSF_ = 0;
-    associatedGenJet_ = 0;
     associatedGenJetForMET_ = 0;
-    jetPartonFlavour_ = 0;
     //jetPartonFlavourForMET_ = 0;
 }
-
 
 
 TopGenObjects::TopGenObjects()
