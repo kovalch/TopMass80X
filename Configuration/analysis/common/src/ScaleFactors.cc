@@ -592,6 +592,14 @@ void BtagScaleFactors::algorithmAndWorkingPoint(const Btag::Algorithm& algorithm
             std::cerr<<"ERROR in BtagScaleFactors::algorithmAndWorkingPoint()! Working point is not implemented for algorithm 'csvv2'\n...break\n"<<std::endl;
             exit(232);
         }
+    } else if (algorithm == Btag::csvv2_50ns){
+        if(workingPoint == Btag::L) this->setWorkingPoint(csvv2l_50ns_wp);
+        else if(workingPoint == Btag::M) this->setWorkingPoint(csvv2m_50ns_wp);
+        else if(workingPoint == Btag::T) this->setWorkingPoint(csvv2t_50ns_wp);
+        else{
+            std::cerr<<"ERROR in BtagScaleFactors::algorithmAndWorkingPoint()! Working point is not implemented for algorithm 'csvv2_50ns'\n...break\n"<<std::endl;
+            exit(232);
+        }
     }
     else{
         std::cerr<<"ERROR in BtagScaleFactors::algorithmAndWorkingPoint()! Algorithm is not implemented\n...break\n"<<std::endl;
