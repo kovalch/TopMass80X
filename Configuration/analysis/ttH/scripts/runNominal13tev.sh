@@ -46,10 +46,7 @@ done
 
 for channel in ee emu mumu; do
     w
-    $LA -f ${c}_run2012A -c $channel $@ &
-    $LA -f ${c}_run2012B -c $channel $@ &
-    $LA -f ${c}_run2012C -c $channel $@ &
-    $LA -f ${c}_run2012D -c $channel $@ &
+    $LA -f ${c}_run2015B -c $channel $@ &
 done
 
 for channel in ee emu mumu; do
