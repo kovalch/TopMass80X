@@ -728,9 +728,9 @@ std::string bTagBase::getWorkingPointString()const{
     else if (wp_ == csvv2l_wp) return "csvv2l";
     else if (wp_ == csvv2m_wp) return "csvv2m";
     else if (wp_ == csvv2t_wp) return "csvv2t";
-    else if (wp_ == csvv2_50nsl_wp) return "csvv2l_50ns";
-    else if (wp_ == csvv2_50nsm_wp) return "csvv2m_50ns";
-    else if (wp_ == csvv2_50nst_wp) return "csvv2t_50ns";
+    else if (wp_ == csvv2l_50ns_wp) return "csvv2l_50ns";
+    else if (wp_ == csvv2m_50ns_wp) return "csvv2m_50ns";
+    else if (wp_ == csvv2t_50ns_wp) return "csvv2t_50ns";
     else return "notDef";
 }
 
