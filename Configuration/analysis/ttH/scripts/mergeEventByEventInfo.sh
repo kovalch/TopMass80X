@@ -10,11 +10,11 @@
 
 # Description: The following script merges the event-by-event information for synchronisation files based on whether if it's signal or background process
 
-# Useage: ./install/bin/mergeEventByEventInfo.sh -p ttbarH125inclusive -s Nominal -c emu ( -o ttH_JESUp use only if -c is not called on)
+# Useage: ./install/bin/mergeEventByEventInfo.sh -p ttbarH125inclusive -s Nominal -c emu (-o arg if -c is not called on)
 
 # Parses command line option
 function optparse {
-    USAGE="Usage: `basename $0` [-hv] [-o arg] args"
+    USAGE="Usage: ./install/bin/`basename $0` -p ttbarH125inclusive -s Nominal -c emu -o ttH_JESUp [use -o option only if -c option is not used]"
     
     while getopts hvo:s:c:p:d OPT; do
 
@@ -88,7 +88,7 @@ function function_name () {
         countNumOfFiles=$(ls $dirPath/$inFile 2> /dev/null | wc -l)
 
         if [[ "${countNumOfFiles}" == "0" ]];then
-            printf "WARNING: The file(s) $dirPath/$inFile do not exist."
+            echo "WARNING: The file(s) $dirPath/$inFile do not exist."
             exit
         fi
 
@@ -109,7 +109,7 @@ function function_name () {
         countNumOfFiles=$(ls $dirPath/$inFile 2> /dev/null | wc -l)
 
         if [[ "${countNumOfFiles}" == "0" ]];then
-            prinf "WARNING: The file(s) $dirPath/$inFile do not exist."
+            echo "WARNING: The file(s) $dirPath/$inFile do not exist."
             exit
         fi
 
@@ -138,7 +138,7 @@ function function_name () {
             countNumOfFiles=$(ls $dirPath/$inFile 2> /dev/null | wc -l)
 
             if [[ "${countNumOfFiles}" == "0" ]];then
-                printf "WARNING: The file(s) $dirPath/$inFile do not exist."
+                echo "WARNING: The file(s) $dirPath/$inFile do not exist."
                 exit
             fi
 
@@ -162,7 +162,7 @@ function function_name () {
             countNumOfFiles=$(ls $dirPath/$inFile 2> /dev/null | wc -l)
 
             if [[ "${countNumOfFiles}" == "0" ]];then
-                prinf "WARNING: The file(s) $dirPath/$inFile do not exist."
+                echo "WARNING: The file(s) $dirPath/$inFile do not exist."
                 exit
             fi
 
