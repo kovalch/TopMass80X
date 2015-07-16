@@ -98,7 +98,7 @@ trueLevelNoRenormalisationWeightSum_(0.)
         }
     }
     else if(era == Era::run2_13tev_50ns){
-        if(btagAlgorithm != Btag::csvv2){
+        if(btagAlgorithm != Btag::csvv2_50ns){
             std::cerr<<"Error in constructor of AnalysisBase()! Specified era does not allow b-tagger (era, b-tagger): "
                      <<Era::convert(era)<<" , "<<Btag::convertAlgorithm(btagAlgorithm)<<"\n...break\n"<<std::endl;
             exit(55);
@@ -722,6 +722,11 @@ void AnalysisBase::SetRecoBranchAddresses()
     }
     else if(btagAlgorithm_ == Btag::csvv2){
         chain_->SetBranchAddress("jetBTagCSVv2", &recoObjects_->jetBtags_, &b_jetBtags);
+    }
+    else if(btagAlgorithm_ == Btag::csvv2_50ns){
+        // FIXME: Will be correct from next ntuples onwards, remove then this line, and uncomment the following
+        chain_->SetBranchAddress("jetBTagCSVv2", &recoObjects_->jetBtags_, &b_jetBtags);
+        //chain_->SetBranchAddress("jetBTagCSVv2_50ns", &recoObjects_->jetBtags_, &b_jetBtags);
     }
     else{
         //chain_->SetBranchAddress("jetBTagTCHE", &recoObjects_->jetBtags_, &b_jetBtags);
