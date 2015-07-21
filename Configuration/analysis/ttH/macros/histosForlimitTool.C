@@ -51,7 +51,7 @@ void histosForlimitTool(TString Str = "mvaEventA_mvaWeight", TString outputFileN
   // Types of systematic variations mapping to naming convention of ttH collaboration
   std::map<TString,TString> mapOfSystematics;
 
-  std::string internalLable,;
+  std::string internalLable;
   std::string externalLabel;
   
   TString labelString;
@@ -63,10 +63,13 @@ void histosForlimitTool(TString Str = "mvaEventA_mvaWeight", TString outputFileN
   // Fill maps and meta information
   while(mapConfig >> internalLable >> externalLabel) {
 
+    // Define maps only for none empty text lines
     if(!internalLable.empty() && !externalLabel.empty()) {
+
       mapOfSystematics[internalLable] = externalLabel;
       labelString  += internalLable+" "+externalLabel+"\n";
     }
+      
   }
 
   // Event categories based on the # of jets and # of b-tagged jets
@@ -77,7 +80,11 @@ void histosForlimitTool(TString Str = "mvaEventA_mvaWeight", TString outputFileN
   mapOfCategories["cate2"] = "dl_jge4_te2";
   mapOfCategories["cate3"] = "dl_jge4_tge4";
 
+  // Create output file
   TFile* outputFile(0);
+
+  // Debug flag
+  bool debug = false;
 
   // Set and change into to current working directory
   TDirectory *rootDir  = gDirectory;
@@ -100,19 +107,19 @@ void histosForlimitTool(TString Str = "mvaEventA_mvaWeight", TString outputFileN
     while((entry1 = readdir(pDIR1))){
       
       if( strcmp(entry1->d_name, ".") != 0 && strcmp(entry1->d_name, "..") != 0 ) {
-	//std::cout << entry1->d_name << "\n";
+	if(debug) std::cout << entry1->d_name << "\n";
 	
 	if((pDIR2=opendir(std::string("./Plots/"+std::string(entry1->d_name)).c_str()))) {
 	  
 	  while((entry2 = readdir(pDIR2))) {
 	    
 	    if( strcmp(entry2->d_name, ".") != 0 && strcmp(entry2->d_name, "..") != 0 ) {
-	      //std::cout << entry2->d_name << "\n";
+	      if(debug) std::cout << entry2->d_name << "\n";
 	      
 	      if((pDIR3=opendir(std::string("./Plots/"+std::string(entry1->d_name)+"/"+std::string(entry2->d_name)).c_str()))) {
 		
 		while((entry3 = readdir(pDIR3))){
-		  //std::cout << entry3->d_name << "\n";
+		  if(debug) std::cout << entry3->d_name << "\n";
 		  
 		  TPRegexp subStr = TPRegexp(regexString+".root");
 		  
@@ -129,13 +136,13 @@ void histosForlimitTool(TString Str = "mvaEventA_mvaWeight", TString outputFileN
 
 		    TString observableType = "observable";
 		    
+		    std::map<TString,TH1D*> mapOfHistograms;
+
 		    // Store results in the macros directory
 		    const TString outpath("./macros");                 		    
 		    
 		    // Create input file handler
 		    TFile* sampleFile = new TFile(TString("./Plots/")+TString(entry1->d_name)+"/"+TString(entry2->d_name)+"/"+fileName);
-		    
-		    std::map<TString,TH1D*> mapOfHistograms;
 		    
 		    // Check that file exists and is not corrupt
 		    if(sampleFile->IsZombie()) {
@@ -147,7 +154,8 @@ void histosForlimitTool(TString Str = "mvaEventA_mvaWeight", TString outputFileN
 		      
 		      // Update (i.e. append) to output file                                                                                           
 		      outputFile = new TFile(outpath+"/"+outputFileName+".root","UPDATE");
-		      
+
+		      // Fill meta information on what mapping labeling used
 		      outputFile->cd();
 		      labels = labelString.Data();
 		      labels.Write("MetaInfo",TObject::kOverwrite);
@@ -185,12 +193,12 @@ void histosForlimitTool(TString Str = "mvaEventA_mvaWeight", TString outputFileN
 		      }
 		      
 		      // Access integral values to determine observation and rates
-		      if (false) {
+		      if (true) {
 			
 			std::cout << "File type: " << sample.Data() << std::endl;
 			std::cout << TString::Format("The integral for data is %f\n", mapOfHistograms["data"]->Integral());
 			std::cout << TString::Format("The integral for bkg is %f\n", mapOfHistograms["bkg"]->Integral());
-			std::cout << TString::Format("The integral for signal is %f\n", mapOfHistograms["ttH_hbb"]->Integral());
+			std::cout << TString::Format("The integral for signal is %f\n", mapOfHistograms["signalmc"]->Integral());
 		      }
 		      
 		      if(outputFile->GetDirectory(mapOfCategories[cate]+"__"+observableType))
