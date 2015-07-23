@@ -17,8 +17,8 @@ treeTitle_(cfg.getParameter<std::string>("treeTitle")),
 tree_(0),
 fillTree_(false)
 {
-  r.watchPreProcessEvent (this, &TreeRegistryService::resetFill);
-  r.watchPostProcessEvent(this, &TreeRegistryService::fillTree);
+  r.watchPreEvent (this, &TreeRegistryService::resetFill);
+  r.watchPostEvent(this, &TreeRegistryService::fillTree);
   //r.watchPostProcessPath(this, &TreeRegistryService::fillTree);
 }
 
@@ -41,7 +41,7 @@ TreeRegistryService::getTree()
 }
 
 void
-TreeRegistryService::fillTree(const edm::Event&, const edm::EventSetup&)
+TreeRegistryService::fillTree(const edm::StreamContext&)
 {
   if(fillTree_) getTree()->Fill();
 }

@@ -59,17 +59,19 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
     }
   }
   if (channelID_ == Helper::kMuonJets || channelID_ == Helper::kLeptonJets) {
-    PrepareEvents(samplePath_+fIdentifier_+std::string("_muon/job_*.root"));
+    PrepareEvents(samplePath_+fIdentifier_+std::string("_muon/*.root"));
+    //PrepareEvents(samplePath_+fIdentifier_+std::string("_muon/Spring14dr_*.root"));
     if(fLumi_>0 && fSig_<1.) {
-      PrepareEvents(""+samplePath_+"Summer12_WJets_muon/job_*.root");
-      PrepareEvents(""+samplePath_+"Summer12_singleTop_muon/job_*.root");
+      PrepareEvents(""+samplePath_+"Summer12_WJets_muon/*.root");
+      PrepareEvents(""+samplePath_+"Summer12_singleTop_muon/*.root");
     }
   }
   if (channelID_ == Helper::kElectronJets || channelID_ == Helper::kLeptonJets) {
-    PrepareEvents(samplePath_+fIdentifier_+std::string("_electron/job_*.root"));
+    PrepareEvents(samplePath_+fIdentifier_+std::string("_electron/*.root"));
+    //PrepareEvents(samplePath_+fIdentifier_+std::string("_electron/Spring14dr_*.root"));
     if(fLumi_>0 && fSig_<1.) {
-      PrepareEvents(""+samplePath_+"Summer12_WJets_electron/job_*.root");
-      PrepareEvents(""+samplePath_+"Summer12_singleTop_electron/job_*.root");
+      PrepareEvents(""+samplePath_+"Summer12_WJets_electron/*.root");
+      PrepareEvents(""+samplePath_+"Summer12_singleTop_electron/*.root");
     }
   }
   time(&end);

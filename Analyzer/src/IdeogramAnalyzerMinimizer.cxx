@@ -133,6 +133,7 @@ void IdeogramAnalyzerMinimizer::NumericalMinimization() {
   //   GSLSimAn
   //   Genetic
   ROOT::Math::Minimizer* min = ROOT::Math::Factory::CreateMinimizer("Minuit2", "Migrad");
+  //ROOT::Math::Minimizer* min = ROOT::Math::Factory::CreateMinimizer("Genetic");
 
   // set tolerance , etc...
   min->SetMaxFunctionCalls(1000000); // for Minuit/Minuit2
@@ -173,11 +174,11 @@ void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimize
   for(unsigned int i = 0; i < toFit.size(); ++i){
     // Set the free variables to be minimized!
     if(toFit[i] == kMass) {
-      min->SetVariable(0, "mass", variable[0], step[0]);
+      min->SetLimitedVariable(0, "mass", variable[0], step[0], 150., 200.);
       nameFreeVariables += "_mTop";
     }
     else if(toFit[i] == kJES ) {
-      min->SetVariable(1, "jes" , variable[1], step[1]);
+      min->SetLimitedVariable(1, "jes" , variable[1], step[1], 0.5, 1.5);
       nameFreeVariables += "_JES";
     }
     else if(toFit[i] == kFSig) {

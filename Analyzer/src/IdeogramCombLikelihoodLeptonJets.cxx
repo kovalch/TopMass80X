@@ -203,6 +203,9 @@ double IdeogramCombLikelihoodLeptonJets::Evaluate(double *x, double *p) {
     x[0] = m + MassOffset + MassSlopeMass*(m-172.5) + MassSlopeJES*(j-1.) + MassSlopeMassJES*(m-172.5)*(j-1.);
   }
   
+  //std::cout << x[0] << " " << x[1] << " " << p[0] << " " << p[1] << " " << p[2] << " " << p[3] << " " << std::endl;
+  //std::cout << PCP(x, p) << " " << PCPJES(x, p) << " " << PWP(x, p) << " " << PWPJES(x, p) << " " << PUN(x, p) << " " << PUNJES(x, p) << " " << std::endl;
+  
   //return p[0] * (fCP * PCP(x, p) + fWP * PWP(x, p) + fUN * PUN(x, p));
   return p[0] * (fCP * PCP(x, p) * PCPJES(x, p) + fWP * PWP(x, p) * PWPJES(x, p) + fUN * PUN(x, p) * PUNJES(x, p));
 }

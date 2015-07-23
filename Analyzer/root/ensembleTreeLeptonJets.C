@@ -25,7 +25,7 @@
 enum lepton           { kElectron, kMuon, kAll, kMuon_BReg};
 std::string lepton_ [4] = { "electron", "muon", "lepton", "muon_BReg"};
 
-int channel = 2;
+int channel = 1;
 std::string suffix = "";
 
 Long64_t nentries = 1000000000; //1000*27;
@@ -126,7 +126,7 @@ void DrawLegend(bool bwlines = false) {
   */
 }
 
-void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_140305")
+void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/pseudoexperiments/topmass_150119")
 {
   //*
   TStyle *tdrStyle = setTDRStyle();
@@ -390,15 +390,19 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/mseidel/p
   
   TF2* fit2D = new TF2("fit2D", "[0] + [1]*(x-172.5) + [2]*(y-1) + [3]*(x-172.5)*(y-1)");
   fit2D->SetParNames("offset", "slopeMass", "slopeJES");
-  
+
   //*
   std::cout << "=== 2D calibration - mass ===" << std::endl;
   h2Mass->Fit("fit2D");
   h2Mass->Draw("SURF1");
+
+
+  std::cout << "topmass 2D calibration uncertainty: " << std::sqrt(3*pow(fit2D->GetParError(0),2) + 3*pow((172.08-172.50)*fit2D->GetParError(1),2)) << std::endl;
   
   std::cout << "=== 2D calibration - JES ===" << std::endl;
   h2JES->Fit("fit2D");
   h2JES->Draw("SURF1");
+  std::cout << "jes 2D calibration uncertainty: " << std::sqrt(3*pow(fit2D->GetParError(0),2) + 3*pow((172.08-172.50)*fit2D->GetParError(1),2)) << std::endl;
   //*/
   
   //*

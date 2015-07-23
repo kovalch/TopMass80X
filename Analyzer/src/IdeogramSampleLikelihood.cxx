@@ -32,14 +32,22 @@ double IdeogramSampleLikelihood::DoEval(const double *x) const {
         eventSumProb += permutation->GetFixedParam(0);
         flavour       = permutation->GetFixedParam(3);
         weight        = permutation->GetFixedParam(8);
-      }
+        if(eventResult==0){
+//           std::cout << x[0] << " " << x[1] << " " << x[2] << " " << x[3] << std::endl;
+//           std::cout << permutation->GetFixedParam(0) << " " << permutation->GetFixedParam(1) << " " << permutation->GetFixedParam(2) << " " << permutation->GetFixedParam(3) << " " << permutation->GetFixedParam(4) << " " << permutation->GetFixedParam(5) << " " << permutation->GetFixedParam(6) << " " << permutation->GetFixedParam(7) << " " << permutation->GetFixedParam(8) << " " << std::endl;
+       }
+     }
     }
     if (eventIsActive) {
       double pullWidthFlavour = (flavour == 11) ? pullWidthEle : pullWidth;
       sampleResult  += weight * -2.*log(eventResult)*eventSumProb / (pullWidthFlavour*pullWidthFlavour);
+      assert(weight==weight);
+      assert(eventSumProb==eventSumProb);
+      assert(eventResult!=0);
       sampleSumProb += weight * eventSumProb;
       sampleNEvent  += weight;
     }
   }
+  //std::cout << x[0] << " " << x[1] << " " << sampleResult << " * " << sampleNEvent << " / " << sampleSumProb << std::endl;
   return sampleResult * sampleNEvent / sampleSumProb;
 }

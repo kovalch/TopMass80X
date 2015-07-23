@@ -162,6 +162,9 @@ void TopMassControlPlots::doPlots()
     hists.push_back(MyHistogram("W2P1PullPt" , "top.fitW2Prod1.Pt()-jet.jet[top.recoJetIdxW2Prod1].Pt()", "", ";#Delta p_{T}^{W2L1} [GeV]; Permutations / 5 GeV", 20, -20, 20));
     hists.push_back(MyHistogram("W2P2PullPt" , "top.fitW2Prod2.Pt()-jet.jet[top.recoJetIdxW2Prod2].Pt()", "", ";#Delta p_{T}^{W2L2} [GeV]; Permutations / 5 GeV", 20, -20, 20));
 
+    hists.push_back(MyHistogram("W1PullPt" , "top.fitW1.Pt()", "", ";p_{T}^{W1} [GeV]; Permutations / 5 GeV", 20, -20, 20));
+    hists.push_back(MyHistogram("W2PullPt" , "top.fitW2.Pt()", "", ";p_{T}^{W2} [GeV]; Permutations / 5 GeV", 20, -20, 20));
+
     // needs a full constructor std::vector<std::string> as the cast from the initializer list only works for 4 or more entries ... WTF
     hists.push_back(MyHistogram("BJetPullPt" , std::vector<std::string>({"top.fitB1.Pt()-jet.jet[top.recoJetIdxB1].Pt()",
                                                                          "top.fitB2.Pt()-jet.jet[top.recoJetIdxB2].Pt()"}) , "", ";#Delta p_{T}^{B} [GeV]; B Jets / 5 GeV", 30, -30, 30));
@@ -333,6 +336,9 @@ void TopMassControlPlots::doPlots()
     hists.push_back(MyHistogram("bJetPt", "jet.jet.Pt()", "jet.bTagCSV>0.679", ";p_{T} [GeV], b-tagged (CSVM); Jets / 10 GeV", 45, 0, 450));
     hists.push_back(MyHistogram("lJetPt_vs_nVertex" , "weight.nVertex", "jet.jet.Pt()" , "jet.bTagCSV<0.679", ";N_{Vertex}; p_{T} [GeV], untagged (CSVM)", 8, 0, 40, 44, 10, 450));
     hists.push_back(MyHistogram("bJetPt_vs_nVertex" , "weight.nVertex", "jet.jet.Pt()" , "jet.bTagCSV>0.679", ";N_{Vertex}; p_{T} [GeV], b-tagged (CSVM)", 8, 0, 40, 44, 10, 450));
+
+    hists.push_back(MyHistogram("jet1P", "jet.jet[0].P()", "", ";p^{1} [GeV]; Events / 10 GeV", 45, 0, 450));
+
   }
   
   if(plotSelectedForPlotting.find("JetEtas")!=plotSelectedForPlotting.end()){
@@ -443,8 +449,40 @@ void TopMassControlPlots::doPlots()
     hists.push_back(MyHistogram("nJet30", "Sum$((jet.jet.Pt()>30))", "", ";N_{jet}; Events", 15, 0, 15));
     hists.push_back(MyHistogram("nVertex", "weight.nVertex", "", ";N_{PV}; Events", 35, 0, 35));
   }
+  // my Plots
+  if(plotSelectedForPlotting.find("GenLevel")!=plotSelectedForPlotting.end()){
+    hists.push_back(MyHistogram("cpGenTop1MassPeak",MyMa::invariantMassThreeVec("genJet[recoJetIdxB1]","genJet[recoJetIdxW1Prod1]","genJet[recoJetIdxW1Prod2]").Data() , "top.combinationType==1", ";m_{t}^{cp,gen} [GeV]; Permutations / 2 GeV", 50, 120, 220));
+    hists.back().SetFitGaussToCore();
+
+    hists.push_back(MyHistogram("GenTop1MassPeak",MyMa::invariantMassThreeVec("genJet[recoJetIdxB1]","genJet[recoJetIdxW1Prod1]","genJet[recoJetIdxW1Prod2]").Data() , "", ";m_{t}^{gen} [GeV]; Permutations / 2 GeV", 50, 120, 220));
+    hists.back().SetFitGaussToCore();
+
+    hists.push_back(MyHistogram("cpGenW1MassPeak",MyMa::invariantMass("genJet[recoJetIdxW1Prod1]","genJet[recoJetIdxW1Prod2]","1.","1.").Data() , "top.combinationType==1", ";m_{W}^{cp,gen} [GeV]; Permutations / 2 GeV", 50, 50, 100));
+    hists.back().SetFitGaussToCore();
+
+    hists.push_back(MyHistogram("GenW1MassPeak",MyMa::invariantMass("genJet[recoJetIdxW1Prod1]","genJet[recoJetIdxW1Prod2]","1.","1.").Data() , "", ";m_{W}^{gen} [GeV]; Permutations / 2 GeV", 50, 50, 100));
+    hists.back().SetFitGaussToCore();
+
+    hists.push_back(MyHistogram("JetPtResponse",("jet.jet.Pt() / jet.genJet.Pt()") , "", ";R_{p_{T}}; Jets / 0.05", 100, 0, 2));
+    hists.back().SetFitGaussToCore();
+
+    hists.push_back(MyHistogram("JetPtResponseB",("jet.jet.Pt() / jet.genJet.Pt()") , "abs(jet.flavour) == 5 ", ";R_{p_{T},b}; Jets / 0.05", 100, 0, 2));
+    hists.back().SetFitGaussToCore();
+
+    hists.push_back(MyHistogram("JetPtResponseC",("jet.jet.Pt() / jet.genJet.Pt()") , "abs(jet.flavour) == 4 ", ";R_{p_{T},c}; Jets / 0.05", 100, 0, 2));
+    hists.back().SetFitGaussToCore();
+
+    hists.push_back(MyHistogram("JetPtResponseL",("jet.jet.Pt() / jet.genJet.Pt()") , "abs(jet.flavour) < 4 && abs(jet.flavour) > 0", ";R_{p_{T},uds}; Jets / 0.05", 100, 0, 2));
+    hists.back().SetFitGaussToCore();
+
+    hists.push_back(MyHistogram("JetPtResponseG",("jet.jet.Pt() / jet.genJet.Pt()") , "abs(jet.flavour) == 21 ", ";R_{p_{T},g}; Jets / 0.05", 100, 0, 2));
+    hists.back().SetFitGaussToCore();
+}
 
   if(plotSelectedForPlotting.find("eventTreeWithJEC")!=plotSelectedForPlotting.end()){//50,60,110
+    hists.push_back(MyHistogram("RecoTopMassTreeCorr",MyMa::invariantMass("top.recoW1", "top.recoB1", "1.", "1.").Data(),"","; m_{t}^{treeCorr}; Permutations / 2.5 GeV",28,50,120));
+    hists.back().SetFitGaussToCore();
+
     hists.push_back(MyHistogram("RecoW1MassTreeCorr",MyMa::invariantMass("top.recoW1Prod1", "top.recoW1Prod2", "1.", "1.").Data(),"","; m_{W}^{treeCorr}; Permutations / 2.5 GeV",28,50,120));
     std::cout << MyMa::invariantMass("top.recoW1Prod1", "top.recoW1Prod2", "1.", "1.").Data() << std::endl;
     hists.back().SetFitGaussToCore();
@@ -1064,14 +1102,20 @@ void TopMassControlPlots::doPlots()
   // Lepton+jets channel
   else {
     // DATA
-    samples.push_back(MySample("Data", "Run2012_JEC_Winter14_V2", kData, kBlack));
-    
+    //samples.push_back(MySample("Data", "Run2012_JEC_Winter14_V2", kData, kBlack));
+    //samples.push_back(MySample("t#bar{t}", "Spring14dr_TTJetsMSCKM1725_1.00", kData, kBlack));
+    //samples.push_back(MySample("t#bar{t}", "genLevel_TTJetsMS1725_1.00", kData, kBlack));
+    samples.push_back(MySample("t#bar{t}", "Summer12_TTJetsMS1725_1.00", kData, kBlack));
+
     // SIGNAL
     if(plotSelectedForPlotting.find("NobPlots")!=plotSelectedForPlotting.end()){
       samples.push_back(MySample("t#bar{t}", "Summer12_TTJetsMS1725_nob", kSig, kRed+1, 1, lumi_/1000., "", 0.053));
     }
     else samples.push_back(MySample("t#bar{t}", "Summer12_TTJetsMS1725_1.00", kSig, kRed+1, 1, lumi_/1000., "", 0.053));
-    
+    //else samples.push_back(MySample("t#bar{t}", "Spring14dr_TTJetsMSCKM1725_1.00", kSig, kRed+1, 1));
+    //else samples.push_back(MySample("t#bar{t}", "genLevel_TTJetsMS1725_1.00", kSig, kRed+1, 1));
+    //else samples.push_back(MySample("t#bar{t}", "Summer12_TTJets1725_sherpa", kSig, kRed+1, 1));
+
     // SIGNAL VARIATIONS
     
     // JES
@@ -1102,12 +1146,31 @@ void TopMassControlPlots::doPlots()
       samples.push_back(MySample("t#bar{t}, top pt reweighting", "Summer12_TTJetsMS1725_1.00", kSigVar, kBlack, 1, lumi_/1000., "weight.combinedWeight|weight.combinedWeight*sqrt(exp(0.156-0.00137*top.genpartonTop1.Pt())*exp(0.156-0.00137*top.genpartonTop2.Pt()))"));
     }
     
+    // GenJet comparison
+    if(plotSelectedForPlotting.find("MCGeneratorPlotsNEW")!=plotSelectedForPlotting.end()){
+      //samples.push_back(MySample("t#bar{t}, default", "Summer12_TTJetsMS1725_1.00", kSigVar, kGreen+1, 9, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t} scaleup", "Summer12_TTJetsMS1725_scaleup", kSigVar, kRed+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t} scaledown", "Summer12_TTJetsMS1725_scaledown", kSigVar, kMagenta+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t} matchingup", "Summer12_TTJetsMS1725_matchingup", kSigVar, kBlack, 7, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t} matchingdown", "Summer12_TTJetsMS1725_matchingdown", kSigVar, kBlue+1, 7, lumi_/1000.));
+      //samples.push_back(MySample("t#bar{t}, top pt reweighting", "Summer12_TTJetsMS1725_1.00", kSigVar, kBlack, 1, lumi_/1000., "weight.combinedWeight|weight.combinedWeight*sqrt(exp(0.156-0.00137*top.genpartonTop1.Pt())*exp(0.156-0.00137*top.genpartonTop2.Pt()))"));
+    }
+    //Gen
+    if(plotSelectedForPlotting.find("MCGenLevelComparison")!=plotSelectedForPlotting.end()){
+        samples.pop_back();
+        samples.push_back(MySample("t#bar{t}, P11", "Summer12_TTJets1725_MGDecays_P11", kSig, kRed+1, 1, lumi_/1000.));
+        samples.push_back(MySample("t#bar{t}, P11noCR", "Summer12_TTJets1725_MGDecays_P11noCR", kSigVar, kMagenta+1, 9, lumi_/1000.));
+        samples.push_back(MySample("t#bar{t}, P11mpiHi", "Summer12_TTJets1725_MGDecays_P11mpiHi", kSigVar, kGreen+1, 9, lumi_/1000.));
+        samples.push_back(MySample("t#bar{t}, P11TeV", "Summer12_TTJets1725_MGDecays_P11TeV", kSigVar, kBlue+1, 7, lumi_/1000.));
+    }
+
+
     // BACKGROUND
-    samples.push_back(MySample("Z+Jets", "Summer12_ZJets", kBkg, kAzure-2, 1, lumi_/1000., "", 0.2));
-    samples.push_back(MySample("W+Jets", "Summer12_WJets", kBkg, kGreen-3, 1, lumi_/1000., "", 0.2));
-    samples.push_back(MySample("Single Top", "Summer12_singleTop", kBkg, kMagenta, 1, lumi_/1000., "", 0.1));
-    samples.push_back(MySample("QCD Multijet", "Summer12_QCD", kBkg, kYellow, 1, lumi_/1000., "", 1.));
-    samples.push_back(MySample("Diboson", "Summer12_Diboson", kBkg, kWhite, 1, lumi_/1000., "", 0.05));
+    //samples.push_back(MySample("Z+Jets", "Summer12_ZJets", kBkg, kAzure-2, 1, lumi_/1000., "", 0.2));
+    //samples.push_back(MySample("W+Jets", "Summer12_WJets", kBkg, kGreen-3, 1, lumi_/1000., "", 0.2));
+    //samples.push_back(MySample("Single Top", "Summer12_singleTop", kBkg, kMagenta, 1, lumi_/1000., "", 0.1));
+    //samples.push_back(MySample("QCD Multijet", "Summer12_QCD", kBkg, kYellow, 1, lumi_/1000., "", 1.));
+    //samples.push_back(MySample("Diboson", "Summer12_Diboson", kBkg, kWhite, 1, lumi_/1000., "", 0.05));
 
     // OTHER VARIATIONS
     if(plotSelectedForPlotting.find("BasicTestsNoData")!=plotSelectedForPlotting.end()){
@@ -1119,7 +1182,7 @@ void TopMassControlPlots::doPlots()
     }
 
     if(plotSelectedForPlotting.find("BasicTests")!=plotSelectedForPlotting.end()){
-        samples.push_back(MySample("t#bar{t}", "Summer12_TTJets1725_1.00", kSigVar, kRed+1, 1, lumi_/1000.));
+        //samples.push_back(MySample("t#bar{t}", "Summer12_TTJets1725_1.00", kSigVar, kRed+1, 1, lumi_/1000.));
         samples.push_back(MySample("t#bar{t}, Powheg+Pythia6 Z2*", "Summer12_TTJets1725_powheg", kSigVar, kGreen+1, 9, lumi_/1000.));
         samples.push_back(MySample("t#bar{t}, Powheg+Herwig6 AUET2", "Summer12_TTJets1725_powheg_herwig", kSigVar, kBlue+1, 7, lumi_/1000.));
         samples.push_back(MySample("t#bar{t}, MC@NLO", "Summer12_TTJets1725_mcatnlo_herwig", kSigVar, kCyan+1, 1, lumi_/1000.));
@@ -1246,14 +1309,14 @@ void TopMassControlPlots::doPlots()
     	  std::cout << "added CalibTreeMaker kind of chain" << std::endl;
       }
       else if(plotSelectedForPlotting.find("eventTreeWithJEC")!=plotSelectedForPlotting.end()){
-    	  chain = new TChain("eventTree");
-    	  if (channelID != Helper::kElectronJets) nFiles += chain->Add((path_+sample.file+std::string("_muon/job_*.root")).c_str());
-    	  if (channelID != Helper::kMuonJets) nFiles += chain->Add((path_+sample.file+std::string("_electron/job_*.root")).c_str());
+    	  chain = new TChain("analyzeHitFit/eventTree");
+    	  if (channelID != Helper::kElectronJets) nFiles += chain->Add((path_+sample.file+std::string("_muon/*.root")).c_str());
+    	  if (channelID != Helper::kMuonJets) nFiles += chain->Add((path_+sample.file+std::string("_electron/*.root")).c_str());
       }
       else{
     	  chain = new TChain("analyzeHitFit/eventTree");
-    	  if (channelID != Helper::kElectronJets) nFiles += chain->Add((path_+sample.file+std::string("_muon/job_*.root")).c_str());
-    	  if (channelID != Helper::kMuonJets    ) nFiles += chain->Add((path_+sample.file+std::string("_electron/job_*.root")).c_str());
+    	  if (channelID != Helper::kElectronJets) nFiles += chain->Add((path_+std::string("/")+sample.file+std::string("_muon/*.root")).c_str());
+    	  if (channelID != Helper::kMuonJets    ) nFiles += chain->Add((path_+std::string("/")+sample.file+std::string("_electron/*.root")).c_str());
       }
       std::cout << "Adding " << nFiles << " files for " << sample.name << " (" << sample.file << "), type: " << sample.type << std::endl;
 

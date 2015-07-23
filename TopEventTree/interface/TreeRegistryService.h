@@ -60,9 +60,11 @@ private:
   bool fillTree_;
 
   TTree* getTree();
-  void fillTree(const edm::Event&, const edm::EventSetup&);
+  void fillTree(const edm::StreamContext&);
+  //void fillTree(const edm::Event&, const edm::EventSetup&);
   //void fillTree(std::string const&, edm::HLTPathStatus const&);
-  void resetFill(const edm::EventID&, const edm::Timestamp&) { fillTree_ = false; }
+  void resetFill(const edm::StreamContext&) { fillTree_ = false; }
+  //void resetFill(const edm::EventID&, const edm::Timestamp&) { fillTree_ = false; }
 };
 
 namespace edm {

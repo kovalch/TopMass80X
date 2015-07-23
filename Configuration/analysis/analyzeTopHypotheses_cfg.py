@@ -4,7 +4,8 @@ import os
 import sys
 options = VarParsing.VarParsing ('standard')
 
-options.register('mcversion', 'Summer12', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "MC campaign or data")
+options.register('mcversion', 'Spring14dr', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "MC campaign or data")
+options.register('generator', 'pythia6', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "MC generator")
 options.register('mcWeight', 1.0 , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.float, "MC sample event weight")
 options.register('lepton', 'muon', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "Lepton+jets channel")
 options.register('metcl', 1, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.int, "MET correction level")
@@ -24,7 +25,7 @@ options.register('nbjets', 2, VarParsing.VarParsing.multiplicity.singleton,VarPa
 
 options.register('brCorrection', True, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.bool, "Do BR correction (MadGraph)")
 options.register('bSFNewRecipe', True, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.bool, "Use new b-tag SF recipe")
-
+	
 # define the syntax for parsing
 # you need to enter in the cfg file:
 # search for arguments entered after cmsRun
@@ -38,9 +39,7 @@ if( hasattr(sys, "argv") ):
             # set variable var to value val (expected crab syntax: var=val)
             if(len(val)==2):
                 setattr(options,val[0], val[1])
-
-print options
-
+		
 if (options.mcversion == "data"): data = True
 else:                             data = False
 
@@ -60,55 +59,85 @@ process.MessageLogger.cerr.TtSemiLeptonicEvent = cms.untracked.PSet(
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles,
+                              skipEvents = cms.untracked.uint32(0),
                               dropDescendantsOfDroppedBranches=cms.untracked.bool(False),
                               inputCommands=cms.untracked.vstring(
                                       'keep *',
-                                      'drop LHERunInfoProduct_*_*_*'
+                                      'drop LHERunInfoProduct_*_*_*',
+                                      'drop GenLumiInfoProduct_*_*_*'
                               )
 )
-if (options.mcversion == "Fall11"):
+if (options.mcversion == "Spring14dr" or options.mcversion == "genLevel"):
   readFiles.extend( [
-         '/store/mc/Fall11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S6_START42_V14B-v1/0000/00CAD0AC-17FA-E011-A4F4-00304867905A.root'
-  ] )
-elif (options.mcversion == "Summer12"):
-  readFiles.extend( [
-         '/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/20003/0094CB21-174B-E311-B3C8-7845C4FC3A7F.root'
-  ] )
-elif (options.mcversion == "Summer12W0Jets"):
-  readFiles.extend( [
-         '/store/mc/Summer12_DR53X/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S10_START53_V7A-v2/0004/FE9FA8F7-2BF3-E111-A34E-001E672CC1E7.root',
-         '/store/mc/Summer12_DR53X/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S10_START53_V7A-v2/0004/FE7A6C35-FAF2-E111-97BC-D8D385FF4ABA.root',
-         '/store/mc/Summer12_DR53X/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S10_START53_V7A-v2/0004/FE777AEF-CBF2-E111-AD95-001E67398223.root',
-  ] )
-elif (data and options.lepton == "muon"):
-  readFiles.extend( [
-         '/store/data/Run2012A/SingleMu/AOD/22Jan2013-v1/30000/FEDCB8E2-5270-E211-8FD6-00266CFFBC38.root'
-  ] )
-elif (data and options.lepton == "electron"):
-  readFiles.extend( [
-         '/store/data/Run2012A/SingleElectron/AOD/22Jan2013-v1/30002/72352080-9372-E211-B431-00266CFFA1AC.root'
-  ] )
-  process.source.skipEvents=cms.untracked.uint32(1800)
-elif (options.mcversion == "Sherpa12"):
-  readFiles.extend( [
-         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_0_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_2_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_4_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_6_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_8_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_1_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_3_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_5_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_7_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_9_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_13_fastreco_FASTSIM_HLT_PU.root',
-         
-  ] )
-else:
-  readFiles.extend( [
-          '/store/mc/Summer12_DR53X/TTJets_SemiLeptMGDecays_8TeV-madgraph/AODSIM/PU_S10_START53_V7A-v1/00001/FC5CECAE-8B14-E211-8578-0025B3E0652A.root',
+    '/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/20000/F4BE4558-BE42-E311-8359-7845C4F9321B.root',
+     #'/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/20000/74171050-BF42-E311-9AE0-7845C4FC3A1C.root',
+     #'/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/20000/0E010BFF-1D43-E311-8CBE-848F69FD287A.root',
+     #'/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/20000/7609E0BD-1E43-E311-8A6C-00A0D1EE9274.root',
+    #'/store/mc/Spring14dr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/AODSIM/PU_S14_POSTLS170_V6-v1/00000/00120F7A-84F5-E311-9FBE-002618943910.root',
+    #'/store/mc/Spring14dr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/AODSIM/PU_S14_POSTLS170_V6-v1/00000/00130EFD-E5F2-E311-9C79-002618943919.root',
+    #'/store/mc/Spring14dr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/AODSIM/PU_S14_POSTLS170_V6-v1/00000/003B7873-00F3-E311-8F81-0025905A48F2.root',
+    #'/store/mc/Spring14dr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/AODSIM/PU_S14_POSTLS170_V6-v1/00000/003CEBCE-21F3-E311-917C-0025905A606A.root',
+    #'/store/mc/Spring14dr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/AODSIM/PU_S14_POSTLS170_V6-v1/00000/004174FD-9EF5-E311-A561-002354EF3BE4.root',
+    #'/store/mc/Spring14dr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/AODSIM/PU_S14_POSTLS170_V6-v1/00000/0042B5A2-C1F5-E311-A05D-002618FDA208.root',
+    #'/store/mc/Spring14dr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/AODSIM/PU_S14_POSTLS170_V6-v1/00000/005D7C0A-11F3-E311-A580-002618943869.root',
+    #'/store/mc/Spring14dr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/AODSIM/PU_S14_POSTLS170_V6-v1/00000/00673FDD-DCF5-E311-B373-0025905964C2.root',
+    #'/store/mc/Spring14dr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/AODSIM/PU_S14_POSTLS170_V6-v1/00000/0088B11B-B6F5-E311-BB22-002590596484.root',
+    #'/store/mc/Spring14dr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/AODSIM/PU_S14_POSTLS170_V6-v1/00000/00972CCE-E5F2-E311-82D9-00259059391E.root',
+    #'/store/mc/Spring14dr/TTbarH_HToBB_M-125_13TeV_pythia6/AODSIM/PU_S14_POSTLS170_V6-v1/00000/328C1E89-F9D3-E311-89AA-0017A4770C1C.root',
+    #'/store/mc/Spring14dr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/AODSIM/PU20bx25_POSTLS170_V5-v1/00000/00222AFA-04F2-E311-8EE6-0026189438D8.root',
+    #'/store/mc/Spring14dr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/AODSIM/PU_S14_POSTLS170_V6-v1/00000/4CD5BC5E-CEF5-E311-8A76-0025905A60FE.root',
+    #'file:/nfs/dust/cms/user/mseidel/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola_Spring14dr_PU20bx25_POSTLS170_V5-v1_AODSIM.root',
+    #'/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_1000_fastreco_FASTSIM_HLT_PU.root',
+    #'/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_1002_fastreco_FASTSIM_HLT_PU.root',
+    #'/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_1004_fastreco_FASTSIM_HLT_PU.root',
+    #'/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_1006_fastreco_FASTSIM_HLT_PU.root',
+    #'/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_1008_fastreco_FASTSIM_HLT_PU.root',
+    #'/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_100_fastreco_FASTSIM_HLT_PU.root',
+    #'/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_1010_fastreco_FASTSIM_HLT_PU.root',
+    #'/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_1012_fastreco_FASTSIM_HLT_PU.root',
+    #'/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_1014_fastreco_FASTSIM_HLT_PU.root',
+    #'/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_1016_fastreco_FASTSIM_HLT_PU.root',
+    #'/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_1018_fastreco_FASTSIM_HLT_PU.root',
+    #'/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_1020_fastreco_FASTSIM_HLT_PU.root',
+    #'/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_1022_fastreco_FASTSIM_HLT_PU.root',
+    #'/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_1024_fastreco_FASTSIM_HLT_PU.root',
+    #'/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_1026_fastreco_FASTSIM_HLT_PU.root',
+    #'/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_1028_fastreco_FASTSIM_HLT_PU.root',
+    #'/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_102_fastreco_FASTSIM_HLT_PU.root',
+    
+    #'/store/user/mseidel/TT_Lund_8TeV-sherpa2/job_997_fastreco_FASTSIM_HLT_PU.root',
+    #'/store/user/mseidel/TT_Lund_8TeV-sherpa2/job_999_fastreco_FASTSIM_HLT_PU.root',
+    #'/store/user/mseidel/TT_Lund_8TeV-sherpa2/job_99_fastreco_FASTSIM_HLT_PU.root',
+    #'/store/user/mseidel/TT_Lund_8TeV-sherpa2/job_9_fastreco_FASTSIM_HLT_PU.root',
   ] )
 
+if (options.mcversion == "Summer12" or options.mcversion == "genLevel"):
+  if (options.generator == "pythia8"):
+    readFiles.extend( ['/store/user/mseidel/TT_8TeV-amcatnlo-pythia8/job_350_TT_FSIM.root'] )
+  elif (options.generator == "sherpa"):
+    readFiles.extend( ['/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_1014_fastreco_FASTSIM_HLT_PU.root'] )
+  elif (options.generator == "herwigpp"):
+    readFiles.extend( ['/store/user/mseidel/TT_8TeV-amcatnlo-herwigpp/job_35_TT_FSIM.root'] )
+
+
+#elif (options.mcversion == "Summer12"):
+  #readFiles.extend( [
+         #'/store/mc/Summer12_DR53X/TTJets_SemiLeptMGDecays_8TeV-madgraph/AODSIM/PU_S10_START53_V7A-v1/00001/FC5CECAE-8B14-E211-8578-0025B3E0652A.root'
+  #] )
+#elif (options.mcversion == "Summer12W0Jets"):
+  #readFiles.extend( [
+         #'/store/mc/Summer12_DR53X/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S10_START53_V7A-v2/0004/FE9FA8F7-2BF3-E111-A34E-001E672CC1E7.root',
+         #'/store/mc/Summer12_DR53X/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S10_START53_V7A-v2/0004/FE7A6C35-FAF2-E111-97BC-D8D385FF4ABA.root',
+         #'/store/mc/Summer12_DR53X/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S10_START53_V7A-v2/0004/FE777AEF-CBF2-E111-AD95-001E67398223.root',
+  #] )
+#elif (data and options.lepton == "muon"):
+  #readFiles.extend( [
+         #'/store/data/Run2012A/SingleMu/AOD/22Jan2013-v1/30000/FEDCB8E2-5270-E211-8FD6-00266CFFBC38.root'
+  #] )
+#elif (data and options.lepton == "electron"):
+  #readFiles.extend( [
+         #'/store/data/Run2012A/SingleElectron/AOD/22Jan2013-v1/30002/72352080-9372-E211-B431-00266CFFA1AC.root'
+  #] )
 secFiles.extend( [
                ] )
 
@@ -117,9 +146,12 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
+#process.source.eventsToProcess = cms.untracked.VEventRange('1:72453536')
+
 ## configure process options
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True),
+    allowUnscheduled = cms.untracked.bool(True),
+    wantSummary = cms.untracked.bool(True)
 #    SkipEvent = cms.untracked.vstring('ProductNotFound')
 )
 
@@ -127,17 +159,18 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-if os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
-  process.GlobalTag.globaltag = cms.string('START41_V0::All')
-elif os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
-  process.GlobalTag.globaltag = cms.string('START42_V17::All')
-elif os.getenv('CMSSW_VERSION').startswith('CMSSW_5_3_'):
-  process.GlobalTag.globaltag = cms.string('START53_V27::All')
-if data:
-  process.GlobalTag.globaltag = cms.string('FT_53_V21_AN5::All')
+if os.getenv('CMSSW_VERSION').startswith('CMSSW_7_1_'):
+  process.GlobalTag.globaltag = cms.string('POSTLS170_V6::All')
+#elif os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
+  #process.GlobalTag.globaltag = cms.string('START42_V17::All')
+#elif os.getenv('CMSSW_VERSION').startswith('CMSSW_5_3_'):
+  #process.GlobalTag.globaltag = cms.string('START53_V27::All')
+#if data:
+  #process.GlobalTag.globaltag = cms.string('FT_53_V21_AN5::All')
 
 ## generator filters
-if (options.mcversion == 'Summer12W0Jets'):
+#if (options.mcversion == 'Spring14dr'):
+if (options.generator == 'w0jets'):
     process.load("TopAnalysis.TopFilter.filters.GeneratorWNJetsFilter_cfi")
     process.filterWNJets.NJet = 0
 
@@ -147,9 +180,18 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 process.load("TopAnalysis.TopFilter.sequences.semiLeptonicSelection_cff")
 
 ## redefine veto jets to be sure it is also replaced when running on PF
-from TopAnalysis.TopFilter.sequences.jetSelection_cff import goodJets
+#from TopAnalysis.TopFilter.sequences.jetSelection_cff import goodJetsPF
 process.vetoJets.src = "goodJetsPF30"
 process.vetoJets.cut = ''
+
+#process.load("RecoJets.Configuration.GenJetParticles_cff")
+#process.load("RecoJets.JetProducers.ak4GenJets_cfi")
+#process.load("RecoJets.JetAssociationProducers.kt4JTA_cff")
+
+
+## std sequence for PAT
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
 if not data:
     ## configure JetEnergyScale tool
@@ -157,19 +199,22 @@ if not data:
     from TopAnalysis.TopUtils.JetEnergyScale_cff import *
 
     scaledJetEnergy.scaleType    = options.scaleType
-    scaledJetEnergy.JECUncSrcFile= "TopAnalysis/TopUtils/data/Summer13_V5_DATA_UncertaintySources_AK5PFchs.txt"
+    scaledJetEnergy.JECUncSrcFile= "TopAnalysis/TopUtils/data/Summer13_V5_DATA_UncertaintySources_AK5PFchs.txt" #Uncertainty sources
     scaledJetEnergy.sourceName   = options.jessource
     scaledJetEnergy.flavor       = options.flavor
     scaledJetEnergy.scaleFactor  = options.lJesFactor
     scaledJetEnergy.scaleFactorB = options.bJesFactor
-    
-    resolutionNominal = [1.079, 1.099, 1.121, 1.208, 1.254, 1.395, 1.056]
+
+    if options.mcversion == "genLevel":
+        resolutionNominal = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+    else:
+        resolutionNominal = [1.079, 1.099, 1.121, 1.208, 1.254, 1.395, 1.056]
     resolutionUnc     = [0.026, 0.028, 0.029, 0.046, 0.062, 0.063, 0.191]
-    
+
     scaledJetEnergy.resolutionFactors   = []
     for nom,unc in zip(resolutionNominal,resolutionUnc):
       scaledJetEnergy.resolutionFactors.append(nom+options.resolutionSigma*unc)
-    
+
     scaledJetEnergy.resolutionEtaRanges   = [0.0,0.5, 0.5,1.1, 1.1,1.7, 1.7,2.3, 2.3,2.8, 2.8,3.2, 3.2,-1.]
 
     scaledJetEnergy.inputJets    = "selectedPatJets"
@@ -208,6 +253,7 @@ if not data:
     ## sequence for ttGenEvent
     process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 
+
 ## sequence for TtSemiLeptonicEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff")
 
@@ -216,17 +262,16 @@ process.ttSemiLepEvent.verbosity = 0
 
 ## TRIGGER
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-if os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
-    process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::REDIGI311X", HLTPaths = ["HLT_Mu15_v*"], throw=True)
-else:
-    process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_IsoMu24_eta2p1_v*"], throw=True)
-if(options.mcversion=="Summer11"):
-    process.hltFilter.HLTPaths=["HLT_IsoMu24_v*"]
-if(options.mcversion=="Summer12"):
-    process.hltFilter.HLTPaths=["HLT_IsoMu24_eta2p1_v*"]
-if data:
-    process.hltFilter.HLTPaths=["HLT_IsoMu24_eta2p1_v*"]
-
+if os.getenv('CMSSW_VERSION').startswith('CMSSW_7_1_'):
+    process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", throw=True)
+#else:
+    #process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_IsoMu24_eta2p1_v*"], throw=True)
+#if(options.mcversion=="Summer11"):
+    #process.hltFilter.HLTPaths=["HLT_IsoMu24_v*"]
+#if(options.mcversion=="Summer12"):
+    #process.hltFilter.HLTPaths=["HLT_IsoMu24_eta2p1_v*"]
+#if data:
+    #process.hltFilter.HLTPaths=["HLT_IsoMu24_eta2p1_v*"]
 
 ## JET selection
 process.tightBottomSSVPFJets  = process.selectedPatJets.clone(src = 'goodJetsPF30',
@@ -245,14 +290,17 @@ process.bottomJetSelection.minNumber = options.nbjets;
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
 setForAllTtSemiLepHypotheses(process, "leps", "tightMuons")
 if (options.lepton=='electron'):
-    useElectronsForAllTtSemiLepHypotheses(process, 'goodElectronsEJ')
+    if (options.mcversion=='genLevel'):
+        setForAllTtSemiLepHypotheses(process, "leps", 'goodElectronsEJ')
+    else:
+        useElectronsForAllTtSemiLepHypotheses(process, 'goodElectronsEJ')
 setForAllTtSemiLepHypotheses(process, "jets", "goodJetsPF30")
 setForAllTtSemiLepHypotheses(process, "maxNJets", 4)
 setForAllTtSemiLepHypotheses(process, "mets", "scaledMET:scaledMETs")
 setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
-if data:
-    setForAllTtSemiLepHypotheses(process, "mets", "patMETs")
-    setForAllTtSemiLepHypotheses(process, "jetCorrectionLevel", "L2L3Residual")
+#if data:
+    #setForAllTtSemiLepHypotheses(process, "mets", "patMETs")
+    #setForAllTtSemiLepHypotheses(process, "jetCorrectionLevel", "L2L3Residual")
 
 ## change jet-parton matching algorithm
 process.ttSemiLepJetPartonMatch.algorithm = "unambiguousOnly"
@@ -262,12 +310,15 @@ process.ttSemiLepJetPartonMatch.maxNJets  = -1
 process.hitFitTtSemiLepEventHypothesis.bTagAlgo = "combinedSecondaryVertexBJetTags"
 process.hitFitTtSemiLepEventHypothesis.minBDiscBJets     = options.csvm
 process.hitFitTtSemiLepEventHypothesis.maxBDiscLightJets = options.csvm
+#process.hitFitTtSemiLepEventHypothesis.minBDiscBJets     = 1.0
+#process.hitFitTtSemiLepEventHypothesis.maxBDiscLightJets = 3.0
 process.hitFitTtSemiLepEventHypothesis.useBTagging       = True
 
 addTtSemiLepHypotheses(process,
                        ["kHitFit", "kMVADisc"]
                        )
-if data: removeTtSemiLepHypGenMatch(process)
+#if data: removeTtSemiLepHypGenMatch(process)
+if (data): removeTtSemiLepHypGenMatch(process)
 
 ## load HypothesisAnalyzer
 from TopMass.TopEventTree.EventHypothesisAnalyzer_cfi import analyzeHypothesis
@@ -276,6 +327,7 @@ from TopMass.TopEventTree.JetEventAnalyzer_cfi import analyzeJets
 process.analyzeJets = analyzeJets.clone(jets = "goodJetsPF20")
 from TopMass.TopEventTree.WeightEventAnalyzer_cfi import analyzeWeights
 process.analyzeWeights = analyzeWeights.clone(
+
                                               mcWeight        = options.mcWeight,
                                               puWeightSrc     = cms.InputTag("eventWeightPUsysNo"  , "eventWeightPU"),
                                               puWeightUpSrc   = cms.InputTag("eventWeightPUsysUp"  , "eventWeightPUUp"),
@@ -286,7 +338,6 @@ process.analyzeWeights = analyzeWeights.clone(
 
 process.ttSemiLepHypGenMatch.useBReg = cms.bool(False)
 process.ttSemiLepHypMVADisc.useBReg = cms.bool(False)
-
 
 
 if not data:
@@ -315,12 +366,16 @@ if not data:
 
         process.eventWeightPU.MCSampleFile             = "TopAnalysis/TopUtils/data/MC_PUDist_Summer12_S10.root"
 
+    if (options.generator == "rd"):
+        process.eventWeightPU.MCSampleHistoName        = ""
+        process.eventWeightPU.DataHistoName            = ""
+
     process.eventWeightPUsysNo   = process.eventWeightPU.clone()
     process.eventWeightPUsysUp   = process.eventWeightPU.clone()
     process.eventWeightPUsysDown = process.eventWeightPU.clone()
 
     #### Parameters 'CreateWeight3DHisto' and 'Weight3DHistoFile' required for cff-file, but actually not used for Fall11 samples
-        
+
     #### Configuration for Nominal PU Weights
 
     process.eventWeightPUsysNo.WeightName          = "eventWeightPU"
@@ -392,8 +447,7 @@ if not data:
     process.bJESEventWeightFragSoft = process.EventWeightBJES.clone(
         fragTargetFile = "TopAnalysis/TopUtils/data/MC_BJES_TuneZ2star_rbLEPsoft.root"
     )
-    
-    
+
     ## ---
     ##    MC eff SF reweighting
     ## ---
@@ -418,7 +472,6 @@ if not data:
     process.effSFElectronEventWeight.additionalFactorErr=0.01 ## 1.0% sys error to account for selection difference Z - ttbar
     process.effSFElectronEventWeight.shapeDistortionFactor=-1
 
-
 # register TFileService
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('analyzeTop.root')
@@ -432,22 +485,92 @@ process.TreeRegistryService.treeTitle = ""
 #process.MessageLogger = cms.Service("MessageLogger")
 process.content = cms.EDAnalyzer("EventContentAnalyzer")
 
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+process.printTree = cms.EDAnalyzer("ParticleListDrawer",
+   maxEventsToPrint = cms.untracked.int32(20),
+   printVertex = cms.untracked.bool(False),
+   src = cms.InputTag("genParticles")
+)
+
+
 ## end path   
-if data:
-    process.path = cms.Path(
-                            process.hltFilter *
-                            process.semiLeptonicSelection *
-                            process.tightBottomSSVPFJets *
+#if data:
+    #process.path = cms.Path(
+                            #process.hltFilter *
+                            #process.semiLeptonicSelection *
+                            #process.tightBottomSSVPFJets *
+                            #process.tightBottomCSVPFJets *
+                            #process.semiLeptonicEvents *
+                            #process.makeTtSemiLepEvent *
+                            #process.analyzeHitFit *
+                            #process.analyzeJets *
+                            #process.analyzeWeights
+                            #)
+#else:
+if (options.mcversion == "genLevel"):
+    delattr(process,"selectedPatJets")
+    delattr(process,"goodJetsPF30")
+    delattr(process,"goodJetsPF20")
+    process.load("TopAnalysis.TopUtils.convertGenToPatJets_cff")
+    process.goodJetsPF30 = process.mySelectedPatJets.clone(src = cms.InputTag('scaledJetEnergy','selectedPatJets'),
+                                                           cut = ''
+                                                          )
+    process.goodJetsPF20 = process.mySelectedPatJets.clone(src = cms.InputTag('scaledJetEnergy','selectedPatJets'),
+                                                           cut = ''
+                                                          )
+    #delattr(process,"scaledJetEnergy")
+    #process.scaledJetEnergy = process.mySelectedPatJets.clone(src = 'selectedPatJets',
+    #                                                       cut = ''
+    #                                                      )
+
+    delattr(process,"patElectrons")
+    delattr(process,"patMuons")
+    delattr(process,"looseElectrons")
+    delattr(process,"looseMuons")
+    delattr(process,"tightElectronsEJ")
+    delattr(process,"tightMuons")
+    delattr(process,"patMETs")
+    delattr(process,"scaledMET")
+    setForAllTtSemiLepHypotheses(process, "mets", "scaledMET")
+    process.load("TopAnalysis.TopUtils.convertGenToPatLepton_cff")
+
+    delattr(process,"goodElectronsEJ")
+    process.goodElectronsEJ = cms.EDFilter("PATMuonSelector",
+        src = cms.InputTag("tightElectronsEJ"),
+        cut = cms.string('')
+    )
+
+    process.convElecRejection.src = 'tightElectronsEJ'
+
+    process.dump = cms.EDAnalyzer('EventContentAnalyzer')
+
+    process.path = cms.Path(#process.printTree*
+                            process.convertGenToPatJets *
+                            process.scaledJetEnergy *
+                            process.convertGenToPatLeptons*
+                            #process.dump*
+                            process.goodJetsPF20*
+                            process.goodJetsPF30*
+                            process.tightLeadingPFJets *
                             process.tightBottomCSVPFJets *
                             process.semiLeptonicEvents *
-                            process.makeTtSemiLepEvent *
+                            process.makeGenEvt *
                             process.analyzeHitFit *
                             process.analyzeJets *
                             process.analyzeWeights
                             )
+
+    #TEST
+    #process.ttSemiLepJetPartonMatch.maxDist = 0.5
+    #process.ttSemiLepJetPartonMatch.algorithm = "totalMinDist"
+
+    from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
+    #massSearchReplaceAnyInputTag(process.path, cms.InputTag('scaledJetEnergy','selectedPatJets'), 'scaledJetEnergy')
+    massSearchReplaceAnyInputTag(process.path, cms.InputTag('scaledMET','scaledMETs'), 'scaledMET')
+
 else:
-    process.path = cms.Path(
-                            process.hltFilter *
+    process.path = cms.Path(#process.printTree*
+                            #process.hltFilter *
                             process.scaledJetEnergy *
                             process.scaledElectronEnergy *
                             process.scaledMuonEnergy *
@@ -457,24 +580,30 @@ else:
                             process.tightBottomCSVPFJets *
                             process.semiLeptonicEvents *
                             process.eventWeightMC *
-                            process.makeEventWeightsPU *
-                            process.bTagSFEventWeight *
-                            process.bTagSFEventWeightBTagSFUp *
-                            process.bTagSFEventWeightBTagSFDown *
-                            process.bTagSFEventWeightMisTagSFUp *
-                            process.bTagSFEventWeightMisTagSFDown *
+                            #process.makeEventWeightsPU *
+                            #process.bTagSFEventWeight *
+                            #process.bTagSFEventWeightBTagSFUp *
+                            #process.bTagSFEventWeightBTagSFDown *
+                            #process.bTagSFEventWeightMisTagSFUp *
+                            #process.bTagSFEventWeightMisTagSFDown *
                             process.bJESEventWeightFNuUp *
                             process.bJESEventWeightFNuDown *
                             process.bJESEventWeightFrag *
                             process.bJESEventWeightFragHard *
                             process.bJESEventWeightFragSoft *
-                            process.effSFMuonEventWeight *
+                            #process.effSFMuonEventWeight *
                             process.makeGenEvt *
-                            process.makeTtSemiLepEvent *
+                            #process.makeTtSemiLepEvent *
                             process.analyzeHitFit *
                             process.analyzeJets *
                             process.analyzeWeights
                             )
+
+
+#delattr(process,"tightBottomJets")
+#delattr(process,"tightLeadingJets")
+
+#if (options.mcversion == "Spring14dr"): process.path.remove(process.eventWeightMC)
 
 process.path.remove(process.centralJets)
 process.path.remove(process.reliableJets)
@@ -483,12 +612,13 @@ process.path.remove(process.trackCountingHighPurBJets)
 process.path.remove(process.trackCountingHighEffBJets)
 process.path.remove(process.tightLeadingJets)
 process.path.remove(process.tightBottomJets)
+#process.path.remove(process.)
 #process.path.remove(process.unconvTightElectronsEJ)
 #process.path.remove(process.goodElectronsEJ)
 #process.path.remove(process.looseElectronsEJ)
 #process.path.remove(process.tightElectronsEJ)
 
-if (options.mcversion == "Sherpa12"): process.path.remove(process.eventWeightMC)
+#if (options.mcversion == "Sherpa12"): process.path.remove(process.eventWeightMC)
 
 
 ## switch to from muon to electron collections
@@ -500,9 +630,11 @@ if (options.lepton=="electron"):
         process.hltFilter.HLTPaths=["HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralJet30_v*"]
     elif (options.mcversion == "Summer12"):
         process.hltFilter.HLTPaths=["HLT_Ele27_WP80_v*"]
+    elif (options.mcversion == "Spring14dr"):
+        process.hltFilter.HLTPaths=["HLT_Ele27_WP80_v*"]
     elif data:
         process.hltFilter.HLTPaths=["HLT_Ele27_WP80_v*"]
-    
+
     from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
     pathnames = process.paths_().keys()
     for pathname in pathnames:
@@ -515,11 +647,16 @@ if (options.lepton=="electron"):
       # replace muon by electron in (remaining) kinfit analyzers
       massSearchReplaceAnyInputTag(getattr(process, pathname), 'tightMuons', 'goodElectronsEJ')
       massSearchReplaceAnyInputTag(getattr(process, pathname), 'effSFMuonEventWeight', 'effSFElectronEventWeight')
+      if (options.generator == "sherpa" or options.generator == "herwigpp"):
+         #getattr(process, pathname).remove(process.genEvt)
+         #getattr(process, pathname).remove(process.decaySubset)
+         #getattr(process, pathname).remove(process.initSubset)
+         #getattr(process, pathname).remove(process.makeGenEvt)
+         getattr(process, pathname).remove(process.eventWeightMC)
 
-
-
-from TopAnalysis.TopUtils.usePatTupleWithParticleFlow_cff import prependPF2PATSequence
-PFoptions = {
+if not options.mcversion == "genLevel":
+    from TopAnalysis.TopUtils.usePatTupleWithParticleFlow_cff import prependPF2PATSequence
+    PFoptions = {
         'runOnMC': not data,
         'runOnAOD': True,
         'switchOffEmbedding': False,
@@ -529,7 +666,7 @@ PFoptions = {
         'cutsMuon': 'pt > 10. & abs(eta) < 2.5',
         'cutsElec': 'et > 20. & abs(eta) < 2.5',
         'cutsJets': 'pt > 10 & abs(eta) < 5.0', 
-        'electronIDs': ['CiC','classical','MVA'],
+        'electronIDs': ['CiC','MVA'],
         'pfIsoConeMuon': 0.4,
         'pfIsoConeElec': 0.3,
         'pfIsoValMuon': 0.2,
@@ -548,48 +685,84 @@ PFoptions = {
         'METCorrectionLevel': options.metcl,
         'addMETSignificance': False,
         }
-if data:
-    PFoptions['JECEra' ] = 'Winter14_V2_DATA'
-    PFoptions['JECFile'] = '../data/Winter14_DATA_V2PT.db'
-    if os.getenv('GC_CONF'):
-        print "Running with GC, resetting address of JECFile!"
-        PFoptions['JECFile'] = '../src/TopMass/Configuration/data/Winter14_DATA_V2PT.db'
+    if data:
+        PFoptions['JECEra' ] = 'Winter14_V2_DATA'
+        PFoptions['JECFile'] = '../data/Winter14_DATA_V2PT.db'
+        if os.getenv('GC_CONF'):
+            print "Running with GC, resetting address of JECFile!"
+            PFoptions['JECFile'] = '../src/TopMass/Configuration/data/Winter14_DATA_V2PT.db'
 
-if options.mcversion == "Summer12RD":
-    PFoptions['JECEra' ] = 'Winter14_V1_MC'
-    PFoptions['JECFile'] = '../data/Winter14_V1_MC.db'
-    if os.getenv('GC_CONF'):
-        print "Running with GC, resetting address of JECFile!"
-        PFoptions['JECFile'] = '../src/TopMass/Configuration/data/Winter14_V1_MC.db'
+    #if options.mcversion == "Summer12RD":
+    if (options.generator == "rd"):
+        PFoptions['JECEra' ] = 'Winter14_V1_MC'
+        PFoptions['JECFile'] = '../data/Winter14_V1_MC.db'
+        if os.getenv('GC_CONF'):
+            print "Running with GC, resetting address of JECFile!"
+            PFoptions['JECFile'] = '../src/TopMass/Configuration/data/Winter14_V1_MC.db'
 
-prependPF2PATSequence(process, options = PFoptions)
+    prependPF2PATSequence(process, options = PFoptions)
 
-## adaptions (re-aranging of modules) to speed up processing
-pathnames = process.paths_().keys()
-for pathname in pathnames:
-    if not data:
-        ## move the ttGenEvent filter to the beginning of the sequence
-        getattr(process, pathname).remove(process.genEvt)
-        getattr(process, pathname).insert(0,process.genEvt)
-        getattr(process, pathname).remove(process.decaySubset)
-        getattr(process, pathname).insert(0,process.decaySubset)
-        getattr(process, pathname).remove(process.initSubset)
-        getattr(process, pathname).insert(0,process.initSubset)
-    if (options.mcversion == 'Summer12W0Jets'):
-        getattr(process, pathname).insert(0,process.filterWNJets)
-    ## move the trigger to the beginning of the sequence
-    getattr(process, pathname).remove(process.hltFilter)
-    getattr(process, pathname).insert(0,process.hltFilter)
-
-## adjust lepton pT cut
-import re
-ptval="33" # adjust cut value here! [GeV]
-relevantLeptonCollections = [process.tightElectronsEJ, process.goldenMuons]
-exp = re.compile('(?:t\s?>\s?30)') 
-for lep in relevantLeptonCollections:
-    if(exp.search(lep.cut.pythonValue())!=None):
-        tmpExp=exp.sub("t > "+ptval, str(lep.cut.pythonValue()))
-        lep.cut=tmpExp
-        if(tmpExp.find("\'")>-1):
-            lep.cut=tmpExp.strip("'")
-
+    ## b-tagging for new jets
+    from RecoBTag.Configuration.RecoBTag_cff import impactParameterTagInfos,secondaryVertexTagInfos,combinedSecondaryVertex,combinedSecondaryVertexBJetTags
+    #ak4PFCHS
+    process.ak4PFCHSImpactParameterTagInfos = impactParameterTagInfos.clone()
+    process.ak4PFCHSImpactParameterTagInfos.jetTracks = "jetTracksAssociatorAtVertex"
+    process.ak4PFCHSSecondaryVertexTagInfos = secondaryVertexTagInfos.clone()
+    process.ak4PFCHSSecondaryVertexTagInfos.trackIPTagInfos = "ak4PFCHSImpactParameterTagInfos"
+    process.ak4PFCHSStandardCombinedSecondaryVertex = combinedSecondaryVertex.clone()
+    process.combinedSecondaryVertexBJetTags = combinedSecondaryVertexBJetTags.clone()
+    process.combinedSecondaryVertexBJetTags.jetTagComputer = cms.string('ak4PFCHSStandardCombinedSecondaryVertex')
+    process.combinedSecondaryVertexBJetTags.tagInfos = cms.VInputTag( cms.InputTag("ak4PFCHSImpactParameterTagInfos"), cms.InputTag("ak4PFCHSSecondaryVertexTagInfos") )
+    process.ak4PFCHSJetBtaggingSV = cms.Sequence(process.ak4PFCHSImpactParameterTagInfos *
+                                                process.ak4PFCHSSecondaryVertexTagInfos *
+                                                process.combinedSecondaryVertexBJetTags
+                                                )
+    process.ak4PFCHSJetsBtag = cms.Sequence(process.jetTracksAssociatorAtVertex *
+                                            process.ak4PFCHSJetBtaggingSV
+                                        )
+    
+    process.patJets.discriminatorSources.remove(cms.InputTag("jetBProbabilityBJetTags"))
+    process.patJets.discriminatorSources.remove(cms.InputTag("jetProbabilityBJetTags"))
+    process.patJets.discriminatorSources.remove(cms.InputTag("trackCountingHighPurBJetTags"))
+    process.patJets.discriminatorSources.remove(cms.InputTag("trackCountingHighEffBJetTags"))
+    process.patJets.discriminatorSources.remove(cms.InputTag("simpleSecondaryVertexHighEffBJetTags"))
+    process.patJets.discriminatorSources.remove(cms.InputTag("simpleSecondaryVertexHighPurBJetTags"))
+    
+    process.patJets.addBTagInfo=True
+    
+    
+    
+    ## adaptions (re-aranging of modules) to speed up processing
+    pathnames = process.paths_().keys()
+    for pathname in pathnames:
+        if not data:
+            ## move the ttGenEvent filter to the beginning of the sequence
+            getattr(process, pathname).remove(process.genEvt)
+            getattr(process, pathname).insert(0,process.genEvt)
+            getattr(process, pathname).remove(process.decaySubset)
+            getattr(process, pathname).insert(0,process.decaySubset)
+            getattr(process, pathname).remove(process.initSubset)
+            getattr(process, pathname).insert(0,process.initSubset)
+        #if (options.mcversion == 'Summer12W0Jets'):
+        if (options.generator == 'w0jets'):
+            getattr(process, pathname).insert(0,process.filterWNJets)
+        
+        getattr(process, pathname).insert(0,process.ak4PFCHSJetsBtag)
+        getattr(process, pathname).remove(process.goodOfflinePrimaryVertices)
+        getattr(process, pathname).insert(0,process.goodOfflinePrimaryVertices)
+        ## move the trigger to the beginning of the sequence
+        getattr(process, pathname).remove(process.hltFilter)
+        getattr(process, pathname).insert(0,process.hltFilter)
+    
+    ## adjust lepton pT cut
+    import re
+    ptval="33" # adjust cut value here! [GeV]
+    relevantLeptonCollections = [process.tightElectronsEJ, process.goldenMuons]
+    exp = re.compile('(?:t\s?>\s?30)') 
+    for lep in relevantLeptonCollections:
+        if(exp.search(lep.cut.pythonValue())!=None):
+            tmpExp=exp.sub("t > "+ptval, str(lep.cut.pythonValue()))
+            lep.cut=tmpExp
+            if(tmpExp.find("\'")>-1):
+                lep.cut=tmpExp.strip("'")
+    
