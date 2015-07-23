@@ -21,7 +21,8 @@ MyBTagProducer::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
   edm::Handle<edm::View<reco::Jet> > jetSrc;
   evt.getByLabel(jetSrc_, jetSrc);
-  
+
+  if(jetSrc.operator->()->size() == 0) return;
   edm::RefToBase<reco::Jet> jetRefToBase(jetSrc.operator->()->refAt(0));
   edm::RefToBaseProd<reco::Jet> jetRefToBaseProd(jetRefToBase);
   std::auto_ptr<reco::JetTagCollection> jetTagCollection(new reco::JetTagCollection(jetRefToBaseProd));

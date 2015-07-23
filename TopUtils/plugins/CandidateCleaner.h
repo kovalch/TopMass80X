@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
@@ -73,9 +74,9 @@ CandidateCleaner<PATObjType>::CandidateCleaner(const edm::ParameterSet & iConfig
         std::string algorithm = cfg.getParameter<std::string>("algorithm");
         // create the appropriate OverlapTest
         if (algorithm == "byDeltaR") {
-            overlapTests_.push_back(new pat::helper::BasicOverlapTest(*itn, cfg));
+            overlapTests_.push_back(new pat::helper::BasicOverlapTest(*itn, cfg, consumesCollector()));
         } else if (algorithm == "bySuperClusterSeed") {
-            overlapTests_.push_back(new pat::helper::OverlapBySuperClusterSeed(*itn, cfg));
+            overlapTests_.push_back(new pat::helper::OverlapBySuperClusterSeed(*itn, cfg, consumesCollector()));
         } else {
             throw cms::Exception("Configuration") << "CandidateCleaner for " << src_ << ": unsupported algorithm '" << algorithm << "'\n";
         }

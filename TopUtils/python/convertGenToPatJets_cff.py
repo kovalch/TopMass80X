@@ -1,17 +1,36 @@
 import FWCore.ParameterSet.Config as cms
 
 ## created GenJet collection with selected jets
-myAk5GenJets = cms.EDFilter("GenJetSelector",
-                            src = cms.InputTag("ak5GenJets"),
-                            cut = cms.string("pt > 30 & abs(eta) < 2.4")
+
+from RecoJets.JetProducers.ak5GenJets_cfi import ak5GenJets
+from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJetsNoNu
+
+genParticlesForJets = cms.EDFilter("CandViewSelector",
+                       src = cms.InputTag("genParticles"),
+                       cut = cms.string("((abs(pdgId) = 11 | abs(pdgId) = 13) & pt > 33 & abs(eta) < 2.5)")
+                       )
+
+newAk5GenJets = ak5GenJets.clone(src = "genParticlesForJetsNoNu")
+
+selectedAk5GenJets = cms.EDFilter("GenJetSelector",
+                                src = cms.InputTag("newAk5GenJets"),
+                                cut = cms.string("pt > 20 & abs(eta) < 2.4"),
                             )
 
+myAk5GenJets = cms.EDProducer("MyGenJetsProducer",
+    genJets = cms.InputTag("selectedAk5GenJets"),
+    genParticles = cms.InputTag("genParticlesForJets")
+  )
+
 inputGenJetCollection = "myAk5GenJets"
+
 
 ## convert GenJets to PatJets
 from TopAnalysis.TopUtils.MyBTagProducer_cfi import createMyBTags
 from TopAnalysis.TopUtils.MyPatJetCorrFactorsProducer_cfi import createMyPatJetCorrFactors
 from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import patJets
+from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import patJets
+from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import selectedPatJets as mySelectedPatJets
 
 myPatJetCorrFactors = createMyPatJetCorrFactors.clone(jetSrc = inputGenJetCollection)
 
@@ -44,8 +63,8 @@ myBTaggingSequence = cms.Sequence( combinedSecondaryVertexBJetTags
                                    * trackCountingHighPurBJetTags        
                                    )
 
-selectedPatJets = patJets.clone(jetSource = inputGenJetCollection,
-                                embedCaloTowers = False,
+myPatJets = patJets.clone(jetSource = inputGenJetCollection,
+                                #embedCaloTowers = False,
                                 embedPFCandidates = False, 
                                 addJetCorrFactors    = True,
                                 jetCorrFactorsSource = cms.VInputTag(cms.InputTag("myPatJetCorrFactors") ),
@@ -79,9 +98,17 @@ selectedPatJets = patJets.clone(jetSource = inputGenJetCollection,
                                 addResolutions      = False
                                 )
 
-
+selectedPatJets = mySelectedPatJets.clone(src = 'myPatJets',
+                                        cut = ''
+                                        )
+                                     
 ## process everything
-convertGenToPatJets = cms.Sequence(myAk5GenJets *
+convertGenToPatJets = cms.Sequence(genParticlesForJets*
+                                   genParticlesForJetsNoNu*
+                                   newAk5GenJets*
+                                   selectedAk5GenJets*
+                                   myAk5GenJets *
+                                   #mygenMuons *
                                    myPatJetCorrFactors *
                                    myBTaggingSequence *
                                    selectedPatJets

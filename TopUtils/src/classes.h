@@ -7,6 +7,8 @@
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
+#include "DataFormats/MuonReco/interface/Muon.h"
+
 
 #include "DataFormats/Common/interface/RefProd.h" 
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -21,6 +23,11 @@ namespace {
     edm::Wrapper<std::vector<std::vector<int> > > bla;
     std::vector<std::vector<int> > bla_vector;  
     
+    edm::Wrapper<reco::Muon> rmw;
+    edm::RefToBaseVector<reco::Muon> rmurtbv;
+    edm::Wrapper<edm::RefToBaseVector<reco::Muon> > rmurtbv_w;
+    edm::reftobase::BaseVectorHolder<reco::Muon>* rbvhmu_p;
+
     edm::RefToBaseVector<pat::Muon> murtbv;
     edm::Wrapper<edm::RefToBaseVector<pat::Muon> > murtbv_w;
     edm::reftobase::BaseVectorHolder<pat::Muon>* bvhmu_p;

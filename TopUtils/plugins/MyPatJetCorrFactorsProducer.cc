@@ -24,9 +24,10 @@ MyPatJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& set
   std::vector<pat::JetCorrFactors> jcfs;
   for(edm::View<reco::Jet>::const_iterator jet = genJets->begin(); jet != genJets->end(); ++jet){
     std::vector<std::pair<std::string, std::vector<float> > > jecHelper;
-    jecHelper.push_back(std::make_pair("L1FastJet" ,std::vector<float>(1,1.)));
-    jecHelper.push_back(std::make_pair("L2Relative",std::vector<float>(1,1.)));
-    jecHelper.push_back(std::make_pair("L3Absolute",std::vector<float>(1,1.)));
+    jecHelper.push_back(std::make_pair("Uncorrected",std::vector<float>(1,1.)));
+    jecHelper.push_back(std::make_pair("L1FastJet"  ,std::vector<float>(1,1.)));
+    jecHelper.push_back(std::make_pair("L2Relative" ,std::vector<float>(1,1.)));
+    jecHelper.push_back(std::make_pair("L3Absolute" ,std::vector<float>(1,1.)));
     pat::JetCorrFactors jecs("",jecHelper);
     jcfs.push_back(jecs);
   }
