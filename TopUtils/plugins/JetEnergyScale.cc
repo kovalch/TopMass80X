@@ -117,6 +117,9 @@ JetEnergyScale::produce(edm::Event& event, const edm::EventSetup& setup)
   for(std::vector<pat::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
     pat::Jet scaledJet = *jet;
 
+    //if(scaledJet.bDiscriminator("combinedSecondaryVertexBJetTags")>0.679) 
+	//std::cout << scaledJet.bDiscriminator("combinedSecondaryVertexBJetTags") << std::endl;
+
 
     // GetTotal JES uncertainty to add as userfloat
     // get the uncertainty parameters from file, see
@@ -243,8 +246,9 @@ JetEnergyScale::produce(edm::Event& event, const edm::EventSetup& setup)
     // consider jet scale shift only if the raw jet pt and emf 
     // is above the thresholds given in the module definition
     if(jet->correctedJet("Uncorrected").pt() > jetPTThresholdForMET_
-       && ((!jet->isPFJet() && jet->emEnergyFraction() < jetEMLimitForMET_) ||
-           ( jet->isPFJet() && jet->neutralEmEnergyFraction() + jet->chargedEmEnergyFraction() < jetEMLimitForMET_))) {
+       && (( jet->isCaloJet() && jet->emEnergyFraction() < jetEMLimitForMET_) ||
+           ( jet->isPFJet() && jet->neutralEmEnergyFraction() + jet->chargedEmEnergyFraction() < jetEMLimitForMET_) ||
+           (!jet->isCaloJet() && !jet->isPFJet()))) {
       //std::cout<<"uncorrJet: "<<jet->correctedJet("Uncorrected")<<std::endl;
       //std::cout<<"scaledJet: "<<scaledJet<<std::endl;
       //std::cout<<"jet      : "<<*jet<<std::endl;
