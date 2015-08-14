@@ -168,7 +168,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
       top->recoB2     .push_back(hreco[LepB     ]);
       top->recoW2Prod1.push_back(hreco[Lepton   ]);
       top->recoW2Prod2.push_back(hreco[Neutrino ]);
-      
+
       if(semiLepTtEvent->isHypoValid(TtEvent::kGenMatch)){
         top->combinationType.push_back(comboTypeSemiLep());
       }
@@ -230,7 +230,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
       }
     }
   }
-  if(semiLepTtEvent){
+  if(semiLepTtEvent && semiLepTtEvent->singleLepton(TtEvent::kMVADisc)){
     //////////////////////////////////////////////////////////////////////////////
     // Fetch ONE reconstructed permutation without fit solution, get leptonFlavour
     // (avoids implementing a LeptonEvent class...)
@@ -262,21 +262,21 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
       top->recoJetIdxB2     .push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LepB     ]);
       top->recoJetIdxW2Prod1.push_back(0);
       top->recoJetIdxW2Prod2.push_back(0);
-      
+
       if(semiLepTtEvent->isHypoValid(TtEvent::kGenMatch)){
         top->combinationType.push_back(comboTypeSemiLep());
       }
       else{
         top->combinationType.push_back(6);
       }
-      
+
       break;
     }
   }
   trs->Fill();
 }
 
-void 
+void
 EventHypothesisAnalyzer::beginJob()
 {
   if( !trs ) throw edm::Exception( edm::errors::Configuration, "TreeRegistryService is not registered in cfg file!" );
@@ -845,7 +845,7 @@ EventHypothesisAnalyzer::comboTypeAlgoInverted(std::vector<int> jetIndexGen, sho
 }
 
 void
-EventHypothesisAnalyzer::endJob() 
+EventHypothesisAnalyzer::endJob()
 {
 }
 

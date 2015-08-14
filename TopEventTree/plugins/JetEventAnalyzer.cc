@@ -101,7 +101,7 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     std::pair<TVector2, TVector2> pulls = getPullVector( ijet );
     jet->pull       .push_back(pulls.first );
     jet->pullCharged.push_back(pulls.second);
-    
+
     std::pair<TVector2, TVector2> genPulls = getGenPullVector( ijet );
     jet->genPull       .push_back(genPulls.first );
     jet->genPullCharged.push_back(genPulls.second);
@@ -164,10 +164,10 @@ JetEventAnalyzer::getPullVector( std::vector<pat::Jet>::const_iterator patJet )
   TLorentzVector constituent(0,0,0,0);
   unsigned int nCharged = 0;
 
-  std::vector<reco::PFCandidatePtr> constituents = patJet->getPFConstituents();
-  for(size_t idx = 0, length = constituents.size(); idx < length; ++idx){
-    if( constituents.at(idx)->charge() != 0 ){
-      constituent.SetPtEtaPhiE( constituents.at(idx)->pt(), constituents.at(idx)->eta(), constituents.at(idx)->phi(), constituents.at(idx)->energy() );
+  for(size_t idx = 0, length = patJet->numberOfDaughters() ; idx < length; ++idx){
+    const reco::Candidate *cand = patJet->daughter(idx);
+    if( cand->charge() != 0 ){
+      constituent.SetPtEtaPhiE( cand->pt(), cand->eta(), cand->phi(), cand->energy() );
       chargedJet += constituent;
       ++nCharged;
     }
@@ -179,14 +179,15 @@ JetEventAnalyzer::getPullVector( std::vector<pat::Jet>::const_iterator patJet )
   TVector2 pullAll(0,0);
   TVector2 pullCharged(0,0);
 
-  for(size_t idx = 0, length = constituents.size(); idx < length; ++idx){
-    double constituentPt       = constituents.at(idx)->pt();
-    double constituentPhi      = constituents.at(idx)->phi();
-    double constituentRapidity = constituents.at(idx)->rapidity();
+  for(size_t idx = 0, length = patJet->numberOfDaughters() ; idx < length; ++idx){
+    const reco::Candidate *cand = patJet->daughter(idx);
+    double constituentPt       = cand->pt();
+    double constituentPhi      = cand->phi();
+    double constituentRapidity = cand->rapidity();
     r.Set( constituentRapidity - jetRapidity, TVector2::Phi_mpi_pi( constituentPhi - jetPhi ) );
     pullAll += ( constituentPt / jetPt ) * r.Mod() * r;
     //calculate TVector using only charged tracks
-    if( constituents.at(idx)->charge() != 0  )
+    if( cand->charge() != 0  )
       r.Set( constituentRapidity - jetRapidityCharged, TVector2::Phi_mpi_pi( constituentPhi - jetPhiCharged ) );
     pullCharged += ( constituentPt / jetPtCharged ) * r.Mod() * r;
   }
@@ -214,10 +215,10 @@ JetEventAnalyzer::getGenPullVector( std::vector<pat::Jet>::const_iterator patJet
   TLorentzVector constituent(0,0,0,0);
   unsigned int nCharged = 0;
 
-  std::vector<const reco::GenParticle*> constituents = patJet->genJet()->getGenConstituents();
-  for(size_t idx = 0, length = constituents.size(); idx < length; ++idx){
-    if( constituents.at(idx)->charge() != 0 ){
-      constituent.SetPtEtaPhiE( constituents.at(idx)->pt(), constituents.at(idx)->eta(), constituents.at(idx)->phi(), constituents.at(idx)->energy() );
+  for(size_t idx = 0, length = patJet->genJet()->numberOfDaughters() ; idx < length; ++idx){
+    const reco::Candidate *cand = patJet->genJet()->daughter(idx);
+    if( cand->charge() != 0 ){
+      constituent.SetPtEtaPhiE( cand->pt(), cand->eta(), cand->phi(), cand->energy() );
       chargedJet += constituent;
       ++nCharged;
     }
@@ -229,14 +230,15 @@ JetEventAnalyzer::getGenPullVector( std::vector<pat::Jet>::const_iterator patJet
   TVector2 pullAll(0,0);
   TVector2 pullCharged(0,0);
 
-  for(size_t idx = 0, length = constituents.size(); idx < length; ++idx){
-    double constituentPt       = constituents.at(idx)->pt();
-    double constituentPhi      = constituents.at(idx)->phi();
-    double constituentRapidity = constituents.at(idx)->rapidity();
+  for(size_t idx = 0, length = patJet->genJet()->numberOfDaughters() ; idx < length; ++idx){
+    const reco::Candidate *cand = patJet->genJet()->daughter(idx);
+    double constituentPt       = cand->pt();
+    double constituentPhi      = cand->phi();
+    double constituentRapidity = cand->rapidity();
     r.Set( constituentRapidity - jetRapidity, TVector2::Phi_mpi_pi( constituentPhi - jetPhi ) );
     pullAll += ( constituentPt / jetPt ) * r.Mod() * r;
     //calculate TVector using only charged tracks
-    if( constituents.at(idx)->charge() != 0  )
+    if( cand->charge() != 0  )
       r.Set( constituentRapidity - jetRapidityCharged, TVector2::Phi_mpi_pi( constituentPhi - jetPhiCharged ) );
     pullCharged += ( constituentPt / jetPtCharged ) * r.Mod() * r;
   }
