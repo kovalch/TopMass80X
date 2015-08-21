@@ -15,7 +15,7 @@
 
 typedef ProgramOptionsReader po;
 
-enum sampleType {kData, kSig, kBkg, kSigVar};
+enum sampleType {kData, kSig, kBkg, kSigVar, kBkgVar};
 
 class TopMassControlPlots{
 public:
@@ -41,7 +41,7 @@ private:
     MyHistogram(std::string name_, std::string formulax_, std::string selection_, std::string title, int nBins, double min, double max) :
       varx(0), vary(0), sel(0), histoweight(0),
       name(name_), selection(selection_),CustomHistoWeight("1."),
-      formulaex({formulax_}), formulaey({"1."}),legendHeader(""),
+      formulaex({formulax_}), formulaey({"1."}), legendHeader(""), extraLabel(""),
       plotRangeYMin(-99), plotRangeYMax(-99), plotRangeYRatioMin(po::GetOption<double>("analysisConfig.ratioYMin")),
       plotRangeYRatioMax(po::GetOption<double>("analysisConfig.ratioYMax")),
       data(new TH1F((std::string("hD")+name).c_str(), (std::string("Data")+title).c_str(), nBins, min, max)),
@@ -57,7 +57,7 @@ private:
     MyHistogram(std::string name_, std::vector<std::string> formulaex_, std::string selection_, std::string title, int nBins, double min, double max) :
       varx(0), vary(0), sel(0), histoweight(0),
       name(name_), selection(selection_),CustomHistoWeight("1."),
-      formulaex(formulaex_), formulaey({"1."}),legendHeader(""),
+      formulaex(formulaex_), formulaey({"1."}), legendHeader(""), extraLabel(""),
       plotRangeYMin(-99), plotRangeYMax(-99), plotRangeYRatioMin(po::GetOption<double>("analysisConfig.ratioYMin")),
       plotRangeYRatioMax(po::GetOption<double>("analysisConfig.ratioYMax")),
       data(new TH1F((std::string("hD")+name).c_str(), (std::string("Data")+title).c_str(), nBins, min, max)),
@@ -73,7 +73,7 @@ private:
     MyHistogram(std::string name_, std::string formulax_, std::string formulay_, std::string selection_, std::string title, int x_nBins, double x_min, double x_max, int y_nBins, double y_min, double y_max/*, double y_plotmin =0., double y_plotmax=-1.*/) :
       varx(0), vary(0), sel(0), histoweight(0),
       name(name_), selection(selection_),CustomHistoWeight("1."),
-      formulaex({formulax_}), formulaey({formulay_}),legendHeader(""),
+      formulaex({formulax_}), formulaey({formulay_}), legendHeader(""), extraLabel(""),
       plotRangeYMin(-99), plotRangeYMax(-99), plotRangeYRatioMin(po::GetOption<double>("analysisConfig.ratioYMin")),
       plotRangeYRatioMax(po::GetOption<double>("analysisConfig.ratioYMax")),
       data(new TH2F((std::string("h2D")+name).c_str(), (std::string("Data")+title).c_str(), x_nBins, x_min, x_max, y_nBins, y_min, y_max)),
@@ -87,7 +87,7 @@ private:
     MyHistogram(std::string name_, std::vector<std::string> formulaex_, std::vector<std::string> formulaey_, std::string selection_, std::string title, int x_nBins, double x_min, double x_max, int y_nBins, double y_min, double y_max/*, double y_plotmin =0., double y_plotmax=-1.*/) :
       varx(0), vary(0), sel(0), histoweight(0),
       name(name_), selection(selection_),CustomHistoWeight("1."),
-      formulaex(formulaex_), formulaey(formulaey_),legendHeader(""),
+      formulaex(formulaex_), formulaey(formulaey_), legendHeader(""), extraLabel(""),
       plotRangeYMin(-99), plotRangeYMax(-99), plotRangeYRatioMin(po::GetOption<double>("analysisConfig.ratioYMin")),
       plotRangeYRatioMax(po::GetOption<double>("analysisConfig.ratioYMax")),
       data(new TH2F((std::string("h2D")+name).c_str(), (std::string("Data")+title).c_str(), x_nBins, x_min, x_max, y_nBins, y_min, y_max)),
@@ -220,6 +220,15 @@ private:
       sigvar.back()->SetName(HelperFunctions::cleanedName(data->GetName()+sample->name+normUnc).c_str());
       sigvar.back()->SetTitle(std::string(sample->name+std::string(" ")+normUnc).c_str());
     }
+    void AddBackgroundVariation(MySample* sample)
+    {
+      bkgvar.push_back((TH1*)data->Clone());
+      bkgvar.back()->Reset();
+      bkgvar.back()->SetLineWidth(1);
+      bkgvar.back()->SetFillColor(sample->color);
+      bkgvar.back()->SetName(HelperFunctions::cleanedName(data->GetName()+sample->name).c_str());
+      bkgvar.back()->SetTitle(sample->name.c_str());
+    }
     
     std::vector<TH1F*> Sigvar1D(){
       std::vector<TH1F*> sigvar1D;
@@ -241,6 +250,13 @@ private:
         for (size_t i=0; i<bkg.size(); i++)bkg1D.push_back((TH1F*) bkg.at(i));
       }
       return bkg1D;
+    }
+    std::vector<TH1F*> Bkgvar1D(){
+      std::vector<TH1F*> bkgvar1D;
+      if(histogramDimension == 1){
+        for (size_t i=0; i<bkgvar.size(); i++)bkgvar1D.push_back((TH1F*) bkgvar.at(i));
+      }
+      return bkgvar1D;
     }
     TH1F* Data1D(){
       return (TH1F*) data;
@@ -275,6 +291,13 @@ private:
       }
       return bkg2D;
     }
+    std::vector<TH2F*> Bkgvar2D(){
+      std::vector<TH2F*> bkgvar2D;
+      if(histogramDimension == 2){
+        for (size_t i=0; i<bkgvar.size(); i++)bkgvar2D.push_back((TH2F*) bkgvar.at(i));
+      }
+      return bkgvar2D;
+    }
     TH2F* Data2D(){
       return (TH2F*) data;
     }
@@ -294,6 +317,8 @@ private:
     void ConfigureExtraOptions(bool SetFitGaussToCore, std::string SetCustomHistoweight="1.", bool ExportSigVarToRoot = false, std::string LegendHeader="", bool useLogXBins = false, bool setLogYOnPads = false, bool useLogYBins = false);
 
     void ConfigureMoreExtraOptions(bool plotStackNormalized=false);
+    
+    void SetExtraLabel(std::string label);
 
     void ConfigurePlotRanges(double PlotRangeYRatioMin, double PlotRangeYRatioMax, double PlotRangeYMin=-99, double PlotRangeYMax=-99);
 
@@ -329,12 +354,12 @@ private:
     TTreeFormula* histoweight;
     std::string name, selection, CustomHistoWeight;
     std::vector<std::string> formulaex, formulaey;
-    std::string legendHeader;
+    std::string legendHeader, extraLabel;
     double plotRangeYMin, plotRangeYMax, plotRangeYRatioMin, plotRangeYRatioMax;
   private:
     TH1* data;
     TH1* unc;
-    std::vector<TH1*> sig, bkg, sigvar, normvar;
+    std::vector<TH1*> sig, bkg, sigvar, normvar, bkgvar;
     short histogramDimension;
     bool dataContainsMC;
     bool fitGaussToCore;

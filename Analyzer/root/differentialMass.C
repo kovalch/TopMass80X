@@ -41,9 +41,9 @@ TString sObservable[nObs] = {"Entries", "mass_mTop_JES", "mass_mTop", "JES_mTop_
 TString sObsLowCase[nObs] = {"Entries", "mass_mTop_JES", "mass_mTop", "JES_mTop_JES", "mass_mTop_JES_jsfc", "JES_mTop_JES_jsfc"};
 TString sObsFile[nObs]    = {"Entries", "MT2D", "MT1D", "JES", "MTH", "JESH"};
 TString sObsCanvas[nObs] = {"canvas_1", "canvas_2", "canvas_4", "canvas_3", "canvas_6", "canvas_5"};
-TString sObsNice[nObs] = {"Number of permutations / bin width", "m_{t}^{2D} - <m_{t}^{2D}> [GeV]", "m_{t}^{1D} - <m_{t}^{1D}> [GeV]", "JSF - <JSF>", "m_{t}^{hyb} - <m_{t}^{hyb}> [GeV]", "JSF^{hyb} - <JSF^{hyb}>"};
-TString sObsNiceCal[nObs] = {"Number of permutations / bin width", "m_{t,cal}^{2D} - <m_{t}^{2D}> [GeV]", "m_{t,cal}^{1D} - <m_{t}^{1D}> [GeV]", "JSF_{cal} - <JSF>", "m_{t,cal}^{hyb} - <m_{t}^{hyb}> [GeV]", "JSF_{cal}^{hyb} - <JSF^{hyb}>"};
-TString sObsNice2[nObs] = {"Number of permutations / bin width", "(m_{t}^{2D} - <m_{t}^{2D}>)_{MC} - (m_{t}^{2D} - <m_{t}^{2D}>)_{data} [GeV]", "(m_{t}^{1D} - <m_{t}^{1D}>)_{MC} - (m_{t}^{1D} - <m_{t}^{1D}>)_{data} [GeV]", "(JSF - <JSF>)_{MC} - (JSF - <JSF>)_{data}", "fixme1", "fixme2"};
+TString sObsNice[nObs] = {"Number of permutations / bin width", "m_{t}^{2D} #font[122]{\55} <m_{t}^{2D}> [GeV]", "m_{t}^{1D} #font[122]{\55} <m_{t}^{1D}> [GeV]", "JSF #font[122]{\55} <JSF>", "m_{t}^{hyb} #font[122]{\55} <m_{t}^{hyb}> [GeV]", "JSF^{hyb} #font[122]{\55} <JSF^{hyb}>"};
+TString sObsNiceCal[nObs] = {"Number of permutations / bin width", "m_{t,cal}^{2D} #font[122]{\55} <m_{t}^{2D}> [GeV]", "m_{t,cal}^{1D} #font[122]{\55} <m_{t}^{1D}> [GeV]", "JSF_{cal} #font[122]{\55} <JSF>", "m_{t,cal}^{hyb} #font[122]{\55} <m_{t}^{hyb}> [GeV]", "JSF_{cal}^{hyb} #font[122]{\55} <JSF^{hyb}>"};
+TString sObsNice2[nObs] = {"Number of permutations / bin width", "(m_{t}^{2D} #font[122]{\55} <m_{t}^{2D}>)_{MC} - (m_{t}^{2D} #font[122]{\55} <m_{t}^{2D}>)_{data} [GeV]", "(m_{t}^{1D} #font[122]{\55} <m_{t}^{1D}>)_{MC} - (m_{t}^{1D} #font[122]{\55} <m_{t}^{1D}>)_{data} [GeV]", "(JSF #font[122]{\55} <JSF>)_{MC} - (JSF #font[122]{\55} <JSF>)_{data}", "fixme1", "fixme2"};
 
 std::vector<TString> sampleNames;
 

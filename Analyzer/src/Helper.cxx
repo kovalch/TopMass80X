@@ -289,13 +289,23 @@ void Helper::DrawCMS(int channelID, int energy, TCanvas* canvas) {
     else{
       if     (channelID == kAllJets     ) lumi->Draw_CMS_lumi(canvas, 22, 0.);
       else if(channelID == kLeptonJets  ) lumi->Draw_CMS_lumi(canvas, 21, 0.);
-      else if(channelID == kElectronJets) DrawLabel("CMS, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, e+jets"  , 0.2, 0.93, 0.9);
-      else if(channelID == kMuonJets    ) DrawLabel("CMS, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, #mu+jets", 0.2, 0.93, 0.9);
+      else if(channelID == kElectronJets) lumi->Draw_CMS_lumi(canvas, 21, 0.);
+      else if(channelID == kMuonJets    ) lumi->Draw_CMS_lumi(canvas, 21, 0.);
       else if(channelID == kHamburg     ) DrawLabel("CMS, 19.7 fb^{-1},  #sqrt{s} = 8 TeV"          , 0.2, 0.93, 0.9);
     }
   }
   
   delete lumi;
+}
+
+void Helper::DrawCMSSim(int channelID, int energy, TCanvas* canvas) {
+  CMS_lumi* lumi = new CMS_lumi();
+  if(channelID < 0) channelID = channelID_;
+  if(energy    < 0) energy    = energy_;
+  if     (channelID == kAllJets     ) lumi->Draw_CMS_lumi(canvas, 22,  0., true, "Simulation");
+  else if(channelID == kLeptonJets  ) lumi->Draw_CMS_lumi(canvas, 210,  0., true, "Simulation");
+  else if(channelID == kElectronJets) lumi->Draw_CMS_lumi(canvas, 210, 0., true, "Simulation");
+  else if(channelID == kMuonJets    ) lumi->Draw_CMS_lumi(canvas, 210, 0., true, "Simulation");
 }
 
 void Helper::DrawCMSSim(int energy) {

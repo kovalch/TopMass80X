@@ -19,7 +19,7 @@ class RooFitTemplateAnalyzer : public MassAnalyzer {
   double mTnVertex();
   void Scan(const std::string& cuts, int i, int j, TString variables);
   
-   static RooWorkspace* workspace;
+  static RooWorkspace* workspace;
 };
 
 #endif

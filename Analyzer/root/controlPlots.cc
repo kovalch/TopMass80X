@@ -68,6 +68,9 @@ void TopMassControlPlots::doPlots()
 	  plotSelectedForPlotting[plotToDraw]=true;
   }
   std::cout << "===========================" << std::endl;
+  std::cout << "Extra label for mass plots: " << po::GetOption<std::string>("analysisConfig.extraLabel") << std::endl;
+  std::cout << "===========================" << std::endl;
+  
 
   //
   // DEFINE HISTOGRAMS
@@ -81,6 +84,7 @@ void TopMassControlPlots::doPlots()
     //hists.push_back(MyHistogram("leptonFlavour", "top.leptonFlavour[0]"   , "", ";Lepton flavour; Events", 40, -20, 20));
     hists.push_back(MyHistogram("Nbjet", "Sum$(jet.jet.Pt()>30 & jet.bTagCSV>0.679)"   , "", ";b-jet multiplicity; Events", 6, -0.5, 5.5));
     hists.push_back(MyHistogram("fitTop1Mass"    , "top.fitTop1.M()"   , "", ";m_{t}^{fit} [GeV]; Permutations / 5 GeV", 70, 50, 400));
+    hists.back().SetExtraLabel(po::GetOption<std::string>("analysisConfig.extraLabel"));
   }
   
   if(plotSelectedForPlotting.find("ExtraPlotsFitCombTypeEtc")!=plotSelectedForPlotting.end()){
@@ -107,17 +111,22 @@ void TopMassControlPlots::doPlots()
   if(plotSelectedForPlotting.find("BasicMasses")!=plotSelectedForPlotting.end()){
     hists.push_back(MyHistogram("fitTop1Mass"    , "top.fitTop1.M()"   , "", ";m_{t}^{fit} [GeV]; Permutations / 5 GeV", 70, 50, 400));
     hists.back().SetFitGaussToCore();
+    hists.back().SetExtraLabel(po::GetOption<std::string>("analysisConfig.extraLabel"));
     hists.push_back(MyHistogram("fitTop1MassBest", "top.fitTop1[0].M()", "", ";m_{t}^{fit} [GeV]; Events / 5 GeV"      , 70, 50, 400));
     //hists.back().SetFitGaussToCore();
+    hists.back().SetExtraLabel(po::GetOption<std::string>("analysisConfig.extraLabel"));
     hists.push_back(MyHistogram("fitTop1MassPeak"    , "top.fitTop1.M()"   , "", ";m_{t}^{fit} [GeV]; Permutations / 2 GeV", 45, 125, 215));
     hists.back().SetFitGaussToCore();
     hists.push_back(MyHistogram("fitTop1MassPeakBest", "top.fitTop1[0].M()", "", ";m_{t}^{fit} [GeV]; Events / 2 GeV"      , 45, 125, 215));
     hists.back().SetFitGaussToCore();
     hists.push_back(MyHistogram("recoTop1Mass"    , "top.recoTop1.M()"   , "", ";m_{t}^{reco} [GeV]; Permutations / 5 GeV", 70, 50, 400));
+    hists.back().SetExtraLabel(po::GetOption<std::string>("analysisConfig.extraLabel"));
     hists.push_back(MyHistogram("recoTop1MassBest", "top.recoTop1[0].M()", "", ";m_{t}^{reco} [GeV]; Events / 5 GeV"      , 70, 50, 400));
     hists.push_back(MyHistogram("recoWAveMass"    , "(top.recoW1.M()+top.recoW2.M())/2.0"      , "", ";m_{W}^{reco} [GeV]; Permutations / 1 GeV", 60, 65, 125));
     hists.push_back(MyHistogram("recoWAveMassBest", "(top.recoW1[0].M()+top.recoW2[0].M())/2.0", "", ";m_{W}^{reco} [GeV]; Events / 1 GeV"      , 60, 65, 125));
+    hists.back().SetExtraLabel(po::GetOption<std::string>("analysisConfig.extraLabel"));
     hists.push_back(MyHistogram("recoW1Mass"    , "top.recoW1.M()"   , "", ";m_{W}^{reco} [GeV]; Permutations / 5 GeV", 60, 0, 300));
+    hists.back().SetExtraLabel(po::GetOption<std::string>("analysisConfig.extraLabel"));
     hists.push_back(MyHistogram("recoW1MassBest", "top.recoW1[0].M()", "", ";m_{W}^{reco} [GeV]; Events / 5 GeV"      , 60, 0, 300));
   }
   if(plotSelectedForPlotting.find("ExtraMasses")!=plotSelectedForPlotting.end()){
@@ -882,11 +891,11 @@ void TopMassControlPlots::doPlots()
       samples.push_back(MySample("t#bar{t}, JES = 1.04", "Z2_S12_ABS_JES_104_172_5_MadSpin_sig", kSigVar, kGreen+1  , 1));
     }
     */
-    //samples.push_back(MySample("Background", "Background_MJP12*", kBkg, kYellow, 1));
+    samples.push_back(MySample("Background", "Background_MJP12", kBkg, kYellow, 1));
     //samples.push_back(MySample("Background", "Run2012_Mixing8_alljets*", kBkg, kYellow, 1)); 
     //samples.push_back(MySample("Background", "Run2012_Mixing8_fix_alljets*", kBkg, kYellow, 1)); 
     //samples.push_back(MySample("Background", "job_QCDMixing_MJPS12*", kBkg, kYellow, 1)); 
-    samples.push_back(MySample("Background", "mix6_QCDMixing_MJPS12*", kBkg, kYellow, 1)); 
+    samples.push_back(MySample("Background (mixing)", "mix6_QCDMixing_MJPS12*", kBkgVar, kYellow, 1)); 
   }
   
 
@@ -1308,11 +1317,13 @@ void TopMassControlPlots::doPlots()
   {
     int bkgCounter = -1;
     int sigVarCounter = -1;
+    int bkgVarCounter = -1;
     // Loop over all samples
     std::cout << "Adding files from folder: " << path_ << std::endl;
     for(MySample& sample : samples){
       if(sample.type == kBkg    ) ++bkgCounter;
       if(sample.type == kSigVar ) ++sigVarCounter;
+      if(sample.type == kBkgVar ) ++bkgVarCounter;
       // Get sample
       TChain* chain; int nFiles = 0;
       if (channelID == Helper::kAllJets) {
@@ -1352,6 +1363,7 @@ void TopMassControlPlots::doPlots()
         else if(sample.type == kSig    ) hist.AddSignal(&sample);
         else if(sample.type == kBkg    ) hist.AddBackground(&sample);
         else if(sample.type == kSigVar ) hist.AddSignalVariation(&sample);
+        else if(sample.type == kBkgVar ) hist.AddBackgroundVariation(&sample);
       }
 
       //replaceVar used for replacements in selection
@@ -1464,6 +1476,9 @@ void TopMassControlPlots::doPlots()
             // Fill signal variation
             else if(sample.type == kSigVar && hist.Dimension() == 1) for(auto& var : hist.varx) hist.Sigvar1D()[sigVarCounter]->Fill(var->EvalInstance(j), weight.EvalInstance(j)*hist.histoweight->EvalInstance(j)*sample.scale);
             else if(sample.type == kSigVar && hist.Dimension() == 2) for(auto& var : hist.varx) for(auto& var2 : hist.vary) hist.Sigvar2D()[sigVarCounter]->Fill(var->EvalInstance(j), var2->EvalInstance(j), weight.EvalInstance(j)*hist.histoweight->EvalInstance(j)*sample.scale);
+            // Fill background variation
+            else if(sample.type == kBkgVar && hist.Dimension() == 1) for(auto& var : hist.varx) hist.Bkgvar1D()[bkgVarCounter]->Fill(var->EvalInstance(j), weight.EvalInstance(j)*hist.histoweight->EvalInstance(j)*sample.scale);
+            else if(sample.type == kBkgVar && hist.Dimension() == 2) for(auto& var : hist.varx) for(auto& var2 : hist.vary) hist.Bkgvar2D()[bkgVarCounter]->Fill(var->EvalInstance(j), var2->EvalInstance(j), weight.EvalInstance(j)*hist.histoweight->EvalInstance(j)*sample.scale);
           }
         }
       }
@@ -1627,8 +1642,28 @@ void TopMassControlPlots::doPlots()
       //for(TH1F* sig    : hist.Sig1D())    sig->Scale(    fSig *integralD/integralS);
       //for(TH1F* bkg    : hist.Bkg1D())    bkg->Scale((1.-fSig)*integralD/integralB);
       //for(TH1F* sigvar : hist.Sigvar1D()) sigvar->Scale(integralD/sigvar->Integral(0,bins));
-
-      for(TH1F* bkg    : hist.Bkg1D())    bkg->Scale((integralD-integralS)/integralB);
+      
+      for(TH1F* bkg    : hist.Bkg1D()) {
+        // Remove background from uncertainty histos
+        for (TH1F* sigvar : hist.Sigvar1D()) {
+          sigvar->Add(bkg, -1.);
+        }
+        // Scale
+        bkg->Scale((integralD-integralS)/integralB);
+        //Add back
+        for (TH1F* sigvar : hist.Sigvar1D()) {
+          sigvar->Add(bkg);
+        }
+      }
+      for(TH1F* bkgvar : hist.Bkgvar1D()) {
+        // Scale
+        double integralBvar = bkgvar->Integral(0,bins);
+        bkgvar->Scale((integralD-integralS)/integralBvar);
+        //Add signal
+        for (TH1F* sig : hist.Sig1D()) {
+          bkgvar->Add(sig);
+        }
+      }
     }
     // Lepton+jets: Normalize to data
     else {
@@ -1691,6 +1726,17 @@ void TopMassControlPlots::doPlots()
       }
     }
     
+    for(TH1F* bkgvar : hist.Bkgvar1D()) {
+      for(int i = 0; i < hist.Unc1D()->GetNbinsX()+2; ++i) {
+        if (bkgvar->GetBinContent(i) > hist.Unc1D()->GetBinContent(i)) {
+          up[i] = sqrt(pow(up[i], 2) + pow(bkgvar->GetBinContent(i) - hist.Unc1D()->GetBinContent(i), 2));
+        }
+        else {
+          down[i] = sqrt(pow(down[i], 2) + pow(bkgvar->GetBinContent(i) - hist.Unc1D()->GetBinContent(i), 2));
+        }
+      }
+    }
+    
     // Set bin center and error for uncertainty band
     for(int i = 0; i < hist.Unc1D()->GetNbinsX()+2; ++i) {
       //hist.Unc1D()->SetBinContent(i, hist.Unc1D()->GetBinContent(i) + (up[i]-down[i])/2.);
@@ -1704,7 +1750,7 @@ void TopMassControlPlots::doPlots()
   //
 
   // initialize file stream for logging
-  std::ofstream logResultsFile;
+  ofstream logResultsFile;
   logResultsFile.open ((std::string("plot/controlplots/")+channel_+".txt").c_str());
   
   // initialize root file for optional plot saving
@@ -1964,12 +2010,7 @@ void TopMassControlPlots::doPlots()
       //unfortunately PYTHON-style for loop breaks when doing boost::adaptors::reverse(hist.Bkg1D()) directly (pointers get mixed up)
       std::vector <TH1F*> tempHistBkg1D = hist.Bkg1D();
       for(TH1F* bkg : boost::adaptors::reverse(tempHistBkg1D)) stack->Add(bkg);
-      std::vector <TH1F*> tempHistSig1D = hist.Sig1D();
-      if (channelID == Helper::kAllJets) {
-        std::vector <TH1F*> tempHistSig1D = hist.Sig1D();
-        for(TH1* sig : boost::adaptors::reverse(tempHistSig1D)) stack->Add(sig);
-      }
-      else for(TH1* sig : hist.Sig1D()) stack->Add(sig);
+      for(TH1* sig : hist.Sig1D()) stack->Add(sig);
 
       //for(int i = 0; i< hist.Data1D()->GetNbinsX(); i++){
       //  std::cout << ((TH1*)stack->GetStack()->Last())->GetBinContent(i) << " error" << ((TH1*)stack->GetStack()->Last())->GetBinError(i) << " data" << hist.Data1D()->GetBinContent(i)  << "; " << std::endl;
@@ -2119,6 +2160,7 @@ void TopMassControlPlots::doPlots()
       canvWRatio->cd();
       
       helper->DrawCMS(-1, -1, canvWRatio);
+      helper->DrawLabel(hist.extraLabel, 0.6, 0.63, 0.9);
 
       canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/1DRatio/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_Ratio.eps")).c_str(),"eps");
       canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/1DRatio/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_Ratio.png")).c_str(),"png");
@@ -2362,4 +2404,8 @@ void TopMassControlPlots::MyHistogram::ConfigurePlotRanges(double PlotRangeYRati
 
 void TopMassControlPlots::MyHistogram::ConfigureMoreExtraOptions(bool plotStackNormalized){
   plotStackNorm = plotStackNormalized;
+}
+
+void TopMassControlPlots::MyHistogram::SetExtraLabel(std::string label){
+  extraLabel = label;
 }

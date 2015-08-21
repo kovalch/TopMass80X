@@ -11,13 +11,6 @@
 <use   name="root"/>
 <use   name="roottmva"/>
 <use   name="xerces-c"/>
-<!-- Package includes the PU Jet Id, check https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJetID for details-->
-<!-- works fine with CMSSW 5X 	V00-03-04 	Used for ICHEP analyses in 5X tag for                              -->
-<!-- cvs co -r <TAG> -d CMGTools/External UserCode/CMG/CMGTools/External                                       -->
-<!-- only needed for B-regression studies as of now                                                            -->
-<use   name="CMGTools/External"/>
-
-
 <library   file="*.cc" name="TopMassTopTreePlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

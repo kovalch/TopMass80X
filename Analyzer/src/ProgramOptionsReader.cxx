@@ -46,6 +46,9 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("temPlot", boost::program_options::value<bool>()->default_value(false),
             "Plot IdeogramMin templates\n"
         )
+        ("drawIdeograms", boost::program_options::value<int>()->default_value(0),
+            "Draw ideograms for first N events\n"
+        )
         ("constrainJSF", boost::program_options::value<bool>()->default_value(true),
             "Add Gaussian constraint to JSF\n"
         )
@@ -136,6 +139,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("analysisConfig.signalFactor", boost::program_options::value<double>()->default_value(1.0))
         ("analysisConfig.backgroundSamplesLept", boost::program_options::value<std::string>()->default_value("Summer12_WJets|Summer12_ZJets|Summer12_singleTop|Summer12_QCD|Summer12_Diboson"))
         ("analysisConfig.backgroundFactorsLept", boost::program_options::value<std::string>()->default_value("1|1|1|1|1"))
+        ("analysisConfig.extraLabel", boost::program_options::value<std::string>()->default_value(""))
         ("templates.fSig", boost::program_options::value<double>()->default_value(0.0))
         ("templates.fCP", boost::program_options::value<double>()->default_value(0.0))
         ("templates.fWP", boost::program_options::value<double>()->default_value(0.0))

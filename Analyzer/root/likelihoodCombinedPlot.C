@@ -130,7 +130,7 @@ void likelihoodCombinedPlot() {
   leg->SetBorderSize(0);
   leg->SetTextSize(0.04);
   leg->AddEntry(c2_gr0, "2D", "P");
-  leg->AddEntry(ch_gr0, "hybrid", "P");
+  leg->AddEntry(ch_gr0, "Hybrid", "P");
   leg->AddEntry(c1_c1, "1D", "P");
   
   TCanvas* canvas = new TCanvas("canvas", "canvas", 500, 500);
