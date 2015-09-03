@@ -19,16 +19,13 @@ public:
   WeightEvent();
   void init();
 
-  ClassDef(WeightEvent,5);
+  ClassDef(WeightEvent,4);
 
   // WeightEvent data
 
   // MC weight
   // currently only used for MC@NLO with 1 or -1
   double mcWeight;
-  
-  // Generator weights (scale and pdf variations)
-  std::vector<double> lheWeight;
   
   // MG BR correction
   double brWeight;

@@ -77,8 +77,6 @@ if (options.mcversion == "Summer12"):
     readFiles.extend( ['/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_0_fastreco_FASTSIM_HLT_PU.root'] )
   elif (options.generator == "herwigpp"):
     readFiles.extend( ['/store/user/mseidel/TT_8TeV-amcatnlo-herwigpp/job_35_TT_FSIM.root'] )
-  elif (options.generator == "powheg2"):
-    readFiles.extend( ['/store/mc/Summer12DR53X/TT_weights_CT10_TuneZ2star-8TeV-powheg-pythia6-tauola/AODSIM/PU_S10_START53_V19-v2/00000/007FAEAF-CF8F-E411-9F6D-003048FFD744.root'] )
   elif (options.generator == "w0jets"):
     readFiles.extend( ['/store/mc/Summer12_DR53X/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S10_START53_V7A-v2/0004/FE9FA8F7-2BF3-E111-A34E-001E672CC1E7.root'] )
   else:
@@ -128,7 +126,7 @@ if (options.generator == 'w0jets'):
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
-#process.patJetFlavourAssociation.physicsDefinition = options.phys
+process.patJetFlavourAssociation.physicsDefinition = options.phys
 
 process.load("TopAnalysis.TopFilter.sequences.semiLeptonicSelection_cff")
 
