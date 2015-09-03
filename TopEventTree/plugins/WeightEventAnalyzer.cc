@@ -101,13 +101,10 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   if(!lheEventSrc_.label().empty()) evt.getByLabel(lheEventSrc_, lheEvent_h);
 
   // aMCatNLO+Herwig++ sample has no genEventInfo
-  // Get generator variations from LHEEventProduct::weights() (CMSSW >= 5_3_15)
+  // TODO: Get generator variations from LHEEventProduct::weights() (CMSSW >= 5_3_15)
   if(lheEvent_h.isValid()){
     if(lheEvent_h->hepeup().XWGTUP < 0.) {
       negWeight = true;
-    }
-    for (unsigned int i = 0; i < lheEvent_h->weights().size(); ++i) {
-      weight->lheWeight.push_back(lheEvent_h->weights()[i].wgt);
     }
   }
   

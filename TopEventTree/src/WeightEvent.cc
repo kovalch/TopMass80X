@@ -16,7 +16,6 @@ WeightEvent::WeightEvent() : TObject()
 void WeightEvent::init()
 {
   mcWeight = 0.;
-  lheWeight.clear();
   brWeight = 1.;
 
   puWeight     = -1.;
