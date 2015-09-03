@@ -89,12 +89,12 @@ void IdeogramAnalyzerMinimizer::Scan(const std::string& cuts, int iBin, int jBin
       eventFunctions_.push_back(permutationFunctions);
 
       if (channelID_ == Helper::kHamburg) {
-	permutationFunctions.clear();
+        permutationFunctions.clear();
         for (int iComb = 0; iComb < 4; ++iComb) {
           permutationFunctions.push_back(new IdeogramCombLikelihoodLeptonJets());
           permutationFunctions.back()->SetActive(false);
         }
-	eventFunctions_.push_back(permutationFunctions);
+        eventFunctions_.push_back(permutationFunctions);
       }
     } // end for
   }
@@ -111,14 +111,14 @@ void IdeogramAnalyzerMinimizer::Scan(const std::string& cuts, int iBin, int jBin
 
       int counter = iEvent;
       if(channelID_ == Helper::kHamburg) {
-	if(std::abs(leptonFlavour) == 0){
-	  counter = 2*iEventJets;
-	  ++iEventJets;
-	}
-	else{
-	  counter = 2*iEventLept+1;
-	  ++iEventLept;
-	}
+        if(std::abs(leptonFlavour) == 0){
+          counter = 2*iEventJets;
+          ++iEventJets;
+        }
+        else{
+          counter = 2*iEventLept+1;
+          ++iEventLept;
+        }
       }
 
       for (int iComb = 0, maxComb = event.permutations.size(); iComb < maxComb; ++iComb) {
@@ -362,6 +362,8 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
   gr1.SetFillColor(kViolet+9);
   gr1.SetLineColor(lineColor);
   gr1.SetLineWidth(lineWidth);
+  
+  min->SetErrorDef(1.);
 
   std::string plotNamePostfix("_");
   if     (x == kMass) { gr3.GetXaxis()->SetTitle("m_{t} [GeV]"); plotNamePostfix += "mass_"; }
@@ -394,9 +396,9 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
   leg0.SetFillStyle(1001);
   leg0.SetFillColor(kWhite);
   leg0.SetBorderSize(1);
-  leg0.AddEntry(&gr1, "-2#Delta log(L) = 1", "F");
-  leg0.AddEntry(&gr2, "-2#Delta log(L) = 4", "F");
-  leg0.AddEntry(&gr3, "-2#Delta log(L) = 9", "F");
+  leg0.AddEntry(&gr1, "-2#Delta log(L) = 2.30", "F");
+  leg0.AddEntry(&gr2, "-2#Delta log(L) = 6.17", "F");
+  leg0.AddEntry(&gr3, "-2#Delta log(L) = 11.8", "F");
   leg0.Draw();
 
   // draw tangents to -2#Delta log(L) = 1 ellipse
@@ -417,7 +419,7 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
     line2.Draw();
   }
   
-  helper.DrawCMS();
+  //helper.DrawCMS();
 
   std::string path("plot/Ideogram/"); path+=HelperFunctions::cleanedName(fIdentifier_)+plotNamePostfix;
   canv.Print((path+std::string(".eps" )).c_str(), "eps");

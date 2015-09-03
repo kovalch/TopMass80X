@@ -118,6 +118,7 @@ void SystematicUncertainties::fillLeptonJets()
 
   sample.ensembles["mcatnlo"] = ensemble("Summer12_TTJets1725_mcatnlo_herwig/job_*_ensemble.root", 32852589./1.2);
   sample.ensembles["powheg"] = ensemble("Summer12_TTJets1725_powheg/job_*_ensemble.root", 21675970./1.2);
+  sample.ensembles["powhegP11C"] = ensemble("Summer12_TTJets1725_powheg_P11C/job_*_ensemble.root", 9500000./1.2);
   sample.ensembles["powhegHerwig"] = ensemble("Summer12_TTJets1725_powheg_herwig/job_*_ensemble.root", 27684235./1.2);
 
   sample.ensembles["defaultSC"] = ensemble("Summer12_TTJets1725_MGDecays_Z2/job_*_ensemble.root", 56000000./1.2);
@@ -244,6 +245,7 @@ void SystematicUncertainties::fillLeptonJets()
       sample.comparisons["MC@NLO+Herwig6 vs. Powheg+Herwig6"] = comparison("mcatnlo", "powhegHerwig", "", false, false);
       sample.comparisons["ME generator                     "] = comparison("calibration", "powheg", "", false);
       sample.comparisons["Pythia Z2* vs. P11               "] = comparison("calibration", "P11", "", false, false);
+      sample.comparisons["D0 crosscheck                    "] = comparison("calibration", "powhegP11C", "", false, false);
       sample.comparisons["Color reconnection               "] = comparison("P11", "P11noCR", "", false);
       sample.comparisons["Underlying event                 "] = comparison("P11", "P11mpiHi", "P11TeV", false);
 
@@ -423,12 +425,12 @@ void SystematicUncertainties::fillAllJets()
   //sample.path = "/nfs/dust/cms/user/eschliec/TopMass/topmass_150121_1301/"; // new
   //sample.path = "/nfs/dust/cms/user/eschliec/TopMass/topmass_150121_1701/"; // newer
   //sample.path = "/nfs/dust/cms/user/eschliec/TopMass/topmass_150202_1401/"; // olderTEST
-  //sample.path = "/nfs/dust/cms/user/eschliec/TopMass/topmass_150211_1801/"; // older DEFAULT WITHOUT JSF-CONSTRAINT FOR PAPER
+  sample.path = "/nfs/dust/cms/user/eschliec/TopMass/topmass_150211_1801/"; // older DEFAULT WITHOUT JSF-CONSTRAINT FOR PAPER
   //sample.path =
   //"/nfs/dust/cms/user/eschliec/TopMass/topmass_150211_1802/"; //
   //older DEFAULT WITH JSF-CONSTRAINT FOR PAPER
   //sample.path="/nfs/dust/cms/user/stadie/TopMass/syscHSt0/";
-  sample.path="/nfs/dust/cms/user/stadie/TopMass/sysct0/";
+  //sample.path="/nfs/dust/cms/user/stadie/TopMass/sysct0/";
   sample.crossSection = 245.794;
   sample.peLumi = 18192.;
 
@@ -782,7 +784,7 @@ void SystematicUncertainties::deriveSystematics()
       std::string selection = sample.variables[0] + std::string(">0 & ") + sample.variables[1] + std::string(">0 & genMass==172.5 & genJES==1");
       N_PE = it->second.chain->GetEntries(selection.c_str());
     }
-    printf("\tmass = %.2lf+/-%.2lf GeV, jes = %.3lf+/-%.3lf, mass1d = %.2lf+/-%.2lf GeV, N(PE) = %i\n", it->second.values[sample.variables[0]].first, it->second.values[sample.variables[0]].second, it->second.values[sample.variables[1]].first, it->second.values[sample.variables[1]].second, it->second.values[sample.variables[2]].first, it->second.values[sample.variables[2]].second, N_PE);
+    printf("\tmass = %.3lf+/-%.3lf GeV, jes = %.3lf+/-%.3lf, mass1d = %.3lf+/-%.3lf GeV, N(PE) = %i\n", it->second.values[sample.variables[0]].first, it->second.values[sample.variables[0]].second, it->second.values[sample.variables[1]].first, it->second.values[sample.variables[1]].second, it->second.values[sample.variables[2]].first, it->second.values[sample.variables[2]].second, N_PE);
   }
 
   ///////////////////////////////////
@@ -867,10 +869,12 @@ void SystematicUncertainties::deriveSystematics()
 
     std::map<std::string, double> mergedUncertainties2;
     std::map<std::string, double> mergedUncertaintiesUp;
+    std::map<std::string, double> mergedUncertaintiesUpSign;
     std::map<std::string, double> mergedUncertaintiesDown;
     for(auto& var : sample.variables) {
       mergedUncertainties2   [var] = 0;
       mergedUncertaintiesUp  [var] = 0;
+      mergedUncertaintiesUpSign[var] = 0;
       mergedUncertaintiesDown[var] = 0;
     }
 
@@ -889,8 +893,16 @@ void SystematicUncertainties::deriveSystematics()
         //}
       }
     }
+    
+    for(auto& var : sample.variables) {
+      mergedUncertaintiesUpSign[var] = mergedUncertaintiesUp[var]/std::abs(mergedUncertaintiesUp[var]);
+    }
+    
     sprintf(buffer, " & %.2lf & %.3lf & %.2lf \\tabularnewline\n", sqrt(mergedUncertainties2[sample.variables[0]]), sqrt(mergedUncertainties2[sample.variables[1]]), sqrt(mergedUncertainties2[sample.variables[2]]));
-    printf(" \t  %.2lf             %.3lf             %.2lf           \n", sqrt(mergedUncertainties2[sample.variables[0]]), sqrt(mergedUncertainties2[sample.variables[1]]), sqrt(mergedUncertainties2[sample.variables[2]]));
+    printf(" \t  %+.2lf             %+.3lf             %+.2lf           \n",
+      mergedUncertaintiesUpSign[sample.variables[0]]*sqrt(mergedUncertainties2[sample.variables[0]]), 
+      mergedUncertaintiesUpSign[sample.variables[1]]*sqrt(mergedUncertainties2[sample.variables[1]]), 
+      mergedUncertaintiesUpSign[sample.variables[2]]*sqrt(mergedUncertainties2[sample.variables[2]]));
     myfile << buffer;
     
     if (it->second.linear) {
@@ -898,8 +910,14 @@ void SystematicUncertainties::deriveSystematics()
         mergedUncertaintiesUp  [var] = std::abs(mergedUncertaintiesUp  [var]);
         mergedUncertaintiesDown[var] = std::abs(mergedUncertaintiesDown[var]);
       }
-      sprintf(buffer, "- linear & %.2lf & %.3lf & %.2lf \\tabularnewline\n", std::max(mergedUncertaintiesUp[sample.variables[0]], mergedUncertaintiesDown[sample.variables[0]]), std::max(mergedUncertaintiesUp[sample.variables[1]], mergedUncertaintiesDown[sample.variables[1]]), std::max(mergedUncertaintiesUp[sample.variables[2]], mergedUncertaintiesDown[sample.variables[2]]));
-      printf("- linear                        \t  %.2lf             %.3lf             %.2lf           \n", std::max(mergedUncertaintiesUp[sample.variables[0]], mergedUncertaintiesDown[sample.variables[0]]), std::max(mergedUncertaintiesUp[sample.variables[1]], mergedUncertaintiesDown[sample.variables[1]]), std::max(mergedUncertaintiesUp[sample.variables[2]], mergedUncertaintiesDown[sample.variables[2]]));
+      sprintf(buffer, "- linear & %.2lf & %.3lf & %.2lf \\tabularnewline\n",
+        mergedUncertaintiesUpSign[sample.variables[0]]*std::max(mergedUncertaintiesUp[sample.variables[0]], mergedUncertaintiesDown[sample.variables[0]]),
+        mergedUncertaintiesUpSign[sample.variables[1]]*std::max(mergedUncertaintiesUp[sample.variables[1]], mergedUncertaintiesDown[sample.variables[1]]),
+        mergedUncertaintiesUpSign[sample.variables[2]]*std::max(mergedUncertaintiesUp[sample.variables[2]], mergedUncertaintiesDown[sample.variables[2]]));
+      printf("- linear                        \t  %+.2lf             %+.3lf             %+.2lf           \n",
+        mergedUncertaintiesUpSign[sample.variables[0]]*std::max(mergedUncertaintiesUp[sample.variables[0]], mergedUncertaintiesDown[sample.variables[0]]),
+        mergedUncertaintiesUpSign[sample.variables[1]]*std::max(mergedUncertaintiesUp[sample.variables[1]], mergedUncertaintiesDown[sample.variables[1]]),
+        mergedUncertaintiesUpSign[sample.variables[2]]*std::max(mergedUncertaintiesUp[sample.variables[2]], mergedUncertaintiesDown[sample.variables[2]]));
       myfile << buffer;
       
       for(auto& var : sample.variables) {

@@ -77,7 +77,6 @@ void ensembleTreeSysLeptonJetsPDF()
     
     ensembles[i].chain->Fit("gaus", massName, massName+">0 &"+jesName+">0 & genMass==172.5 & genJES==1", "LEMQ0");
     ensembles[i].mass = gaus->GetParameter(1);
-    std::cout << i << " mass: " << ensembles[i].mass << std::endl;
     if (massMin>ensembles[i].mass) massMin = ensembles[i].mass;
     if (massMax<ensembles[i].mass) massMax = ensembles[i].mass;
 
@@ -86,6 +85,11 @@ void ensembleTreeSysLeptonJetsPDF()
 
     ensembles[i].chain->Fit("gaus", mass1dName, mass1dName+">0 & genMass==172.5 & genJES==1", "LEMQ0");
     ensembles[i].mass1d = gaus->GetParameter(1);
+    
+    std::cout << i << " mass: "   << ensembles[i].mass
+                   << " jes: "    << ensembles[i].jes
+                   << " mass1d: " << ensembles[i].mass1d
+                   << std::endl;
   }
   
   std::cout << "CTEQ6l1: " << 172.57 << std::endl;

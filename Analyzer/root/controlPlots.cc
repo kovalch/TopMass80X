@@ -22,6 +22,7 @@
 
 #include "ProgramOptionsReader.h"
 #include "Helper.h"
+#include "CMS_lumi.h"
 
 #include "../../TopEventTree/interface/MyMa.h"
 #include <iostream>
@@ -47,7 +48,8 @@ void TopMassControlPlots::doPlots()
   Helper* helper = new Helper();
   helper->SetTDRStyle();
   gStyle->SetPadLeftMargin(0.2);
-  gStyle->SetPadRightMargin(0.05);
+  gStyle->SetPadRightMargin(0.04);
+  gStyle->SetPadTopMargin(0.08);
   gStyle->SetNdivisions(505, "X");
   gStyle->SetTitleYOffset(1.75);
   gStyle->SetOptStat(0);
@@ -77,7 +79,8 @@ void TopMassControlPlots::doPlots()
   // others (do these first to get correct event yield)
   if(plotSelectedForPlotting.find("test")!=plotSelectedForPlotting.end()){
     //hists.push_back(MyHistogram("leptonFlavour", "top.leptonFlavour[0]"   , "", ";Lepton flavour; Events", 40, -20, 20));
-    hists.push_back(MyHistogram("Nbjet", "Sum$(jet.jet.Pt()>30 & jet.bTagCSV>0.679)"   , "", ";b-jet multiplicity; Events", 6, 0, 6));
+    hists.push_back(MyHistogram("Nbjet", "Sum$(jet.jet.Pt()>30 & jet.bTagCSV>0.679)"   , "", ";b-jet multiplicity; Events", 6, -0.5, 5.5));
+    hists.push_back(MyHistogram("fitTop1Mass"    , "top.fitTop1.M()"   , "", ";m_{t}^{fit} [GeV]; Permutations / 5 GeV", 70, 50, 400));
   }
   
   if(plotSelectedForPlotting.find("ExtraPlotsFitCombTypeEtc")!=plotSelectedForPlotting.end()){
@@ -324,12 +327,12 @@ void TopMassControlPlots::doPlots()
 
   // Basic kinematics
   if(plotSelectedForPlotting.find("JetPts")!=plotSelectedForPlotting.end()){
-    hists.push_back(MyHistogram("jet1Pt", "jet.jet[0].Pt()", "", ";p_{T}^{1} [GeV]; Events / 10 GeV", 45, 0, 450));
-    hists.push_back(MyHistogram("jet2Pt", "jet.jet[1].Pt()", "", ";p_{T}^{2} [GeV]; Events / 10 GeV", 40, 0, 400));
-    hists.push_back(MyHistogram("jet3Pt", "jet.jet[2].Pt()", "", ";p_{T}^{3} [GeV]; Events / 5 GeV", 50, 0, 250));
-    hists.push_back(MyHistogram("jet4Pt", "jet.jet[3].Pt()", "", ";p_{T}^{4} [GeV]; Events / 5 GeV", 40, 0, 200));
-    hists.push_back(MyHistogram("jet5Pt", "jet.jet[4].Pt()", "jet.jet[4].Pt()>0", ";p_{T}^{5} [GeV]; Events / 3 GeV", 50, 0, 150));
-    hists.push_back(MyHistogram("jet6Pt", "jet.jet[5].Pt()", "jet.jet[5].Pt()>0", ";p_{T}^{6} [GeV]; Events / 2 GeV", 50, 0, 100));
+    hists.push_back(MyHistogram("jet1Pt", "jet.jet[0].Pt()", "", ";p_{T}^{jet 1} [GeV]; Events / 10 GeV", 45, 0, 450));
+    hists.push_back(MyHistogram("jet2Pt", "jet.jet[1].Pt()", "", ";p_{T}^{jet 2} [GeV]; Events / 10 GeV", 40, 0, 400));
+    hists.push_back(MyHistogram("jet3Pt", "jet.jet[2].Pt()", "", ";p_{T}^{jet 3} [GeV]; Events / 5 GeV", 50, 0, 250));
+    hists.push_back(MyHistogram("jet4Pt", "jet.jet[3].Pt()", "", ";p_{T}^{jet 4} [GeV]; Events / 5 GeV", 40, 0, 200));
+    hists.push_back(MyHistogram("jet5Pt", "jet.jet[4].Pt()", "jet.jet[4].Pt()>0", ";p_{T}^{jet 5} [GeV]; Events / 3 GeV", 50, 0, 150));
+    hists.push_back(MyHistogram("jet6Pt", "jet.jet[5].Pt()", "jet.jet[5].Pt()>0", ";p_{T}^{jet 6} [GeV]; Events / 2 GeV", 50, 0, 100));
     hists.push_back(MyHistogram("lJetPt", "jet.jet.Pt()", "jet.bTagCSV<0.679", ";p_{T} [GeV], untagged (CSVM); Jets / 10 GeV", 45, 0, 450));
     hists.push_back(MyHistogram("bJetPt", "jet.jet.Pt()", "jet.bTagCSV>0.679", ";p_{T} [GeV], b-tagged (CSVM); Jets / 10 GeV", 45, 0, 450));
     hists.push_back(MyHistogram("lJetPt_vs_nVertex" , "weight.nVertex", "jet.jet.Pt()" , "jet.bTagCSV<0.679", ";N_{Vertex}; p_{T} [GeV], untagged (CSVM)", 8, 0, 40, 44, 10, 450));
@@ -420,11 +423,11 @@ void TopMassControlPlots::doPlots()
 
   // lepton+jets
   if(plotSelectedForPlotting.find("LeptonJets")!=plotSelectedForPlotting.end()){
-    hists.push_back(MyHistogram("leptonPt", "top.recoW2Prod1[0].Pt()", "", ";p_{T}^{lepton} [GeV]; Events", 40, 0, 200));
+    hists.push_back(MyHistogram("leptonPt", "top.recoW2Prod1[0].Pt()", "", ";p_{T}^{lepton} [GeV]; Events / 5 GeV", 40, 0, 200));
     hists.push_back(MyHistogram("leptonEta", "top.recoW2Prod1[0].Eta()", "", ";#eta^{lepton}; Events", 25, -2.5, 2.5));
     hists.push_back(MyHistogram("leptonPhi", "top.recoW2Prod1[0].Phi()", "", ";#phi^{lepton}; Events", 30, -3, 3));
     hists.push_back(MyHistogram("leptonDRJet", (TString("Min$(")+MyMa::deltaR("top.recoW2Prod1[0]", "jet.jet")+TString(")")).Data(), "", ";#DeltaR(l,nearest jet); Events", 40, 0, 4));
-    hists.push_back(MyHistogram("MET", "top.recoW2Prod2[0].Pt()", "", ";p_{T}^{miss} [GeV]; Events", 40, 0, 200));
+    hists.push_back(MyHistogram("MET", "top.recoW2Prod2[0].Pt()", "", ";E_{T}^{miss} [GeV]; Events / 5 GeV", 40, 0, 200));
   }
   
   if(plotSelectedForPlotting.find("LeptonJetsExtra")!=plotSelectedForPlotting.end()){
@@ -456,15 +459,15 @@ void TopMassControlPlots::doPlots()
   
   // b-tagging
   if(plotSelectedForPlotting.find("JetBTag")!=plotSelectedForPlotting.end()){
-	  hists.push_back(MyHistogram("nBJet4", "(jet.bTagCSV[0]>0.679) + (jet.bTagCSV[1]>0.679) + (jet.bTagCSV[2]>0.679) + (jet.bTagCSV[3]>0.679)", "", ";N_{b jet}^{4} (CSVM); Events", 5, 0, 5));
-	  hists.push_back(MyHistogram("nBJet", "Sum$((jet.jet.Pt()>30 & jet.bTagCSV>0.679))", "", ";N_{b jet} (CSVM); Events", 5, 0, 5));
+	  hists.push_back(MyHistogram("nBJet4", "(jet.bTagCSV[0]>0.679) + (jet.bTagCSV[1]>0.679) + (jet.bTagCSV[2]>0.679) + (jet.bTagCSV[3]>0.679)", "", ";N_{b jet}^{4} (CSVM); Events", 5, -0.5, 4.5));
+	  hists.push_back(MyHistogram("nBJet", "Sum$((jet.jet.Pt()>30 & jet.bTagCSV>0.679))", "", ";N_{b jet} (CSVM); Events", 5, -0.5, 4.5));
 	  hists.push_back(MyHistogram("bTagCSV", "jet.bTagCSV", "jet.jet.Pt()>30", ";CSV discriminator; Jets", 41, -1, 1.05));
   }
 
   // event observables
   if(plotSelectedForPlotting.find("EventObservables")!=plotSelectedForPlotting.end()){
-    hists.push_back(MyHistogram("nJet", "jet.@jet.size()", "", ";N_{jet}; Events", 15, 0, 15));
-    hists.push_back(MyHistogram("nJet30", "Sum$((jet.jet.Pt()>30))", "", ";N_{jet}; Events", 15, 0, 15));
+    hists.push_back(MyHistogram("nJet", "jet.@jet.size()", "", ";N_{jet}; Events", 15, -0.5, 14.5));
+    hists.push_back(MyHistogram("nJet30", "Sum$((jet.jet.Pt()>30))", "", ";N_{jet}; Events", 15, -0.5, 14.5));
     hists.push_back(MyHistogram("nVertex", "weight.nVertex", "", ";N_{PV}; Events", 35, 0, 35));
   }
 
@@ -1099,7 +1102,12 @@ void TopMassControlPlots::doPlots()
   // Lepton+jets channel
   else {
     // DATA
-    samples.push_back(MySample("Data", "Run2012_JEC_Winter14_V8", kData, kBlack));
+    if(plotSelectedForPlotting.find("ThesisData")!=plotSelectedForPlotting.end()) {
+      samples.push_back(MySample("Data", "Run2012", kData, kBlack));
+    }
+    else {
+      samples.push_back(MySample("Data", "Run2012_JEC_Winter14_V8", kData, kBlack));
+    }
     
     // SIGNAL
     double signalNormUnc = 0.0;
@@ -1169,12 +1177,22 @@ void TopMassControlPlots::doPlots()
       samples.push_back(MySample("FastSim, t#bar{t}, Sherpa Lund", "Summer12_TT1725_sherpa2_lund", kSigVar, kYellow-5, 3, lumi_/1000.));
     }
     
+    // PowhegPlots
+    if(plotSelectedForPlotting.find("PowhegPlots")!=plotSelectedForPlotting.end()){
+      //samples.push_back(MySample("t#bar{t}, MadGraph+Pythia Z2*", "Summer12_TTJetsMS1725_1.00", kSigVar, kRed+1, 1, lumi_/1000.));
+      //samples.push_back(MySample("t#bar{t} scale up", "Summer12_TTJetsMS1725_scaleup", kSigVar, kRed-1, 5, lumi_/1000.));
+      //samples.push_back(MySample("t#bar{t} scale down", "Summer12_TTJetsMS1725_scaledown", kSigVar,kRed-7, 6, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, Powheg+Pythia6 Z2*", "Summer12_TTJets1725_powheg", kSigVar, kGreen+1, 9, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, Powheg2+Pythia6", "Summer12_TTJets1725_powheg2_pythia6_merge", kSigVar, kOrange+2, 7, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, Powheg2+Pythia6 P11C", "Summer12_TTJets1725_powheg_P11C", kSigVar, kBlue+2, 1, lumi_/1000.));
+    }
+    
     // BACKGROUND
     if(plotSelectedForPlotting.find("BackgroundPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("Z+Jets", "Summer12_ZJets", kBkg, kAzure-2, 1, lumi_/1000., "", 0.2));
-      samples.push_back(MySample("W+Jets", "Summer12_WJets", kBkg, kGreen-3, 1, lumi_/1000., "", 0.2));
-      samples.push_back(MySample("Single Top", "Summer12_singleTop", kBkg, kMagenta, 1, lumi_/1000., "", 0.1));
-      samples.push_back(MySample("QCD Multijet", "Summer12_QCD", kBkg, kYellow, 1, lumi_/1000., "", 1.));
+      samples.push_back(MySample("Single t", "Summer12_singleTop", kBkg, kMagenta, 1, lumi_/1000., "", 0.1));
+      samples.push_back(MySample("W+jets", "Summer12_WJets", kBkg, kGreen-3, 1, lumi_/1000., "", 0.2));
+      samples.push_back(MySample("Z+jets", "Summer12_ZJets", kBkg, kAzure-2, 1, lumi_/1000., "", 0.2));
+      samples.push_back(MySample("QCD multijet", "Summer12_QCD", kBkg, kYellow, 1, lumi_/1000., "", 1.));
       samples.push_back(MySample("Diboson", "Summer12_Diboson", kBkg, kWhite, 1, lumi_/1000., "", 0.05));
     }
 
@@ -1458,6 +1476,73 @@ void TopMassControlPlots::doPlots()
   
   std::cout << "ended filling histograms" << std::endl;
   
+  // 
+  // ADD BACKGROUND TO VARIATIONS
+  //
+  
+  for(MyHistogram& hist : hists) {
+    if(hist.Dimension() != 1) continue;
+    
+    for(TH1F* sigvar : hist.Sigvar1D()) {
+      for(TH1F* bkg : hist.Bkg1D()) {
+        sigvar->Add(bkg);
+      }
+    }
+    
+    // Add normalization uncertainties to histos
+    // TODO: double-counting of norm uncertainties, normalizeToData impossible
+    //int bkgCounter = -1;
+    //for(MySample& sample : samples){
+    //  if(sample.type == kBkg) {
+    //    ++bkgCounter;
+    //    TH1F* bkg = hist.Bkg1D()[bkgCounter];
+    //    for(int i = 0; i < bkg->GetNbinsX()+2; ++i) bkg->SetBinError(i, sqrt(pow(bkg->GetBinError(i),2) + pow(bkg->GetBinContent(i)*sample.scaleunc,2)));
+    //  }
+    //  
+    //  if(sample.type == kSig) {
+    //    for(TH1F* sig : hist.Sig1D()) {
+    //      for(int i = 0; i < sig->GetNbinsX()+2; ++i) sig->SetBinError(i, sqrt(pow(sig->GetBinError(i),2) + pow(sig->GetBinContent(i)*sample.scaleunc,2)));
+    //    }
+    //  }
+    //}
+
+    // Loop over all samples to add background norm variations
+    int bkgCounter = -1;
+    for(MySample& sample : samples){
+      if(sample.type == kBkg) ++bkgCounter;
+      
+      if(sample.type == kSig) {
+        hist.AddNormVariation(&sample, "nominal");
+        for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig);
+        for(TH1F* bkg : hist.Bkg1D()) hist.Sigvar1D().back()->Add(bkg);
+      }
+      
+      if(sample.scaleunc == 0) continue;
+      
+      hist.AddNormVariation(&sample, "up");
+      for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig);
+      for(TH1F* bkg : hist.Bkg1D()) hist.Sigvar1D().back()->Add(bkg);
+      
+      if(sample.type == kSig) {
+        for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig, sample.scaleunc);
+      }
+      if(sample.type == kBkg) {
+        hist.Sigvar1D().back()->Add(hist.Bkg1D()[bkgCounter], sample.scaleunc);
+      }
+      
+      hist.AddNormVariation(&sample, "down");
+      for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig);
+      for(TH1F* bkg : hist.Bkg1D()) hist.Sigvar1D().back()->Add(bkg);
+      
+      if(sample.type == kSig) {
+        for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig, -sample.scaleunc);
+      }
+      if(sample.type == kBkg) {
+        hist.Sigvar1D().back()->Add(hist.Bkg1D()[bkgCounter], -sample.scaleunc);
+      }
+    }
+  }
+  
   // YIELDS and NORMALIZATION
   
   bool firstHist = true;
@@ -1548,6 +1633,7 @@ void TopMassControlPlots::doPlots()
     // Lepton+jets: Normalize to data
     else {
       if (po::GetOption<bool>("analysisConfig.normalizeToData")) {
+        std::cout << "Normalizing to data" << std::endl;
         for(TH1F* sig    : hist.Sig1D())    sig->Scale(integralD/(integralS+integralB));
         for(TH1F* bkg    : hist.Bkg1D())    bkg->Scale(integralD/(integralS+integralB));
         for(TH1F* sigvar : hist.Sigvar1D()) sigvar->Scale(integralD/sigvar->Integral(0,bins));
@@ -1569,73 +1655,6 @@ void TopMassControlPlots::doPlots()
             bkg->SetBinError(i, bkg->GetBinError(i) * 2);
           }
         }
-      }
-    }
-  }
-  
-  // 
-  // ADD BACKGROUND TO VARIATIONS
-  //
-  
-  for(MyHistogram& hist : hists) {
-    if(hist.Dimension() != 1) continue;
-    
-    for(TH1F* sigvar : hist.Sigvar1D()) {
-      for(TH1F* bkg : hist.Bkg1D()) {
-        sigvar->Add(bkg);
-      }
-    }
-    
-    // Add normalization uncertainties to histos
-    // TODO: double-counting of norm uncertainties, normalizeToData impossible
-    //int bkgCounter = -1;
-    //for(MySample& sample : samples){
-    //  if(sample.type == kBkg) {
-    //    ++bkgCounter;
-    //    TH1F* bkg = hist.Bkg1D()[bkgCounter];
-    //    for(int i = 0; i < bkg->GetNbinsX()+2; ++i) bkg->SetBinError(i, sqrt(pow(bkg->GetBinError(i),2) + pow(bkg->GetBinContent(i)*sample.scaleunc,2)));
-    //  }
-    //  
-    //  if(sample.type == kSig) {
-    //    for(TH1F* sig : hist.Sig1D()) {
-    //      for(int i = 0; i < sig->GetNbinsX()+2; ++i) sig->SetBinError(i, sqrt(pow(sig->GetBinError(i),2) + pow(sig->GetBinContent(i)*sample.scaleunc,2)));
-    //    }
-    //  }
-    //}
-
-    // Loop over all samples to add background norm variations
-    int bkgCounter = -1;
-    for(MySample& sample : samples){
-      if(sample.type == kBkg) ++bkgCounter;
-      
-      if(sample.type == kSig) {
-        hist.AddNormVariation(&sample, "nominal");
-        for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig);
-        for(TH1F* bkg : hist.Bkg1D()) hist.Sigvar1D().back()->Add(bkg);
-      }
-      
-      if(sample.scaleunc == 0) continue;
-      
-      hist.AddNormVariation(&sample, "up");
-      for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig);
-      for(TH1F* bkg : hist.Bkg1D()) hist.Sigvar1D().back()->Add(bkg);
-      
-      if(sample.type == kSig) {
-        for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig, sample.scaleunc);
-      }
-      if(sample.type == kBkg) {
-        hist.Sigvar1D().back()->Add(hist.Bkg1D()[bkgCounter], sample.scaleunc);
-      }
-      
-      hist.AddNormVariation(&sample, "down");
-      for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig);
-      for(TH1F* bkg : hist.Bkg1D()) hist.Sigvar1D().back()->Add(bkg);
-      
-      if(sample.type == kSig) {
-        for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig, -sample.scaleunc);
-      }
-      if(sample.type == kBkg) {
-        hist.Sigvar1D().back()->Add(hist.Bkg1D()[bkgCounter], -sample.scaleunc);
       }
     }
   }
@@ -1737,14 +1756,14 @@ void TopMassControlPlots::doPlots()
     	  collectAll2D.at(h_i)->Draw("colz");
     	  collectAll2DProfiles.at(h_i)->Draw("same");
 
-    	  TLegend* legInd = new TLegend(0.25, 0.85, 0.55, 0.925);
+    	  TLegend* legInd = new TLegend(0.25, 0.73, 0.55, 0.905);
     	  legInd->SetTextSize(0.04);
     	  legInd->SetFillStyle(0);
     	  legInd->SetBorderSize(0);
     	  legInd->AddEntry( collectAll2D.at(h_i), collectAll2D.at(h_i)->GetTitle(), "LP" );
     	  legInd->Draw();
 
-    	  helper->DrawCMS();
+    	  helper->DrawCMS(-1, -1, canv);
     	  gPad->RedrawAxis();
     	  //std::cout << HelperFunctions::cleanedName(collectAll2D.at(h_i)->GetTitle()) << std::endl;
     	  canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/2D/")+channel_+outPath_+std::string("_")+std::string(hist.Data2D()->GetName())+std::string("_Ind2D_")+HelperFunctions::cleanedName(collectAll2D.at(h_i)->GetTitle())+std::string(".eps")).c_str(),"eps");
@@ -1761,7 +1780,7 @@ void TopMassControlPlots::doPlots()
         else collectAll2DProfiles.at(h_i)->Draw("SAME");
       }
 
-      TLegend* leg0 = new TLegend(0.25, 0.75, 0.55, 0.925);
+      TLegend* leg0 = new TLegend(0.25, 0.73, 0.55, 0.905);
       leg0->SetTextSize(0.04);
       leg0->SetFillStyle(0);
       leg0->SetBorderSize(0);
@@ -1770,7 +1789,7 @@ void TopMassControlPlots::doPlots()
       }
       leg0->Draw();
 
-      TLegend *leg1 = new TLegend(0.6, 0.75, 0.9, 0.925);
+      TLegend *leg1 = new TLegend(0.6, 0.73, 0.9, 0.905);
       leg1->SetTextSize(0.03);
       leg1->SetFillStyle(0);
       leg1->SetBorderSize(0);
@@ -1778,7 +1797,7 @@ void TopMassControlPlots::doPlots()
       leg1->AddEntry( hist.Data2D(), hist.Data2D()->GetTitle(), "LP" );
       leg1->Draw();
 
-      helper->DrawCMS();
+      helper->DrawCMS(-1, -1, canv);
       gPad->RedrawAxis();
 
 
@@ -1835,7 +1854,7 @@ void TopMassControlPlots::doPlots()
         leg1->AddEntry( hist.Data2D(), hist.Data2D()->GetTitle(), hist.DataContainsMC()==false ? "P" : "LP");
         leg1->Draw();
 
-        helper->DrawCMS();
+        helper->DrawCMS(-1, -1, canv);
 
         gPad->RedrawAxis();
 
@@ -1916,7 +1935,7 @@ void TopMassControlPlots::doPlots()
         leg1->Draw();
 
         canvWRatio->cd();
-        helper->DrawCMS();
+        helper->DrawCMS(-1, -1, canvWRatio);
         gPad->RedrawAxis();
 
         canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/2DProfile/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar_Ratio.eps")).c_str(),"eps");
@@ -1992,12 +2011,12 @@ void TopMassControlPlots::doPlots()
       // background
       nSamples += hist.Bkg1D().size();
       
-      TLegend* leg0 = new TLegend(0.25, 0.75, 0.55, 0.925);
+      TLegend* leg0 = new TLegend(0.25, 0.73, 0.55, 0.905);
       leg0->SetTextSize(0.04);
       leg0->SetFillStyle(0);
       leg0->SetBorderSize(0);
       
-      TLegend *leg1 = new TLegend(0.6, 0.75, 0.9, 0.925);
+      TLegend *leg1 = new TLegend(0.6, 0.73, 0.9, 0.905);
       leg1->SetTextSize(0.04);
       leg1->SetFillStyle(0);
       leg1->SetBorderSize(0);      
@@ -2030,7 +2049,7 @@ void TopMassControlPlots::doPlots()
       leg1->Draw();
 
       gPad->RedrawAxis();
-      helper->DrawCMS();
+      helper->DrawCMS(-1, -1, canv);
 
       canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/1D/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string(".eps")).c_str(),"eps");
       canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/1D/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string(".png")).c_str(),"png");
@@ -2099,7 +2118,7 @@ void TopMassControlPlots::doPlots()
 
       canvWRatio->cd();
       
-      helper->DrawCMS();
+      helper->DrawCMS(-1, -1, canvWRatio);
 
       canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/1DRatio/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_Ratio.eps")).c_str(),"eps");
       canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/1DRatio/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_Ratio.png")).c_str(),"png");
@@ -2219,7 +2238,7 @@ void TopMassControlPlots::doPlots()
         for(TH1F* sigvar : hist1DSigVars) outFile->WriteTObject(sigvar);
         leg1->Draw();
 
-        helper->DrawCMS();
+        helper->DrawCMS(-1, -1, canv);
 
         hist1DData->Draw("axissame");
 
@@ -2274,7 +2293,7 @@ void TopMassControlPlots::doPlots()
         leg1->Draw();
 
         canvWRatio->cd();
-        helper->DrawCMS();
+        helper->DrawCMS(-1, -1, canv);
         gPad->RedrawAxis();
 
         canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/1DVarRatio/")+channel_+outPath_+std::string("_")+std::string(hist1DData->GetName())+std::string("_sigvar_Ratio.eps")).c_str(),"eps");

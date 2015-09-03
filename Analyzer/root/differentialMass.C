@@ -20,7 +20,8 @@
 #include "TPaveLabel.h"
 #include "TMath.h"
 
-#include "tdrstyle.C"
+#include "tdrstyle_new.C"
+#include "CMS_lumi.C"
 
 enum lepton          { kElectron, kMuon, kAll};
 TString lepton_ [] = { "electron", "muon", "all"};
@@ -31,7 +32,7 @@ const int nKin = 17;
 TString sBinning[nKin] = {"TopPt", "TopEta", "B1Pt", "B1Eta", "TTBarMass", "TTBarPt", "DeltaRqq", "DeltaRbb", "HT", "NJet", "Q1Pt", "Q1Eta", "WPt", "WEta", "NVertex", "LeptonCharge", "Alpha"};
 bool paper[nKin] = {true, false, true, true, true, true, true, true, false, true, false, false, false, false, false, false, false};
 TString sData[nKin] = {"top_fitTop1_Pt__", "top_fitTop1_Eta__", "top_fitB1_Pt__", "top_fitB1_Eta__", "top_fitTTBar_M__", "top_fitTTBar_Pt__", "sqrt_pow_top_fitW1Prod1_Eta__-top_fitW1Prod2_Eta__2____pow_TVector2Phi_mpi_pi_top_fitW1Prod1_Phi__-top_fitW1Prod2_Phi___2__", "sqrt_pow_top_fitB1_Eta__-top_fitB2_Eta__2____pow_TVector2Phi_mpi_pi_top_fitB1_Phi__-top_fitB2_Phi___2__", "top_fitB1_Pt___top_fitB2_Pt___top_fitW1Prod1_Pt___top_fitW1Prod2_Pt__", "Max__Iteration___jet_jet_Pt___gt_30_____1", "top_fitW1Prod1_Pt__", "top_fitW1Prod1_Eta__", "top_fitW1_Pt__", "top_fitW1_Eta__", "weight_nVertex", "-top_leptonFlavour_abs_top_leptonFlavour_", "jet_jet_4__Pt____top_recoB1_0__Pt___top_recoB2_0__Pt____2"};
-TString sBinNice[nKin] = {"p_{T,t,had} [GeV]", "|#eta_{t,had}|", "p_{T,b,had} [GeV]", "|#eta_{b,had}|", "m_{t#bar{t}} [GeV]", "p_{T,t#bar{t}} [GeV]", "#DeltaR_{q#bar{q}}", "#DeltaR_{b#bar{b}}", "H_{T}^{4} [GeV]", "Number of jets", "p_{T,q} [GeV]", "|#eta_{q}|", "p_{T,W} [GeV]", "|#eta_{W}|", "N(PV)", "lepton charge", "#alpha"};
+TString sBinNice[nKin] = {"p_{T}^{t,had} [GeV]", "|#eta^{t,had}|", "p_{T}^{b,had} [GeV]", "|#eta^{b,had}|", "m_{t#bar{t}} [GeV]", "p_{T}^{t#bar{t}} [GeV]", "#DeltaR_{q#bar{q}}", "#DeltaR_{b#bar{b}}", "H_{T}^{4} [GeV]", "Number of jets", "p_{T}^{q} [GeV]", "|#eta^{q}|", "p_{T}^{W} [GeV]", "|#eta^{W}|", "N(PV)", "lepton charge", "#alpha"};
 TString sBinLatex[nKin] = {"$p_{\\rm T,t,had}$", "$\\left|\\eta_{\\rm t,had}\\right|$", "$p_{\\rm T,b,had}$", "$\\left|\\eta_{\\rm b,had}\\right|$", "$m_{\\ttbar}$", "$p_{\\rm T,\\ttbar}$", "$\\Delta R_{\\qqbar}$", "$\\Delta R_{\\bbbar}$", "$\\HT^{4}$", "Number of jets", "$p_{\\rm T,q,had}^{1}$", "$\\left|\\eta_{\\rm q,had}^{1}\\right|$", "$p_{\\rm T,W,had}$", "$\\left|\\eta_{\\rm W,had}\\right|$", "N(PV)", "lepton charge", "$\\alpha$"};
 
 const int nObs = 6;
@@ -93,18 +94,36 @@ std::string itos(int number)
    return ss.str();
 }
 
-void differentialMass(int iBinning = 0)
+TPaveLabel* DrawLabel(TString text, const double x1, const double y1, const double x2, Color_t color = kBlack)
+{
+  // function to directly draw a label into the active canvas
+  double y2 = y1 + 0.05;
+  double yOffset = 0.02;
+  TPaveLabel *label = new TPaveLabel(x1, y1+yOffset, x2, y2+yOffset, text, "br NDC");
+  label->SetFillStyle(0);
+  label->SetBorderSize(0);
+  label->SetTextSize(0.75);
+  label->SetTextAlign(12);
+  label->SetTextColor(color);
+  label->Draw("same");
+  
+  return label;
+}
+
+void differentialMass(int iBinning = 4)
 {
   bool fixme = false;
   
-  TStyle* tdrStyle = setTDRStyle();
-  tdrStyle->SetPadLeftMargin(0.2);
-  tdrStyle->SetPadRightMargin(0.05);
-  tdrStyle->SetNdivisions(505, "X");
-  tdrStyle->SetTitleYOffset(1.75);
-  tdrStyle->SetOptStat(0);
-  tdrStyle->SetErrorX(0.5);
-  tdrStyle->SetEndErrorSize(4);
+  setTDRStyle();
+  gStyle->SetPadLeftMargin(0.2);
+  gStyle->SetPadRightMargin(0.06);
+  gStyle->SetPadTopMargin(0.08);
+  //gStyle->SetNdivisions(505, "X");
+  gStyle->SetTitleXOffset(1.2);
+  gStyle->SetTitleYOffset(1.75);
+  gStyle->SetOptStat(0);
+  gStyle->SetErrorX(0.5);
+  gStyle->SetEndErrorSize(4);
   
   std::vector<sample> samples;
   std::vector<sample>::iterator it;
@@ -492,8 +511,8 @@ void differentialMass(int iBinning = 0)
       std::cout << "nbins " << nbins << std::endl;
       double bins[nbins];
       double shift = 0.;
-      if (it->marker > 20) shift = (it->results[iObs].profileDiff->GetXaxis()->GetXmax() - it->results[iObs].profileDiff->GetXaxis()->GetXmin()) / 100. / nbins * 8. * (it->marker-27.);
-      if (it->marker >= 27) shift = (it->results[iObs].profileDiff->GetXaxis()->GetXmax() - it->results[iObs].profileDiff->GetXaxis()->GetXmin()) / 100. / nbins * 8. * (it->marker-27.+1.);
+      if (it->marker > 20) shift = (it->results[iObs].profileDiff->GetXaxis()->GetXmax() - it->results[iObs].profileDiff->GetXaxis()->GetXmin()) / 100. / nbins * 4. * (it->marker-27.);
+      if (it->marker >= 27) shift = (it->results[iObs].profileDiff->GetXaxis()->GetXmax() - it->results[iObs].profileDiff->GetXaxis()->GetXmin()) / 100. / nbins * 4. * (it->marker-27.+1.);
       for (int i = 1; i < nbins+1; i++) {
         bins[i-1] = it->results[iObs].profileDiff->GetXaxis()->GetBinLowEdge(i)+shift;
         std::cout << it->results[iObs].profileDiff->GetXaxis()->GetBinLowEdge(i) << std::endl;
@@ -595,7 +614,7 @@ void differentialMass(int iBinning = 0)
     //int ref = 0; // DATA
     double range = maxVal[iObs] - minVal[iObs];
     double minRange = minVal[iObs] - range * 0.1;
-    double maxRange = maxVal[iObs] + range * 0.75;
+    double maxRange = maxVal[iObs] + range * 0.5;
     //*
     if (doCalibration && iBinning == 16) {
       if (iObs == 1 || iObs == 2 || iObs == 4) {
@@ -611,6 +630,7 @@ void differentialMass(int iBinning = 0)
     //std::cout << "min: " << minRange << ", max: " << maxRange << std::endl;
     if (iObs != 0) hNull[iObs]->GetYaxis()->SetRangeUser(minRange, maxRange);
     else           hNull[iObs]->GetYaxis()->SetRangeUser(0, maxRange);
+    hNull[iObs]->GetXaxis()->SetTitleOffset(1.2);
     hNull[iObs]->GetXaxis()->SetTitle(sBinNice[iBinning]);
     if (doCalibration == false) hNull[iObs]->GetYaxis()->SetTitle(sObsNice[iObs]);
     else                        hNull[iObs]->GetYaxis()->SetTitle(sObsNiceCal[iObs]);
@@ -621,12 +641,12 @@ void differentialMass(int iBinning = 0)
     //f0->SetLineColor(kGray+2);
     //f0->Draw("same");
     
-    TLegend* leg0 = new TLegend(0.25, 0.75, 0.55, 0.925);
+    TLegend* leg0 = new TLegend(0.25, 0.73, 0.55, 0.9);
     leg0->SetTextSize(0.03);
     leg0->SetFillStyle(0);
     leg0->SetBorderSize(0);
     
-    TLegend *leg1 = new TLegend(0.6, 0.75, 0.9, 0.925);
+    TLegend *leg1 = new TLegend(0.6, 0.73, 0.9, 0.9);
     leg1->SetTextSize(0.03);
     leg1->SetFillStyle(0);
     leg1->SetBorderSize(0);
@@ -677,7 +697,7 @@ void differentialMass(int iBinning = 0)
         gevLabel->SetTextSize(0.85);
       }
     }
-    DrawLabel("19.7 fb^{-1},  #sqrt{s} = 8 TeV, l+jets"  , 0.5, 0.93, 0.9);
+    CMS_lumi(canvas, 21, 0.);
     
     if (fixme) DrawLabel("WARNING: Potential errors detected", 0.2, 0.00, 0.9);
     

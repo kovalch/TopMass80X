@@ -17,7 +17,8 @@
 #include "TLine.h"
 #include "TLegend.h"
 
-#include "tdrstyle.C"
+#include "tdrstyle_new.C"
+#include "CMS_lumi.C"
 
 enum styles             { kStat,  kJEC,   kTev};
 int color_      [ 4 ] = { kRed+1, kBlack, kGray};
@@ -40,7 +41,9 @@ void DrawLabel(TString text, double size, const double x1, const double y1, cons
 void unc_correlation()
 {
   TStyle* tdrStyle = setTDRStyle();
-  tdrStyle->SetPadLeftMargin(0.2);
+  gStyle->SetPadLeftMargin(0.2);
+  gStyle->SetPadRightMargin(0.04);
+  gStyle->SetPadTopMargin(0.08);
   tdrStyle->SetTitleYOffset(1.4);
   tdrStyle->SetNdivisions(505, "XYZ");
   tdrStyle->SetOptStat(0);
@@ -51,7 +54,7 @@ void unc_correlation()
   
   TMultiGraph *mg = new TMultiGraph();
   
-  double dummyv[] = {0.}; double dummyu[] = {0.01}; 
+  double dummyv[] = {0.}; double dummyu[] = {0.5}; 
   
   TGraphErrors* gDummy = new TGraphErrors(1, dummyv, dummyv, dummyu, dummyu);
                 gDummy->SetMarkerColor(kBlack);
@@ -63,7 +66,7 @@ void unc_correlation()
   
   TString uncs[] = {"bJES", "bres", "dintJES", "dMPFJES", "dunJES", "iJES", "LES", "MCGen", "PDF", "Q", "JPS", "JER", "BTag", "MET", "UE", "BKGDT", "BKGMC", "FitCal", "PU", "CR", "Trig", "Toppt"};
   
-  //*
+  /*
   mg->SetTitle(";#deltaJSF^{l+jets};#deltaJSF^{all-jets}");
   double lj2v[] = {0.001, 0.001, 0.000, 0.003, 0.004, 0.000, 0.000, 0.001, 0.001, 0.004, 0.002, 0.002, 0.000, 0.000, 0.002,  0.00, 0.000, 0.001, 0.003, 0.002, 0.00, 0.003};
   double lj2u[] = {0.00, 0.00,  0.00,  0.00,  0.00, 0.002, 0.00,  0.001, 0.00,  0.001,  0.001,  0.00, 0.00, 0.00,  0.001,  0.00, 0.00, 0.00,  0.00,  0.001, 0.00,  0.00};
@@ -72,11 +75,11 @@ void unc_correlation()
   TString filename("unc_corr_lj2_aj2_jsf.pdf");
   //*/
   
-  /*
+  /* paper!
   mg->SetTitle(";#deltam_{t (2D)}^{l+jets} [GeV];#deltam_{t (1D)}^{all-jets} [GeV]");
-  double lj2v[] = {0.40, 0.17, +0.00, -0.01, +0.09, 0.00, 0.01, -0.07, 0.09, +0.17, +0.11, -0.11, 0.06, 0.04, +0.15,  0.00, 0.05, 0.04, -0.13, +0.11, 0.00, +0.16};
+  double lj2v[] = {-0.40, -0.17, +0.00, -0.01, +0.09, 0.00, 0.01, -0.07, 0.09, +0.17, +0.11, -0.11, 0.06, 0.04, +0.15,  0.00, 0.05, 0.04, -0.13, +0.11, 0.00, +0.16};
   double lj2u[] = {0.00, 0.00,  0.00,  0.00,  0.00, 0.15, 0.00,  0.11, 0.00,  0.08,  0.09,  0.00, 0.00, 0.00,  0.15,  0.00, 0.00, 0.00,  0.00,  0.13, 0.00,  0.00};
-  double aj1v[] = {0.30, 0.12, -0.02, +0.22, -0.19, 0.00, 0.00, -0.18, 0.01, -0.19, +0.12, +0.03, 0.01, 0.00, +0.13, -0.14, 0.00, 0.06, +0.11, +0.14, 0.01, -0.08};
+  double aj1v[] = {-0.30, -0.12, -0.02, +0.22, -0.19, 0.00, 0.00, -0.18, 0.01, -0.19, +0.12, +0.03, 0.01, 0.00, +0.13, -0.14, 0.00, 0.06, +0.11, +0.14, 0.01, +0.08};
   double aj1u[] = {0.00, 0.00,  0.00,  0.00,  0.00, 0.00, 0.00,  0.14, 0.00,  0.11,  0.11,  0.00, 0.00, 0.00,  0.18,  0.00, 0.00, 0.00,  0.00,  0.16, 0.00,  0.00};
   TString filename("unc_corr_lj2_aj1.pdf");
   //*/
@@ -90,11 +93,11 @@ void unc_correlation()
   TString filename("unc_corr_lj2_lj1.pdf");
   //*/
   
-  /*
+  //* paper!
   mg->SetTitle(";#deltam_{t (hybrid)}^{l+jets} [GeV];#deltam_{t (1D)}^{all-jets} [GeV]");
-  double lj2v[] = {0.35, 0.16, +0.01, +0.12, -0.10, 0.00, 0.01, -0.12, 0.04, -0.09, +0.02, -0.03, 0.06, 0.04, +0.08, 00.00, 0.03, 0.04,  0.08, +0.01, 0.00, +0.02};
+  double lj2v[] = {-0.35, -0.16, +0.01, +0.12, -0.10, 0.00, 0.01, -0.12, 0.04, -0.09, +0.02, -0.03, 0.06, 0.04, +0.08, 00.00, 0.03, 0.04,  0.08, +0.01, 0.00, +0.02};
   double lj2u[] = {0.00, 0.00,  0.00,  0.00,  0.00, 0.00, 0.00,  0.08, 0.00,  0.08,  0.09,  0.00, 0.00, 0.00,  0.10,  0.00, 0.00, 0.00,  0.00,  0.09, 0.00,  0.00};
-  double aj1v[] = {0.30, 0.12, -0.02, +0.22, -0.19, 0.00, 0.00, -0.18, 0.01, -0.19, +0.12, +0.03, 0.01, 0.00, +0.13, -0.14, 0.00, 0.06, +0.11, +0.14, 0.01, -0.08};
+  double aj1v[] = {-0.30, -0.12, -0.02, +0.22, -0.19, 0.00, 0.00, -0.18, 0.01, -0.19, +0.12, +0.03, 0.01, 0.00, +0.13, -0.14, 0.00, 0.06, +0.11, +0.14, 0.01, +0.08};
   double aj1u[] = {0.00, 0.00,  0.00,  0.00,  0.00, 0.00, 0.00,  0.14, 0.00,  0.11,  0.11,  0.00, 0.00, 0.00,  0.18,  0.00, 0.00, 0.00,  0.00,  0.16, 0.00,  0.00};
   TString filename("unc_corr_ljh_aj1.pdf");
   //*/
@@ -167,16 +170,16 @@ void unc_correlation()
   //mg->SetMinimum(0.0);
   //mg->SetMaximum(1.0);
   
-  TLegend *leg1 = new TLegend(0.2, 0.775, 0.6, 0.92);
+  TLegend *leg1 = new TLegend(0.2, 0.755, 0.6, 0.90);
   leg1->SetFillStyle(0);
   leg1->SetBorderSize(0);
-  leg1->AddEntry( gCorr, "#rho = +100%", "P" );
+  leg1->AddEntry( gCorr, "#rho > 0", "P" );
   leg1->AddEntry( gAmbi, "ambiguous", "P" );
-  leg1->AddEntry( gAnti, "#rho = -100%", "P" );
+  leg1->AddEntry( gAnti, "#rho < 0", "P" );
   
   leg1->Draw();
   
-  //DrawCMSSim();
+  CMS_lumi(corr1, 12, 0.);
   
   corr1->Print(filename);
 }

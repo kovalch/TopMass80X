@@ -39,6 +39,7 @@ double IdeogramSampleLikelihood::DoEval(const double *x) const {
       double pullWidthFlavour = pullWidth;
       if     (flavour == 13) pullWidthFlavour = pullWidthMuo;
       else if(flavour == 11) pullWidthFlavour = pullWidthEle;
+      //eventSumProb = 1.; // TEST
       sampleResult  += weight * -2.*log(eventResult)*eventSumProb / (pullWidthFlavour*pullWidthFlavour);
       sampleSumProb += weight * eventSumProb;
       sampleNEvent  += weight;

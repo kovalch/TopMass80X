@@ -1,4 +1,4 @@
-C := g++ -O3 -Wall -fPIC -std=c++0x
+C := g++ -O3 -Wall -fPIC -std=c++0x -g
 L := g++ -O3 
 
 ROOTCFLAGS  := $(shell root-config --cflags)
@@ -18,7 +18,7 @@ CXX_FILES_CALIBRATION := $(wildcard root/calibration*.cc)
 OBJ_FILES_CALIBRATION := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_CALIBRATION))) obj/1/ProgramOptionsReader.o
 # files needed to run control plot program
 CXX_FILES_CONTROLPLOT := $(wildcard root/controlPlots*.cc)
-OBJ_FILES_CONTROLPLOT := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_CONTROLPLOT))) obj/1/ProgramOptionsReader.o obj/1/Helper.o
+OBJ_FILES_CONTROLPLOT := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_CONTROLPLOT))) obj/1/ProgramOptionsReader.o obj/1/Helper.o obj/1/CMS_lumi.o
 # files needed to run duplicate removal program
 CXX_FILES_DUPREMOVAL := $(wildcard root/duplicateRemoval*.cc)
 OBJ_FILES_DUPREMOVAL := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_DUPREMOVAL))) obj/1/ProgramOptionsReader.o
