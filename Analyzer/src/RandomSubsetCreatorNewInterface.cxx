@@ -316,16 +316,17 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file, con
     int filledPermutations = 0;
     for(int j = 0, l = std::min(((currentID == Helper::kAllJets) ? maxPermutations_ : 4), sel->GetNdata()); j < l; ++j){
       if(!sel->EvalInstance(j)) continue;
-      //if(!weight->EvalInstance(j)) continue;
+      if((currentID != Helper::kAllJets) && !weight->EvalInstance(j)) continue;
       
       int bin = 0;
       for (const auto& boundary : vBinning_) {
         if (binning->EvalInstance(j) > boundary) ++bin;
       }
       if(weight->EvalInstance(j)) {
-	sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), f4->EvalInstance(j), weight->EvalInstance(j)*sampleFactor, filledPermutations++, bin);
+        sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), f4->EvalInstance(j), weight->EvalInstance(j)*sampleFactor, filledPermutations++, bin);
       } else {
-	sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), f4->EvalInstance(j), 1.0*sampleFactor, filledPermutations++, bin);
+        if(currentID != Helper::kAllJets) std::cout << "WEIGHTS SHOULD NOT BE SET TO 1 IN L+JETS!" << std::endl; 
+        sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), f4->EvalInstance(j), 1.0*sampleFactor, filledPermutations++, bin);
       }
     }
     if(filledPermutations) ++selected;
