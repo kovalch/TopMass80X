@@ -41,7 +41,7 @@ private:
     MyHistogram(std::string name_, std::string formulax_, std::string selection_, std::string title, int nBins, double min, double max) :
       varx(0), vary(0), sel(0), histoweight(0),
       name(name_), selection(selection_),CustomHistoWeight("1."),
-      formulaex({formulax_}), formulaey({"1."}),legendHeader(""),
+      formulaex({formulax_}), formulaey({"1."}), legendHeader(""), extraLabel(""),
       plotRangeYMin(-99), plotRangeYMax(-99), plotRangeYRatioMin(po::GetOption<double>("analysisConfig.ratioYMin")),
       plotRangeYRatioMax(po::GetOption<double>("analysisConfig.ratioYMax")),
       data(new TH1F((std::string("hD")+name).c_str(), (std::string("Data")+title).c_str(), nBins, min, max)),
@@ -57,7 +57,7 @@ private:
     MyHistogram(std::string name_, std::vector<std::string> formulaex_, std::string selection_, std::string title, int nBins, double min, double max) :
       varx(0), vary(0), sel(0), histoweight(0),
       name(name_), selection(selection_),CustomHistoWeight("1."),
-      formulaex(formulaex_), formulaey({"1."}),legendHeader(""),
+      formulaex(formulaex_), formulaey({"1."}), legendHeader(""), extraLabel(""),
       plotRangeYMin(-99), plotRangeYMax(-99), plotRangeYRatioMin(po::GetOption<double>("analysisConfig.ratioYMin")),
       plotRangeYRatioMax(po::GetOption<double>("analysisConfig.ratioYMax")),
       data(new TH1F((std::string("hD")+name).c_str(), (std::string("Data")+title).c_str(), nBins, min, max)),
@@ -73,7 +73,7 @@ private:
     MyHistogram(std::string name_, std::string formulax_, std::string formulay_, std::string selection_, std::string title, int x_nBins, double x_min, double x_max, int y_nBins, double y_min, double y_max/*, double y_plotmin =0., double y_plotmax=-1.*/) :
       varx(0), vary(0), sel(0), histoweight(0),
       name(name_), selection(selection_),CustomHistoWeight("1."),
-      formulaex({formulax_}), formulaey({formulay_}),legendHeader(""),
+      formulaex({formulax_}), formulaey({formulay_}), legendHeader(""), extraLabel(""),
       plotRangeYMin(-99), plotRangeYMax(-99), plotRangeYRatioMin(po::GetOption<double>("analysisConfig.ratioYMin")),
       plotRangeYRatioMax(po::GetOption<double>("analysisConfig.ratioYMax")),
       data(new TH2F((std::string("h2D")+name).c_str(), (std::string("Data")+title).c_str(), x_nBins, x_min, x_max, y_nBins, y_min, y_max)),
@@ -87,7 +87,7 @@ private:
     MyHistogram(std::string name_, std::vector<std::string> formulaex_, std::vector<std::string> formulaey_, std::string selection_, std::string title, int x_nBins, double x_min, double x_max, int y_nBins, double y_min, double y_max/*, double y_plotmin =0., double y_plotmax=-1.*/) :
       varx(0), vary(0), sel(0), histoweight(0),
       name(name_), selection(selection_),CustomHistoWeight("1."),
-      formulaex(formulaex_), formulaey(formulaey_),legendHeader(""),
+      formulaex(formulaex_), formulaey(formulaey_), legendHeader(""), extraLabel(""),
       plotRangeYMin(-99), plotRangeYMax(-99), plotRangeYRatioMin(po::GetOption<double>("analysisConfig.ratioYMin")),
       plotRangeYRatioMax(po::GetOption<double>("analysisConfig.ratioYMax")),
       data(new TH2F((std::string("h2D")+name).c_str(), (std::string("Data")+title).c_str(), x_nBins, x_min, x_max, y_nBins, y_min, y_max)),
@@ -294,6 +294,8 @@ private:
     void ConfigureExtraOptions(bool SetFitGaussToCore, std::string SetCustomHistoweight="1.", bool ExportSigVarToRoot = false, std::string LegendHeader="", bool useLogXBins = false, bool setLogYOnPads = false, bool useLogYBins = false);
 
     void ConfigureMoreExtraOptions(bool plotStackNormalized=false);
+    
+    void SetExtraLabel(std::string label);
 
     void ConfigurePlotRanges(double PlotRangeYRatioMin, double PlotRangeYRatioMax, double PlotRangeYMin=-99, double PlotRangeYMax=-99);
 
@@ -329,7 +331,7 @@ private:
     TTreeFormula* histoweight;
     std::string name, selection, CustomHistoWeight;
     std::vector<std::string> formulaex, formulaey;
-    std::string legendHeader;
+    std::string legendHeader, extraLabel;
     double plotRangeYMin, plotRangeYMax, plotRangeYRatioMin, plotRangeYRatioMax;
   private:
     TH1* data;

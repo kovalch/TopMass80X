@@ -31,8 +31,8 @@ float extraOverCmsTextSize  = 0.76;
 
 TString lumi_13TeV = "20.1 fb^{-1}";
 TString lumi_8TeV  = "19.7 fb^{-1}";
-TString lumi_8TeV_lepjets = "lepton+jets, 19.7 fb^{-1}";
-TString lumi_8TeV_alljets = "all-jets, 18.2 fb^{-1}";
+TString lumi_8TeV_lepjets = "Lepton+jets, 19.7 fb^{-1}";
+TString lumi_8TeV_alljets = "All-jets, 18.2 fb^{-1}";
 TString lumi_7TeV  = "5.1 fb^{-1}";
 
 bool drawLogo      = false;

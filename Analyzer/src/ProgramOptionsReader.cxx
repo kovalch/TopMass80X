@@ -136,6 +136,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("analysisConfig.signalFactor", boost::program_options::value<double>()->default_value(1.0))
         ("analysisConfig.backgroundSamplesLept", boost::program_options::value<std::string>()->default_value("Summer12_WJets|Summer12_ZJets|Summer12_singleTop|Summer12_QCD|Summer12_Diboson"))
         ("analysisConfig.backgroundFactorsLept", boost::program_options::value<std::string>()->default_value("1|1|1|1|1"))
+        ("analysisConfig.extraLabel", boost::program_options::value<std::string>()->default_value(""))
         ("templates.fSig", boost::program_options::value<double>()->default_value(0.0))
         ("templates.fCP", boost::program_options::value<double>()->default_value(0.0))
         ("templates.fWP", boost::program_options::value<double>()->default_value(0.0))

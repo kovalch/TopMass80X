@@ -75,7 +75,7 @@ void unc_correlation()
   TString filename("unc_corr_lj2_aj2_jsf.pdf");
   //*/
   
-  /* paper!
+  //* paper!
   mg->SetTitle(";#deltam_{t (2D)}^{l+jets} [GeV];#deltam_{t (1D)}^{all-jets} [GeV]");
   double lj2v[] = {-0.40, -0.17, +0.00, -0.01, +0.09, 0.00, 0.01, -0.07, 0.09, +0.17, +0.11, -0.11, 0.06, 0.04, +0.15,  0.00, 0.05, 0.04, -0.13, +0.11, 0.00, +0.16};
   double lj2u[] = {0.00, 0.00,  0.00,  0.00,  0.00, 0.15, 0.00,  0.11, 0.00,  0.08,  0.09,  0.00, 0.00, 0.00,  0.15,  0.00, 0.00, 0.00,  0.00,  0.13, 0.00,  0.00};
@@ -93,7 +93,7 @@ void unc_correlation()
   TString filename("unc_corr_lj2_lj1.pdf");
   //*/
   
-  //* paper!
+  /* paper!
   mg->SetTitle(";#deltam_{t (hybrid)}^{l+jets} [GeV];#deltam_{t (1D)}^{all-jets} [GeV]");
   double lj2v[] = {-0.35, -0.16, +0.01, +0.12, -0.10, 0.00, 0.01, -0.12, 0.04, -0.09, +0.02, -0.03, 0.06, 0.04, +0.08, 00.00, 0.03, 0.04,  0.08, +0.01, 0.00, +0.02};
   double lj2u[] = {0.00, 0.00,  0.00,  0.00,  0.00, 0.00, 0.00,  0.08, 0.00,  0.08,  0.09,  0.00, 0.00, 0.00,  0.10,  0.00, 0.00, 0.00,  0.00,  0.09, 0.00,  0.00};
@@ -174,7 +174,7 @@ void unc_correlation()
   leg1->SetFillStyle(0);
   leg1->SetBorderSize(0);
   leg1->AddEntry( gCorr, "#rho > 0", "P" );
-  leg1->AddEntry( gAmbi, "ambiguous", "P" );
+  leg1->AddEntry( gAmbi, "Ambiguous", "P" );
   leg1->AddEntry( gAnti, "#rho < 0", "P" );
   
   leg1->Draw();

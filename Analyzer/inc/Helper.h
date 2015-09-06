@@ -22,7 +22,6 @@ private:
   void init();
   static int channelIDFromString(const std::string& channel);
   static int methodIDFromString(const std::string& method);
-  void DrawLabel(const std::string& text, const double x1, const double y1, const double x2, Color_t color = kBlack);
   int channelID_;
   int energy_;
 
@@ -33,6 +32,7 @@ public:
 
   TH1F* GetH1(const std::string& title);
   void SetTDRStyle();
+  void DrawLabel(const std::string& text, const double x1, const double y1, const double x2, Color_t color = kBlack);
   void DrawCMS(int channelID = -1, int energy = -1, TCanvas* canvas = 0);
   void DrawCMSSim(int energy = -1);
 
