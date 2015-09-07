@@ -1,7 +1,7 @@
 #ifndef MASSANALYZER_H
 #define MASSANALYZER_H
 
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 #include <map>
 #include <string>

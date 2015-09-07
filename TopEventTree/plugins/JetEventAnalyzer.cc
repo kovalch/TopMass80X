@@ -90,7 +90,7 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     }
     jet->charge .push_back(ijet->jetCharge());
     jet->flavour.push_back(ijet->partonFlavour());
-    jet->bTagCSV.push_back(ijet->bDiscriminator("combinedSecondaryVertexBJetTags"));
+    jet->bTagCSV.push_back(ijet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
 
     if(hasQGTag  ) jet->gluonTag.push_back(ijet->userFloat(gluonTagName_));
     if(hasJERSF  ) jet->jerSF   .push_back(ijet->userFloat("jerSF"      ));

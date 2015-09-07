@@ -70,7 +70,7 @@ from TopQuarkAnalysis.Configuration.patRefSel_refMuJets import *
 inputFiles = ['/store/data/Run2015B/SingleMuon/MINIAOD/PromptReco-v1/000/251/562/00000/E0561625-7C2A-E511-9016-02163E0133D1.root']
 
 ### Selection steps
-# If a step is switched off here, its results will still be available in the coreespondinng TriggerResults of this process.
+# If a step is switched off here, its results will still be available in the corresponding TriggerResults of this process.
 
 # Event filter
 # This parameter defines the level, at which events will be filtered for output.
@@ -124,7 +124,7 @@ electronCut = electronGsfCut
 
 # Step 6
 bTagSrc = 'selectedJets'
-#bTagCut = ''
+bTagCut = 'bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.814'
 minBTags = 2
 
 # TriggerMatching
@@ -741,7 +741,7 @@ if runOnMiniAOD:
 #process.analyzer         = cms.Sequence(process.makeGenEvt+process.makeTtSemiLepEvent+process.analyzeHitFit+process.analyzeJets+process.analyzeWeights )
 process.analyzer         = cms.Sequence(process.analyzeHitFit+process.analyzeJets+process.analyzeWeights )
 if data:
-    process.pAnal            = cms.Path(process.sSignalMuon+process.analyzer )
+    process.pAnal            = cms.Path(process.sElectronVeto+process.analyzer )
 else:
     process.pAnal            = cms.Path(process.analyzer )
 

@@ -9,6 +9,7 @@
 #define JETEVENT_H_
 
 #include "TObject.h"
+#include "TVector2.h"
 #include "TLorentzVector.h"
 #include <vector>
 
