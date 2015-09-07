@@ -1,17 +1,7 @@
 <lcgdict>
   <class name="ResolutionVariables"/>
 
-  <class name="edm::Wrapper<std::vector<std::vector<int> > >"/>
-  <class name="std::vector<std::vector<int> >"/>
 
-  <class name="edm::RefToBaseVector<pat::Muon>"/>
-  <class name="edm::Wrapper<edm::RefToBaseVector<pat::Muon> >"/>
-  <class name="edm::reftobase::BaseVectorHolder<pat::Muon>"/>
-
-  <class name="edm::Wrapper<reco::Muon>"/>
-  <class name="edm::RefToBaseVector<reco::Muon>"/>
-  <class name="edm::Wrapper<edm::RefToBaseVector<reco::Muon> >"/>
-  <class name="edm::reftobase::BaseVectorHolder<reco::Muon>"/>
 
  <class name="edm::RefToBaseVector<pat::Jet>"/>
   <class name="edm::Wrapper<edm::RefToBaseVector<pat::Jet> >"/>

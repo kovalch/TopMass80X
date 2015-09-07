@@ -14,6 +14,7 @@
 
 EventWeightBJES::EventWeightBJES(const edm::ParameterSet& cfg):
   genJets_                (cfg.getParameter<edm::InputTag>("genJets")),
+  genParticles_           (cfg.getParameter<edm::InputTag>("genParticles")),
   nuDecayFractionSource_  (cfg.getParameter<double>("nuDecayFractionSource")),
   nuDecayFractionTarget_  (cfg.getParameter<double>("nuDecayFractionTarget")),
   fragSourceFile_         (cfg.getParameter<edm::FileInPath>("fragSourceFile")),
@@ -31,21 +32,21 @@ EventWeightBJES::EventWeightBJES(const edm::ParameterSet& cfg):
   hists["eventWeight"]           = fs->make<TH1F>("eventWeight", "eventWeight", 1000, 0, 10 );
   hists["genBHadronNuDecay"]     = fs->make<TH1F>("genBHadronNuDecay", "genBHadronNuDecay", 2, 0, 2);
   hists["genBHadronPtFraction"]  = fs->make<TH1F>("genBHadronPtFraction", "genBHadronPtFraction", 100, 0, 2);
-  
+
   sourceFile = new TFile((TString)fragSourceFile_.fullPath());
   targetFile = new TFile((TString)fragTargetFile_.fullPath());
-  
+
   sourceHist = (TH1F*) sourceFile->Get("EventWeightBJES/genBHadronPtFraction")->Clone();
   targetHist = (TH1F*) targetFile->Get("EventWeightBJES/genBHadronPtFraction")->Clone();
-  
+
   if (sourceHist->GetNbinsX() != targetHist->GetNbinsX()) std::cout << "Incompatible b-fragmentation histograms: Number of bins not equal" << std::endl;
-  
+
   sourceHist->Scale(1./sourceHist->Integral());
   targetHist->Scale(1./targetHist->Integral());
-  
+
   hists["weightHist"] = (TH1F*) targetHist->Clone();
   hists.find("weightHist")->second->Divide(sourceHist);
-  
+
   std::cout << "Weights for b-fragmentation" << std::endl;
   for (int i = 0; i < sourceHist->GetNbinsX(); ++i) {
     std::cout << std::setiosflags(std::ios::left)
@@ -61,31 +62,31 @@ EventWeightBJES::~EventWeightBJES()
 
 void
 EventWeightBJES::produce(edm::Event& evt, const edm::EventSetup& setup)
-{  
+{
   edm::Handle<std::vector< reco::GenJet > > genJets;
   evt.getByLabel(genJets_, genJets);
-  
+
   double eventWeight = 1.;
 
   //////////////////////////////////////////////////////////////////////////
   // GENPARTICLES
   ////////////////////////////////////////////////////////////////////////
-    
+
   edm::Handle<reco::GenParticleCollection> genParticles;
-  evt.getByLabel("genParticles", genParticles);
+  evt.getByLabel(genParticles_, genParticles);
   for(size_t i = 0; i < genParticles->size(); ++ i) {
     const reco::GenParticle & p = (*genParticles)[i];
     if (p.pt() == 0) continue;
-    
+
     int id = p.pdgId();
     if (!IS_BHADRON_PDGID(id)) continue;
-    
+
     int n = p.numberOfDaughters();
-    
+
     bool hasBDaughter = false;
     bool hasNuDaughter = false;
     double genBHadronNuDecay = 0.;
-    
+
     for(int j = 0; j < n; ++j) {
       const reco::Candidate * d = p.daughter( j );
       int dauId = d->pdgId();
@@ -95,10 +96,10 @@ EventWeightBJES::produce(edm::Event& evt, const edm::EventSetup& setup)
       }
       if (IS_NEUTRINO_PDGID(dauId)) hasNuDaughter = true;
     }
-    
+
     // Weakly decaying B hadron
     if (!hasBDaughter) {
-    
+
       // Neutrino fraction weight
       if (hasNuDaughter) {
         genBHadronNuDecay = 1.;
@@ -108,14 +109,14 @@ EventWeightBJES::produce(edm::Event& evt, const edm::EventSetup& setup)
         eventWeight *= (1.-nuDecayFractionTarget_)/(1.-nuDecayFractionSource_);
       }
       hists.find("genBHadronNuDecay")->second->Fill( genBHadronNuDecay );
-      
+
       // Fragmentation weight
       for (std::vector< reco::GenJet >::const_iterator ijet = genJets->begin(); ijet != genJets->end(); ++ijet) {
         if (p.pt() == 0 || ijet->pt() == 0) continue;
         double deta = p.eta() - ijet->eta();
         double dphi = TVector2::Phi_mpi_pi(p.phi() - ijet->phi());
         double dr   = sqrt( deta*deta + dphi*dphi );
-        
+
         // Simple dR match of hadron and GenJet
         if (dr < 0.5) {
           double xb = p.pt()/ijet->pt();
@@ -133,17 +134,17 @@ EventWeightBJES::produce(edm::Event& evt, const edm::EventSetup& setup)
 
   std::auto_ptr<double> EventWeightBJES(new double);
   *EventWeightBJES = eventWeight;
-  evt.put(EventWeightBJES);  
-  
+  evt.put(EventWeightBJES);
+
   hists.find("eventWeight" )->second->Fill( eventWeight );
 }
 
 // executed at the end after looping over all events
-void EventWeightBJES::endJob() 
+void EventWeightBJES::endJob()
 {
   double genBHadronNuDecayMean = hists.find("genBHadronNuDecay" )->second->GetMean();
   std::cout << "B hadron semi-leptonic BR = " << genBHadronNuDecayMean << std::endl;
-  
+
   double genBHadronPtFractionMean = hists.find("genBHadronPtFraction" )->second->GetMean();
   std::cout << "B hadron pT fraction = " << genBHadronPtFractionMean << std::endl;
 }
@@ -151,4 +152,3 @@ void EventWeightBJES::endJob()
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE( EventWeightBJES );
-

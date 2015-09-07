@@ -13,7 +13,7 @@ ElectronAnalyzer::ElectronAnalyzer(const edm::ParameterSet& cfg):
   electrons_  ( cfg.getParameter<edm::InputTag>     ( "electrons"  )),
   jets_       ( cfg.getParameter<edm::InputTag>     ( "jets"       )),
   puWeight_   ( cfg.getParameter<edm::InputTag>     ( "weightPU"   )),
-  lepSfWeight_( cfg.getParameter<edm::InputTag>     ( "weightLepSF")),    
+  lepSfWeight_( cfg.getParameter<edm::InputTag>     ( "weightLepSF")),
   verbosity_  ( cfg.getParameter<bool>              ( "verbosity"  )),
   fromTo_     ( cfg.getParameter<std::vector<int> > ( "from_to"    ))
 {
@@ -86,7 +86,7 @@ ElectronAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
 
     dB_->Fill(electron->dB(), weight);
 
-    nlost_->Fill(electron->gsfTrack()->trackerExpectedHitsInner().numberOfLostHits(), weight);
+    nlost_->Fill(electron->gsfTrack()->numberOfLostHits(), weight);
 
     if (jets.failedToGet()) {
         jet_dist_->Fill(jet_dist_->GetBinLowEdge(jet_dist_->GetNbinsX()), weight);

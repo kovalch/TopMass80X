@@ -2,23 +2,23 @@
 
 /// default constructor for fw lite
 ElectronQuality::ElectronQuality(const int index) : norm_(0.), index_(index)
-{ 
+{
 }
 
 /// constructor for full FW analyzer
-ElectronQuality::ElectronQuality(const edm::ParameterSet& cfg) : norm_(0.), 
+ElectronQuality::ElectronQuality(const edm::ParameterSet& cfg) : norm_(0.),
   index_( cfg.getParameter<int>( "index" ) )
 {
 }
 
-/// histogramm booking for fwlite 
-void 
+/// histogramm booking for fwlite
+void
 ElectronQuality::book()
 {
-  /** 
+  /**
       Selection Variables
   **/
-  // number of valid hits in silicon tracker   
+  // number of valid hits in silicon tracker
   hists_["nHit"             ] = new TH1F( "nHit"             ,  "nHit"             ,   35,  -0.5,  34.5 );
   // normalized chi2 of global electron track fit
   hists_["chi2"             ] = new TH1F( "chi2"             ,  "chi2"             ,   30,   0. ,  15.  );
@@ -43,10 +43,10 @@ ElectronQuality::book()
   hists_["etaSC"            ] = new TH1F( "etaSC"            ,  "etaSC"            ,   700, -3.5,  3.5  );
   // dB
   hists_["dB"               ] = new TH1F( "dB"               ,  "dB"               ,   100,  0. ,  0.1  );
-  // electron ID 
-  hists_["simpleEleId70cIso"] = new TH1F( "simpleEleId70cIso",  "simpleEleId70cIso",    10, -0.5,  9.5  ); 
   // electron ID
-  hists_["simpleEleId95cIso"] = new TH1F( "simpleEleId95cIso",  "simpleEleId95cIso",    10, -0.5,  9.5  ); 
+  hists_["simpleEleId70cIso"] = new TH1F( "simpleEleId70cIso",  "simpleEleId70cIso",    10, -0.5,  9.5  );
+  // electron ID
+  hists_["simpleEleId95cIso"] = new TH1F( "simpleEleId95cIso",  "simpleEleId95cIso",    10, -0.5,  9.5  );
   // nHitsInner
   hists_["nHitsInner"       ] = new TH1F( "nHitsInner"       ,  "nHitsInner"       ,    35, -0.5, 34.5  );
   // convDcot
@@ -57,10 +57,10 @@ ElectronQuality::book()
 
 
 /// histogramm booking for full fw
-void 
+void
 ElectronQuality::book(edm::Service<TFileService>& fs)
 {
-  /** 
+  /**
       Selection Variables
   **/
   // number of valid hits in silicon tracker
@@ -93,10 +93,10 @@ ElectronQuality::book(edm::Service<TFileService>& fs)
   hists_["etaSC"            ] = fs->make<TH1F>( "etaSC"            ,  "etaSC"            ,   700, -3.5,  3.5  );
   // dB
   hists_["dB"               ] = fs->make<TH1F>( "dB"               ,  "dB"               ,   100,  0. ,   0.1 );
-  // electron ID 
-  hists_["simpleEleId70cIso"] = fs->make<TH1F>( "simpleEleId70cIso",  "simpleEleId70cIso",    10, -0.5,   9.5 ); 
   // electron ID
-  hists_["simpleEleId95cIso"] = fs->make<TH1F>( "simpleEleId95cIso",  "simpleEleId95cIso",    10, -0.5 ,  9.5 ); 
+  hists_["simpleEleId70cIso"] = fs->make<TH1F>( "simpleEleId70cIso",  "simpleEleId70cIso",    10, -0.5,   9.5 );
+  // electron ID
+  hists_["simpleEleId95cIso"] = fs->make<TH1F>( "simpleEleId95cIso",  "simpleEleId95cIso",    10, -0.5 ,  9.5 );
   // nHitsInner
   hists_["nHitsInner"       ] = fs->make<TH1F>( "nHitsInner"       ,  "nHitsInner"       ,    35, -0.5,  34.5 );
   // convDcot
@@ -116,21 +116,21 @@ ElectronQuality::fill(const edm::View<pat::Electron>& electrons, const double& w
   double relIso=0.;
   for(edm::View<pat::Electron>::const_iterator electron=electrons.begin(); electron!=electrons.end(); ++electron, ++index){
       if( (index_<0 || index_==index) ){
-      relIso=((electron->chargedHadronIso() + 
+      relIso=((electron->chargedHadronIso() +
 	       TMath::Max((electron->neutralHadronIso() + electron->photonIso() - 0.5*electron->puChargedHadronIso()),0.0)
 	       ) / electron->pt());
       /**
 	 Fill Selection Variables
       **/
       // number of valid hits in silicon tracker
-      hists_.find("nHit")            ->second->Fill( electron->gsfTrack()->numberOfValidHits(), weight ); 
+      hists_.find("nHit")            ->second->Fill( electron->gsfTrack()->numberOfValidHits(), weight );
       // normalized chi2 of global electron track fit
-      hists_.find("chi2")            ->second->Fill( electron->gsfTrack()->normalizedChi2(), weight ); 
+      hists_.find("chi2")            ->second->Fill( electron->gsfTrack()->normalizedChi2(), weight );
       // d0 significance of track (still to nominal IP)
       hists_.find("d0"  )            ->second->Fill( electron->gsfTrack()->d0(), weight );
       /// detector based relIso
       // relative isolation (tracker and calo combined)
-      //hists_.find("relIso")          ->second->Fill( (electron->dr03TkSumPt()+electron->dr03EcalRecHitSumEt()+electron->dr03HcalTowerSumEt())/electron->et(), weight );    
+      //hists_.find("relIso")          ->second->Fill( (electron->dr03TkSumPt()+electron->dr03EcalRecHitSumEt()+electron->dr03HcalTowerSumEt())/electron->et(), weight );
       /// PF relIso
       hists_.find("relIso")->second->Fill( relIso, weight );
       // energy in ecal corrected on SC level
@@ -148,21 +148,21 @@ ElectronQuality::fill(const edm::View<pat::Electron>& electrons, const double& w
       // the supercluster eta - track eta position at calo extrapolated from innermost track state
       hists_.find("deltaEtaIn")      ->second->Fill(  electron->deltaEtaSuperClusterTrackAtVtx(), weight );
       // the seed cluster phi - track phi position at calo extrapolated from the innermost track state
-      hists_.find("deltaPhiIn")      ->second->Fill(  electron->deltaPhiSuperClusterTrackAtVtx(), weight );    
+      hists_.find("deltaPhiIn")      ->second->Fill(  electron->deltaPhiSuperClusterTrackAtVtx(), weight );
       // weighted cluster rms along eta and inside 5x5
-      hists_.find("sigmaIetaIeta") ->second->Fill(  electron->sigmaIetaIeta() , weight );   
+      hists_.find("sigmaIetaIeta") ->second->Fill(  electron->sigmaIetaIeta() , weight );
 
-      hists_.find("etaSC")->second->Fill( electron->superCluster()->eta() , weight );  
+      hists_.find("etaSC")->second->Fill( electron->superCluster()->eta() , weight );
       // dB
       hists_.find("dB")->second->Fill( electron->dB() , weight ) ;
-      // electron ID 
+      // electron ID
       hists_.find("simpleEleId70cIso")->second->Fill( electron->electronID("simpleEleId70cIso") , weight ) ;
       // electron ID
       hists_.find("simpleEleId95cIso")->second->Fill( electron->electronID("simpleEleId95cIso") , weight ) ;
       // nHitsInner
-      hists_.find("nHitsInner")->second->Fill( electron->gsfTrack()->trackerExpectedHitsInner().numberOfHits() , weight ) ;
+      hists_.find("nHitsInner")->second->Fill( electron->gsfTrack()->numberOfLostHits() , weight ) ;
       // convDcot
-      hists_.find("convDcot")->second->Fill( electron->convDcot() , weight ) ;   
+      hists_.find("convDcot")->second->Fill( electron->convDcot() , weight ) ;
       // convDist
       hists_.find("convDist")->second->Fill( electron->convDist() , weight ) ;
     }
@@ -170,17 +170,17 @@ ElectronQuality::fill(const edm::View<pat::Electron>& electrons, const double& w
 }
 
 /// everything which needs to be done after the event loop
-void 
+void
 ElectronQuality::process()
 {
-  // fill normalization histogramwith the number of electrons, 
-  // that went into the eflow histograms (weighted); we 
-  // need this workaround to be able to normalize even 
+  // fill normalization histogramwith the number of electrons,
+  // that went into the eflow histograms (weighted); we
+  // need this workaround to be able to normalize even
   // after the use of hadd, when running in batch mode...
   //  hists_.find("norm_" )->second->SetBinContent( 1, norm_ );
 }
 
-/// get number of objects within a ring in deltaR corresponding to the bin width 
+/// get number of objects within a ring in deltaR corresponding to the bin width
 /// of the histogram 'hist' from 'deposit' and fill hist with it
 void
 ElectronQuality::objectFlow(TH1* hist, const pat::IsoDeposit* deposit)
@@ -194,7 +194,7 @@ ElectronQuality::objectFlow(TH1* hist, const pat::IsoDeposit* deposit)
   }
 }
 
-/// get energy of objects within a ring in deltaR corresponding to the bin width 
+/// get energy of objects within a ring in deltaR corresponding to the bin width
 /// of the histogram 'hist' from 'deposit' and fill hist with it
 void
 ElectronQuality::energyFlow(TH1* hist, const pat::IsoDeposit* deposit)
@@ -211,7 +211,7 @@ ElectronQuality::energyFlow(TH1* hist, const pat::IsoDeposit* deposit)
   }
 }
 
-/// get energy of objects within a ring in deltaR corresponding to the bin width 
+/// get energy of objects within a ring in deltaR corresponding to the bin width
 /// of the histogram 'hist' from 'deposit' and fill hist with it
 void
 ElectronQuality::energyFlow(TH1* hist, const pat::IsoDeposit* ecalDeposit, const pat::IsoDeposit* hcalDeposit)

@@ -3,7 +3,6 @@
 <use   name="DataFormats/FWLite"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/FWLite"/>
-<use   name="rootcintex"/>
 <use   name="root"/>
 <environment>
   <bin   file="FWLiteMuonQualityAnalyzer.cc">

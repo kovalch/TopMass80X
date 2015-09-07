@@ -1,6 +1,6 @@
 #include "TopAnalysis/TopUtils/interface/ResolutionVariables.h"
 
-#include "DataFormats/JetReco/interface/CaloJetCollection.h" 
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
@@ -10,7 +10,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 
 
-#include "DataFormats/Common/interface/RefProd.h" 
+#include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/RefHolder.h"
 #include "DataFormats/Common/interface/Holder.h"
@@ -20,17 +20,17 @@ using namespace reco;
 
 namespace {
   struct dictionary {
-    edm::Wrapper<std::vector<std::vector<int> > > bla;
-    std::vector<std::vector<int> > bla_vector;  
-    
-    edm::Wrapper<reco::Muon> rmw;
-    edm::RefToBaseVector<reco::Muon> rmurtbv;
-    edm::Wrapper<edm::RefToBaseVector<reco::Muon> > rmurtbv_w;
-    edm::reftobase::BaseVectorHolder<reco::Muon>* rbvhmu_p;
+    //edm::Wrapper<std::vector<std::vector<int> > > bla;
+    //std::vector<std::vector<int> > bla_vector;  
 
-    edm::RefToBaseVector<pat::Muon> murtbv;
-    edm::Wrapper<edm::RefToBaseVector<pat::Muon> > murtbv_w;
-    edm::reftobase::BaseVectorHolder<pat::Muon>* bvhmu_p;
+    //edm::Wrapper<reco::Muon> rmw;
+    //edm::RefToBaseVector<reco::Muon> rmurtbv;
+    //edm::Wrapper<edm::RefToBaseVector<reco::Muon> > rmurtbv_w;
+    //edm::reftobase::BaseVectorHolder<reco::Muon>* rbvhmu_p;
+
+    //edm::RefToBaseVector<pat::Muon> murtbv;
+    //edm::Wrapper<edm::RefToBaseVector<pat::Muon> > murtbv_w;
+    //edm::reftobase::BaseVectorHolder<pat::Muon>* bvhmu_p;
 
     edm::RefToBaseVector<pat::Jet> jrtbv;
     edm::Wrapper<edm::RefToBaseVector<pat::Jet> > jrtbv_w;

@@ -8,7 +8,6 @@
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DataFormats/BTauReco"/>
 <use name="RecoBTau/JetTagComputer"/>
-<use name="TopQuarkAnalysis/TopEventProducers"/>
 <library file="*.cc" name="TopAnalysisHiggsUtilsPlugins">
   <use name="TopAnalysis/HiggsUtils"/>
   <flags EDM_PLUGIN="1"/>

@@ -16,7 +16,8 @@
   <class name="std::vector<JetProperties>" />
   <class name="edm::Wrapper<std::vector<JetProperties> >" />
   
-  <class name="GenZDecayProperties" ClassVersion="10">
+  <class name="GenZDecayProperties" ClassVersion="11">
+   <version ClassVersion="11" checksum="1118273805"/>
     <version ClassVersion="10" checksum="2584697250"/>
   </class>
   <class name="edm::Wrapper<GenZDecayProperties>" />

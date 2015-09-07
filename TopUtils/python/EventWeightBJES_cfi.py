@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 EventWeightBJES = cms.EDProducer("EventWeightBJES",
-  genJets               = cms.InputTag("ak5GenJets"),
+  genJets               = cms.InputTag("ak4GenJets"),
+  genParticles          = cms.InputTag("genParticles"),
   nuDecayFractionSource = cms.double(0.25),
     ## Pythia6 is 0.25
   nuDecayFractionTarget = cms.double(0.25),

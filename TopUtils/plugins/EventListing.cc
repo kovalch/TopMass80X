@@ -6,10 +6,12 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <iostream>
+
 /**
    \class   EventListing EventListing.cc "TopAnalysis/TopUtils/plugins/EventListing.cc"
 
-   \brief   EDAnalyzer which only prints a list of selected events at the end of a cmsRun job 
+   \brief   EDAnalyzer which only prints a list of selected events at the end of a cmsRun job
 
    EDAnalyzer which only prints a list of selected events at the end of a cmsRun job.
    Just put it somewhere in your path at a certain selection step and you will get a list of all
@@ -21,7 +23,7 @@ class EventListing : public edm::EDAnalyzer {
  public:
   explicit EventListing(const edm::ParameterSet&);
   ~EventListing(){};
-  
+
  private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
@@ -31,12 +33,12 @@ class EventListing : public edm::EDAnalyzer {
 };
 
 EventListing::EventListing(const edm::ParameterSet& cfg)
-{      
+{
 }
 
 void
 EventListing::analyze(const edm::Event& evt, const edm::EventSetup& setup)
-{  
+{
   evtlist.push_back(evt.id().run());
   evtlist.push_back(evt.id().luminosityBlock());
   evtlist.push_back(evt.id().event());

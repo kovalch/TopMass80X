@@ -65,7 +65,7 @@ class ObjectResolution{
     //fillValue("x1" , x1 , weight);
     //fillValue("x2" , x2 , weight);
     //fillValue("Q"  , Q  , weight);
-    return fill(inputCollection, weight);
+    fill(inputCollection, weight);
 };
 
  protected:

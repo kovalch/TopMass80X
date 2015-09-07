@@ -89,7 +89,7 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
                                                                   , label  = cms.untracked.string('AK4PFchs')
                                                                   )
                                                           ## here you add as many jet types as you need
-                                                          ## note that the tag name is specific for the particular sqlite file 
+                                                          ## note that the tag name is specific for the particular sqlite file
                                                          )
                                       , connect = cms.string('sqlite:'+options['JECFile'])
                                       )
@@ -97,7 +97,7 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
             process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
         else:
             raise ValueError, "The options 'JECEra' and 'JECFile' may only be set both (using the give SQLite file and JEC era) or none (taking the JEC from the global tag) and not only one of them!"
-            
+
     ## choose correct set of jec levels for MC and data
     if options['runOnMC']:
         jecLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']
@@ -115,7 +115,7 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
              , jetAlgo        = 'AK4'
              , outputModules  = []
              , postfix        = postfix
-             , jetCorrections = ('AK5PFchs',cms.vstring(jecLevels),'type-1')
+             , jetCorrections = ('AK4PFchs',cms.vstring(jecLevels),'type-1')
 	     , pvCollection   = 'goodOfflinePrimaryVertices'
              )
 
@@ -127,7 +127,7 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
     #??? ??? ??? STILL NEEDED ??? ??? ???
     #????????????????????????????????????
     process.pfPileUp.checkClosestZVertex = False
-    process.pfPileUpIso.checkClosestZVertex = True
+    #process.pfPileUpIso.checkClosestZVertex = True
 
     ## remove taus and photons from pat sequence
     #from PhysicsTools.PatAlgos.tools.coreTools import removeSpecificPATObjects, removeCleaning
@@ -158,9 +158,9 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
         if options['resolutionsVersion'] == 'tqaf'     :
           process.load("TopQuarkAnalysis.TopObjectResolutions.stringResolutions_etEtaPhi_cff")
         elif options['resolutionsVersion'] == 'summer11' :
-          process.load("TopAnalysis.Configuration.stringResolutions_etEtaPhi_Summer11_cff")
+          process.load("TopQuarkAnalysis.TopObjectResolutions.stringResolutions_etEtaPhi_Summer11_cff")
         elif options['resolutionsVersion'] == 'fall11' :
-          process.load("TopAnalysis.Configuration.stringResolutions_etEtaPhi_Fall11_cff")
+          process.load("TopQuarkAnalysis.TopObjectResolutions.stringResolutions_etEtaPhi_Fall11_cff")
         else :
           raise ValueError, "Wrong config: 'resolutionsVersion' may only be set to 'tqaf' or 'summer11', not to *"+str(options['resolutionsVersion'])+"*!"
 
@@ -204,7 +204,7 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
         getattr(process,'pfNoMuon'+postfix).enable = False
 
     ## use beamspot for dB calculation
-    getattr(process,'patMuons'+postfix).usePV = False
+    #getattr(process,'patMuons'+postfix).usePV = False
 
     ## adding of resolutions into the patObjects
     if options['addResolutions']:
@@ -224,7 +224,7 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
         getattr(process,'patMuons'+postfix).embedCombinedMuon       = False
         getattr(process,'patMuons'+postfix).embedGenMatch           = False
         getattr(process,'patMuons'+postfix).embedPickyMuon          = False
-	
+
     getattr(process,'selectedPatMuons'+postfix).cut = options['cutsMuon']
 
     ## no cut muons
@@ -329,7 +329,7 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
                                   , simpleEleId70cIso   = cms.InputTag("simpleEleId70cIso")
                                   , simpleEleId60cIso   = cms.InputTag("simpleEleId60cIso")
                                   )
-				  
+
         process.simpleEleId95relIso.src = "gedGsfElectrons"
         process.simpleEleId90relIso.src = "gedGsfElectrons"
         process.simpleEleId85relIso.src = "gedGsfElectrons"
@@ -342,7 +342,7 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
         process.simpleEleId80cIso  .src = "gedGsfElectrons"
         process.simpleEleId70cIso  .src = "gedGsfElectrons"
         process.simpleEleId60cIso  .src = "gedGsfElectrons"
-	
+
 	process.simpleEleId95relIso.verticesCollection = "goodOfflinePrimaryVerticesWithBS"
         process.simpleEleId90relIso.verticesCollection = "goodOfflinePrimaryVerticesWithBS"
         process.simpleEleId85relIso.verticesCollection = "goodOfflinePrimaryVerticesWithBS"
@@ -386,7 +386,7 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
     getattr(process,'patElectrons'+postfix).electronIDSources = eleIDs
 
     ## use beamspot for dB calculation
-    getattr(process,'patElectrons'+postfix).usePV = False
+    #getattr(process,'patElectrons'+postfix).usePV = False
 
     ## embedding of resolutions into the patObjects
     if options['addResolutions']:
@@ -412,7 +412,7 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
     if options['addNoCutPFElec']:
 	setattr(process,'noCutPfAllElectrons'+postfix, getattr(process,'pfAllElectrons'     +postfix).clone(src = 'pfNoPileUp'         +postfix))
         setattr(process,'noCutPfElectrons'   +postfix, getattr(process,'pfIsolatedElectrons'+postfix).clone(src = 'noCutPfAllElectrons'+postfix, cut = ""))
-        
+
         ## right now no new matcher is needed as the gsfElectrons need to be matched
         #setattr(process,'noCutElectronMatch'+postfix, getattr(process,'electronMatch'+postfix).clone(src = 'noCutPfElectronsFromVertex'+postfix))
         getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'electronMatch'+postfix))
@@ -425,7 +425,7 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
                                                         * getattr(process,'electronMatch'                +postfix)
                                                         * getattr(process,'noCutPatElectrons'            +postfix)
                                                         )
-        
+
         if not options['runOnMC']:
             process.noCutPatElectronsSequence.remove(getattr(process,'electronMatch'+postfix))
 
@@ -574,7 +574,7 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
 
     ## activate jet area calculation needed for L1FastJet corrections
     # is the default now, no switch needed anymore
-    getattr(process,'pfJets'+postfix).doAreaFastjet = True
+    #getattr(process,'pfJets'+postfix).doAreaFastjet = True
 
     ## switchmodules to correct sources
     #massSearchReplaceAnyInputTag(getattr(process,'patPF2PATSequence'+postfix),'pfNoTau'+postfix,'pfJets'+postfix)
@@ -586,16 +586,16 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
 
     process.load("RecoBTag.SecondaryVertex.combinedSecondaryVertexBJetTags_cfi")
     from RecoBTag.SecondaryVertex.combinedSecondaryVertexCommon_cfi import combinedSecondaryVertexCommon
-    
+
     process.load("RecoBTag.SecondaryVertex.secondaryVertexTagInfos_cfi")
     process.load("RecoBTag.ImpactParameter.impactParameter_cfi")
-    
+
     process.combinedSecondaryVertex = cms.ESProducer("CombinedSecondaryVertexESProducer",
      combinedSecondaryVertexCommon,
      useCategories = cms.bool(True),
      calibrationRecords = cms.vstring(
-         'CombinedSVRecoVertex', 
-         'CombinedSVPseudoVertex', 
+         'CombinedSVRecoVertex',
+         'CombinedSVPseudoVertex',
          'CombinedSVNoVertex'),
      categoryVariableName = cms.string('vertexCategory')
     )
@@ -640,15 +640,15 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
     ## use rho from ALL PFcandidates to be consistent with the JEC
     from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
     process.kt6PFJets = kt4PFJets.clone(src='particleFlow', doAreaFastjet=True, doRhoFastjet=True, rParam=0.6)
- 
-    ## do gluon tagging for jets 	 
-    ## further information can be found here: https://twiki.cern.ch/twiki/bin/view/CMS/GluonTag 	 
-    #if options['addGluonTags']: 	 
+
+    ## do gluon tagging for jets
+    ## further information can be found here: https://twiki.cern.ch/twiki/bin/view/CMS/GluonTag
+    #if options['addGluonTags']:
     if False:
-        from QuarkGluonTagger.EightTeV.QGTagger_RecoJets_cff import goodOfflinePrimaryVerticesQG, kt6PFJetsQG, kt6PFJetsIsoQG, QGTagger 	 
-        setattr(process,'goodOfflinePrimaryVerticesQG'+postfix, goodOfflinePrimaryVerticesQG.clone()) 	 
-        setattr(process,'kt6PFJetsQG'                 +postfix, kt6PFJetsQG.clone()) 	 
-        setattr(process,'kt6PFJetsIsoQG'              +postfix, kt6PFJetsIsoQG.clone()) 	 
+        from QuarkGluonTagger.EightTeV.QGTagger_RecoJets_cff import goodOfflinePrimaryVerticesQG, kt6PFJetsQG, kt6PFJetsIsoQG, QGTagger
+        setattr(process,'goodOfflinePrimaryVerticesQG'+postfix, goodOfflinePrimaryVerticesQG.clone())
+        setattr(process,'kt6PFJetsQG'                 +postfix, kt6PFJetsQG.clone())
+        setattr(process,'kt6PFJetsIsoQG'              +postfix, kt6PFJetsIsoQG.clone())
         setattr(process,'QGTagger'                    +postfix, QGTagger.clone( srcJets   = cms.InputTag('pfJets'+postfix)
                                                                               , useCHS    = cms.untracked.bool(True)
                                                                               , jec       = cms.untracked.string('combinedCorrector')
@@ -657,17 +657,17 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
                                                                               , srcRhoIso = cms.InputTag('kt6PFJetsIsoQG'+postfix,'rho')
                                                                               ))
 
-        setattr(process,'QuarkGluonTagger'+postfix, cms.Sequence( getattr(process,'goodOfflinePrimaryVerticesQG'+postfix) 	 
-                                                                * getattr(process,'kt6PFJetsQG'                 +postfix) 	 
-                                                                * getattr(process,'kt6PFJetsIsoQG'              +postfix) 	 
-                                                                * getattr(process,'QGTagger'                    +postfix) 	 
+        setattr(process,'QuarkGluonTagger'+postfix, cms.Sequence( getattr(process,'goodOfflinePrimaryVerticesQG'+postfix)
+                                                                * getattr(process,'kt6PFJetsQG'                 +postfix)
+                                                                * getattr(process,'kt6PFJetsIsoQG'              +postfix)
+                                                                * getattr(process,'QGTagger'                    +postfix)
                                                                 ))
 
         getattr(process,'patJets'+postfix).userData.userFloats.src = getattr(process,'patJets'+postfix).userData.userFloats.src + [cms.InputTag("QGTagger"+postfix,"qgLikelihood"), cms.InputTag("QGTagger"+postfix,"qgMLP")]
         getattr(process,'patPF2PATSequence'+postfix).replace( process.kt6PFJets
                                                             ## put after kt6PFJets as they are needed by the JEC
                                                             , process.kt6PFJets * getattr(process,'QuarkGluonTagger'+postfix))
-     
+
     ## jet corrector is needed for TypeI MET and QuarkGluonTagger
     if options['addGluonTags'] or options['METCorrectionLevel'] == 1 or options['METCorrectionLevel'] == 2:
         ## create jet correctors for MET corrections
@@ -810,7 +810,7 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
         process.pf2pat += process.eidMVASequence
 
     process.pf2pat += process.combinedSecondaryVertexBJetTags
-    
+
     ## run PF2PAT sequence
     #process.pf2pat += getattr(process,'patPF2PATSequence'+postfix)
 
