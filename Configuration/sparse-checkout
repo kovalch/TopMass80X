@@ -1,0 +1,12 @@
+/.gitignore/
+/CMGTools/External/
+/TopQuarkAnalyis/TopEventProducers/
+/TopQuarkAnalysis/Configuration/
+/TopQuarkAnalysis/Examples/
+/TopQuarkAnalysis/TopEventProducers/
+/TopQuarkAnalysis/TopEventSelection/
+/TopQuarkAnalysis/TopHitFit/
+/TopQuarkAnalysis/TopJetCombination/
+/TopQuarkAnalysis/TopKinFitter/
+/TopQuarkAnalysis/TopObjectResolutions/
+/TopQuarkAnalysis/TopTools/
