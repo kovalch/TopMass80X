@@ -1,5 +1,8 @@
 /.gitignore/
 /CMGTools/External/
+/PhysicsTools/PatUtils
+/PhysicsTools/PatAlgos
+/JetMETCorrections/Type1MET
 /TopQuarkAnalyis/TopEventProducers/
 /TopQuarkAnalysis/Configuration/
 /TopQuarkAnalysis/Examples/
