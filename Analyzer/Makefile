@@ -5,6 +5,8 @@ ROOTCFLAGS  := $(shell root-config --cflags)
 ROOTLIBS    := $(shell root-config --libs) -lTreePlayer
 ROOFITLIBS  := -lRooFit -lRooFitCore
 ROOTLDFLAGS := $(shell root-config --ldflags)
+BOOST_DIR := /cvmfs/cms.cern.ch/slc6_amd64_gcc491/external/boost/1.57.0-jlbgio
+
 
 # files for TopMassAnalyzer
 CXX_FILES := $(wildcard src/*.cxx)
@@ -72,31 +74,31 @@ obj:
 	@mkdir -p obj/4
 
 TopMass: obj $(OBJ_FILES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/1/main.o
-	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) $(ROOFITLIBS) -Wl,-rpath -Wl,lib -L/cvmfs/cms.cern.ch/slc6_amd64_gcc472/external/boost/1.51.0-cms5/lib -lboost_program_options -o $@ obj/1/main.o $(OBJ_FILES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) $(ROOFITLIBS) -Wl,-rpath -Wl,lib -L$(BOOST_DIR)/lib -lboost_program_options -o $@ obj/1/main.o $(OBJ_FILES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled TopMass\033[0m"
 
 TemplateDerivation: obj $(OBJ_FILES) $(OBJ_FILES_CALIBRATION) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/3/calibration_main.o
-	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) $(ROOFITLIBS) -Wl,-rpath -Wl,lib -L/cvmfs/cms.cern.ch/slc6_amd64_gcc472/external/boost/1.51.0-cms5/lib -lboost_program_options -o $@ obj/3/calibration_main.o $(OBJ_FILES_CALIBRATION) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) $(ROOFITLIBS) -Wl,-rpath -Wl,lib -L$(BOOST_DIR)/lib -lboost_program_options -o $@ obj/3/calibration_main.o $(OBJ_FILES_CALIBRATION) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled TemplateDerivation\033[0m"
 
 ControlPlots: obj $(OBJ_FILES_CONTROLPLOT) obj/3/controlPlots_main.o
-	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/cvmfs/cms.cern.ch/slc6_amd64_gcc472/external/boost/1.51.0-cms5/lib -lboost_program_options -o $@ obj/3/controlPlots_main.o $(OBJ_FILES_CONTROLPLOT)
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L$(BOOST_DIR)/lib -lboost_program_options -o $@ obj/3/controlPlots_main.o $(OBJ_FILES_CONTROLPLOT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled ControlPlots\033[0m"
 
 DuplicateRemoval: obj $(OBJ_FILES) $(OBJ_FILES_DUPREMOVAL) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/3/duplicateRemoval_main.o
-	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/cvmfs/cms.cern.ch/slc6_amd64_gcc472/external/boost/1.51.0-cms5/lib -lboost_program_options -o $@ obj/3/duplicateRemoval_main.o $(OBJ_FILES_DUPREMOVAL) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L$(BOOST_DIR)/lib -lboost_program_options -o $@ obj/3/duplicateRemoval_main.o $(OBJ_FILES_DUPREMOVAL) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled DuplicateRemoval\033[0m"
 
 InfRemoval: obj $(OBJ_FILES) $(OBJ_FILES_INFREMOVAL) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/3/infRemoval_main.o
-	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/cvmfs/cms.cern.ch/slc6_amd64_gcc472/external/boost/1.51.0-cms5/lib -lboost_program_options -o $@ obj/3/infRemoval_main.o $(OBJ_FILES_INFREMOVAL) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L$(BOOST_DIR)/lib -lboost_program_options -o $@ obj/3/infRemoval_main.o $(OBJ_FILES_INFREMOVAL) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled InfRemoval\033[0m"
 
 Skimmer: obj $(OBJ_FILES) $(OBJ_FILES_SKIMMER) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/3/skimmer_main.o
-	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/cvmfs/cms.cern.ch/slc6_amd64_gcc472/external/boost/1.51.0-cms5/lib -lboost_program_options -o $@ obj/3/skimmer_main.o $(OBJ_FILES_SKIMMER) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L$(BOOST_DIR)/lib -lboost_program_options -o $@ obj/3/skimmer_main.o $(OBJ_FILES_SKIMMER) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled Skimmer\033[0m"
 
 AddPDFweights: obj $(OBJ_FILES) $(OBJ_FILES_ADDPDFWEIGHTS) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/4/addPDFweights_main.o
-	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/cvmfs/cms.cern.ch/slc6_amd64_gcc472/external/boost/1.51.0-cms5/lib -lboost_program_options -L/afs/desy.de/user/e/eschliec/xxl-af-cms/wd/LHAPDF-605/lib -lLHAPDF -o $@ obj/4/addPDFweights_main.o $(OBJ_FILES_ADDPDFWEIGHTS) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L$(BOOST_DIR)/lib -lboost_program_options -L/afs/desy.de/user/e/eschliec/xxl-af-cms/wd/LHAPDF-605/lib -lLHAPDF -o $@ obj/4/addPDFweights_main.o $(OBJ_FILES_ADDPDFWEIGHTS) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled AddPDFweights\033[0m"
 
 SystematicUncertainties: obj $(OBJ_FILES_SYSTEMATICUNCERTAINTIES) obj/3/SystematicUncertainties_main.o
@@ -105,7 +107,7 @@ SystematicUncertainties: obj $(OBJ_FILES_SYSTEMATICUNCERTAINTIES) obj/3/Systemat
 
 #rules
 obj/1/%.o: src/%.cxx
-	$(C) $(ROOTCFLAGS) -I/cvmfs/cms.cern.ch/slc6_amd64_gcc472/external/boost/1.51.0-cms5/include -I../.. -Iinc/ -MMD -c -o $@ $<
+	$(C) $(ROOTCFLAGS) -I$(BOOST_DIR)/include -I../.. -Iinc/ -MMD -c -o $@ $<
 #@sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
 #     -e '/^$$/ d' -e 's/$$/ :/' < $*.d >> $*.d
 
@@ -119,7 +121,7 @@ obj/2/%.o: ../TopEventTree/src/%.cc ../TopEventTree/interface/%.h
 	$(C) $(ROOTCFLAGS) -I../.. -MMD -c -o $@ $<
 
 obj/3/%.o: root/%.cc
-	$(C) $(ROOTCFLAGS) -I/cvmfs/cms.cern.ch/slc6_amd64_gcc472/external/boost/1.51.0-cms5/include -I../.. -Iinc/ -MMD -c -o $@ $<
+	$(C) $(ROOTCFLAGS) -I$(BOOST_DIR)/include -I../.. -Iinc/ -MMD -c -o $@ $<
 
 obj/4/%.o: root/%.cc
-	$(C) $(ROOTCFLAGS) -I/cvmfs/cms.cern.ch/slc6_amd64_gcc472/external/boost/1.51.0-cms5/include -I/afs/desy.de/user/e/eschliec/xxl-af-cms/wd/LHAPDF-605/include -I../.. -Iinc/ -MMD -c -o $@ $<
+	$(C) $(ROOTCFLAGS) -I$(BOOST_DIR)/include -I/afs/desy.de/user/e/eschliec/xxl-af-cms/wd/LHAPDF-605/include -I../.. -Iinc/ -MMD -c -o $@ $<
