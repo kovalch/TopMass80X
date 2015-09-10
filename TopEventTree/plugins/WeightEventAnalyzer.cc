@@ -77,17 +77,13 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   bool negWeight = false;
   weight->mcWeight = mcWeight_;
   weight->combinedWeight *= weight->mcWeight;
-
+  
   edm::Handle<GenEventInfoProduct> genEventInfo_h;
   if(!genEventSrc_.label().empty()) evt.getByLabel(genEventSrc_, genEventInfo_h);
 
-//   weight->mcWeight = mcWeight_;
-//   weight->combinedWeight *= weight->mcWeight;
   if(genEventInfo_h.isValid()){
     //weight->mcWeight = genEventInfo_h->weight();
     if(genEventInfo_h->weight() < 0.) {
-//       weight->mcWeight       *= -1.;
-//       weight->combinedWeight *= -1.;
       negWeight = true;
     }
 
@@ -98,20 +94,9 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
       weight->Q   = genEventInfo_h->pdf()->scalePDF;
       weight->id1 = genEventInfo_h->pdf()->id.first;
       weight->id2 = genEventInfo_h->pdf()->id.second;
-/*
-      double w0 = 0.;
-      for(unsigned i=0; i <=44; ++i) {
-        LHAPDF::usePDFMember(1,i);
-        double xpdf1 = LHAPDF::xfx(1, weight->x1, weight->Q, weight->id1);
-        double xpdf2 = LHAPDF::xfx(1, weight->x2, weight->Q, weight->id2);
-        if(i<1)
-          w0 = xpdf1 * xpdf2;
-        else
-          weight->pdfWeight.push_back(xpdf1 * xpdf2 / w0);
-      }
-*/
     }
   }
+  
   edm::Handle<LHEEventProduct> lheEvent_h;
   if(!lheEventSrc_.label().empty()) evt.getByLabel(lheEventSrc_, lheEvent_h);
 
@@ -127,7 +112,7 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
     weight->mcWeight       *= -1.;
     weight->combinedWeight *= -1.;
   }
-
+  
   //////////////////////////////////////////////////////////////////////////
   // BR correction for MadGraph
   ////////////////////////////////////////////////////////////////////////

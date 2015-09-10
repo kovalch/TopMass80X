@@ -60,23 +60,42 @@ secFiles = cms.untracked.vstring()
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles,
                               dropDescendantsOfDroppedBranches=cms.untracked.bool(False),
 )
+process.source.duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
 
 if (options.mcversion == "Summer12GEN"):
   readFiles.extend( [ 'file:TOP-Summer12-00190_step1.root' ] )
-elif (options.mcversion == "Sherpa12"):
+elif (options.mcversion == "Sherpa12Cluster"):
   readFiles.extend( [
-         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_0_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_2_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_4_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_6_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_8_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_1_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_3_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_5_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_7_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_9_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_13_fastreco_FASTSIM_HLT_PU.root',
-         
+         '/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_0_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_2_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_4_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_6_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_8_fastreco_FASTSIM_HLT_PU.root',
+  ] )
+elif (options.mcversion == "Sherpa12Lund"):
+  readFiles.extend( [
+         '/store/user/mseidel/TT_Lund_8TeV-sherpa2/job_1_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_Lund_8TeV-sherpa2/job_3_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_Lund_8TeV-sherpa2/job_5_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_Lund_8TeV-sherpa2/job_7_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_Lund_8TeV-sherpa2/job_9_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_Lund_8TeV-sherpa2/job_13_fastreco_FASTSIM_HLT_PU.root',
+  ] )
+elif (options.mcversion == "PowhegHerwig"):
+  readFiles.extend( [
+          '/store/mc/Summer12_DR53X/TT_CT10_AUET2_8TeV-powheg-herwig/AODSIM/PU_S10_START53_V19-v1/10000/0039166F-C9CA-E211-9B10-0026189438E0.root',
+          '/store/mc/Summer12_DR53X/TT_CT10_AUET2_8TeV-powheg-herwig/AODSIM/PU_S10_START53_V19-v1/10000/003AFE90-18CB-E211-AC56-002618943980.root',
+          '/store/mc/Summer12_DR53X/TT_CT10_AUET2_8TeV-powheg-herwig/AODSIM/PU_S10_START53_V19-v1/10000/004D8BE1-AFCA-E211-A6F2-0026189438B9.root',
+          '/store/mc/Summer12_DR53X/TT_CT10_AUET2_8TeV-powheg-herwig/AODSIM/PU_S10_START53_V19-v1/10000/005ABB25-FCCA-E211-BD1B-003048678E6E.root',
+          '/store/mc/Summer12_DR53X/TT_CT10_AUET2_8TeV-powheg-herwig/AODSIM/PU_S10_START53_V19-v1/10000/007C2BC5-C5CA-E211-B4D1-003048679188.root',
+  ] )
+elif (options.mcversion == "PowhegPythia"):
+  readFiles.extend( [
+          '/store/mc/Summer12_DR53X/TT_CT10_TuneZ2star_8TeV-powheg-tauola/AODSIM/PU_S10_START53_V7A-v2/0000/00052A2F-9901-E211-A26E-001A928116D6.root',
+          '/store/mc/Summer12_DR53X/TT_CT10_TuneZ2star_8TeV-powheg-tauola/AODSIM/PU_S10_START53_V7A-v2/0000/001467F0-8601-E211-AB04-0026189438C2.root',
+          '/store/mc/Summer12_DR53X/TT_CT10_TuneZ2star_8TeV-powheg-tauola/AODSIM/PU_S10_START53_V7A-v2/0000/0060FD65-C501-E211-A46F-001A92971B82.root',
+          '/store/mc/Summer12_DR53X/TT_CT10_TuneZ2star_8TeV-powheg-tauola/AODSIM/PU_S10_START53_V7A-v2/0000/0095DA1D-B001-E211-A5F3-003048FFCC1E.root',
+          '/store/mc/Summer12_DR53X/TT_CT10_TuneZ2star_8TeV-powheg-tauola/AODSIM/PU_S10_START53_V7A-v2/0000/009EC8EA-BE01-E211-A51F-002618943972.root',
   ] )
 elif (options.mcversion == "Summer12"):
   readFiles.extend( [

@@ -34,8 +34,9 @@ struct ensemble {
   : file(f), takeLargest(t), expectedJES(j), reference(r) {}
 };
 
-std::string path("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_140305/lepton");
+std::string path("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper/lepton");
 //std::string path("/nfs/dust/cms/user/eschliec/TopMass/topmass_140401_1201c/Z2_S12_ABS_JES_100_172_5");
+//std::string path("/nfs/dust/cms/user/stadie/TopMass/syspdfct0/Z2_S12_ABS_JES_100_172_5/");
 
 std::string itos(int number)
 {
@@ -51,16 +52,19 @@ void ensembleTreeSysLeptonJetsPDF()
   TString massName   = "mass_mTop_JES";
   TString  jesName   =  "JES_mTop_JES";
   TString mass1dName = "mass_mTop";
-
+  
+  // All-jets
   //TString massName   = "mass_mTop_JES_fSig_fCP";
   //TString  jesName   =  "JES_mTop_JES_fSig_fCP";
-  //TString mass1dName = "mass_mTop";
+  //TString mass1dName = "mass_mTop_fSig_fCP";
 
   double massMin =  1000.;
   double massMax = -1000.;
   
   for (int i = 0; i < 147; ++i) {
-    ensembles.push_back(ensemble(std::string("/pdf_weight/")+itos(i)+std::string("/job_*.root")));
+    ensembles.push_back(ensemble(std::string("/nobkg_pdf_weight/")+itos(i)+std::string("/job_*.root")));
+    // All-jets
+    //ensembles.push_back(ensemble(std::string("/pdf_weight/")+itos(i)+std::string("/job_*.root")));
   }
   
   for (int i = 0; i < (int) ensembles.size(); ++i) {    
@@ -73,7 +77,6 @@ void ensembleTreeSysLeptonJetsPDF()
     
     ensembles[i].chain->Fit("gaus", massName, massName+">0 &"+jesName+">0 & genMass==172.5 & genJES==1", "LEMQ0");
     ensembles[i].mass = gaus->GetParameter(1);
-    std::cout << i << " mass: " << ensembles[i].mass << std::endl;
     if (massMin>ensembles[i].mass) massMin = ensembles[i].mass;
     if (massMax<ensembles[i].mass) massMax = ensembles[i].mass;
 
@@ -82,6 +85,11 @@ void ensembleTreeSysLeptonJetsPDF()
 
     ensembles[i].chain->Fit("gaus", mass1dName, mass1dName+">0 & genMass==172.5 & genJES==1", "LEMQ0");
     ensembles[i].mass1d = gaus->GetParameter(1);
+    
+    std::cout << i << " mass: "   << ensembles[i].mass
+                   << " jes: "    << ensembles[i].jes
+                   << " mass1d: " << ensembles[i].mass1d
+                   << std::endl;
   }
   
   std::cout << "CTEQ6l1: " << 172.57 << std::endl;

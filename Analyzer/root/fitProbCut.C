@@ -2,12 +2,15 @@
 #include <iostream>
 
 #include "TFile.h"
-#include "TTree.h"
+#include "TChain.h"
 #include "TCanvas.h"
 #include "TAxis.h"
 #include "TF1.h"
 #include "TH1F.h"
-#include "THStack.h"
+#include "TLegend.h"
+#include "TLine.h"
+#include "TMultiGraph.h"
+#include "TGraph.h"
 
 #include "tdrstyle.C"
 
@@ -48,12 +51,8 @@ void fitProbCut()
   // ---
   //    open input file
   // ---
-  TFile* fTTJets = new TFile("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_v1_1.00_muon/analyzeTop.root");
-  
-  // ---
-  //    Get trees
-  // ---
-  TTree* tH = (TTree*) fTTJets->Get("analyzeHitFit/eventTree");
+  TChain* tH = new TChain("analyzeHitFit/eventTree");
+  tH->Add("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1725_1.00_muon/job*.root");
   
   //* efficiency
   
@@ -71,14 +70,18 @@ void fitProbCut()
   
   double bins = 25;
   
-  double nSigTotal = tH->GetEntries("(MCWeight)*(target==1 & leptonPt > 30 & hadBBSSV>1.74 & lepBBSSV>1.74 & hadQBSSV<1.74 & hadQBarBSSV<1.74)");
-  double nBkgTotal = tH->GetEntries("(MCWeight)*(target!=1 & leptonPt > 30 & hadBBSSV>1.74 & lepBBSSV>1.74 & hadQBSSV<1.74 & hadQBarBSSV<1.74)");
+  double nSigTotal = tH->GetEntries("(weight.combinedWeight)*(top.combinationType==1)");
+  double nBkgTotal = tH->GetEntries("(weight.combinedWeight)*(top.combinationType!=1)");
   
   for (int i = 1; i < bins; i++) {
-    aCut[i-1] = i; //1./bins*i;
+    aCut[i-1] = 1./bins*i;
     
-    TString sHSig("(MCWeight)*(target==1 & leptonPt > 30 & hadBBSSV>1.74 & lepBBSSV>1.74 & hadQBSSV<1.74 & hadQBarBSSV<1.74 & hitFitChi2 < "); sHSig+= aCut[i-1]; sHSig+= ")";
-    TString sHBkg("(MCWeight)*(target!=1 & leptonPt > 30 & hadBBSSV>1.74 & lepBBSSV>1.74 & hadQBSSV<1.74 & hadQBarBSSV<1.74 & hitFitChi2 < "); sHBkg+= aCut[i-1]; sHBkg+= ")";
+    for (int n = 0; n < chain->GetEntries(); ++n) {
+    
+    }
+    
+    TString sHSig("(weight.combinedWeight)*(top.combinationType==1 & top.fitProb > "); sHSig+= aCut[i-1]; sHSig+= ")";
+    TString sHBkg("(weight.combinedWeight)*(top.combinationType!=1 & top.fitProb > "); sHBkg+= aCut[i-1]; sHBkg+= ")";
     
     std::cout << sHSig << std::endl;
     
@@ -93,17 +96,17 @@ void fitProbCut()
     std::cout << "S/sqrt(B): " << aSB[i-1] << std::endl;
   }
   
-  gH = new TGraph(bins-1, aCut, aSB);
+  TGraph* gH = new TGraph(bins-1, aCut, aSB);
   gH->SetLineColor(color_[kHitFit]);
   gH->SetLineWidth(2);
   mg->Add(gH);
   
-  gH2 = new TGraph(bins-1, aCut, aEffSig);
+  TGraph* gH2 = new TGraph(bins-1, aCut, aEffSig);
   gH2->SetLineColor(color_[kKinFit]);
   gH2->SetLineWidth(2);
   mg->Add(gH2);
   
-  gH3 = new TGraph(bins-1, aCut, aPur);
+  TGraph* gH3 = new TGraph(bins-1, aCut, aPur);
   gH3->SetLineColor(kBlue);
   gH3->SetLineWidth(2);
   mg->Add(gH3);

@@ -46,8 +46,8 @@ void drawcutline(double cutval, double maximum)
 void drawArrow(double cutval, double maximum)
 {
   TArrow *arrow = new TArrow();
-  arrow->SetLineWidth(2);
-  arrow->SetLineColor(kRed+1);
+  arrow->SetLineWidth(3);
+  arrow->SetLineColor(kBlack);
   arrow->DrawArrow(cutval, 0., cutval, maximum, 0.05, "<");
 }
 
@@ -61,7 +61,7 @@ void ensemble()
   //// Get histos
   
   TChain* tree = new TChain("tree");
-  tree->Add("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_140305/lepton/Summer12_TTJetsMS1725_1.00/job_*_ensemble.root");
+  tree->Add("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper/lepton/Summer12_TTJetsMS1725_1.00/job_*_ensemble.root");
   
   hError = new TH1D("hError", "hError", 5000, 0, 1);
   hPull  = new TH1D("hPull", "hPull", 100, -5, 5);
@@ -77,12 +77,12 @@ void ensemble()
   
   for (int i = 0; i < tree->GetEntries(); i++) {
     tree->GetEntry(i);
-    if (massError>0 && genMass==172.5 && genJES==1.) hError->Fill(massError/sqrt(28750./29109.));
+    if (massError>0 && genMass==172.5 && genJES==1.) hError->Fill(massError * sqrt(28199./28295.));
   }
   
   hError->GetYaxis()->SetTitle("Pseudo-experiments / 2 MeV");
   hError->GetYaxis()->SetTitleSize(0.05);
-  hError->GetXaxis()->SetTitle("Statistical uncertainty of m_{t} [GeV]");
+  hError->GetXaxis()->SetTitle("#sigma_{stat}(m_{t}) [GeV]");
   hPull->GetYaxis()->SetTitle("Pseudo-experiments");
   hPull->GetXaxis()->SetTitle("Mass pull");
   
@@ -91,13 +91,14 @@ void ensemble()
   TCanvas* cError = new TCanvas("cError", "cError", 600, 600);
   
   //hError->Rebin(4);
-  hError->GetXaxis()->SetRangeUser(0.184, 0.191);
-  hError->GetYaxis()->SetRangeUser(0, 2000);
+  hError->GetXaxis()->SetRangeUser(0.19, 0.20);
+  hError->GetYaxis()->SetRangeUser(0, 1150);
+  hError->SetFillColor(kRed+1);
   hError->Draw();
-  drawArrow(0.188117, 1750);
-  DrawLabel("This measurement", 0.425, 0.85, 0.9, kRed+1);
+  drawArrow(0.194221, 1020);
+  DrawLabel("This measurement", 0.40, 0.85, 0.9);
   
-  DrawCMSPrel8LeptonJets();
+  Draw8LeptonJets();
   
   /*
   TCanvas* cPull = new TCanvas("cPull", "cPull", 600, 600);

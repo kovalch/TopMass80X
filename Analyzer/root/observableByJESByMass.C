@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <math.h>
+#include <iostream>
+#include <fstream>
 
 #include "TFile.h"
 #include "TCanvas.h"
@@ -15,6 +17,7 @@
 #include "TString.h"
 #include "TFitResult.h"
 #include "TLine.h"
+#include "TPaveStats.h"
 
 #include "../../TopEventTree/interface/MyMa.h"
 
@@ -167,8 +170,10 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
     iMassMax = 4;
   }
   
-  setTDRStyle();
+  TStyle* tdrStyle = setTDRStyle();
   TH1::SetDefaultSumw2();
+  tdrStyle->SetStatX(0.);
+  tdrStyle->SetStatY(0.);
 
   for (int i = iMassMin; i<iMassMax; i++) {
 	  std::cout << "### FindParametersMass(" << i << "); ###" << std::endl;
@@ -183,7 +188,7 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   linearFit->SetLineWidth(2);
   linearFit->SetLineColor(kRed+1);
   
-  TCanvas* cByMass = new TCanvas("cByMass", "cByMass", 800, 800);
+  TCanvas* cByMass = new TCanvas("cByMass", "cByMass", 1200, 1800);
   cByMass->Divide(2,3);
   
   cByMass->cd(1);
@@ -197,8 +202,17 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   params[0] = linearFit->GetParameter(0);
   params[1] = linearFit->GetParameter(1);
   
-  gr->GetXaxis()->SetTitle("m_{t}");
-  gr->GetYaxis()->SetTitle("#mu const");
+  gr->GetXaxis()->SetTitle("m_{t,gen} [GeV]");
+  gr->GetYaxis()->SetTitle("#mu const [GeV]");
+  
+  cByMass->Update();
+  TPaveStats *st1 = (TPaveStats*)gr->FindObject("stats");
+  st1->SetFillColor(kWhite);
+  st1->SetX1NDC(0.5); //new x start position
+  st1->SetY1NDC(0.15); //new y start position
+  st1->SetX2NDC(0.95); //new x end position
+  st1->SetY2NDC(0.35); //new x end position
+  gr->Draw("A*");
   
   cByMass->cd(2);
   
@@ -210,8 +224,17 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   params[2] = linearFit->GetParameter(0);
   params[3] = linearFit->GetParameter(1);
   
-  gr->GetXaxis()->SetTitle("m_{t}");
-  gr->GetYaxis()->SetTitle("#mu slope");
+  gr->GetXaxis()->SetTitle("m_{t,gen} [GeV]");
+  gr->GetYaxis()->SetTitle("#mu slope [GeV]");
+  
+  cByMass->Update();
+  TPaveStats *st2 = (TPaveStats*)gr->FindObject("stats");
+  st2->SetFillColor(kWhite);
+  st2->SetX1NDC(0.5); //new x start position
+  st2->SetY1NDC(0.15); //new y start position
+  st2->SetX2NDC(0.95); //new x end position
+  st2->SetY2NDC(0.35); //new x end position
+  gr->Draw("A*");
   
   cByMass->cd(3);
   
@@ -223,17 +246,26 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   params[4] = linearFit->GetParameter(0);
   params[5] = linearFit->GetParameter(1);
   
-  gr->GetXaxis()->SetTitle("m_{t}");
+  gr->GetXaxis()->SetTitle("m_{t,gen} [GeV]");
   switch(obs) {
     case 0: {
-      gr->GetYaxis()->SetTitle("#sigma const");
+      gr->GetYaxis()->SetTitle("#sigma const [GeV]");
       break;
     }
     case 1: {
-      gr->GetYaxis()->SetTitle("#sigma_{1} const");
+      gr->GetYaxis()->SetTitle("#sigma_{1} const [GeV]");
       break;
     }
   }
+  
+  cByMass->Update();
+  TPaveStats *st3 = (TPaveStats*)gr->FindObject("stats");
+  st3->SetFillColor(kWhite);
+  st3->SetX1NDC(0.5); //new x start position
+  st3->SetY1NDC(0.15); //new y start position
+  st3->SetX2NDC(0.95); //new x end position
+  st3->SetY2NDC(0.35); //new x end position
+  gr->Draw("A*");
   
   cByMass->cd(4);
   
@@ -245,17 +277,26 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   params[6] = linearFit->GetParameter(0);
   params[7] = linearFit->GetParameter(1);
   
-  gr->GetXaxis()->SetTitle("m_{t}");
+  gr->GetXaxis()->SetTitle("m_{t,gen} [GeV]");
   switch(obs) {
     case 0: {
-      gr->GetYaxis()->SetTitle("#sigma slope");
+      gr->GetYaxis()->SetTitle("#sigma slope [GeV]");
       break;
     }
     case 1: {
-      gr->GetYaxis()->SetTitle("#sigma_{1} slope");
+      gr->GetYaxis()->SetTitle("#sigma_{1} slope [GeV]");
       break;
     }
   }
+  
+  cByMass->Update();
+  TPaveStats *st4 = (TPaveStats*)gr->FindObject("stats");
+  st4->SetFillColor(kWhite);
+  st4->SetX1NDC(0.5); //new x start position
+  st4->SetY1NDC(0.15); //new y start position
+  st4->SetX2NDC(0.95); //new x end position
+  st4->SetY2NDC(0.35); //new x end position
+  gr->Draw("A*");
   
   cByMass->cd(5);
   
@@ -266,7 +307,7 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   params[8] = linearFit->GetParameter(0);
   params[9] = linearFit->GetParameter(1);
   
-  gr->GetXaxis()->SetTitle("m_{t}");
+  gr->GetXaxis()->SetTitle("m_{t,gen} [GeV]");
   switch(obs) {
     case 0: {
       gr->GetYaxis()->SetTitle("#alpha const");
@@ -278,6 +319,15 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
     }
   }
   
+  cByMass->Update();
+  TPaveStats *st5 = (TPaveStats*)gr->FindObject("stats");
+  st5->SetFillColor(kWhite);
+  st5->SetX1NDC(0.5); //new x start position
+  st5->SetY1NDC(0.15); //new y start position
+  st5->SetX2NDC(0.95); //new x end position
+  st5->SetY2NDC(0.35); //new x end position
+  gr->Draw("A*");
+  
   cByMass->cd(6);
   
   gr = new TGraphErrors(nMass,X,Y31,eX,eY31);
@@ -287,7 +337,7 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   params[10] = linearFit->GetParameter(0);
   params[11] = linearFit->GetParameter(1);
   
-  gr->GetXaxis()->SetTitle("m_{t}");
+  gr->GetXaxis()->SetTitle("m_{t,gen} [GeV]");
   switch(obs) {
     case 0: {
       gr->GetYaxis()->SetTitle("#alpha slope");
@@ -299,7 +349,16 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
     }
   }
   
-  if (!pas) {
+  cByMass->Update();
+  TPaveStats *st6 = (TPaveStats*)gr->FindObject("stats");
+  st6->SetFillColor(kWhite);
+  st6->SetX1NDC(0.5); //new x start position
+  st6->SetY1NDC(0.15); //new y start position
+  st6->SetX2NDC(0.95); //new x end position
+  st6->SetY2NDC(0.35); //new x end position
+  gr->Draw("A*");
+  
+  if (!pas && !plotByMass) {
     TString pathByMass("../plot/template/"); pathByMass+= sFObs[obs]; pathByMass += "_bymass";
     pathByMass += "_"; pathByMass += sTarget[abs(target%8)];
     pathByMass += "_"; pathByMass += sLevel[GenLevel];
@@ -309,8 +368,8 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   gStyle->SetOptStat(0);
   gStyle->SetOptFit(0);
   
-  TCanvas* cSetOfCurves = new TCanvas("cSetOfCurves", "cSetOfCurves", 1600, 400);
-  cSetOfCurves->Divide(4,1);
+  TCanvas* cSetOfCurves = new TCanvas("cSetOfCurves", "cSetOfCurves", 1800, 600);
+  cSetOfCurves->Divide(3,1);
   
   cSetOfCurves->cd(1);
   
@@ -319,8 +378,16 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
     mg1->Add(gr1[i]);
   }
   
-  mg1->SetTitle("#mu;JES;#mu");
-  mg1->Draw("A*");
+  mg1->SetTitle("#mu [GeV];JSF;#mu [GeV]");
+  mg1->Draw("AP");
+  mg1->GetXaxis()->SetLimits(0.945, 1.055);
+  mg1->GetXaxis()->SetLabelSize(1.25*mg1->GetXaxis()->GetLabelSize());
+  mg1->GetYaxis()->SetLabelSize(1.25*mg1->GetYaxis()->GetLabelSize());
+  mg1->GetXaxis()->SetTitleSize(1.25*mg1->GetXaxis()->GetTitleSize());
+  mg1->GetYaxis()->SetTitleSize(1.25*mg1->GetYaxis()->GetTitleSize());
+  //mg1->GetYaxis()->SetTitleOffset(1./1.25*mg1->GetYaxis()->GetTitleOffset());
+  mg1->Draw("AP");
+  cSetOfCurves->Update();
   
   cSetOfCurves->cd(2);
   
@@ -329,8 +396,16 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
     mg2->Add(gr2[i]);
   }
   
-  mg2->SetTitle("#sigma;JES;#sigma");
-  mg2->Draw("A*");
+  mg2->SetTitle("#sigma [GeV];JSF;#sigma [GeV]");
+  mg2->Draw("AP");
+  mg2->GetXaxis()->SetLimits(0.945, 1.055);
+  mg2->GetXaxis()->SetLabelSize(1.25*mg2->GetXaxis()->GetLabelSize());
+  mg2->GetYaxis()->SetLabelSize(1.25*mg2->GetYaxis()->GetLabelSize());
+  mg2->GetXaxis()->SetTitleSize(1.25*mg2->GetXaxis()->GetTitleSize());
+  mg2->GetYaxis()->SetTitleSize(1.25*mg2->GetYaxis()->GetTitleSize());
+  mg2->GetYaxis()->SetTitleOffset(1./1.25*mg2->GetYaxis()->GetTitleOffset());
+  mg2->Draw("AP");
+  cSetOfCurves->Update();
   
   cSetOfCurves->cd(3);
   
@@ -338,12 +413,12 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   leg1->SetFillStyle(0);
   leg1->SetBorderSize(0);
   for (int i = iMassMin; i<iMassMax; i++) {
-    leg1->AddEntry( gr1[i], sX[i], "L" );
+    leg1->AddEntry( gr1[i], sX[i], "PL" );
   }
   
   leg1->Draw();
   
-  if (!pas) {
+  if (!pas && !plotByMass) {
     TString pathByJES("../plot/template/"); pathByJES+= sFObs[obs]; pathByJES += "_byjes";
     pathByJES += "_"; pathByJES += sTarget[abs(target%8)];
     pathByJES += "_"; pathByJES += sLevel[GenLevel];
@@ -352,12 +427,16 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   }
   
   std::cout << "Parameters for IdeogramCombLikelihood.cxx:" << std::endl;
+  ofstream parFile;
+  parFile.open ("../plot/template/parameters.txt", ios::app);
+  parFile   << sFObs[obs] << " " << sTarget[abs(target%8)] << " " << sLepton[lepton] << "\n";
   for (int i=0; i<12; i++) {
     std::cout << params[i] << "|";
+    parFile   << params[i] << "|";
   }
   std::cout << std::endl;
-  
-  
+  parFile   << "\n";
+  parFile.close();
 }
 
 void FindParametersMass(int iMass)
@@ -370,7 +449,7 @@ void FindParametersMass(int iMass)
   cObservable->cd();
   
   TF1* linearFit = new TF1("linearFit", "[0]+(x-1)*[1]");
-  linearFit->SetLineWidth(2);
+  linearFit->SetLineWidth(1);
   linearFit->SetLineColor(kRed+1);
 	linearFit->SetParLimits(1, -50, 200);
 	linearFit->SetParameters(100, 50);
@@ -390,9 +469,6 @@ void FindParametersMass(int iMass)
             h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1665_1.04", 2);
         }
         if(kovalch) {
-//             h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1665_0.96", 0);
-//             h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1665_1.00", 1);
-//             h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1665_1.04", 2);
             h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1665_0.96", 0);
             h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1665_1.00", 1);
             h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1665_1.04", 2);
@@ -406,9 +482,6 @@ void FindParametersMass(int iMass)
             h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1695_1.04", 2);
         }
         if(kovalch) {
-//             h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1695_0.96", 0);
-//             h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1695_1.00", 1);
-//             h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1695_1.04", 2);
             h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1695_0.96", 0);
             h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1695_1.00", 1);
             h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1695_1.04", 2);
@@ -422,9 +495,6 @@ void FindParametersMass(int iMass)
             h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1715_1.04", 2);
         }
         if(kovalch) {
-//             h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1715_0.96", 0);
-//             h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1715_1.00", 1);
-//             h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1715_1.04", 2);
             h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1715_0.96", 0);
             h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1715_1.00", 1);
             h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1715_1.04", 2);
@@ -438,9 +508,6 @@ void FindParametersMass(int iMass)
             h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1725_1.04", 2);
         }
         if(kovalch) {
-//             h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1725_0.96", 0);
-//             h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1725_1.00", 1);
-//             h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1725_1.04", 2);
             h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1725_0.96", 0);
             h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1725_1.00", 1);
             h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1725_1.04", 2);
@@ -454,9 +521,6 @@ void FindParametersMass(int iMass)
             h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1735_1.04", 2);
         }
         if(kovalch) {
-//             h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1735_0.96", 0);
-//             h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1735_1.00", 1);
-//             h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1735_1.04", 2);
             h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1735_0.96", 0);
             h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1735_1.00", 1);
             h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1735_1.04", 2);
@@ -470,9 +534,6 @@ void FindParametersMass(int iMass)
             h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1755_1.04", 2);
         }
         if(kovalch) {
-//             h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1755_0.96", 0);
-//             h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1755_1.00", 1);
-//             h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1755_1.04", 2);
             h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1755_0.96", 0);
             h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1755_1.00", 1);
             h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1755_1.04", 2);
@@ -486,9 +547,6 @@ void FindParametersMass(int iMass)
             h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1785_1.04", 2);
         }
         if(kovalch) {
-//             h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1785_0.96", 0);
-//             h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1785_1.00", 1);
-//             h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1785_1.04", 2);
             h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1785_0.96", 0);
             h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1785_1.00", 1);
             h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1785_1.04", 2);
@@ -501,41 +559,34 @@ void FindParametersMass(int iMass)
   else if (plotByMass) {
     std::cout << "PLOT BY MASS" << std::endl;
     if(mseidel) {
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1665_1.00", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1725_1.00", 1);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1785_1.00", 2);
+      h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1665_1.00", 0);
+      h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1725_1.00", 1);
+      h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1785_1.00", 2);
     }
     if(kovalch) {
-//         h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1665_1.00", 0);
-//         h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1725_1.00", 1);
-//         h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1785_1.00", 2);
         h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1665_1.00", 0);
         h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1725_1.00", 1);
         h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1785_1.00", 2);
     }
   }
-  else {
-     if(mseidel) {
-        if (obs==0) h166 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 3);
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_0.96", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_1.00", 1);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_1.04", 2);
-        if (obs==0) h178 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1785_1.00", 4); 
-    }
-    if(kovalch) {
-//         if (obs==0) h166 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1665_1.00", 3);
-//         h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1725_0.96", 0);
-//         h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1725_1.00", 1);
-//         h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1725_1.04", 2);
-//         if (obs==0) h178 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenLevel/Summer12_TTJetsMS1785_1.00", 4); 
-        if (obs==0) h166 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1665_1.00", 3);
-        h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1725_0.96", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1725_1.00", 1);
-        h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1725_1.04", 2);
-        if (obs==0) h178 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1785_1.00", 4); 
-    }
   }
-  
+ else {
+   if(mseidel) {
+     if (obs==0) h166 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 3);
+     h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_0.96", 0);
+     h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_1.00", 1);
+     h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_1.04", 2);
+     if (obs==0) h178 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1785_1.00", 4);  
+   }
+   if(kovalch) {
+     if (obs==0) h166 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1665_1.00", 3);
+     h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1725_0.96", 0);
+     h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1725_1.00", 1);
+     h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1725_1.04", 2);
+     if (obs==0) h178 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees/GenAsReco/Summer12_TTJetsMS1785_1.00", 4); 
+   }
+ }
+}
   h096->Draw();
   if (obs == 0) {
     h096->GetXaxis()->SetRangeUser(100, 240);
@@ -602,15 +653,24 @@ void FindParametersMass(int iMass)
   TCanvas* cObservablePar = new TCanvas("cObservablePar", "cObservablePar", 1600, 400);
   cObservablePar->Divide(4,1);
   
+  int masscolor[]  = {kRed+1, kMagenta+1, kViolet+1, kBlue+1, kAzure+1, kCyan+1, kGreen+1};
+  int massmarker[] = { 23, 32, 32, 20, 26, 26, 22};
+  double masssize[]   = { 1, 1, 0.5, 1, 0.5, 1, 1};
+  
   cObservablePar->cd(1);
   gr1[iMass] = new TGraphErrors(nJES,xJES,y01,ex,ey1);
   gr1[iMass]->SetTitle("p1");
-  gr1[iMass]->SetLineColor(iMass+1);
-  linearFit->SetLineColor(iMass+1);
-  gr1[iMass]->Draw("A*");
+  gr1[iMass]->SetLineColor(masscolor[iMass]);
+  gr1[iMass]->SetMarkerColor(masscolor[iMass]);
+  gr1[iMass]->SetMarkerStyle(massmarker[iMass]);
+  gr1[iMass]->SetMarkerSize(1.5*masssize[iMass]);
+  linearFit->SetLineColor(masscolor[iMass]);
+  gr1[iMass]->SetLineStyle(iMass+1);
+  linearFit->SetLineStyle(iMass+1);
+  gr1[iMass]->Draw("AP");
   gr1[iMass]->Fit("linearFit", "EM");
   
-  gr1[iMass]->GetXaxis()->SetTitle("JES");
+  gr1[iMass]->GetXaxis()->SetTitle("JSF");
   gr1[iMass]->GetYaxis()->SetTitle("#mu");
   
   Y10 [iMass] = linearFit->GetParameter(0);
@@ -623,13 +683,18 @@ void FindParametersMass(int iMass)
   cObservablePar->cd(2);
   gr2[iMass] = new TGraphErrors(nJES,xJES,y2,ex,ey2);
   gr2[iMass]->SetTitle("p2");
-  gr2[iMass]->SetLineColor(iMass+1);
-  linearFit->SetLineColor(iMass+1);
-  gr2[iMass]->Draw("A*");
+  gr2[iMass]->SetLineColor(masscolor[iMass]);
+  gr2[iMass]->SetMarkerColor(masscolor[iMass]);
+  gr2[iMass]->SetMarkerStyle(massmarker[iMass]);
+  gr2[iMass]->SetMarkerSize(1.5*masssize[iMass]);
+  linearFit->SetLineColor(masscolor[iMass]);
+  gr2[iMass]->SetLineStyle(iMass+1);
+  linearFit->SetLineStyle(iMass+1);
+  gr2[iMass]->Draw("AP");
   linearFit->SetParameters(100, 50);
   gr2[iMass]->Fit("linearFit", "EM");
   
-  gr2[iMass]->GetXaxis()->SetTitle("JES");
+  gr2[iMass]->GetXaxis()->SetTitle("JSF");
   gr2[iMass]->GetYaxis()->SetTitle("#sigma");
   
   Y20 [iMass] = linearFit->GetParameter(0);
@@ -646,7 +711,7 @@ void FindParametersMass(int iMass)
   linearFit->SetParameters(100, 50);
   gr3[iMass]->Fit("linearFit", "EM");
   
-  gr3[iMass]->GetXaxis()->SetTitle("JES");
+  gr3[iMass]->GetXaxis()->SetTitle("JSF");
   if (obs == 0) gr3[iMass]->GetYaxis()->SetTitle("#alpha");
   if (obs == 1) gr3[iMass]->GetYaxis()->SetTitle("#sigma2");
   
@@ -664,7 +729,7 @@ void FindParametersMass(int iMass)
     linearFit->SetParameters(100, 50);
     gr4[iMass]->Fit("linearFit", "EM");
     
-    gr4[iMass]->GetXaxis()->SetTitle("JES");
+    gr4[iMass]->GetXaxis()->SetTitle("JSF");
     gr4[iMass]->GetYaxis()->SetTitle("power");
   }
 }
@@ -849,12 +914,12 @@ TH1F* FindParameters(TString filename, int i)
       break;
     }
   }
-  sCutAndWeight += " & top.fitProb > 0.2)";
+  sCutAndWeight += " & top.fitProb > 0.2 & Min$(sqrt(pow(top.recoW2Prod1[0].Eta()-jet.jet.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.recoW2Prod1[0].Phi()-jet.jet.Phi()),2)))>0.3)";
 
   std::cout << sCutAndWeight << std::endl;
   
   // Get observable
-  eventTree->Draw(sObservable, sCutAndWeight);
+  eventTree->Draw(sObservable, sCutAndWeight, "");
   
   TH1F *h1 = (TH1F*)gDirectory->Get("htemp")->Clone();
   
@@ -921,7 +986,7 @@ TH1F* FindParameters(TString filename, int i)
 }
 
 void batchObservableByJESByMass() {
-  pas = true;
+  pas = false;
   
   for (int t = 0; t < 3; ++t) { // target
     for (int o = 0; o < 2; ++o) { // obs

@@ -82,6 +82,15 @@ TopMass::TopMass() :
   else if (!strcmp(fBinning_.c_str(),"weight.nVertex")) {
     vBinning = {0, 10, 15, 20, 25, 40};
   }
+  else if (!strcmp(fBinning_.c_str(),"abs(top.leptonFlavour)")) {
+    vBinning = {11, 13, 15};
+  }
+  else if (!strcmp(fBinning_.c_str(),"-top.leptonFlavour/abs(top.leptonFlavour)")) {
+    vBinning = {-2, 0, 2};
+  }
+  else if (!strcmp(fBinning_.c_str(),"jet.jet[4].Pt()/(top.recoB1[0].Pt()+top.recoB2[0].Pt())*2")) {
+    vBinning = {0.05, 0.3, 0.5, 0.7, 1};
+  }
   else{
     std::cerr << "Stopping analysis! Binning " << fBinning_.c_str() << " not defined" <<std::endl;
     exit(0);

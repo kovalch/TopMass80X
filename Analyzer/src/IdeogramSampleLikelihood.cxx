@@ -8,6 +8,7 @@ typedef ProgramOptionsReader po;
 
 double IdeogramSampleLikelihood::DoEval(const double *x) const {
   double pullWidth(po::GetOption<double>("pullWidth"));
+  double pullWidthMuo(po::GetOption<double>("muo_pullWidth"));
   double pullWidthEle(po::GetOption<double>("ele_pullWidth"));
   
   double sampleResult  = 0;
@@ -39,7 +40,10 @@ double IdeogramSampleLikelihood::DoEval(const double *x) const {
      }
     }
     if (eventIsActive) {
-      double pullWidthFlavour = (flavour == 11) ? pullWidthEle : pullWidth;
+      double pullWidthFlavour = pullWidth;
+      if     (flavour == 13) pullWidthFlavour = pullWidthMuo;
+      else if(flavour == 11) pullWidthFlavour = pullWidthEle;
+      //eventSumProb = 1.; // TEST
       sampleResult  += weight * -2.*log(eventResult)*eventSumProb / (pullWidthFlavour*pullWidthFlavour);
       assert(weight==weight);
       assert(eventSumProb==eventSumProb);
@@ -48,6 +52,9 @@ double IdeogramSampleLikelihood::DoEval(const double *x) const {
       sampleNEvent  += weight;
     }
   }
-  //std::cout << x[0] << " " << x[1] << " " << sampleResult << " * " << sampleNEvent << " / " << sampleSumProb << std::endl;
-  return sampleResult * sampleNEvent / sampleSumProb;
+  double constraint = 0;
+  if (x[4] > 0.) {
+    constraint = pow((x[1]-1.)/x[4], 2);
+  }
+  return sampleResult * sampleNEvent / sampleSumProb + constraint;
 }

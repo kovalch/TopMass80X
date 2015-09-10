@@ -40,7 +40,7 @@ Skimmer::Skimmer()
   std::string samplePath(po::GetOption<std::string>("analysisConfig.samplePath"));
   //std::string samplePath("/nfs/dust/cms/user/eschliec/TopMass/2012/04/");
   //std::string samplePath("dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix01/");
-  std::string outputPath("/nfs/dust/cms/user/eschliec/TopMass/2012/Skim_04/");
+  std::string outputPath("/nfs/dust/cms/user/eschliec/TopMass/2012/Skim_05/");
 
   if(po::GetOption<std::string>("task") == "local")
     outputPath = "";
@@ -146,12 +146,15 @@ void Skimmer::skim(std::string inputPath, std::string outputPath, std::string sa
 {
   std::string selection(po::GetOption<std::string>("analysisConfig.selection"));
   int maxPermutations(po::GetOption<int>("analysisConfig.maxPermutations"));
+  double newMCWeight =  po::GetOption<double>("skimmer.mcweight");
   //int maxPermutations(1);
 
   std::cout << "Selection: " << selection << std::endl;
   std::cout << "Max Permutations: " << maxPermutations << std::endl;
+  if(newMCWeight > 0) std::cout << "Changing MC weight to " << newMCWeight << '\n';
 
   TChain* fromChain = new TChain("analyzeKinFit/eventTree");
+  //TChain* fromChain = new TChain("analyzeHitFit/eventTree");
   int nFiles = 0;
   std::string fullInPath = inputPath+sample;
   std::cout << "Sample: " << fullInPath << std::endl;
@@ -202,6 +205,13 @@ void Skimmer::skim(std::string inputPath, std::string outputPath, std::string sa
       std::cout << ++numberOfSkimmedFiles << " / " << nFiles << " skimmed ..." << std::endl;
     }
     fromChain->GetTree()->GetEntry(entry, 1);
+    //overwrite mcweight if needed
+    if(newMCWeight > 0) {
+      weightEvent->combinedWeight *= newMCWeight/weightEvent->mcWeight;
+      weightEvent->mcWeight = newMCWeight;
+    }
+
+
     if(!sel->GetNdata()) continue;
     int iter = -1;
     for(int j = 0, l = sel->GetNdata(); j < l; ++j){

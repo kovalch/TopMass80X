@@ -26,7 +26,7 @@ enum lepton           { kElectron, kMuon, kAll, kMuon_BReg};
 std::string lepton_ [4] = { "electron", "muon", "lepton", "muon_BReg"};
 
 int channel = 1;
-std::string suffix = "";
+std::string suffix = "_calibrated_pull";
 
 Long64_t nentries = 1000000000; //1000*27;
 Long64_t firstentry = nentries*0 + 0;
@@ -39,12 +39,14 @@ double genMass[]      = {166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5};
 double genMassError[] = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
 double genMassN[]     = {27000000, 41000000, 25000000, 62000000, 27000000, 40000000, 24000000};
 //double genMassN[]     = {1620072, 1.5, 1.5, 1.5, 59613991, 1.5, 1.5, 1.5, 1.5};
-double maxMCWeight[]  = {1.75, 1.75, 1.75, 1.75, 1.75, 1.75, 1.75};
+double maxMCWeight[]  = {1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2};
 double crossSection   = 245.8;
 double peLumi         = 19700.;
 double eff;
+
+std::string samples[21] = {"Summer12_TTJetsMS1665_0.98", "Summer12_TTJetsMS1715_0.98", "Summer12_TTJetsMS1735_0.98", "Summer12_TTJetsMS1785_0.98", "Summer12_TTJetsMS1665_1.00", "Summer12_TTJetsMS1715_1.00", "Summer12_TTJetsMS1735_1.00", "Summer12_TTJetsMS1785_1.00", "Summer12_TTJetsMS1665_1.02", "Summer12_TTJetsMS1715_1.02", "Summer12_TTJetsMS1735_1.02", "Summer12_TTJetsMS1785_1.02", "Summer12_TTJetsMS1695_0.98", "Summer12_TTJetsMS1725_0.98", "Summer12_TTJetsMS1755_0.98", "Summer12_TTJetsMS1695_1.00", "Summer12_TTJetsMS1725_1.00", "Summer12_TTJetsMS1755_1.00", "Summer12_TTJetsMS1695_1.02", "Summer12_TTJetsMS1725_1.02", "Summer12_TTJetsMS1755_1.02"};
   
-double genJES[]       = {0.96, 1.00, 1.04};
+double genJES[]       = {0.98, 1.00, 1.02};
 double genJESError[]  = {1e-6, 1e-6, 1e-6};
 double measJES[3];
 
@@ -90,14 +92,14 @@ void DrawLegend(bool bwlines = false) {
   leg1->SetFillColor(kWhite);
   leg1->SetBorderSize(0);
   if (bwlines) {
-    leg1->AddEntry( linearFit096, "JSF=0.96", "LP");
+    leg1->AddEntry( linearFit096, "JSF=0.98", "LP");
     leg1->AddEntry( linearFit100, "JSF=1.00", "LP");
-    leg1->AddEntry( linearFit104, "JSF=1.04", "LP");
+    leg1->AddEntry( linearFit104, "JSF=1.02", "LP");
   }
   else {
-    leg1->AddEntry( linearFit096, "JSF=0.96", "P");
+    leg1->AddEntry( linearFit096, "JSF=0.98", "P");
     leg1->AddEntry( linearFit100, "JSF=1.00", "P");
-    leg1->AddEntry( linearFit104, "JSF=1.04", "P");
+    leg1->AddEntry( linearFit104, "JSF=1.02", "P");
   }
   /*
   leg->AddEntry( constFit, "Const. fit", "L");
@@ -120,13 +122,13 @@ void DrawLegend(bool bwlines = false) {
   leg3->SetTextSizePixels(textsize);
   leg3->SetFillColor(kWhite);
   leg3->SetBorderSize(0);
-  if (bwlines) leg3->AddEntry( linearFit104, "JES=1.04", "LP");
-  else         leg3->AddEntry( linearFit104, "JES=1.04", "P");
+  if (bwlines) leg3->AddEntry( linearFit104, "JES=1.02", "LP");
+  else         leg3->AddEntry( linearFit104, "JES=1.02", "P");
   leg3->Draw();
   */
 }
 
-void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/pseudoexperiments/topmass_150119")
+void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper")
 {
   //*
   TStyle *tdrStyle = setTDRStyle();
@@ -149,9 +151,13 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/kovalch/G
   // topmass_120530_0840 - all
   // topmass_120412_2120cp
   tree = new TChain("tree");
-  std::string pathToRootFiles = pathToPE+suffix+std::string("/")+lepton_[channel]+std::string("/job_*.root");
-  std::cout << "opening root files from " << pathToRootFiles << std::endl;
-  tree->Add(pathToRootFiles.c_str());
+  
+  for (int s = 0; s < 21; ++s) {
+    std::string pathToRootFiles = pathToPE+suffix+std::string("/")+lepton_[channel]+std::string("/")+samples[s]+std::string("/job*.root");
+    std::cout << "opening root files from " << pathToRootFiles << std::endl;
+    tree->Add(pathToRootFiles.c_str());
+  }
+  
   switch(channel) {
     case kElectron:
       eff = 0.003022831;
@@ -314,11 +320,11 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/kovalch/G
   
   std::cout << "MASS, fit constant" << std::endl;
   fitResult = mgMass->Fit("constFit", "EMS");
-  std::cout << "Fit linear, JES 0.96" << std::endl;
+  std::cout << "Fit linear, JES 0.98" << std::endl;
   gMass[0]->Fit("linearFit096", "EM");
   std::cout << "Fit linear" << std::endl;
   gMass[1]->Fit("linearFit100", "EM");
-  std::cout << "Fit linear, JES 1.04" << std::endl;
+  std::cout << "Fit linear, JES 1.02" << std::endl;
   gMass[2]->Fit("linearFit104", "EM");
   mgMass->SetMinimum(-1.9);
   mgMass->SetMaximum( 1.9);
@@ -352,11 +358,11 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/kovalch/G
   
   std::cout << "JES, fit constant" << std::endl;
   fitResult = mgJES->Fit("constFit", "EMS");
-  std::cout << "Fit linear, JES 0.96" << std::endl;
+  std::cout << "Fit linear, JES 0.98" << std::endl;
   gJES[0]->Fit("linearFit096", "EM");
   std::cout << "Fit linear" << std::endl;
   gJES[1]->Fit("linearFit100", "EM");
-  std::cout << "Fit linear, JES 1.04" << std::endl;
+  std::cout << "Fit linear, JES 1.02" << std::endl;
   gJES[2]->Fit("linearFit104", "EM");
   mgJES->SetMinimum(-0.019);
   mgJES->SetMaximum( 0.019);

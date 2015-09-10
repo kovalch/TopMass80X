@@ -22,15 +22,42 @@ private:
   double PUNJES1(double *x, double *p);
   
   double PBKG(double *x, double *p);
+  double PBKGSPLINE(double *x, double *p);
   double PBKGJES(double *x, double *p, const std::vector<double> &q);
   double PBKGJES1(double *x, double *p);
+  double PBKGJESSPLINE(double *x, double *p);
+
+  static double spline(double *xx, double *p);
   
+  static std::vector<double> parsCP_;
+  static std::vector<double> parsWP_;
+  static std::vector<double> parsUN_;
+  static std::vector<double> parsCPJES_;
+  static std::vector<double> parsWPJES_;
+  static std::vector<double> parsUNJES_;
+
+  static std::vector<double> massOffset_;
+  static std::vector<double> massSlopeMass_;
+  static std::vector<double> massSlopeJES_;
+  static std::vector<double> massSlopeMassJES_;
+  static std::vector<double> jesOffset_;
+  static std::vector<double> jesSlopeMass_;
+  static std::vector<double> jesSlopeJES_;
+  static std::vector<double> jesSlopeMassJES_;
+
   static std::vector<double> parsBKG_;
   static std::vector<double> parsBKGJES_;
 
+  static double fCP_;
+  static double fWP_;
+  static double fUN_;
+
+
   double fSig_;
 
+  static double IntegrationRangeMax_;
   static double PBKGintegral_;
+  static double PBKGJESintegral_;
   
   typedef std::pair<double,double> ScanPoint;
   typedef std::map<ScanPoint,double> ScanPointMap; 

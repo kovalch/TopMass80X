@@ -11,6 +11,7 @@
 
 #include "TH1F.h"
 #include "TF1.h"
+#include "TCanvas.h"
 
 class TH1F;
 
@@ -32,10 +33,10 @@ public:
 
   TH1F* GetH1(const std::string& title);
   void SetTDRStyle();
-  void DrawCMS(int channelID = -1, int energy = -1);
+  void DrawCMS(int channelID = -1, int energy = -1, TCanvas* canvas = 0);
   void DrawCMSSim(int energy = -1);
 
-  enum channelID {kAllJets, kMuonJets, kElectronJets, kLeptonJets, kMaxChannels};
+  enum ChannelID {kAllJets, kMuonJets, kElectronJets, kLeptonJets, kHamburg, kMaxChannels};
   static int channelID();
   enum methodID {kGenMatch, kMVA, kIdeogram, kIdeogramNew, kIdeogramMin, kRooFit, kMaxMethods};
   static int methodID();
