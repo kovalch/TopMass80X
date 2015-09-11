@@ -15,7 +15,7 @@
 
 typedef ProgramOptionsReader po;
 
-enum sampleType {kData, kSig, kBkg, kSigVar};
+enum sampleType {kData, kSig, kBkg, kSigVar, kBkgVar};
 
 class TopMassControlPlots{
 public:
@@ -220,6 +220,15 @@ private:
       sigvar.back()->SetName(HelperFunctions::cleanedName(data->GetName()+sample->name+normUnc).c_str());
       sigvar.back()->SetTitle(std::string(sample->name+std::string(" ")+normUnc).c_str());
     }
+    void AddBackgroundVariation(MySample* sample)
+    {
+      bkgvar.push_back((TH1*)data->Clone());
+      bkgvar.back()->Reset();
+      bkgvar.back()->SetLineWidth(1);
+      bkgvar.back()->SetFillColor(sample->color);
+      bkgvar.back()->SetName(HelperFunctions::cleanedName(data->GetName()+sample->name).c_str());
+      bkgvar.back()->SetTitle(sample->name.c_str());
+    }
     
     std::vector<TH1F*> Sigvar1D(){
       std::vector<TH1F*> sigvar1D;
@@ -241,6 +250,13 @@ private:
         for (size_t i=0; i<bkg.size(); i++)bkg1D.push_back((TH1F*) bkg.at(i));
       }
       return bkg1D;
+    }
+    std::vector<TH1F*> Bkgvar1D(){
+      std::vector<TH1F*> bkgvar1D;
+      if(histogramDimension == 1){
+        for (size_t i=0; i<bkgvar.size(); i++)bkgvar1D.push_back((TH1F*) bkgvar.at(i));
+      }
+      return bkgvar1D;
     }
     TH1F* Data1D(){
       return (TH1F*) data;
@@ -274,6 +290,13 @@ private:
         for (size_t i=0; i<bkg.size(); i++)bkg2D.push_back((TH2F*) bkg.at(i));
       }
       return bkg2D;
+    }
+    std::vector<TH2F*> Bkgvar2D(){
+      std::vector<TH2F*> bkgvar2D;
+      if(histogramDimension == 2){
+        for (size_t i=0; i<bkgvar.size(); i++)bkgvar2D.push_back((TH2F*) bkgvar.at(i));
+      }
+      return bkgvar2D;
     }
     TH2F* Data2D(){
       return (TH2F*) data;
@@ -336,7 +359,7 @@ private:
   private:
     TH1* data;
     TH1* unc;
-    std::vector<TH1*> sig, bkg, sigvar, normvar;
+    std::vector<TH1*> sig, bkg, sigvar, normvar, bkgvar;
     short histogramDimension;
     bool dataContainsMC;
     bool fitGaussToCore;

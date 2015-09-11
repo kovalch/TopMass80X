@@ -891,11 +891,11 @@ void TopMassControlPlots::doPlots()
       samples.push_back(MySample("t#bar{t}, JES = 1.04", "Z2_S12_ABS_JES_104_172_5_MadSpin_sig", kSigVar, kGreen+1  , 1));
     }
     */
-    //samples.push_back(MySample("Background", "Background_MJP12*", kBkg, kYellow, 1));
+    samples.push_back(MySample("Background", "Background_MJP12", kBkg, kYellow, 1));
     //samples.push_back(MySample("Background", "Run2012_Mixing8_alljets*", kBkg, kYellow, 1)); 
     //samples.push_back(MySample("Background", "Run2012_Mixing8_fix_alljets*", kBkg, kYellow, 1)); 
     //samples.push_back(MySample("Background", "job_QCDMixing_MJPS12*", kBkg, kYellow, 1)); 
-    samples.push_back(MySample("Background", "mix6_QCDMixing_MJPS12*", kBkg, kYellow, 1)); 
+    samples.push_back(MySample("Background (mixing)", "mix6_QCDMixing_MJPS12*", kBkgVar, kYellow, 1)); 
   }
   
 
@@ -1317,11 +1317,13 @@ void TopMassControlPlots::doPlots()
   {
     int bkgCounter = -1;
     int sigVarCounter = -1;
+    int bkgVarCounter = -1;
     // Loop over all samples
     std::cout << "Adding files from folder: " << path_ << std::endl;
     for(MySample& sample : samples){
       if(sample.type == kBkg    ) ++bkgCounter;
       if(sample.type == kSigVar ) ++sigVarCounter;
+      if(sample.type == kBkgVar ) ++bkgVarCounter;
       // Get sample
       TChain* chain; int nFiles = 0;
       if (channelID == Helper::kAllJets) {
@@ -1361,6 +1363,7 @@ void TopMassControlPlots::doPlots()
         else if(sample.type == kSig    ) hist.AddSignal(&sample);
         else if(sample.type == kBkg    ) hist.AddBackground(&sample);
         else if(sample.type == kSigVar ) hist.AddSignalVariation(&sample);
+        else if(sample.type == kBkgVar ) hist.AddBackgroundVariation(&sample);
       }
 
       //replaceVar used for replacements in selection
@@ -1473,6 +1476,9 @@ void TopMassControlPlots::doPlots()
             // Fill signal variation
             else if(sample.type == kSigVar && hist.Dimension() == 1) for(auto& var : hist.varx) hist.Sigvar1D()[sigVarCounter]->Fill(var->EvalInstance(j), weight.EvalInstance(j)*hist.histoweight->EvalInstance(j)*sample.scale);
             else if(sample.type == kSigVar && hist.Dimension() == 2) for(auto& var : hist.varx) for(auto& var2 : hist.vary) hist.Sigvar2D()[sigVarCounter]->Fill(var->EvalInstance(j), var2->EvalInstance(j), weight.EvalInstance(j)*hist.histoweight->EvalInstance(j)*sample.scale);
+            // Fill background variation
+            else if(sample.type == kBkgVar && hist.Dimension() == 1) for(auto& var : hist.varx) hist.Bkgvar1D()[bkgVarCounter]->Fill(var->EvalInstance(j), weight.EvalInstance(j)*hist.histoweight->EvalInstance(j)*sample.scale);
+            else if(sample.type == kBkgVar && hist.Dimension() == 2) for(auto& var : hist.varx) for(auto& var2 : hist.vary) hist.Bkgvar2D()[bkgVarCounter]->Fill(var->EvalInstance(j), var2->EvalInstance(j), weight.EvalInstance(j)*hist.histoweight->EvalInstance(j)*sample.scale);
           }
         }
       }
@@ -1649,6 +1655,15 @@ void TopMassControlPlots::doPlots()
           sigvar->Add(bkg);
         }
       }
+      for(TH1F* bkgvar : hist.Bkgvar1D()) {
+        // Scale
+        double integralBvar = bkgvar->Integral(0,bins);
+        bkgvar->Scale((integralD-integralS)/integralBvar);
+        //Add signal
+        for (TH1F* sig : hist.Sig1D()) {
+          bkgvar->Add(sig);
+        }
+      }
     }
     // Lepton+jets: Normalize to data
     else {
@@ -1707,6 +1722,17 @@ void TopMassControlPlots::doPlots()
         }
         else {
           down[i] = sqrt(pow(down[i], 2) + pow(sigvar->GetBinContent(i) - hist.Unc1D()->GetBinContent(i), 2));
+        }
+      }
+    }
+    
+    for(TH1F* bkgvar : hist.Bkgvar1D()) {
+      for(int i = 0; i < hist.Unc1D()->GetNbinsX()+2; ++i) {
+        if (bkgvar->GetBinContent(i) > hist.Unc1D()->GetBinContent(i)) {
+          up[i] = sqrt(pow(up[i], 2) + pow(bkgvar->GetBinContent(i) - hist.Unc1D()->GetBinContent(i), 2));
+        }
+        else {
+          down[i] = sqrt(pow(down[i], 2) + pow(bkgvar->GetBinContent(i) - hist.Unc1D()->GetBinContent(i), 2));
         }
       }
     }
