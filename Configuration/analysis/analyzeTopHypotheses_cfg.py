@@ -66,8 +66,11 @@ process.MessageLogger.cerr.TtSemiLeptonicEvent = cms.untracked.PSet(
 
 from TopQuarkAnalysis.Configuration.patRefSel_refMuJets import *
 
-#inputFiles = ['/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v4/10000/00D2A247-2910-E511-9F3D-0CC47A4DEDD2.root']
-inputFiles = ['/store/data/Run2015B/SingleMuon/MINIAOD/PromptReco-v1/000/251/562/00000/E0561625-7C2A-E511-9016-02163E0133D1.root']
+if data:
+    inputFiles = ['/store/data/Run2015B/SingleMuon/MINIAOD/PromptReco-v1/000/251/562/00000/E0561625-7C2A-E511-9016-02163E0133D1.root']
+else:
+    inputFiles = ['/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v4/10000/00D2A247-2910-E511-9F3D-0CC47A4DEDD2.root']
+
 
 ### Selection steps
 # If a step is switched off here, its results will still be available in the corresponding TriggerResults of this process.
@@ -144,9 +147,11 @@ maxEvents = options.maxEvents
 ### Conditions
 
 # GlobalTags
+#globalTagMC   = '74X_mcRun2_startup_v2::All'
+#globalTagData = '74X_dataRun2_v2::All'
+#usePrivateSQlite=False #do not use external JECs (sqlite file)
 globalTagMC   = 'DEFAULT'
 globalTagData = 'DEFAULT'
-
 usePrivateSQlite=True #use external JECs (sqlite file)
 
 ### Output
@@ -206,7 +211,10 @@ else:
 if usePrivateSQlite:
     from CondCore.DBCommon.CondDBSetup_cfi import *
     import os
-    era="Summer15_50nsV4_DATA"
+    if runOnMC:
+        era="Summer15_50nsV4_MC"
+    else:
+        era="Summer15_50nsV4_DATA"
     dBFile = os.path.expandvars("$CMSSW_BASE/src/PhysicsTools/PatAlgos/test/"+era+".db")
     process.jec = cms.ESSource("PoolDBESSource",CondDBSetup,
                                connect = cms.string( "sqlite_file://"+dBFile ),
@@ -231,7 +239,7 @@ from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMet
 #default configuration for miniAOD reprocessing, change the isData flag to run on data
 #for a full met computation, remove the pfCandColl input
 if runOnMiniAOD:
-    runMetCorAndUncFromMiniAOD( process, isData=(runOnMC != True) )
+    runMetCorAndUncFromMiniAOD( process, isData=(runOnMC != True))
 else:
     runMETCorrectionsAndUncertainties( process, isData=(runOnMC != True) )
 #add mnodules to redo the b-tagging on-the-fly using unscheduled mode
@@ -258,7 +266,8 @@ addJetCollection(
     jetCorrections = ('AK4PFchs', jetCorrectionLevels, 'None'),
     genJetCollection = cms.InputTag('ak4GenJetsNoNu'),
     genParticles = cms.InputTag('prunedGenParticles'),
-    getJetMCFlavour = runOnMC,
+    #getJetMCFlavour = runOnMC, //TODO does not work at the moment
+    getJetMCFlavour = False,
     algo = 'AK',
     rParam = 0.4
 )
