@@ -26,8 +26,8 @@ void SystematicUncertainties::fillLeptonJets()
   std::string path;
   if(channel==3)path = "/nfs/dust/test/cms/user/kirschen/BRegression_PE_NewCalibrationJan2014Applied_MCS3250MinEvtsBReg/";
   //else path = "/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/pseudoexperiments/topmass_141020/";
-  //else path = "/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper/";
-  else path = "/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper_jsfconstraint/";
+  else path = "/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper/";
+  //else path = "/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper_jsfconstraint/";
 
   path += lepton_[channel]; path += "/";
 
@@ -118,8 +118,13 @@ void SystematicUncertainties::fillLeptonJets()
 
   sample.ensembles["mcatnlo"] = ensemble("Summer12_TTJets1725_mcatnlo_herwig/job_*_ensemble.root", 32852589./1.2);
   sample.ensembles["powheg"] = ensemble("Summer12_TTJets1725_powheg/job_*_ensemble.root", 21675970./1.2);
-  sample.ensembles["powhegP11C"] = ensemble("Summer12_TTJets1725_powheg_P11C/job_*_ensemble.root", 9500000./1.2);
+  sample.ensembles["powheg1"] = ensemble("Summer12_TTJets1725_powheg1/job_*_ensemble.root", 21675970./1.2);
+  sample.ensembles["powheg2"] = ensemble("Summer12_TTJets1725_powheg2_pythia6/job_*_ensemble.root", 21675970./1.2);
+  sample.ensembles["powheg2P11C"] = ensemble("Summer12_TTJets1725_powheg2_P11C/job_*_ensemble.root", 9500000./1.2);
+  sample.ensembles["powheg2Pythia8"] = ensemble("Summer12_TTJets1725_powheg2_pythia8/job_*_ensemble.root", 21675970./1.2);
   sample.ensembles["powhegHerwig"] = ensemble("Summer12_TTJets1725_powheg_herwig/job_*_ensemble.root", 27684235./1.2);
+  sample.ensembles["powheg1Herwig"] = ensemble("Summer12_TTJets1725_powheg2_herwig/job_*_ensemble.root", 27684235./1.2);
+  sample.ensembles["powheg2Herwig"] = ensemble("Summer12_TTJets1725_powheg2_herwig/job_*_ensemble.root", 27684235./1.2);
 
   sample.ensembles["defaultSC"] = ensemble("Summer12_TTJets1725_MGDecays_Z2/job_*_ensemble.root", 56000000./1.2);
   sample.ensembles["P11"] = ensemble("Summer12_TTJets1725_MGDecays_P11/job_*_ensemble.root", 27000000./1.2);//!
@@ -245,7 +250,7 @@ void SystematicUncertainties::fillLeptonJets()
       sample.comparisons["MC@NLO+Herwig6 vs. Powheg+Herwig6"] = comparison("mcatnlo", "powhegHerwig", "", false, false);
       sample.comparisons["ME generator                     "] = comparison("calibration", "powheg", "", false);
       sample.comparisons["Pythia Z2* vs. P11               "] = comparison("calibration", "P11", "", false, false);
-      sample.comparisons["D0 crosscheck                    "] = comparison("calibration", "powhegP11C", "", false, false);
+      //sample.comparisons["D0 crosscheck                    "] = comparison("calibration", "powhegP11C", "", false, false);
       sample.comparisons["Color reconnection               "] = comparison("P11", "P11noCR", "", false);
       sample.comparisons["Underlying event                 "] = comparison("P11", "P11mpiHi", "P11TeV", false);
 
