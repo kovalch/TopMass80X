@@ -19,14 +19,15 @@
 #include "TLine.h"
 #include "TPaveStats.h"
 
-#include "tdrstyle.C"
+#include "tdrstyle_new.C"
+#include "CMS_lumi.C"
 
 const int nMass = 7;
 const int nJES  = 3;
 
 int target = 1; // 1: correct, 0: wrong, -10: unmatched
 int obs    = 0; // 0: hadTopMass, 1: hadWRawMass
-int lepton = 1;
+int lepton = 0;
 
 int iMassMin = 0;
 int iMassMax = nMass;
@@ -38,7 +39,7 @@ int iTarget[]     = {1, 0, -10};
 TString sTarget[] = {"wp", "cp", "un"};
 TString sFObs[]   = {"mt", "mW"};
 TString sObs[]    = {"m_{t}", "m_{W}^{reco}"};
-TString sLepton[] = {"electron", "muon"};
+TString sLepton[] = {"electron", "muon", "lepton"};
 
 TGraphErrors* gr1[nMass];
 TGraphErrors* gr2[nMass];
@@ -54,6 +55,7 @@ TString sX[nMass] = {"m_{t,gen} = 166.5 GeV",
                      "m_{t,gen} = 178.5 GeV"};
 
 double X  [nMass] = {166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5};
+TString X_ [nMass] = {"166_5", "169_5", "171_5", "172_5", "173_5", "175_5", "178_5"};
 double Y10[nMass];
 double Y11[nMass];
 double Y20[nMass];
@@ -70,6 +72,7 @@ double eY30[nMass];
 double eY31[nMass];
 
 double xJES[nJES] = {0.96, 1.00, 1.04};
+TString xJES_[nJES] = {"0_96", "1_00", "1_04"};
 double y00 [nJES];
 double y01 [nJES];
 double y2  [nJES];
@@ -432,7 +435,13 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
 void FindParametersMass(int iMass)
 {
   setTDRStyle();
-  gStyle->SetOptFit(0); 
+  gStyle->SetOptFit(0);
+  gStyle->SetPadLeftMargin(0.2);
+  gStyle->SetPadRightMargin(0.04);
+  gStyle->SetPadTopMargin(0.08);
+  gStyle->SetNdivisions(505, "X");
+  gStyle->SetTitleYOffset(1.75);
+  gStyle->SetOptStat(0); 
     
   TCanvas* cObservable = new TCanvas("cObservable", "cObservable", 600, 600);
   
@@ -527,7 +536,7 @@ void FindParametersMass(int iMass)
   // ---
   //    create legend
   // ---
-  TLegend *leg0 = new TLegend(0.5, 0.7, 0.95, 0.92);
+  TLegend *leg0 = new TLegend(0.45, 0.7, 0.9, 0.9);
   leg0->SetFillStyle(0);
   leg0->SetBorderSize(0);
   if (!plotByMass) {
@@ -552,10 +561,10 @@ void FindParametersMass(int iMass)
   
   leg0->Draw();
 
-  DrawCMSSim(lepton);
+  CMS_lumi(cObservable, 2100+lepton, 0., true, "Simulation");
   
-  if (obs==0) DrawCutLine(172.5, h096->GetMaximum()*1.1);
-  else DrawCutLine(80.4, h096->GetMaximum()*1.1);
+  if (obs==0) DrawCutLine(172.5, h096->GetMaximum()*1.);
+  else DrawCutLine(80.4, h096->GetMaximum()*1.);
   h096->GetYaxis()->SetRangeUser(0, h096->GetMaximum()*1.5);
   
   gStyle->SetOptFit(1);
@@ -566,7 +575,7 @@ void FindParametersMass(int iMass)
   }
   else {
     path += "jes";
-    path += X[iMass];
+    path += X_[iMass];
   }
   path += "_"; path += sTarget[abs(target%8)];
   path += "_"; path += sLepton[lepton]; path += ".eps";
@@ -660,9 +669,17 @@ void FindParametersMass(int iMass)
 
 TH1F* FindParameters(TString filename, int i)
 {
-  filename += "_"; filename += sLepton[lepton]; filename += "/job_*.root";
   TChain* eventTree = new TChain("analyzeHitFit/eventTree");
-  eventTree->Add(filename);
+  TString filenameEle = filename; filenameEle += "_electron/job_*.root";
+  TString filenameMu  = filename; filenameMu  += "_muon/job_*.root";
+  if (lepton != 1) {
+    std::cout << filenameEle << std::endl;
+    eventTree->Add(filenameEle);
+  }
+  if (lepton != 0) {
+    std::cout << filenameMu << std::endl;
+    eventTree->Add(filenameMu);
+  }
   
   TF1* fit = new TF1();
   
@@ -887,7 +904,7 @@ void batchObservableByJESByMass() {
   
   for (int t = 0; t < 3; ++t) { // target
     for (int o = 0; o < 2; ++o) { // obs
-      for (int l = 0; l < 2; ++l) { // lepton
+      for (int l = 0; l < 3; ++l) { // lepton
         observableByJESByMass(iTarget[t], o, l);
       }
     }
@@ -897,7 +914,7 @@ void batchObservableByJESByMass() {
   
   for (int t = 0; t < 3; ++t) { // target
     for (int o = 0; o < 2; ++o) { // obs
-      for (int l = 0; l < 2; ++l) { // lepton
+      for (int l = 0; l < 3; ++l) { // lepton
         observableByJESByMass(iTarget[t], o, l);
       }
     }

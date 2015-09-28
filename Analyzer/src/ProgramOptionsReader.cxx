@@ -46,6 +46,9 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("temPlot", boost::program_options::value<bool>()->default_value(false),
             "Plot IdeogramMin templates\n"
         )
+        ("drawIdeograms", boost::program_options::value<int>()->default_value(0),
+            "Draw ideograms for first N events\n"
+        )
         ("constrainJSF", boost::program_options::value<bool>()->default_value(true),
             "Add Gaussian constraint to JSF\n"
         )

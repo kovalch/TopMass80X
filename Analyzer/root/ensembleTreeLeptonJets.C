@@ -20,12 +20,16 @@
 #include "TPaveStats.h"
 #include "TFitResult.h"
 
-#include "tdrstyle.C"
+#include "tdrstyle_new.C"
+#include "CMS_lumi.C"
 
 enum lepton           { kElectron, kMuon, kAll, kMuon_BReg};
 std::string lepton_ [4] = { "electron", "muon", "lepton", "muon_BReg"};
 
 int channel = 2;
+//bool calibrated = false;
+//std::string suffix = "_uncalibrated";
+bool calibrated = true;
 std::string suffix = "_calibrated_pull";
 
 Long64_t nentries = 1000000000; //1000*27;
@@ -84,9 +88,9 @@ TFitResultPtr fitResult;
 
 
 void DrawLegend(bool bwlines = false) {
-  double y1 = 0.915; double y2 = 0.955;
-  int textsize = 8;
-  TLegend *leg1 = new TLegend(0.20, y1, 0.92, y2);
+  double y1 = 0.84; double y2 = 0.9;
+  int textsize = 10;
+  TLegend *leg1 = new TLegend(0.25, y1, 0.92, y2);
   leg1->SetNColumns(3);
   leg1->SetTextSizePixels(textsize);
   leg1->SetFillColor(kWhite);
@@ -132,13 +136,13 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/mseidel/p
 {
   //*
   TStyle *tdrStyle = setTDRStyle();
-  tdrStyle->SetPadGridX(true);
-  tdrStyle->SetPadGridY(true);
+  //tdrStyle->SetPadGridX(true);
+  //tdrStyle->SetPadGridY(true);
   tdrStyle->SetOptFit(0);
   tdrStyle->SetTitleSize(0.09, "XYZ");
   tdrStyle->SetLabelSize(0.08, "XYZ");
-  tdrStyle->SetPadTopMargin(0.2);
-  tdrStyle->SetPadBottomMargin(0.2);
+  tdrStyle->SetPadTopMargin(0.16);
+  tdrStyle->SetPadBottomMargin(0.24);
   tdrStyle->SetTitleYOffset(1.);
   //*/
   
@@ -174,14 +178,14 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/mseidel/p
   }
   
   TMultiGraph *mgMass = new TMultiGraph();
-  mgMass->SetTitle(";m_{t,gen} [GeV];<m_{t,extr}-m_{t,gen}> [GeV]"); 
+  mgMass->SetTitle(";m_{t,gen} [GeV];<m_{t,extr} #font[122]{\55} m_{t,gen}> [GeV]"); 
 
   TMultiGraph *mgJES = new TMultiGraph();
-  mgJES->SetTitle(";m_{t,gen} [GeV];<JSF_{extr}-JSF>");
+  mgJES->SetTitle(";m_{t,gen} [GeV];<JSF_{extr} #font[122]{\55} JSF>");
   
-  if (channel == 2) {
-    mgMass->SetTitle(";m_{t,gen} [GeV];<m_{t,cal}-m_{t,gen}> [GeV]");
-    mgJES->SetTitle(";m_{t,gen} [GeV];<JSF_{cal}-JSF>");
+  if (calibrated) {
+    mgMass->SetTitle(";m_{t,gen} [GeV];<m_{t,cal} #font[122]{\55} m_{t,gen}> [GeV]");
+    mgJES->SetTitle(";m_{t,gen} [GeV];<JSF_{cal} #font[122]{\55} JSF>");
   }
   
   TMultiGraph *mgMassPull = new TMultiGraph();
@@ -367,15 +371,15 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/mseidel/p
   mgJES->SetMinimum(-0.019);
   mgJES->SetMaximum( 0.019);
   if (channel==2) {
-    mgJES->SetMinimum(-0.0075);
-    mgJES->SetMaximum( 0.0075);
+    mgJES->SetMinimum(-0.0115);
+    mgJES->SetMaximum( 0.0115);
   }
   mgJES->Draw("AP");
   gPad->SetTopMargin(0.005);
   //canvasFit->Update();
   
   canvasFit->cd(0);
-  DrawCMSSim(channel);
+  CMS_lumi(canvasFit, 210, 0., true, "Simulation"); // lepton+jets
   DrawLegend(true);
   
   TString sFitMass("fit_Bias_"); sFitMass += lepton_[channel]; sFitMass += suffix; sFitMass += ".eps";
@@ -438,7 +442,7 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/mseidel/p
   gPad->SetTopMargin(0.005);
   
   canvasFitPull->cd(0);
-  DrawCMSSim(channel);
+  CMS_lumi(canvasFitPull, 210, 0., true, "Simulation"); // lepton+jets
   DrawLegend();
   
   TString sFitJESPull("fit_Pull_"); sFitJESPull += lepton_[channel]; sFitJESPull += suffix; sFitJESPull += ".eps";

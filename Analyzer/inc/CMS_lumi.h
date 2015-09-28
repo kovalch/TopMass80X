@@ -15,7 +15,11 @@ class CMS_lumi {
 
 public:
   CMS_lumi() {};
-  void Draw_CMS_lumi( TPad* pad, int iPeriod=3, int iPosX=10 );
+  void Draw_CMS_lumi( TPad* pad, int iPeriod=3, int iPosX=10, bool boolExtraText = false, TString stringExtraText = "Preliminary");
+
+private:
+  bool writeExtraText;
+  TString extraText;
 
 };
 

@@ -1,13 +1,13 @@
 #include "CMS_lumi.h"
 
 void 
-CMS_lumi::Draw_CMS_lumi( TPad* pad, int iPeriod, int iPosX )
+CMS_lumi::Draw_CMS_lumi( TPad* pad, int iPeriod, int iPosX, bool boolExtraText, TString stringExtraText )
 {            
   TString cmsText     = "CMS";
   float cmsTextFont   = 61;  // default is helvetic-bold
 
-  bool writeExtraText = false;
-  TString extraText   = "Preliminary";
+  writeExtraText = boolExtraText;
+  extraText = stringExtraText;
   float extraTextFont = 52;  // default is helvetica-italics
 
   // text sizes and text offsets with respect to the top frame
@@ -28,6 +28,10 @@ CMS_lumi::Draw_CMS_lumi( TPad* pad, int iPeriod, int iPosX )
   TString lumi_8TeV  = "19.7 fb^{-1}";
   TString lumi_8TeV_lepjets = "Lepton+jets, 19.7 fb^{-1}";
   TString lumi_8TeV_alljets = "All-jets, 18.2 fb^{-1}";
+  TString nolumi_8TeV_lepjets = "Lepton+jets";
+  TString nolumi_8TeV_elejets = "Electron+jets";
+  TString nolumi_8TeV_mujets = "Muon+jets";
+  TString nolumi_8TeV_alljets = "All-jets";
   TString lumi_7TeV  = "5.1 fb^{-1}";
 
   bool drawLogo      = false;
@@ -77,6 +81,26 @@ CMS_lumi::Draw_CMS_lumi( TPad* pad, int iPeriod, int iPosX )
   else if ( iPeriod==22 )
     {
       lumiText += lumi_8TeV_alljets;
+      lumiText += " (8 TeV)";
+    }
+  else if ( iPeriod==210 || iPeriod==2102 )
+    {
+      lumiText += nolumi_8TeV_lepjets;
+      lumiText += " (8 TeV)";
+    }
+  else if ( iPeriod==2100 )
+    {
+      lumiText += nolumi_8TeV_elejets;
+      lumiText += " (8 TeV)";
+    }
+  else if ( iPeriod==2101 )
+    {
+      lumiText += nolumi_8TeV_mujets;
+      lumiText += " (8 TeV)";
+    }
+  else if ( iPeriod==220 )
+    {
+      lumiText += nolumi_8TeV_alljets;
       lumiText += " (8 TeV)";
     }
   else if( iPeriod==3 ) 
@@ -185,7 +209,7 @@ CMS_lumi::Draw_CMS_lumi( TPad* pad, int iPeriod, int iPosX )
     {
       if( iPosX==0) 
 	{
-	  posX_ =   l +  relPosX*(1-l-r);
+	  posX_ =   l +  1.4*relPosX*(1-l-r);
 	  posY_ =   1-t+lumiTextOffset*t;
 	}
       latex.SetTextFont(extraTextFont);

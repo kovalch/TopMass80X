@@ -3,7 +3,9 @@
 #include "IdeogramCombLikelihoodAllJets.h"
 #include "IdeogramCombLikelihoodLeptonJets.h"
 #include "IdeogramSampleLikelihood.h"
+#include "IdeogramEventLikelihood.h"
 #include "Helper.h"
+#include "CMS_lumi.h"
 #include "ProgramOptionsReader.h"
 
 #include <cmath>
@@ -16,6 +18,7 @@
 #include "TCanvas.h"
 #include "TGraph.h"
 #include "TLegend.h"
+#include "TStyle.h"
 
 #include "TFile.h"
 #include "TH2D.h"
@@ -35,6 +38,7 @@ IdeogramAnalyzerMinimizer::IdeogramAnalyzerMinimizer(const std::string& identifi
     channelID_(Helper::channelID()),
     entries_(0),
     maxPermutations_              (po::GetOption<int   >("analysisConfig.maxPermutations")),
+    drawIdeograms_                (po::GetOption<int   >("drawIdeograms")),
     isFastSim_                    (po::GetOption<int   >("fastsim")),
     shapeSystematic_              (po::GetOption<double>("shape"  )),
     shapeSystematic2_             (po::GetOption<double>("shape2" )),
@@ -50,7 +54,12 @@ void IdeogramAnalyzerMinimizer::Analyze(const std::string& cuts, int iBin, int j
   time(&end);
 
   Scan(cuts, iBin, jBin);
-  NumericalMinimization();
+  if (drawIdeograms_ > 0) { // just draw the ideograms
+    DrawIdeograms(drawIdeograms_);
+  }
+  else { // extract results from sample
+    NumericalMinimization();
+  }
   CleanUp();
 
   time(&end);
@@ -463,6 +472,47 @@ void IdeogramAnalyzerMinimizer::PlotResult2(ROOT::Math::Minimizer* min, Ideogram
   hist->Write();
   func->Write();
   histFile->Close();
+}
+
+void IdeogramAnalyzerMinimizer::DrawIdeograms(int n) {
+  Helper* helper = new Helper();
+  helper->SetTDRStyle();
+  gStyle->SetPadGridX(false);
+  gStyle->SetPadGridY(false);
+  gStyle->SetPadLeftMargin(0.2);
+  gStyle->SetPadRightMargin(0.04);
+  gStyle->SetPadTopMargin(0.08);
+  gStyle->SetNdivisions(505, "X");
+  gStyle->SetTitleYOffset(1.75);
+  gStyle->SetOptStat(0);
+  gStyle->SetHatchesLineWidth(1.5);
+  
+  for (int i = 0; i < n; ++i) {
+    if (!eventFunctions_[i][0]->IsActive()) continue;
+    IdeogramEventLikelihood* ideogram = new IdeogramEventLikelihood();
+    ideogram->SetFunction(eventFunctions_[i]);
+    
+    std::cout << i << std::endl;
+    for (const auto& permutation : eventFunctions_[i]) {
+      if (permutation->IsActive()) {
+        std::cout << "prob " << permutation->GetFixedParam(0);
+        std::cout << ", mt " << permutation->GetFixedParam(1);
+        std::cout << ", mw " << permutation->GetFixedParam(2) << std::endl;
+      }
+    }
+    
+    TCanvas* canv = new TCanvas("canv", "ideogram", 500, 500);
+    
+    TF2* func = new TF2("func", ideogram, &IdeogramEventLikelihood::DoEval, 100, 250, 0.75, 1.25, 9, "IdeogramEventLikelihood", "DoEval");
+    func->SetTitle(";m_{t} [GeV];JSF");
+    func->SetNpx(200);
+    func->SetNpy(200);
+    func->Draw("cont1z");
+    
+    helper->DrawCMS(-1, -1, canv);
+    
+    canv->Print((std::string("plot/eventLikelihood/")+std::to_string(i)+std::string(".eps")).c_str());
+  }
 }
 
 // cleanup needed to run pseudo-experiments

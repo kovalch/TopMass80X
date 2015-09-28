@@ -34,6 +34,7 @@ public:
   void SetTDRStyle();
   void DrawLabel(const std::string& text, const double x1, const double y1, const double x2, Color_t color = kBlack);
   void DrawCMS(int channelID = -1, int energy = -1, TCanvas* canvas = 0);
+  void DrawCMSSim(int channelID = -1, int energy = -1, TCanvas* canvas = 0);
   void DrawCMSSim(int energy = -1);
 
   enum ChannelID {kAllJets, kMuonJets, kElectronJets, kLeptonJets, kHamburg, kMaxChannels};
