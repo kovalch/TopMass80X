@@ -30,7 +30,7 @@ CXX_FILES_SKIMMER := $(wildcard root/skimmer*.cc)
 OBJ_FILES_SKIMMER := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_SKIMMER))) obj/1/ProgramOptionsReader.o
 # files needed to run add PDF weights program
 CXX_FILES_ADDPDFWEIGHTS := $(wildcard root/addPDFweights*.cc)
-OBJ_FILES_ADDPDFWEIGHTS := $(patsubst root/%.cc,obj/4/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_ADDPDFWEIGHTS))) obj/1/ProgramOptionsReader.o obj/1/Helper.o
+OBJ_FILES_ADDPDFWEIGHTS := $(patsubst root/%.cc,obj/4/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_ADDPDFWEIGHTS))) obj/1/ProgramOptionsReader.o obj/1/Helper.o obj/1/CMS_lumi.o
 # files needed to run SystematicUncertainties program
 CXX_FILES_SYSTEMATICUNCERTAINTIES := $(wildcard root/SystematicUncertainties*.cc)
 OBJ_FILES_SYSTEMATICUNCERTAINTIES := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_SYSTEMATICUNCERTAINTIES)))
