@@ -18,7 +18,7 @@ git clone -b leptonjets_run2 ssh://git@gitlab.cern.ch:7999/stadie/uhh-top-mass.g
 
 git clone --single-branch --branch UHH_Run2 https://git.cern.ch/reps/TopAnalysis.git
 
-git remote add git@github.com:stadie/cmg-cmssw.git
+git remote add origin git@github.com:stadie/cmg-cmssw.git
 
 git fetch origin
 
