@@ -67,9 +67,9 @@ process.MessageLogger.cerr.TtSemiLeptonicEvent = cms.untracked.PSet(
 from TopQuarkAnalysis.Configuration.patRefSel_refMuJets import *
 
 if data:
-    inputFiles = ['/store/data/Run2015B/SingleMuon/MINIAOD/PromptReco-v1/000/251/562/00000/E0561625-7C2A-E511-9016-02163E0133D1.root']
+    inputFiles = ['/store/data/Run2015D/SingleMuon/MINIAOD/05Oct2015-v1/50000/96696580-736F-E511-922D-0025905A60FE.root']
 else:
-    inputFiles = ['/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v4/10000/00D2A247-2910-E511-9F3D-0CC47A4DEDD2.root']
+    inputFiles = ['/store/mc/RunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/0071E654-216E-E511-9CD4-002590596484.root']
 
 
 ### Selection steps
@@ -147,12 +147,11 @@ maxEvents = options.maxEvents
 ### Conditions
 
 # GlobalTags
-#globalTagMC   = '74X_mcRun2_startup_v2::All'
-#globalTagData = '74X_dataRun2_v2::All'
-#usePrivateSQlite=False #do not use external JECs (sqlite file)
+#globalTagMC   = '74X_mcRun2_asymptotic_v2'
+globalTagData = '74X_dataRun2_v4'
 globalTagMC   = 'DEFAULT'
-globalTagData = 'DEFAULT'
-usePrivateSQlite=True #use external JECs (sqlite file)
+#globalTagData = 'DEFAULT'
+usePrivateSQlite=False #use external JECs (sqlite file)
 
 ### Output
 
@@ -191,18 +190,20 @@ process.options = cms.untracked.PSet(
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 
 process.MessageLogger.cerr.FwkReport.reportEvery = fwkReportEvery
 
-from Configuration.AlCa.GlobalTag import GlobalTag
 if runOnMC:
   if globalTagMC == 'DEFAULT':
+    from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
     process.GlobalTag = GlobalTag( process.GlobalTag, 'auto:run2_mc' )
   else:
     process.GlobalTag.globaltag = globalTagMC
 else:
   if globalTagData == 'DEFAULT':
+    from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
     process.GlobalTag = GlobalTag( process.GlobalTag, 'auto:run2_data' )
   else:
     process.GlobalTag.globaltag = globalTagData
