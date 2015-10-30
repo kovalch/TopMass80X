@@ -46,6 +46,11 @@ public:
   std::vector<double> charge;
   std::vector<double> flavour;
   std::vector<double> bTagCSV;
+  std::vector<int>    nSV;
+  std::vector<double> SVChi2;
+  std::vector<double> SV3DLength;
+  std::vector<double> SV3DLengthError;
+  std::vector<TLorentzVector> SVMomentum;
   std::vector<double> gluonTag;
 
   std::vector<double> jerSF;
