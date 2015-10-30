@@ -126,7 +126,7 @@ if (options.generator == 'w0jets'):
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
-process.patJetFlavourAssociation.physicsDefinition = options.phys
+#process.patJetFlavourAssociation.physicsDefinition = options.phys
 
 process.load("TopAnalysis.TopFilter.sequences.semiLeptonicSelection_cff")
 
@@ -211,6 +211,18 @@ if(options.mcversion=="Summer12"):
 if data:
     process.hltFilter.HLTPaths=["HLT_IsoMu24_eta2p1_v*"]
 
+## import QuarkGluonTagger
+process.load('QuarkGluonTagger.EightTeV.QGTagger_RecoJets_cff')  
+process.QGTagger.srcJets = cms.InputTag("goodJetsPF30")
+process.QGTagger.isPatJet  = cms.untracked.bool(True)     
+process.QGTagger.useCHS  = cms.untracked.bool(True)
+
+# load the PU JetID sequence
+process.load("CMGTools.External.pujetidsequence_cff")
+process.puJetIdChs.jets = cms.InputTag("goodJetsPF30")
+process.puJetMvaChs.jets = cms.InputTag("goodJetsPF30")
+#process.puJetId.jets = cms.InputTag("goodJetsPF30")
+#process.puJetMva.jets = cms.InputTag("goodJetsPF30")
 
 ## JET selection
 process.tightBottomSSVPFJets  = process.selectedPatJets.clone(src = 'goodJetsPF30',
@@ -275,7 +287,8 @@ process.analyzeWeights = analyzeWeights.clone(
 process.ttSemiLepHypGenMatch.useBReg = cms.bool(False)
 process.ttSemiLepHypMVADisc.useBReg = cms.bool(False)
 
-
+from TopMass.TopEventTree.BRegJetEventAnalyzer_cfi import analyzeBRegJets
+process.analyzeBRegJets = analyzeBRegJets.clone(jets = analyzeJets.jets, mva_path=cms.string(""), GBRmva_path=cms.string(""))
 
 if not data:
     ## MC weights
@@ -429,6 +442,8 @@ if data:
     process.path = cms.Path(
                             process.hltFilter *
                             process.semiLeptonicSelection *
+                            process.QuarkGluonTagger *
+                            process.puJetIdSqeuenceChs *
                             process.tightBottomSSVPFJets *
                             process.tightBottomCSVPFJets *
                             process.looseJetsPF *
@@ -450,6 +465,8 @@ else:
                             process.tightBottomCSVPFJets *
                             process.looseJetsPF *
                             process.semiLeptonicEvents *
+                            process.QuarkGluonTagger *
+                            process.puJetIdSqeuenceChs *
                             process.eventWeightMC *
                             process.makeEventWeightsPU *
                             process.bTagSFEventWeight *

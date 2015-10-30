@@ -35,6 +35,11 @@ void JetEvent::init()
   charge.clear();
   flavour.clear();
   bTagCSV.clear();
+  nSV.clear();
+  SVChi2.clear();
+  SV3DLength.clear();
+  SV3DLengthError.clear();
+  SVMomentum.clear();
   gluonTag.clear();
 
   jerSF.clear();
