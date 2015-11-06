@@ -1,6 +1,4 @@
 /.gitignore/
-/PhysicsTools/PatUtils
-/PhysicsTools/PatAlgos
 /TopQuarkAnalyis/TopEventProducers/
 /TopQuarkAnalysis/Configuration/
 /TopQuarkAnalysis/Examples/
