@@ -4,9 +4,9 @@ Code for top (mass) analyses at Universität Hamburg
 To get started for run-2 on the NAF:
 
 
-cmsrel CMSSW_7_4_15
+cmsrel CMSSW_7_4_12_patch4
 
-cd CMSSW_7_4_15/src
+cd CMSSW_7_4_12_patch4/src
 
 cmsenv
 
