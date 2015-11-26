@@ -80,8 +80,6 @@ public:
   std::vector<double> fitChi2;
   std::vector<double> fitSigMT;
 
-
-
 };
 
 #endif

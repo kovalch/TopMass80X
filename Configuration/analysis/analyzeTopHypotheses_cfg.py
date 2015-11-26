@@ -1,10 +1,12 @@
+#change 'lepton' in options to 'muon' or 'electron'
+
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import os
 import sys
 options = VarParsing.VarParsing ('standard')
 
-options.register('mcversion', 'RunIISpring15DR', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "MC campaign or data")
+options.register('mcversion', 'RunIISpring15DR', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "MC campaign or data") #MC campaign is 'RunIISpring15DR' atm
 options.register('runOnMiniAOD'    , True , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if run on miniAOD or AOD input' )
 options.register('useElecEAIsoCorr', True , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if EA (rho) or Delta beta corrections are used for electron isolation is used' )
 options.register('useCalibElec'    , False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if electron re-calibration using regression energies is used' )
@@ -32,6 +34,11 @@ options.register('bSFNewRecipe', True, VarParsing.VarParsing.multiplicity.single
 
 options.register('addTriggerMatch' , True , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if trigger objects are matched to signal muons' )
 
+options.register('cut', 'allCut', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "Cut before kinFit") #if 'allCut' will aply all Cuts before the final Analyzer
+
+options.register('dataElectronID', 'cutBasedElectronID-Spring15-25ns-V1', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "ElectronID configuration for data")  
+options.register('mcElectronID', 'cutBasedElectronID-Spring15-25ns-V1', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "ElectronID configuration for MonteCarlo") 
+
 # define the syntax for parsing
 # you need to enter in the cfg file:
 # search for arguments entered after cmsRun
@@ -46,6 +53,14 @@ if( hasattr(sys, "argv") ):
             if(len(val)==2):
                 setattr(options,val[0], val[1])
 
+
+allCut = (options.cut=='allCut') 
+jet4Cut = (options.cut=='jet4Cut') 
+
+# nTupel Output
+#outputNTupel = cms.string( 'analyzeTop_{0}_{1}_{2}_Test.root'.format( options.lepton , options.mcversion , options.cut ) )
+outputNTupel = cms.string('analyzeTop.root')
+
 if (options.mcversion == "data"):
 	data = True
 	options.register('runOnMC', False , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if run on MC or real data' )
@@ -54,6 +69,12 @@ else:
 	options.register('runOnMC', True , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if run on MC or real data' )
 ## top mass measurement
 process = cms.Process("topMass")
+
+if(data):
+	electronID=options.dataElectronID
+else:
+	electronID=options.mcElectronID
+
 
 ## configure message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -64,12 +85,28 @@ process.MessageLogger.cerr.TtSemiLeptonicEvent = cms.untracked.PSet(
     limit = cms.untracked.int32(-1)
 )
 
-from TopQuarkAnalysis.Configuration.patRefSel_refMuJets import *
+from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets import *
 
 if data:
-    inputFiles = ['/store/data/Run2015D/SingleMuon/MINIAOD/05Oct2015-v1/50000/96696580-736F-E511-922D-0025905A60FE.root']
+	if (options.lepton=='muon'):
+    		inputFiles = [ #'/store/data/Run2015C_25ns/SingleMuon/MINIAOD/05Oct2015-v1/50000/06D8AEE6-1274-E511-82D0-0025905A60CA.root'
+			'/store/data/Run2015D/SingleMuon/MINIAOD/05Oct2015-v1/10000/021FD3F0-876F-E511-99D2-0025905A6060.root' 
+			#  '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v4/000/258/159/00000/6CA1C627-246C-E511-8A6A-02163E014147.root'	
+			#, '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v4/000/258/159/00000/BEFDF59A-236C-E511-BDB9-02163E014496.root'
+			]
+	else:
+		inputFiles = [
+			'/store/data/Run2015D/SingleElectron/MINIAOD/05Oct2015-v1/10000/00991D45-4E6F-E511-932C-0025905A48F2.root'
+			#, '/store/data/Run2015D/SingleElectron/MINIAOD/05Oct2015-v1/10000/020243DA-326F-E511-8953-0026189438B1.root'#'/store/data/Run2015D/SingleElectron/MINIAOD/PromptReco-v4/000/258/159/00000/0EC56452-186C-E511-8158-02163E0146D5.root'
+			]
 else:
-    inputFiles = ['/store/mc/RunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/0071E654-216E-E511-9CD4-002590596484.root']
+    inputFiles = [	#'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/00000/0AB045B5-BB0C-E511-81FD-0025905A60B8.root'
+			#'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Startup25ns_EXOReReco_74X_Spring15_mcRun2_startup25ns_v0-v1/50000/00C91219-9A7A-E511-ACA2-001C23C0D109.root'
+			'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9_ext3-v1/30000/FC35E6B6-B142-E511-9093-002590200AE0.root'
+			#,'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9_ext3-v1/30000/00705CAD-B142-E511-951B-20CF305616E2.root'
+			#,'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9_ext3-v1/30000/00EC732C-B342-E511-92F2-002590A3C96C.root'
+			#,'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9_ext3-v1/30000/022D5094-E542-E511-A39E-0026189438B5.root'
+		 ]
 
 
 ### Selection steps
@@ -95,12 +132,19 @@ else:
 selectEvents = 'pGoodVertex'
 
 # Step 0
-#triggerSelectionData = ''
-#triggerSelectionMC   = ''
+#triggerSelectionDataElectron  = ''
+triggerSelectionMCElectron = 'HLT_*'
+
+#triggerSelectionDataMuon  = '' 
+triggerSelectionMCMuon = 'HLT_*'
+
 
 # Step 1
 #muonCut       = ''
 #signalMuonCut = ''
+#electronCut       = ''
+#signalElectronCut = ''
+
 #muonVertexMaxDZ = 0.5
 
 # Step 2
@@ -108,26 +152,34 @@ selectEvents = 'pGoodVertex'
 # Step 3
 useElecEAIsoCorr = options.useElecEAIsoCorr
 useCalibElec     = options.useCalibElec
-#electronGsfCut   = ''
-#electronCalibCut = ''
+
+#electronGsfCut  =     '' 
+#electronCalibCut = electronGsfCut.replace( 'ecalDrivenMomentum.', '' )
+
+#electronGsfVetoCut  =     '' 
+#electronCalibVetoCut = electronGsfVetoCut.replace( 'ecalDrivenMomentum.', '' )
+
+#dileptonElectronVetoCut = ''
+#conversionRejectionCut = ''
+
+electronVetoCut = electronGsfVetoCut
 electronCut = electronGsfCut
 
-# Step 4
-
-#jetCut = ''
-# Step4a
-#veryTightJetCut = ''
-# Step4b
-#tightJetCut     = ''
-# Step4c
-#looseJetCut     = ''
+# Step 4 
+#only interresting for the electron case
+#conversionRejectioncCut=''
 
 # Step 5
-#veryLooseJetCut = ''
+
+#jetCut = ''
+#veryTightJetCut = cms.string('') 
+#tightJetCut     = cms.string('') 
+#looseJetCut     = cms.string('') 
+#veryLooseJetCut = cms.string('') 
 
 # Step 6
 bTagSrc = 'selectedJets'
-bTagCut = 'bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.814'
+bTagCut = 'bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.890' #0.814'
 minBTags = 2
 
 # TriggerMatching
@@ -149,14 +201,14 @@ maxEvents = options.maxEvents
 # GlobalTags
 #globalTagMC   = '74X_mcRun2_asymptotic_v2'
 globalTagData = '74X_dataRun2_v4'
+usePrivateSQlite=False #do not use external JECs (sqlite file)
 globalTagMC   = 'DEFAULT'
 #globalTagData = 'DEFAULT'
-usePrivateSQlite=False #use external JECs (sqlite file)
+#usePrivateSQlite=True #use external JECs (sqlite file)
 
 ### Output
-
 # output file
-outputFile = 'patRefSel_muJets.root'
+outputFile = 'patRefSel_muJets.root' 
 
 # event frequency of Fwk report
 fwkReportEvery = max( 1000, int( maxEvents / 100 ) )
@@ -171,13 +223,16 @@ wantSummary = True
 ###                                                                          ###
 ### ======================================================================== ###
 
-
-triggerSelection       = triggerSelectionData
-triggerObjectSelection = triggerObjectSelectionData
-if runOnMC:
-  triggerSelection       = triggerSelectionMC
-  triggerObjectSelection = triggerObjectSelectionMC
-
+if (options.lepton=='muon'):
+ triggerSelection       = triggerSelectionDataMuon
+ triggerObjectSelection = triggerObjectSelectionData
+ if runOnMC:
+   triggerSelection       = triggerSelectionMCMuon
+   triggerObjectSelection = triggerObjectSelectionMC
+else:
+  triggerSelection       = triggerSelectionDataElectron
+  if runOnMC:
+    triggerSelection       = triggerSelectionMCElectron
 
 ###
 ### Basic configuration
@@ -193,29 +248,30 @@ process.load("Configuration.Geometry.GeometryRecoDB_cff")
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 
+
 process.MessageLogger.cerr.FwkReport.reportEvery = fwkReportEvery
 
+#from Configuration.AlCa.GlobalTag import GlobalTag
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 if runOnMC:
   if globalTagMC == 'DEFAULT':
-    from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
     process.GlobalTag = GlobalTag( process.GlobalTag, 'auto:run2_mc' )
   else:
     process.GlobalTag.globaltag = globalTagMC
 else:
   if globalTagData == 'DEFAULT':
-    from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
     process.GlobalTag = GlobalTag( process.GlobalTag, 'auto:run2_data' )
   else:
     process.GlobalTag.globaltag = globalTagData
 
-#override JEC
-if usePrivateSQlite:
+#override JEC   
+if usePrivateSQlite: #now false
     from CondCore.DBCommon.CondDBSetup_cfi import *
     import os
     if runOnMC:
-        era="Summer15_50nsV4_MC"
+        era="Summer15_25nsV6_MC"  #TODO V6 correct version?
     else:
-        era="Summer15_50nsV4_DATA"
+        era="Summer15_25nsV6_DATA" #"Summer15_50nsV4_DATA" #TODO V6 correct version?
     dBFile = os.path.expandvars("$CMSSW_BASE/src/PhysicsTools/PatAlgos/test/"+era+".db")
     process.jec = cms.ESSource("PoolDBESSource",CondDBSetup,
                                connect = cms.string( "sqlite_file://"+dBFile ),
@@ -240,7 +296,7 @@ from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMet
 #default configuration for miniAOD reprocessing, change the isData flag to run on data
 #for a full met computation, remove the pfCandColl input
 if runOnMiniAOD:
-    runMetCorAndUncFromMiniAOD( process, isData=(runOnMC != True))
+    runMetCorAndUncFromMiniAOD( process, isData=(runOnMC != True) , jecUncFile='TopMass/Configuration/data/Summer15_25nsV6_DATA_UncertaintySources_AK4PFchs.txt')#.format( os.environ["CMSSW_BASE"] ) )  #TODO1#jecUncFile ueberschreiben mit aktueller JECUncertSource #find cms.cwmms. cern cms software verzeichnis ...
 else:
     runMETCorrectionsAndUncertainties( process, isData=(runOnMC != True) )
 #add mnodules to redo the b-tagging on-the-fly using unscheduled mode
@@ -259,19 +315,27 @@ from PhysicsTools.PatAlgos.tools.jetTools import *
 addJetCollection(
     process,
     labelName = '',
-    jetSource = cms.InputTag('ak4PFJetsCHS'),
+    jetSource = cms.InputTag('ak4PFJetsCHS'), #TODO btw what is 'CHS' difference from AK4 to AK8? -> explanaition: https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetAnalysis recommondation (AK4 or AK8), AK4 is CMS default, AK8 is for jet substructure analysis
     pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
     pfCandidates = cms.InputTag('packedPFCandidates'),
     svSource = cms.InputTag('slimmedSecondaryVertices'),
     btagDiscriminators = bTagDiscriminators,
     jetCorrections = ('AK4PFchs', jetCorrectionLevels, 'None'),
-    genJetCollection = cms.InputTag('ak4GenJetsNoNu'),
+    genJetCollection = cms.InputTag('slimmedGenJets'),#cms.InputTag('ak4GenJetsNoNu'),
     genParticles = cms.InputTag('prunedGenParticles'),
-    #getJetMCFlavour = runOnMC, //TODO does not work at the moment
+    #getJetMCFlavour = runOnMC, #TODO does not work at the moment
     getJetMCFlavour = False,
     algo = 'AK',
     rParam = 0.4
 )
+
+#enable GenJets and GenPartons for the Output Jets
+if runOnMC:
+  if runOnMiniAOD: 
+    process.patJets.addGenJetMatch=cms.bool(True) 
+    process.patJets.addGenPartonMatch=cms.bool(True) 
+
+
 
 from PhysicsTools.PatAlgos.tools.pfTools import *
 ## Adapt primary vertex collection
@@ -320,8 +384,8 @@ if not runOnMiniAOD:
 ### Output configuration
 ###
 #
-# process.load( "TopQuarkAnalysis.Configuration.patRefSel_outputModule_cff" )
-# # output file name
+# process.load( "TopQuarkAnalysis.Configuration.patRefSel_outputModule_cff" ) #C: original process.load( "TopQuarkAnalysis.Configuration.patRefSel_outputModule_cff" )
+ # output file name
 # process.out.fileName = outputFile
 # from TopQuarkAnalysis.Configuration.patRefSel_eventContent_cff import refMuJets_eventContent
 # process.out.outputCommands += refMuJets_eventContent
@@ -331,8 +395,8 @@ if not runOnMiniAOD:
 # else:
 #   from TopQuarkAnalysis.Configuration.patRefSel_eventContent_cff import aod_eventContent
 #   process.out.outputCommands += aod_eventContent
-# # clear event selection
-# process.out.SelectEvents.SelectEvents = cms.vstring( selectEvents )
+ # clear event selection
+ #process.out.SelectEvents.SelectEvents = cms.vstring( selectEvents )
 
 
 ## generator filters
@@ -385,31 +449,56 @@ process.pStandAloneGoodVertex = cms.Path( process.sStandAloneGoodVertex )
 
 # Step 1
 
-from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import selectedMuons, preSignalMuons, signalMuons, standAloneSignalMuonFilter
-process.selectedMuons = selectedMuons.clone( cut = muonCut )
-if runOnMiniAOD:
-  process.selectedMuons.src = 'slimmedMuons'
-process.preSignalMuons = preSignalMuons.clone( cut = signalMuonCut )
-process.signalMuons = signalMuons.clone( maxDZ = muonVertexMaxDZ )
-if runOnMiniAOD:
-  process.signalMuons.vertexSource = 'offlineSlimmedPrimaryVertices'
-process.standAloneSignalMuonFilter = standAloneSignalMuonFilter.clone()
-process.sStandAloneSignalMuon = cms.Sequence( process.standAloneSignalMuonFilter )
-process.pStandAloneSignalMuon = cms.Path( process.sStandAloneSignalMuon )
+from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_cfi import selectedMuons, preSignalMuons, signalMuons, standAloneSignalMuonFilter, selectedElectrons, preSignalElectrons, signalElectrons, standAloneSignalElectronFilter
+
+if (options.lepton=='muon'):
+ process.selectedMuons = selectedMuons.clone( cut = muonCut )
+ if runOnMiniAOD:
+  	 process.selectedMuons.src = 'slimmedMuons'
+ process.preSignalMuons = preSignalMuons.clone( cut = signalMuonCut )
+ process.signalMuons = signalMuons.clone( maxDZ = muonVertexMaxDZ )
+ if runOnMiniAOD:
+  	 process.signalMuons.vertexSource = 'offlineSlimmedPrimaryVertices'
+ process.standAloneSignalLeptonFilter = standAloneSignalMuonFilter.clone( ) 
+else:
+ process.selectedElectrons = selectedElectrons.clone( cut = (electronCut.format( electronID )) )  
+ if runOnMiniAOD:
+  	 process.selectedElectrons.src = 'slimmedElectrons'
+ process.preSignalElectrons = preSignalElectrons.clone( cut = signalElectronCut ) 
+ process.signalElectrons = signalElectrons.clone() 
+ process.standAloneSignalLeptonFilter = standAloneSignalElectronFilter.clone( ) 
+
+process.sStandAloneSignalLepton = cms.Sequence( process.standAloneSignalLeptonFilter )
+process.pStandAloneSignalLepton = cms.Path( process.sStandAloneSignalLepton )
 
 # Step 2
 
-from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import standAloneLooseMuonVetoFilter
-process.standAloneLooseMuonVetoFilter = standAloneLooseMuonVetoFilter.clone()
-process.sStandAloneLooseMuonVeto = cms.Sequence( process.standAloneLooseMuonVetoFilter )
+from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_cfi import standAloneLooseMuonVetoFilter, LooseMuonVetoFilter
+
+if (options.lepton=='muon'):
+ process.standAloneLooseMuonVetoFilter = standAloneLooseMuonVetoFilter.clone()
+ process.sStandAloneLooseMuonVeto = cms.Sequence( process.standAloneLooseMuonVetoFilter )
+else:
+ process.selectedMuons = selectedMuons.clone( cut = muonCut )
+ if runOnMiniAOD:
+ 	  process.selectedMuons.src = 'slimmedMuons'
+ process.preSignalMuons = preSignalMuons.clone( cut = signalMuonCut )
+ process.signalMuons = signalMuons.clone( maxDZ = muonVertexMaxDZ )
+ if runOnMiniAOD:
+ 	  process.signalMuons.vertexSource = 'offlineSlimmedPrimaryVertices'
+ process.LooseMuonVetoFilter = LooseMuonVetoFilter.clone()
+ process.sStandAloneLooseMuonVeto = cms.Sequence( process.LooseMuonVetoFilter )
+
 process.pStandAloneLooseMuonVeto = cms.Path( process.sStandAloneLooseMuonVeto )
+
 
 # Step 3
 
-if not runOnMiniAOD:
+if not runOnMiniAOD: #not the case, otherwise the electronIDs need to be checked #TODO use the "electronID" string, not changed bacause only miniAOD->nodebugging
   from PhysicsTools.SelectorUtils.tools.vid_id_tools import switchOnVIDElectronIdProducer, setupAllVIDIdsInModule, setupVIDElectronSelection
-  electron_ids = [ 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_50ns_V1_cff'
-                 , 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff'
+  electron_ids = [  #'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff'    #neu, nicht Cut-based, noch nicht versucht
+ 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_50ns_V1_cff' #original
+                 , 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff'  # original
                   ]
   switchOnVIDElectronIdProducer( process )
   process.electronIDValueMapProducer.ebReducedRecHitCollection = cms.InputTag( 'reducedEcalRecHitsEB' )
@@ -437,12 +526,12 @@ if useElecEAIsoCorr:
                                                      )
     process.patElectrons.isolationValues.user = cms.VInputTag( cms.InputTag( 'elPFIsoValueEA03' ) )
 else:
-  electronGsfCut.replace( '-1.0*userIsolation("User1Iso")', '-0.5*puChargedHadronIso' )
-  electronCalibCut.replace( '-1.0*userIsolation("User1Iso")', '-0.5*puChargedHadronIso' )
-  electronCut.replace( '-1.0*userIsolation("User1Iso")', '-0.5*puChargedHadronIso' )
+  electronGsfVetoCut.replace( '-1.0*userIsolation("User1Iso")', '-0.5*puChargedHadronIso' )
+  electronCalibVetoCut.replace( '-1.0*userIsolation("User1Iso")', '-0.5*puChargedHadronIso' )
+  electronVetoCut.replace( '-1.0*userIsolation("User1Iso")', '-0.5*puChargedHadronIso' )
 
-if useCalibElec:
-  from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import electronsWithRegression, calibratedElectrons
+if useCalibElec: #not used atm (option at the document beginning)
+  from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_cfi import electronsWithRegression, calibratedElectrons
   process.electronsWithRegression = electronsWithRegression.clone()
   if runOnMiniAOD:
     if useElecEAIsoCorr:
@@ -460,130 +549,123 @@ if useCalibElec:
                                                                                     , engineName  = cms.untracked.string('TRandom3')
                                                                                     )
                                                     )
-  electronCut = electronCalibCut
+  electronVetoCut = electronCalibVetoCut
 
 
 
-from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import selectedElectrons, standAloneElectronVetoFilter
-process.selectedElectrons = selectedElectrons.clone( cut = electronCut )
-if useCalibElec:
-  process.selectedElectrons.src = 'calibratedElectrons'
-elif useElecEAIsoCorr and runOnMiniAOD:
-  process.selectedElectrons.src = 'electronsWithEA03Iso'
-elif runOnMiniAOD:
-  process.selectedElectrons.src = 'slimmedElectrons'
+from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_cfi import selectedElectrons, standAloneElectronVetoFilter, dileptonElectronVetoFilter, selectedElectrons4Veto
+if (options.lepton=='muon'):
+ process.selectedElectrons = selectedElectrons.clone( cut = (electronVetoCut.format( electronID )) )
+ if useCalibElec:
+ 	 process.selectedElectrons.src = 'calibratedElectrons'
+ elif useElecEAIsoCorr and runOnMiniAOD:
+  	 process.selectedElectrons.src = 'electronsWithEA03Iso'
+ elif runOnMiniAOD:
+ 	 process.selectedElectrons.src = 'slimmedElectrons'
+ process.ElectronVetoFilter = standAloneElectronVetoFilter.clone()
 
-process.standAloneElectronVetoFilter = standAloneElectronVetoFilter.clone()
-process.sStandAloneElectronVeto = cms.Sequence( process.standAloneElectronVetoFilter )
-process.pStandAloneElectronVeto = cms.Path( process.sStandAloneElectronVeto )
+else:
+ process.selectedElectrons4Veto = selectedElectrons4Veto.clone( cut = (dileptonElectronVetoCut.format( electronID )) )
+ if useCalibElec:
+  	 process.selectedElectrons4Veto.src = 'calibratedElectrons'
+ elif useElecEAIsoCorr and runOnMiniAOD:
+  	 process.selectedElectrons4Veto.src = 'electronsWithEA03Iso'
+ elif runOnMiniAOD:
+  	 process.selectedElectrons4Veto.src = 'slimmedElectrons'
+ process.ElectronVetoFilter = dileptonElectronVetoFilter.clone()
+ 
+process.sElectronVetoX = cms.Sequence( process.ElectronVetoFilter )
+process.pElectronVetoX = cms.Path( process.sElectronVetoX )
 
 # Step 4
-
-from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import selectedJets
-process.selectedJets = selectedJets.clone( cut = jetCut )
-#if runOnMiniAOD:
-#  process.selectedJets.src = 'slimmedJets'
-process.selectedJets.src = 'patJets'
-
-from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import signalVeryTightJets, standAloneSignalVeryTightJetsFilter
-process.signalVeryTightJets = signalVeryTightJets.clone( cut = veryTightJetCut )
-process.standAloneSignalVeryTightJetsFilter = standAloneSignalVeryTightJetsFilter.clone()
-process.sStandAlone1Jet = cms.Sequence( process.standAloneSignalVeryTightJetsFilter )
-process.pStandAlone1Jet = cms.Path( process.sStandAlone1Jet )
-
-from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import signalTightJets, standAloneSignalTightJetsFilter
-process.signalTightJets = signalTightJets.clone( cut = tightJetCut )
-process.standAloneSignalTightJetsFilter = standAloneSignalTightJetsFilter.clone()
-process.sStandAlone2Jets = cms.Sequence( process.standAloneSignalTightJetsFilter )
-process.pStandAlone2Jets = cms.Path( process.sStandAlone2Jets )
-
-from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import signalLooseJets, standAloneSignalLooseJetsFilter
-process.signalLooseJets = signalLooseJets.clone( cut = looseJetCut )
-process.standAloneSignalLooseJetsFilter = standAloneSignalLooseJetsFilter.clone()
-process.sStandAlone3Jets = cms.Sequence( process.standAloneSignalLooseJetsFilter )
-process.pStandAlone3Jets = cms.Path( process.sStandAlone3Jets )
+if (options.lepton=='electron'):
+ from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_cfi import conversionRejectionFilter
+ process.conversionRejectionFilter = conversionRejectionFilter.clone( cut = (conversionRejectionCut.format( electronID )) )
+ process.sConversionRejectionFilter = cms.Sequence( process.conversionRejectionFilter )
+ process.pConversionRejectionFilter = cms.Path( process.sConversionRejectionFilter )
 
 # Step 5
 
-from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import signalVeryLooseJets, standAloneSignalVeryLooseJetsFilter
+from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_cfi import selectedJets
+process.selectedJets = selectedJets.clone( cut = jetCut )
+#if runOnMiniAOD:   
+#  process.selectedJets.src = 'slimmedJets'
+#else:  
+process.selectedJets.src = 'patJets'
+
+
+process.goodOfflinePrimaryVertices.taggedMode=cms.untracked.bool( True )
+
+from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_cfi import signalVeryTightJets, standAloneSignalVeryTightJetsFilter
+process.signalVeryTightJets = signalVeryTightJets.clone( cut = veryTightJetCut )
+process.standAloneSignalVeryTightJetsFilter = standAloneSignalVeryTightJetsFilter.clone(  ) 
+process.sStandAlone1Jet = cms.Sequence( process.standAloneSignalVeryTightJetsFilter )
+process.pStandAlone1Jet = cms.Path( process.sStandAlone1Jet )
+
+from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_cfi import signalTightJets, standAloneSignalTightJetsFilter
+process.signalTightJets = signalTightJets.clone( cut = tightJetCut )
+process.standAloneSignalTightJetsFilter = standAloneSignalTightJetsFilter.clone( )
+process.sStandAlone2Jets = cms.Sequence( process.standAloneSignalTightJetsFilter )
+process.pStandAlone2Jets = cms.Path( process.sStandAlone2Jets )
+
+from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_cfi import signalLooseJets, standAloneSignalLooseJetsFilter
+process.signalLooseJets = signalLooseJets.clone( cut = looseJetCut )
+process.standAloneSignalLooseJetsFilter = standAloneSignalLooseJetsFilter.clone(  )
+process.sStandAlone3Jets = cms.Sequence( process.standAloneSignalLooseJetsFilter )
+process.pStandAlone3Jets = cms.Path( process.sStandAlone3Jets )
+
+from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_cfi import signalVeryLooseJets, standAloneSignalVeryLooseJetsFilter
 process.signalVeryLooseJets = signalVeryLooseJets.clone( cut = veryLooseJetCut )
-process.standAloneSignalVeryLooseJetsFilter = standAloneSignalVeryLooseJetsFilter.clone()
+process.standAloneSignalVeryLooseJetsFilter = standAloneSignalVeryLooseJetsFilter.clone(  )
 process.sStandAlone4Jets = cms.Sequence( process.standAloneSignalVeryLooseJetsFilter )
 process.pStandAlone4Jets = cms.Path( process.sStandAlone4Jets )
 
 # Step 6
 
-from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import selectedBTagJets, standAloneSignalBTagsFilter
+from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_cfi import selectedBTagJets, standAloneSignalBTagsFilter
 process.selectedBTagJets = selectedBTagJets.clone( src = bTagSrc
                                                  , cut = bTagCut
                                                  )
-process.standAloneSignalBTagsFilter = standAloneSignalBTagsFilter.clone( minNumber = minBTags )
+process.standAloneSignalBTagsFilter = standAloneSignalBTagsFilter.clone( minNumber = minBTags)
 process.sStandAloneBTags = cms.Sequence( process.standAloneSignalBTagsFilter )
 process.pStandAloneBTags = cms.Path( process.sStandAloneBTags )
 
-# Consecutive steps
-
-process.sTrigger       = cms.Sequence( process.sStandAloneTrigger
-                                     )
-process.sEventCleaning = cms.Sequence( process.sTrigger
-                                     + process.sStandAloneEventCleaning
-                                     )
-process.sGoodVertex    = cms.Sequence( process.sEventCleaning
-                                     + process.sStandAloneGoodVertex
-                                     )
-process.sSignalMuon    = cms.Sequence( process.sGoodVertex
-                                     + process.sStandAloneSignalMuon
-                                     )
-process.sLooseMuonVeto = cms.Sequence( process.sSignalMuon
-                                     + process.sStandAloneLooseMuonVeto
-                                     )
-process.sElectronVeto  = cms.Sequence( process.sLooseMuonVeto
-                                     + process.sStandAloneElectronVeto
-                                     )
-process.s1Jet          = cms.Sequence( process.sElectronVeto
-                                     + process.sStandAlone1Jet
-                                     )
-process.s2Jets         = cms.Sequence( process.s1Jet
-                                     + process.sStandAlone2Jets
-                                     )
-process.s3Jets         = cms.Sequence( process.s2Jets
-                                     + process.sStandAlone2Jets
-                                     )
-process.s4Jets         = cms.Sequence( process.s3Jets
-                                     + process.sStandAlone4Jets
-                                     )
-process.sBTags         = cms.Sequence( process.s4Jets
-                                     + process.sStandAloneBTags
-                                     )
-
-process.pTrigger       = cms.Path( process.sTrigger )
-process.pEventCleaning = cms.Path( process.sEventCleaning )
-process.pGoodVertex    = cms.Path( process.sGoodVertex )
-process.pSignalMuon    = cms.Path( process.sSignalMuon )
-process.pLooseMuonVeto = cms.Path( process.sLooseMuonVeto )
-process.pElectronVeto  = cms.Path( process.sElectronVeto )
-process.p1Jet          = cms.Path( process.s1Jet )
-process.p2Jets         = cms.Path( process.s2Jets )
-process.p3Jets         = cms.Path( process.s2Jets )
-process.p4Jets         = cms.Path( process.s4Jets )
 
 
-process.pBTags         = cms.Path( process.sBTags )
+#DummyFilter
+#A Producer to read out, which EDFilters were passed
+from TopMass.TopEventTree.FilterDummy_cfi import FilterDummy
+process.FilterDummyTrigger = FilterDummy.clone()
+process.FilterDummyEventCleaning = FilterDummy.clone()
+process.FilterDummyGoodVertex = FilterDummy.clone()
+process.FilterDummySignalLepton = FilterDummy.clone( )
+process.FilterDummyLooseMuonVeto = FilterDummy.clone()
+process.FilterDummyElectronVeto = FilterDummy.clone()
+process.FilterDummyConversionRejection = FilterDummy.clone()
+process.FilterDummy1Jet = FilterDummy.clone( )
+process.FilterDummy2Jets = FilterDummy.clone()
+process.FilterDummy3Jets = FilterDummy.clone()
+process.FilterDummy4Jets = FilterDummy.clone()
+process.FilterDummyBTags = FilterDummy.clone()
+
 
 # Trigger matching
 
 if addTriggerMatch:
-  from TopQuarkAnalysis.Configuration.patRefSel_triggerMatching_cff import muonTriggerMatch
-  process.muonTriggerMatch = muonTriggerMatch.clone( matchedCuts = triggerObjectSelection )
-  if not runOnMiniAOD:
-    from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerMatchEmbedding
-    switchOnTriggerMatchEmbedding( process, triggerMatchers = [ 'muonTriggerMatch' ] )
-  else:
-    from TopQuarkAnalysis.Configuration.patRefSel_triggerMatching_cff import unpackedPatTrigger
-    process.selectedTriggerUnpacked = unpackedPatTrigger.clone()
-    process.muonTriggerMatch.matched = 'selectedTriggerUnpacked'
-    from TopQuarkAnalysis.Configuration.patRefSel_triggerMatching_cff import signalMuonsTriggerMatch
-    process.signalMuonsTriggerMatch = signalMuonsTriggerMatch.clone()
+ if (options.lepton=='muon'):
+   from TopQuarkAnalysis.Configuration.patRefSel_triggerMatching_cff import muonTriggerMatch
+   process.muonTriggerMatch = muonTriggerMatch.clone( matchedCuts = triggerObjectSelection )
+   if not runOnMiniAOD:
+     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerMatchEmbedding
+     switchOnTriggerMatchEmbedding( process, triggerMatchers = [ 'muonTriggerMatch' ] )
+   else:
+     from TopQuarkAnalysis.Configuration.patRefSel_triggerMatching_cff import unpackedPatTrigger
+     process.selectedTriggerUnpacked = unpackedPatTrigger.clone()
+     process.muonTriggerMatch.matched = 'selectedTriggerUnpacked'
+     from TopQuarkAnalysis.Configuration.patRefSel_triggerMatching_cff import signalMuonsTriggerMatch
+     process.signalMuonsTriggerMatch = signalMuonsTriggerMatch.clone()
+    #                               , 'keep *_signalMuonsTriggerMatch_*_*'
+    #                               ]
     # process.out.outputCommands += [ 'drop *_signalMuons_*_*'
     #                               , 'keep *_signalMuonsTriggerMatch_*_*'
     #                               ]
@@ -649,8 +731,8 @@ if addTriggerMatch:
 #     process.scaledMET.inputMuons      = "scaledMuonEnergy:selectedPatMuons"
 #     process.scaledMET.scaleFactor     = options.uncFactor
 
-    ## sequence for ttGenEvent
-    process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
+## sequence for ttGenEvent
+process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 
 
 ## sequence for TtSemiLeptonicEvent
@@ -687,13 +769,14 @@ if os.getenv('CMSSW_VERSION').startswith('CMSSW_7_4_'):
 
 ## choose which hypotheses to produce
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
-setForAllTtSemiLepHypotheses(process, "leps", "signalMuons")
-if (options.lepton=='electron'):
-    if (options.mcversion=='genLevel'):
-        setForAllTtSemiLepHypotheses(process, "leps", 'goodElectronsEJ')
-    else:
-        useElectronsForAllTtSemiLepHypotheses(process, 'signalElectrons')
-setForAllTtSemiLepHypotheses(process, "jets", "selectedJets")
+if (options.lepton=='muon'):
+ setForAllTtSemiLepHypotheses(process, "leps", "signalMuons")
+else:
+ if (options.mcversion=='genLevel'):
+  setForAllTtSemiLepHypotheses(process, "leps", 'goodElectronsEJ')
+ else:
+  useElectronsForAllTtSemiLepHypotheses(process, 'signalElectrons')
+setForAllTtSemiLepHypotheses(process, "jets", "signalVeryLooseJets")
 setForAllTtSemiLepHypotheses(process, "maxNJets", 4)
 #setForAllTtSemiLepHypotheses(process, "mets", "scaledMET:scaledMETs")
 setForAllTtSemiLepHypotheses(process, "mets", "slimmedMETs")
@@ -747,13 +830,119 @@ if runOnMiniAOD:
 	process.initSubset.src = "prunedGenParticles"
 	process.decaySubset.src = "prunedGenParticles"
 
-
+#process.analyzeHitFitSel = process.analyzeHitFit.clone(topBranchName = 'topSel.')
 #process.analyzer         = cms.Sequence(process.makeGenEvt+process.makeTtSemiLepEvent+process.analyzeHitFit+process.analyzeJets+process.analyzeWeights )
-process.analyzer         = cms.Sequence(process.analyzeHitFit+process.analyzeJets+process.analyzeWeights )
-if data:
-    process.pAnal            = cms.Path(process.sElectronVeto+process.analyzer )
+process.content = cms.EDAnalyzer("EventContentAnalyzer")
+process.analyzer         = cms.Sequence(process.analyzeHitFit+process.analyzeJets+process.analyzeWeights)
+
+
+#the FilterDummy Analyser
+from TopMass.TopEventTree.FilterDummyAnalyzer_cfi import FilterDummyAnalyzer
+process.FDAnalyzer = FilterDummyAnalyzer.clone()
+
+ 
+#process.RAWSIMoutput = cms.OutputModule("PoolOutputModule", fileName = cms.untracked.string('output_Test.root') )
+#process.epath = cms.EndPath(process.RAWSIMoutput)
+
+##Good for debugging
+#process.evtDump = cms.EDAnalyzer("DumpEvent")
+#process.dumpper = cms.Sequence(process.evtDump)
+
+
+process.sTrigger       = cms.Sequence( process.sStandAloneTrigger + process.FilterDummyTrigger 
+                                     )
+process.sEventCleaning = cms.Sequence( process.sStandAloneEventCleaning + process.FilterDummyEventCleaning
+                                     )
+process.sGoodVertex    = cms.Sequence( process.sStandAloneGoodVertex + process.FilterDummyGoodVertex
+                                     )
+process.sSignalLepton    = cms.Sequence( process.sStandAloneSignalLepton + process.FilterDummySignalLepton
+                                     )
+process.sLooseMuonVeto = cms.Sequence( process.sStandAloneLooseMuonVeto + process.FilterDummyLooseMuonVeto
+                                     )
+process.sElectronVeto  = cms.Sequence( process.sElectronVetoX + process.FilterDummyElectronVeto
+                                     )
+if (options.lepton=='electron'):
+ process.sConversionRejection = cms.Sequence( process.sConversionRejectionFilter + process.FilterDummyConversionRejection 
+				     )
 else:
-    process.pAnal            = cms.Path(process.analyzer )
+ process.sConversionRejection = cms.Sequence( process.FilterDummyConversionRejection 
+				     )
+process.s1Jet          = cms.Sequence( process.sStandAlone1Jet + process.FilterDummy1Jet
+                                     )
+process.s2Jets         = cms.Sequence( process.sStandAlone2Jets + process.FilterDummy2Jets
+                                     )
+process.s3Jets         = cms.Sequence( process.sStandAlone3Jets + process.FilterDummy3Jets
+                                     )
+process.s4Jets         = cms.Sequence( process.sStandAlone4Jets + process.FilterDummy4Jets
+                                     )
+process.sBTags         = cms.Sequence( process.sStandAloneBTags + process.FilterDummyBTags
+                                     )
+
+process.serialFilter = cms.Sequence()
+
+if allCut:
+	process.serialFilter = cms.Sequence( 	process.sTrigger
+					+process.sEventCleaning
+					+process.sGoodVertex 
+					+process.sSignalLepton
+					+process.sLooseMuonVeto
+					+process.sElectronVeto
+					+process.sConversionRejection
+					+process.s1Jet
+					+process.s2Jets
+					+process.s3Jets
+					+process.s4Jets
+					+process.sBTags
+					)
+else:
+	if jet4Cut:
+		process.serialFilter = cms.Sequence( 	process.sTrigger
+					+process.sEventCleaning
+					+process.sGoodVertex 
+					+process.sSignalLepton
+					+process.sLooseMuonVeto
+					+process.sElectronVeto
+					+process.sConversionRejection
+					+process.s1Jet
+					+process.s2Jets
+					+process.s3Jets
+					+process.s4Jets
+					)		
+	else:
+		process.serialFilter = cms.Sequence(process.sTrigger)
+
+process.pTrigger       = cms.Path( process.sTrigger )
+process.pEventCleaning = cms.Path( process.sEventCleaning )
+process.pGoodVertex    = cms.Path( process.sGoodVertex)
+process.pSignalLepton    = cms.Path( process.sSignalLepton)
+process.pLooseMuonVeto = cms.Path( process.sLooseMuonVeto )
+process.pElectronVeto  = cms.Path( process.sElectronVeto )
+process.pConversionRejection = cms.Path (process.sConversionRejection )
+process.p1Jet          = cms.Path( process.s1Jet )
+process.p2Jets         = cms.Path( process.s2Jets)
+process.p3Jets         = cms.Path( process.s3Jets)
+process.p4Jets         = cms.Path( process.s4Jets )
+process.pBTags         = cms.Path( process.sBTags )
+
+del process.slimmedMETs.t01Variation #brute the swarm
+
+process.pAnalysis = cms.Path(process.serialFilter + process.analyzer + process.FDAnalyzer)
+
+process.schedule = cms.Schedule( 
+  process.pTrigger,
+  process.pEventCleaning,
+  process.pGoodVertex,
+  process.pSignalLepton,
+  process.pLooseMuonVeto,
+  process.pElectronVeto,
+  process.pConversionRejection,
+  process.p1Jet,
+  process.p2Jets,
+  process.p3Jets,
+  process.p4Jets,
+  process.pBTags,
+  process.pAnalysis
+  )
 
 if not data:
     ## MC weights
@@ -897,7 +1086,7 @@ if not data:
 
 # register TFileService
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('analyzeTop.root')
+    fileName = outputNTupel
 )
 
 # register TreeRegistryService
@@ -906,7 +1095,7 @@ process.TreeRegistryService.treeName  = "eventTree"
 process.TreeRegistryService.treeTitle = ""
 
 #process.MessageLogger = cms.Service("MessageLogger")
-process.content = cms.EDAnalyzer("EventContentAnalyzer")
+
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.printTree = cms.EDAnalyzer("ParticleListDrawer",
@@ -915,6 +1104,10 @@ process.printTree = cms.EDAnalyzer("ParticleListDrawer",
    src = cms.InputTag("genParticles")
 )
 
+
+
+
+#process.schedule.append(process.epath)
 
 ## end path
 #if data:

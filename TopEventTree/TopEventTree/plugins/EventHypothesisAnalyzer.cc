@@ -14,9 +14,6 @@
 
 #include "TopMass/TopEventTree/plugins/EventHypothesisAnalyzer.h"
 
-
-#include "CutMasks.C"  //C's
-
 EventHypothesisAnalyzer::EventHypothesisAnalyzer(const edm::ParameterSet& cfg):
 ttEvent_     (cfg.getParameter<edm::InputTag>("ttEvent")),
 hypoClassKey_(cfg.getParameter<edm::InputTag>("hypoClassKey")),
@@ -37,7 +34,6 @@ top(0)
 void
 EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
 {
-//std::cout<<"EventHypothesisAnalyzer.analyze"<<std::endl;
   //////////////////////////////////////////////////////////////////////////////
   // INIT TopEvent
   ////////////////////////////////////////////////////////////////////////////
@@ -47,14 +43,12 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
   top->run       = evt.eventAuxiliary().run()            ;
   top->lumiBlock = evt.eventAuxiliary().luminosityBlock();
   top->event     = evt.eventAuxiliary().event()          ;
-  
 
   //////////////////////////////////////////////////////////////////////////////
   // get a handle for
   // TtSemiLeptonicEvent / TtFullHadronicEvent
   // and a key to the hypothesis
   //////////////////////////////////////////////////////////////////////////
-
 
   edm::Handle<TtSemiLeptonicEvent> hSemiLepTtEvent;
   edm::Handle<TtFullHadronicEvent> hFullHadTtEvent;
@@ -284,7 +278,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
 
 void
 EventHypothesisAnalyzer::beginJob()
-{std::cout<<"EventHypothesisAnalyzer.beginJob"<<std::endl;
+{
   if( !trs ) throw edm::Exception( edm::errors::Configuration, "TreeRegistryService is not registered in cfg file!" );
 
   top = new TopEvent();

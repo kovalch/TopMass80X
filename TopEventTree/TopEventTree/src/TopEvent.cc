@@ -58,10 +58,6 @@ void TopEvent::init()
   fitProb .clear();
   fitChi2 .clear();
   fitSigMT.clear();
-
-
-
-
 }
 
 void TopEvent::shrink(unsigned int maxSize)
