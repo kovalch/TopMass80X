@@ -145,7 +145,7 @@ CutFlags::~CutFlags(){}
 	}
 	
 	
-  };
+  }
   
   std::string CutFlags::getHasPassedTil() const{
 	unsigned int ij = 0 ;
@@ -157,16 +157,16 @@ CutFlags::~CutFlags(){}
 		return "Non";
  	}
 	return filterLabels_.at( ij - 1 );
-  };  
+  }
 
 
   unsigned int CutFlags::getNumberOfFilterLabels() const{
 	return filterLabels_.size();
-  };
+  }
 
   std::string CutFlags::getFilterLabel(unsigned int labelnr) const{
 	return filterLabels_.at(labelnr);
-  };
+  }
 
 
 //private fkts
@@ -179,10 +179,10 @@ CutFlags::~CutFlags(){}
 		std::cout<<std::endl;
 	}		
 	return li - filterLabels_.begin();
- };
+ }
 
   void CutFlags::printAllLabels(){
 	for(unsigned int i =0 ; i < filterLabels_.size() ; ++i){
 		std::cout<<filterLabels_.at(i)<<std::endl;
 	}
- }:
+ }

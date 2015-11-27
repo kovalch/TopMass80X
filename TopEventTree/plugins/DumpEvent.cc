@@ -16,8 +16,6 @@
 #include "TopMass/TopEventTree/plugins/DumpEvent.h"
 
 
-#include "CutMaps.C"  //C's
-
 void DumpEvent::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
 	std::vector<edm::Provenance const*> plist;

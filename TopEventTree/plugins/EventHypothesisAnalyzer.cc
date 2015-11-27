@@ -15,8 +15,6 @@
 #include "TopMass/TopEventTree/plugins/EventHypothesisAnalyzer.h"
 
 
-#include "CutMasks.C"  //C's
-
 EventHypothesisAnalyzer::EventHypothesisAnalyzer(const edm::ParameterSet& cfg):
 ttEvent_     (cfg.getParameter<edm::InputTag>("ttEvent")),
 hypoClassKey_(cfg.getParameter<edm::InputTag>("hypoClassKey")),
