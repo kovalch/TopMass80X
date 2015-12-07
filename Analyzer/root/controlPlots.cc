@@ -27,6 +27,7 @@
 #include "../../TopEventTree/interface/MyMa.h"
 #include <iostream>
 #include <fstream>
+#include <cmath>
 #include <boost/range/adaptor/reversed.hpp>
 
 typedef ProgramOptionsReader po;
@@ -1750,7 +1751,7 @@ void TopMassControlPlots::doPlots()
   //
 
   // initialize file stream for logging
-  ofstream logResultsFile;
+  std::ofstream logResultsFile;
   logResultsFile.open ((std::string("plot/controlplots/")+channel_+".txt").c_str());
   
   // initialize root file for optional plot saving
