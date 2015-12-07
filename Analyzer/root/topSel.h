@@ -36,7 +36,7 @@ public :
   TBranch        *b_jet;   //!
   TBranch        *b_weight;   //!
 
-  topSel(TTree * /*tree*/ =0) : fChain(0) {
+  topSel(TTree * /*tree*/ =0) : fChain(0), b_top(0), b_jet(0), b_weight(0), hmass(0) {
     top = new TopEvent();
     jet = new JetEvent();
     weight = new WeightEvent();
