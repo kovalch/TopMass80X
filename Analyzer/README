@@ -1,0 +1,9 @@
+How to build:
+(setup recent CMSSW release, then go into this directory)
+make
+
+Derive templates for mass extraction:
+ - all jets:
+   ./TemplateDerivation -c alljets_paperHS 
+   
+   
