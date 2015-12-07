@@ -73,7 +73,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
           "  electron: \t\n"
           "  muon: \t\n"
           "  lepton: \telectron+muon\n"
-          "  alljets: \talljets"
+          "  alljets: \talljets\n"
           "  hamburg: \telectron+muon+alljets"
         )
         ("topBranchName", boost::program_options::value<std::string>()->default_value("top."),
@@ -239,6 +239,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
 
 
     sprintf(configFile, "Configuration_%s.conf", fileNameSnippet.substr(0,splitPos).c_str());
+    std::cout << "Loading base setup with information from " << configFile << std::endl;
     std::ifstream optionsFile(configFile, std::ifstream::in);
     
     boost::program_options::store(boost::program_options::parse_config_file(optionsFile, desc), *programOptions_);
