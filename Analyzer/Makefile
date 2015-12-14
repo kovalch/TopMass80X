@@ -1,5 +1,6 @@
-C := g++ -O3 -Wall -fPIC -std=c++0x -g
-L := g++ -O3 
+CC := g++
+C := $(CC) -O3 -Wall -fPIC -std=c++0x -g
+L := $(CC) -O3 
 
 ROOTCFLAGS  := $(shell root-config --cflags)
 ROOTLIBS    := $(shell root-config --libs) -lTreePlayer
@@ -37,9 +38,9 @@ OBJ_FILES_ADDPDFWEIGHTS := $(patsubst root/%.cc,obj/4/%.o,$(filter-out $(wildcar
 CXX_FILES_SYSTEMATICUNCERTAINTIES := $(wildcard root/SystematicUncertainties*.cc)
 OBJ_FILES_SYSTEMATICUNCERTAINTIES := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_SYSTEMATICUNCERTAINTIES)))
 
-.PHONY: clean all top tem con dup ski pdf sys inf
+.PHONY: clean all top tem con dup ski pdf sys inf test
 
-all: top tem con dup ski pdf sys inf
+all: test top tem con dup ski pdf sys inf
 
 top: TopMass
 
@@ -57,6 +58,8 @@ pdf: AddPDFweights
 
 sys: SystematicUncertainties
 
+test: TemplateDerivationTest
+
 clean:
 	@rm -rf obj
 	@rm -f TopMass
@@ -67,11 +70,14 @@ clean:
 	@rm -f Skimmer
 	@rm -f AddPDFweights
 	@rm -f SystematicUncertainties
-obj:
+obj: 
 	@mkdir -p obj/1
 	@mkdir -p obj/2
 	@mkdir -p obj/3
 	@mkdir -p obj/4
+	@mkdir -p obj/tests
+	
+
 
 TopMass: obj $(OBJ_FILES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/1/main.o
 	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) $(ROOFITLIBS) -Wl,-rpath -Wl,lib -L$(BOOSTDIR)/lib -lboost_program_options -o $@ obj/1/main.o $(OBJ_FILES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
@@ -105,6 +111,12 @@ SystematicUncertainties: obj $(OBJ_FILES_SYSTEMATICUNCERTAINTIES) obj/3/Systemat
 	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -o $@ obj/3/SystematicUncertainties_main.o $(OBJ_FILES_SYSTEMATICUNCERTAINTIES)
 	@echo -e "\033[32m\033[1mSuccessfully compiled SystematicUncertainties\033[0m"
 
+TemplateDerivationTest: obj $(OBJ_FILES) $(OBJ_FILES_TEMPLATES) obj/tests/TemplateDerivation_test.o
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) $(ROOFITLIBS) -Wl,-rpath -Wl,lib -L$(BOOSTDIR)/lib -lboost_program_options -lboost_unit_test_framework -o $@ obj/tests/TemplateDerivation_test.o $(OBJ_FILES_TEMPLATES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
+	@echo -e "\033[32m\033[1mSuccessfully compiled TemplateDerivationTest\033[0m"
+	@echo -e "\033[32m\033[1mRunning TemplateDerivationTest\033[0m"
+	@./TemplateDerivationTest  --report_level=detailed
+
 #rules
 obj/1/%.o: src/%.cxx
 	$(C) $(ROOTCFLAGS) -I$(BOOSTDIR)/include -I../.. -Iinc/ -MMD -c -o $@ $<
@@ -125,3 +137,7 @@ obj/3/%.o: root/%.cc
 
 obj/4/%.o: root/%.cc
 	$(C) $(ROOTCFLAGS) -I$(BOOSTDIR)/include -I$(LHAPDFDIR)/include -I../.. -Iinc/ -MMD -c -o $@ $<
+	
+obj/tests/%.o: tests/%.cc
+	$(C) $(ROOTCFLAGS) -I$(BOOSTDIR)/include -I../.. -Iroot -Iinc/ -MMD -c -o $@ $<
+	
