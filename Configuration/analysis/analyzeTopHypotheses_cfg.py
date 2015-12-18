@@ -590,11 +590,54 @@ if (options.lepton=='electron'):
 
 from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_cfi import selectedJets
 process.selectedJets = selectedJets.clone( cut = jetCut )
+
+if (options.lepton=='electron'):
+    process.cleanedJets = cms.EDProducer("PATJetCleaner", src = cms.InputTag("patJets"), 
+                                     # preselection (any string-based cut on pat::Jet)     
+                                     preselection = cms.string(''), 
+                                     # overlap checking configurables
+                                     checkOverlaps = cms.PSet(
+                                                              electrons = 
+                                                              cms.PSet(
+                                                                       src       = cms.InputTag("goodElectronsEJ"),
+                                                                       algorithm = cms.string("byDeltaR"),
+                                                                       preselection        = cms.string(""),
+                                                                       deltaR              = cms.double(0.3),
+                                                                       checkRecoComponents = cms.bool(False), # don't check if they share some AOD object ref
+                                                                       pairCut             = cms.string(""),
+                                                                       requireNoOverlaps   = cms.bool(True), # overlaps don't cause the jet to be discared
+                                                                       )
+                                                              ),
+                                     # finalCut (any string-based cut on pat::Jet)
+                                     finalCut = cms.string(''),
+                                     )
+
+
+else:
+    process.cleanedJets = cms.EDProducer("PATJetCleaner", src = cms.InputTag("patJets"), 
+                                     # preselection (any string-based cut on pat::Jet)     
+                                     preselection = cms.string(''), 
+                                     # overlap checking configurables
+                                     checkOverlaps = cms.PSet(muons = 
+                                                                cms.PSet(
+                                                                         src       = cms.InputTag("signalMuons"),
+                                                                         algorithm = cms.string("byDeltaR"),
+                                                                         preselection        = cms.string(""), 
+                                                                         deltaR              = cms.double(0.3),
+                                                                         checkRecoComponents = cms.bool(False), # don't check if they share some AOD object ref          
+                                                                         pairCut             = cms.string(""),
+                                                                         requireNoOverlaps   = cms.bool(True)
+                                                                         )
+                                                              ),
+                                     # finalCut (any string-based cut on pat::Jet)
+                                     finalCut = cms.string(''),
+                                     )
+
 #if runOnMiniAOD:   
 #  process.selectedJets.src = 'slimmedJets'
 #else:  
-process.selectedJets.src = 'patJets'
-
+#process.selectedJets.src = 'patJets'
+process.selectedJets.src = 'cleanedJets'
 
 process.goodOfflinePrimaryVertices.taggedMode=cms.untracked.bool( True )
 
