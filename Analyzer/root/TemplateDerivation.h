@@ -58,7 +58,7 @@ class TemplateDerivation {
                  std::string add = "");
 
  public:
-  std::vector<RooDataSet*> createDataSets(const RooArgSet& varSet);
+  std::vector<RooDataSet*> createDataSets(const RooArgSet* varSet);
   std::string constructFileName(double mass, double jes);
   static std::string constructTemplateName(double mass, double jes);
   unsigned int numVariables(TString startName) const;

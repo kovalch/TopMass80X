@@ -103,7 +103,7 @@ std::string TemplateDerivation::constructTemplateName(double mass, double jes) {
 }
 
 std::vector<RooDataSet *> TemplateDerivation::createDataSets(
-    const RooArgSet &varSet) {
+    const RooArgSet *varSet) {
   TFile *tmpFile = TFile::Open("tmpFileRooFitTopMass.root", "RECREATE");
   std::vector<RooDataSet *> dataset;
   for (auto mass : massValues_) {
@@ -123,7 +123,7 @@ std::vector<RooDataSet *> TemplateDerivation::createDataSets(
       tree->SetBranchAddress("meanWMass", &mw);
       tree->SetBranchAddress("combinedWeight", &cw);
       TString name = constructName("dataset", dataset.size());
-      dataset.push_back(new RooDataSet(name, name, varSet,
+      dataset.push_back(new RooDataSet(name, name, *varSet,
                                        RooFit::Import(*tree),
                                        RooFit::WeightVar("combinedWeight")));
       // if(binnedTemplates){
@@ -144,82 +144,33 @@ void TemplateDerivation::addTemplateFunction(int templType, int comboType,
                                              int nComboTypes, RooRealVar *mTop,
                                              RooRealVar *JES) {
   int index = nComboTypes * templType + comboType;
-
-  RooRealVar MassOffset = RooRealVar("MassOffset", "MassOffset", 0.);
-  MassOffset.setConstant(kTRUE);
-  RooRealVar MassSlopeMass = RooRealVar("MassSlopeMass", "MassSlopeMass", 0.);
-  MassSlopeMass.setConstant(kTRUE);
-  RooRealVar MassSlopeJES = RooRealVar("MassSlopeJES", "MassSlopeJES", 0.);
-  MassSlopeJES.setConstant(kTRUE);
-  RooRealVar MassSlopeMassJES =
-      RooRealVar("MassSlopeMassJES", "MassSlopeMassJES", 0.);
-  MassSlopeMassJES.setConstant(kTRUE);
-  RooRealVar JESOffset = RooRealVar("JESOffset", "JESOffset", 0.);
-  JESOffset.setConstant(kTRUE);
-  RooRealVar JESSlopeMass = RooRealVar("JESSlopeMass", "JESSlopeMass", 0.);
-  JESSlopeMass.setConstant(kTRUE);
-  RooRealVar JESSlopeJES = RooRealVar("JESSlopeJES", "JESSlopeJES", 0.);
-  JESSlopeJES.setConstant(kTRUE);
-  RooRealVar JESSlopeMassJES =
-      RooRealVar("JESSlopeMassJES", "JESSlopeMassJES", 0.);
-  JESSlopeMassJES.setConstant(kTRUE);
-  RooRealVar MassOffset2 = RooRealVar("MassOffset2", "MassOffset2", 0.);
-  MassOffset2.setConstant(kTRUE);
-  RooRealVar MassSlopeMass2 =
-      RooRealVar("MassSlopeMass2", "MassSlopeMass2", 0.);
-  MassSlopeMass2.setConstant(kTRUE);
-  RooRealVar MassSlopeJES2 = RooRealVar("MassSlopeJES2", "MassSlopeJES2", 0.);
-  MassSlopeJES2.setConstant(kTRUE);
-  RooRealVar MassSlopeMassJES2 =
-      RooRealVar("MassSlopeMassJES2", "MassSlopeMassJES2", 0.);
-  MassSlopeMassJES2.setConstant(kTRUE);
-  RooRealVar JESOffset2 = RooRealVar("JESOffset2", "JESOffset2", 0.);
-  JESOffset2.setConstant(kTRUE);
-  RooRealVar JESSlopeMass2 = RooRealVar("JESSlopeMass2", "JESSlopeMass2", 0.);
-  JESSlopeMass2.setConstant(kTRUE);
-  RooRealVar JESSlopeJES2 = RooRealVar("JESSlopeJES2", "JESSlopeJES2", 0.);
-  JESSlopeJES2.setConstant(kTRUE);
-  RooRealVar JESSlopeMassJES2 =
-      RooRealVar("JESSlopeMassJES2", "JESSlopeMassJES2", 0.);
-  JESSlopeMassJES2.setConstant(kTRUE);
   // 0 = JES, 1 = mTop, 2 = Offset, 3 = SlopeMass, 4 = SlopeJES, 5 =
   // SlopeMassJES
-  TString formula_mTop =
-      "@1+@2+@3*(@1-172.5)+@4*(@0-1.0)+@5*(@1-172.5)*(@0-1.0)";
-  TString formula_JES =
-      "@0+@2+@3*(@1-172.5)+@4*(@0-1.0)+@5*(@1-172.5)*(@0-1.0)";
-  TString name = "mTop_intermediate_";
-  name += index;
-  RooFormulaVar mTop_intermediate =
-      RooFormulaVar(name, name, formula_mTop,
-                    RooArgSet(*JES, *mTop, MassOffset, MassSlopeMass,
-                              MassSlopeJES, MassSlopeMassJES));
-  name = "mJES_intermediate_";
-  name += index;
-  RooFormulaVar JES_intermediate = RooFormulaVar(
-      name, name, formula_JES, RooArgSet(*JES, *mTop, JESOffset, JESSlopeMass,
-                                         JESSlopeJES, JESSlopeMassJES));
-  name = "mTop_corrected_";
-  name += index;
-  RooFormulaVar mTop_corrected = RooFormulaVar(
-      name, name, formula_mTop,
-      RooArgSet(JES_intermediate, mTop_intermediate, MassOffset2,
-                MassSlopeMass2, MassSlopeJES2, MassSlopeMassJES2));
-  name = "mJES_corrected_";
-  name += index;
-  RooFormulaVar JES_corrected =
-      RooFormulaVar(name, name, formula_JES,
-                    RooArgSet(JES_intermediate, mTop_intermediate, JESOffset2,
-                              JESSlopeMass2, JESSlopeJES2, JESSlopeMassJES2));
+  RooAbsArg *mTop_intermediate = workspace_->factory(
+      constructName("expr::mTop_intermediate", index) +
+      "('@1+@2+@3*(@1-172.5)+@4*(@0-1.0)+@5*(@1-172.5)*(@0-1.0)',JES,mTop,"
+      "MassOffset[0],MassSlopeMass[0],MassSlopeJES[0],MassSlopeMassJES[0])");
+  RooAbsArg *JES_intermediate = workspace_->factory(
+      constructName("expr::JES_intermediate", index) +
+      "('@0+@2+@3*(@1-172.5)+@4*(@0-1.0)+@5*(@1-172.5)*(@0-1.0)', JES, mTop,"
+      "JESOffset[0], JESSlopeMass[0],JESSlopeJES[0], JESSlopeMassJES[0])");
+  RooAbsArg *mTop_corrected = workspace_->factory(
+      constructName("expr::mTop_corrected", index) +
+      "('@1+@2+@3*(@1-172.5)+@4*(@0-1.0)+@5*(@1-172.5)*(@0-"
+      "1.0)'," +
+      JES_intermediate->GetName() + ", " + mTop_intermediate->GetName() +
+      ",MassOffset2[0],MassSlopeMass2[0],MassSlopeJES2[0],"
+      "MassSlopeMassJES2[0])");
+  RooAbsArg *JES_corrected = workspace_->factory(
+      constructName("expr::JES_corrected", index) +
+      "('@0+@2+@3*(@1-172.5)+@4*(@0-1.0)+@5*(@1-172.5)*(@0-1.0)', " +
+      JES_intermediate->GetName() + ", " + mTop_intermediate->GetName() +
+      ",JESOffset2[0], JESSlopeMass2[0],JESSlopeJES2[0], JESSlopeMassJES2[0])");
   // double a[] = {84.6333,  0.0205799 , 16.0275, -0.280052,
   //              4.76909,  0.018934  , 2.18012, -0.12839 ,
   //              7.08441, -0.00812571, -6.2732,  0.22637 };
   // iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
 
-  RooRealVar *topMass =
-      new RooRealVar("topMass", "m_{t}^{fit}", 100., maxMtop_, "GeV");
-  RooRealVar *meanWMass =
-      new RooRealVar("meanWMass", "m_{W}^{rec}", 50., 300., "GeV");
   RooRealVar *var = 0;
   TString comboRangeName = "";
   std::vector<RooRealVar *> par;
@@ -269,7 +220,7 @@ void TemplateDerivation::addTemplateFunction(int templType, int comboType,
 
     for (unsigned p = 0; p < iniPar.size(); ++p) {
       // std::cout << iniPar[p] << ", ";
-      name = constructName("par", index, p);
+      TString name = constructName("par", index, p);
       RooRealVar *myVar = new RooRealVar(name, name, iniPar[p]);
       myVar->setConstant(kFALSE);
       if (p == 16) myVar->setVal(5.0);
@@ -287,22 +238,20 @@ void TemplateDerivation::addTemplateFunction(int templType, int comboType,
       par.push_back(myVar);
     }
     std::cout << std::endl;
-    name = "sig_";
+    TString name = "sig_";
     name += index;
     TString varName;
     if (templType == 0) {
-      var = topMass;
+      var = workspace_->var("topMass");
       if (comboType == 0) {
         fillAlpha(alpha, index, RooArgSet(*par[0], *par[1], *par[2], *par[3],
-                                          mTop_corrected, JES_corrected));
+                                          *mTop_corrected, *JES_corrected));
         fillAlpha(alpha, index, RooArgSet(*par[4], *par[5], *par[6], *par[7],
-                                          mTop_corrected, JES_corrected));
-        varName = constructName("width", index);
-        RooRealVar *width = new RooRealVar(varName, varName, 2.0);
-        width->setConstant(kTRUE);
-        RooVoigtian voigt =
-            RooVoigtian(name, name, *var, *alpha[0], *width, *alpha[1]);
-        workspace_->import(voigt);
+                                          *mTop_corrected, *JES_corrected));
+        workspace_->factory(constructName("Voigtian::sig", index) +
+                            "(topMass," + alpha[0]->GetName() + "," +
+                            constructName("width", index) + "[2]," +
+                            alpha[1]->GetName() + ")");
       } else if (comboType == 1 || comboType == 2) {
         varName = constructName("ratio", index);
         RooRealVar *ratio = new RooRealVar(varName, varName, 0.0, 1.0);
@@ -313,17 +262,17 @@ void TemplateDerivation::addTemplateFunction(int templType, int comboType,
         // ratio->setConstant(kTRUE);
         ratio->setConstant(kFALSE);
         fillAlpha(alpha, index, RooArgSet(*par[0], *par[1], *par[2], *par[3],
-                                          mTop_corrected, JES_corrected));
+                                          *mTop_corrected, *JES_corrected));
         fillAlpha(alpha, index, RooArgSet(*par[8], *par[9], *par[10], *par[11],
-                                          mTop_corrected, JES_corrected));
+                                          *mTop_corrected, *JES_corrected));
         varName = constructName("landau", index);
         RooLandau *landau =
             new RooLandau(varName, varName, *var, *alpha[0], *alpha[1]);
         fillAlpha(alpha, index, RooArgSet(*par[4], *par[5], *par[6], *par[7],
-                                          mTop_corrected, JES_corrected));
+                                          *mTop_corrected, *JES_corrected));
         fillAlpha(alpha, index,
                   RooArgSet(*par[12], *par[13], *par[14], *par[15],
-                            mTop_corrected, JES_corrected));
+                            *mTop_corrected, *JES_corrected));
         varName = constructName("width", index);
         RooRealVar *width = new RooRealVar(varName, varName, 2.0);
         width->setConstant(kTRUE);
@@ -337,14 +286,14 @@ void TemplateDerivation::addTemplateFunction(int templType, int comboType,
         workspace_->import(*add);
       }
     } else if (templType == 1) {
-      var = meanWMass;
+      var = workspace_->var("meanWMass");
       if (comboType == 0) {  // mW, correct
         fillAlpha(alpha, index, RooArgSet(*par[0], *par[1], *par[2], *par[3],
-                                          mTop_corrected, JES_corrected));
+                                          *mTop_corrected, *JES_corrected));
         fillAlpha(alpha, index, RooArgSet(*par[4], *par[5], *par[6], *par[7],
-                                          mTop_corrected, JES_corrected));
+                                          *mTop_corrected, *JES_corrected));
         fillAlpha(alpha, index, RooArgSet(*par[8], *par[9], *par[10], *par[11],
-                                          mTop_corrected, JES_corrected));
+                                          *mTop_corrected, *JES_corrected));
         RooBifurGauss *asymGaus = new RooBifurGauss(name, name, *var, *alpha[0],
                                                     *alpha[1], *alpha[2]);
         workspace_->import(*asymGaus);
@@ -352,24 +301,24 @@ void TemplateDerivation::addTemplateFunction(int templType, int comboType,
         // fillAlpha(alpha, h, RooArgSet(*par[ 0], *par[ 1], *par[ 2],
         // *par[ 3], mTop_corrected, JES_corrected), "-7.5");
         fillAlpha(alpha, index,
-                  RooArgSet(*par[0], *par[1], *par[2], *par[3], mTop_corrected,
-                            JES_corrected, *par[16]),
+                  RooArgSet(*par[0], *par[1], *par[2], *par[3], *mTop_corrected,
+                            *JES_corrected, *par[16]),
                   "-@6");
         fillAlpha(alpha, index, RooArgSet(*par[0], *par[1], *par[2], *par[3],
-                                          mTop_corrected, JES_corrected));
+                                          *mTop_corrected, *JES_corrected));
         // fillAlpha(alpha, h, RooArgSet(*par[ 0], *par[ 1], *par[ 2],
         // *par[ 3], mTop_corrected, JES_corrected), "+7.5");
         fillAlpha(alpha, index,
-                  RooArgSet(*par[0], *par[1], *par[2], *par[3], mTop_corrected,
-                            JES_corrected, *par[17]),
+                  RooArgSet(*par[0], *par[1], *par[2], *par[3], *mTop_corrected,
+                            *JES_corrected, *par[17]),
                   "+@6");
         fillAlpha(alpha, index, RooArgSet(*par[4], *par[5], *par[6], *par[7],
-                                          mTop_corrected, JES_corrected));
+                                          *mTop_corrected, *JES_corrected));
         fillAlpha(alpha, index, RooArgSet(*par[8], *par[9], *par[10], *par[11],
-                                          mTop_corrected, JES_corrected));
+                                          *mTop_corrected, *JES_corrected));
         fillAlpha(alpha, index,
                   RooArgSet(*par[12], *par[13], *par[14], *par[15],
-                            mTop_corrected, JES_corrected));
+                            *mTop_corrected, *JES_corrected));
         varName = constructName("gaus1", index);
         // RooRealVar *ratio1 = new RooRealVar("ratioGaus1","",0.25);
         // RooRealVar *ratio2 = new RooRealVar("ratioGaus2","",0.5 );
@@ -449,7 +398,7 @@ RooFitResult *TemplateDerivation::fitTemplate(int templType, int comboType,
                 << std::endl;
       RooNLLVar *nll =
           new RooNLLVar(name, name, *workspace_->pdf(name_pdf), *reducedDataset,
-                        RooFit::NumCPU(1), RooFit::Range("mTopFitRange"));
+                        RooFit::NumCPU(4), RooFit::Range("mTopFitRange"));
       nllSet.add(*nll);
       ++templateIndex;
     }
@@ -713,31 +662,24 @@ void TemplateDerivation::rooFitTopMass() {
   const int nComboTypes =
       (channelID_ == kAllJets) ? 2 : 3;  // number of different
                                          // permutation types, e.g.,
-                                         // correct, rest
-  RooRealVar *comboTypeVar =
-      new RooRealVar("comboType", "comboType", -10., 20., "");
-  // RooRealVar prob           = RooRealVar("prob" ,"P(#chi^{2})",  0.,
-  // 1.,"");
-  RooRealVar *MTOP = new RooRealVar("topMass", "m_{templateIndex}^{fit}", 100.,
-                                    maxMtop_, "GeV");
-  RooRealVar *meanMW =
-      new RooRealVar("meanWMass", "m_{W}^{rec}", 50., 300., "GeV");
-  RooRealVar *combinedWeight =
-      new RooRealVar("combinedWeight", "weight", 0., 100., "");
-
-  if (channelID_ == kAllJets) {
-    comboTypeVar->setRange("CP", 0.9, 1.1);
-    // comboTypeVar.setRange("UN",-9.9,-0.1);
-    // comboTypeVar.setRange("WP",1.9,10.1);
-    comboTypeVar->setRange("WP", 1.9, 20.1);
-  }
-  MTOP->setRange("mTopFitRange", 100., maxMtop_);
-  meanMW->setRange("mWFitRange", 50., 300.);
-
-  RooArgSet varSet = RooArgSet(*comboTypeVar, /*prob,*/ *MTOP, *meanMW,
-                               *combinedWeight, "varSet");
 
   workspace_ = new RooWorkspace("workspaceMtop", "workspaceMtop");
+  workspace_->factory("comboType[-10,20]");
+  workspace_->factory("topMass[100,400]");
+  workspace_->var("topMass")->setMax(maxMtop_);
+  workspace_->factory("meanWMass[50,300]");
+  workspace_->factory("combinedWeight[-100,100]");
+
+  if (channelID_ == kAllJets) {
+    workspace_->var("comboType")->setRange("CP", 0.9, 1.1);
+    workspace_->var("comboType")->setRange("WP", 1.9, 20.1);
+  } else {
+    workspace_->var("comboType")->setRange("CP", 0.9, 1.1);
+    workspace_->var("comboType")->setRange("UN", 5.1, 20.1);
+    workspace_->var("comboType")->setRange("WP", 1.9, 5.1);
+  }
+
+  workspace_->defineSet("varSet", "comboType,topMass,meanWMass,combinedWeight");
   std::string categories = "";
   for (auto mass : massValues_) {
     for (auto jes : jesValues_) {
@@ -748,13 +690,11 @@ void TemplateDerivation::rooFitTopMass() {
   categories.pop_back();  // remove last ','
   workspace_->factory().createCategory("cat_templ", categories.c_str());
   /// create datasets and import for later use
-  std::vector<RooDataSet *> dataset = createDataSets(varSet);
-
-  RooRealVar *JES = new RooRealVar("JES", "JES", 1.0, 0.8, 1.2);
-  RooRealVar *mTop =
-      new RooRealVar("mTop", "mTop", 172.5, 100., maxMtop_, "GeV");
+  RooRealVar *JES = (RooRealVar *)workspace_->factory("JES[1.0, 0.8, 1.2]");
+  RooRealVar *mTop = (RooRealVar *)workspace_->factory("mTop[172.5,100.,400]");
   JES->setConstant(kTRUE);
   mTop->setConstant(kTRUE);
+  std::vector<RooDataSet *> dataset = createDataSets(workspace_->set("varSet"));
 
   for (int templType = 0; templType < nTemplTypes; ++templType) {
     for (int comboType = 0; comboType < nComboTypes; ++comboType) {
@@ -857,6 +797,7 @@ void TemplateDerivation::fillAlpha(std::vector<RooFormulaVar *> &alpha, int &h,
   std::cout << formula_alpha << std::endl;
   TString varName = constructName("alpha", h, alpha.size());
   alpha.push_back(new RooFormulaVar(varName, varName, formula_alpha, argSet));
+  workspace_->import(*(alpha.back()));
 }
 
 TString TemplateDerivation::constructName(const std::string &name, int i) {
