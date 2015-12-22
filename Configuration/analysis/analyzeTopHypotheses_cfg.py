@@ -295,21 +295,37 @@ if usePrivateSQlite: #now false
 #redo jets and MET
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
 
+#remove HF candidates
+process.noHFCands = cms.EDFilter("CandPtrSelector",
+                                     src=cms.InputTag("packedPFCandidates"),
+                                     cut=cms.string("abs(pdgId)!=1 && abs(pdgId)!=2 && abs(eta)<3.0")
+                                     )
+
 #default configuration for miniAOD reprocessing, change the isData flag to run on data
 #for a full met computation, remove the pfCandColl input
 if runOnMiniAOD:
-    runMetCorAndUncFromMiniAOD( process, isData=(runOnMC != True) , jecUncFile='TopMass/Configuration/data/Summer15_25nsV6_DATA_UncertaintySources_AK4PFchs.txt')#.format( os.environ["CMSSW_BASE"] ) )  #TODO1#jecUncFile ueberschreiben mit aktueller JECUncertSource #find cms.cwmms. cern cms software verzeichnis ...
+    runMetCorAndUncFromMiniAOD(process,
+                               isData= (data),
+                               pfCandColl=cms.InputTag("noHFCands"),#comment for MET with HF
+                               jecUncFile='TopMass/Configuration/data/Summer15_25nsV6_DATA_UncertaintySources_AK4PFchs.txt',
+                               )
 else:
-    runMETCorrectionsAndUncertainties( process, isData=(runOnMC != True) )
+    runMETCorrectionsAndUncertainties(process,
+                                      isData= (data),
+                                      pfCandColl=cms.InputTag("noHFCands"),#comment for MET with HF
+                                      jecUncFile='TopMass/Configuration/data/Summer15_25nsV6_DATA_UncertaintySources_AK4PFchs.txt',
+                                      postfix="NoHF")
+
+del process.slimmedMETs.t01Variation #brute the swarm
 #add mnodules to redo the b-tagging on-the-fly using unscheduled mode
-from PhysicsTools.PatAlgos.tools.jetTools import *
+#from PhysicsTools.PatAlgos.tools.jetTools import *
 ## b-tag discriminators
 bTagDiscriminators = [
     'pfCombinedInclusiveSecondaryVertexV2BJetTags'
 ]
 
 jetCorrectionLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']
-if runOnMC == False:
+if (data):
     jetCorrectionLevels.append('L2L3Residual')
 
 from PhysicsTools.PatAlgos.tools.jetTools import *
@@ -332,8 +348,7 @@ addJetCollection(
 )
 
 #enable GenJets and GenPartons for the Output Jets
-if runOnMC:
-  if runOnMiniAOD: 
+if runOnMC: 
     process.patJets.addGenJetMatch=cms.bool(True) 
     process.patJets.addGenPartonMatch=cms.bool(True) 
 
@@ -345,9 +360,9 @@ if runOnMiniAOD:
     adaptPVs(process, pvCollection=cms.InputTag('offlineSlimmedPrimaryVertices'))
 
 
-#process.patJets.addBTagInfo = cms.bool(True)
-#if runOnMC == False:
-#   process.patJetCorrFactors.levels.append('L2L3Residual')
+process.patJets.addBTagInfo = cms.bool(True)
+if runOnMC == False:
+   process.patJetCorrFactors.levels.append('L2L3Residual')
 ###
 ### Input configuration
 ###
@@ -592,13 +607,14 @@ from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_cfi impo
 process.selectedJets = selectedJets.clone( cut = jetCut )
 
 if (options.lepton=='electron'):
-    process.cleanedJets = cms.EDProducer("PATJetCleaner", src = cms.InputTag("patJets"), 
-                                     # preselection (any string-based cut on pat::Jet)     
-                                     preselection = cms.string(''), 
-                                     # overlap checking configurables
-                                     checkOverlaps = cms.PSet(
-                                                              electrons = 
-                                                              cms.PSet(
+    process.cleanedJets = cms.EDProducer("PATJetCleaner", 
+                                        src = cms.InputTag("patJets"),
+                                         # preselection (any string-based cut on pat::Jet)     
+                                         preselection = cms.string(''), 
+                                         # overlap checking configurables
+                                         checkOverlaps = cms.PSet(
+                                                                  electrons = 
+                                                                  cms.PSet(
                                                                        src       = cms.InputTag("goodElectronsEJ"),
                                                                        algorithm = cms.string("byDeltaR"),
                                                                        preselection        = cms.string(""),
@@ -608,17 +624,17 @@ if (options.lepton=='electron'):
                                                                        requireNoOverlaps   = cms.bool(True), # overlaps don't cause the jet to be discared
                                                                        )
                                                               ),
-                                     # finalCut (any string-based cut on pat::Jet)
-                                     finalCut = cms.string(''),
-                                     )
+                                         # finalCut (any string-based cut on pat::Jet)
+                                         finalCut = cms.string(''))
 
 
 else:
-    process.cleanedJets = cms.EDProducer("PATJetCleaner", src = cms.InputTag("patJets"), 
-                                     # preselection (any string-based cut on pat::Jet)     
-                                     preselection = cms.string(''), 
-                                     # overlap checking configurables
-                                     checkOverlaps = cms.PSet(muons = 
+    process.cleanedJets = cms.EDProducer("PATJetCleaner", 
+                                         src = cms.InputTag("patJets"),
+                                         # preselection (any string-based cut on pat::Jet)     
+                                         preselection = cms.string(''), 
+                                         # overlap checking configurables
+                                         checkOverlaps = cms.PSet(muons = 
                                                                 cms.PSet(
                                                                          src       = cms.InputTag("signalMuons"),
                                                                          algorithm = cms.string("byDeltaR"),
@@ -629,14 +645,9 @@ else:
                                                                          requireNoOverlaps   = cms.bool(True)
                                                                          )
                                                               ),
-                                     # finalCut (any string-based cut on pat::Jet)
-                                     finalCut = cms.string(''),
-                                     )
+                                         # finalCut (any string-based cut on pat::Jet)
+                                         finalCut = cms.string(''))
 
-#if runOnMiniAOD:   
-#  process.selectedJets.src = 'slimmedJets'
-#else:  
-#process.selectedJets.src = 'patJets'
 process.selectedJets.src = 'cleanedJets'
 
 process.goodOfflinePrimaryVertices.taggedMode=cms.untracked.bool( True )
@@ -719,8 +730,120 @@ if addTriggerMatch:
 
 
 
-# if not data:
-#     ## configure JetEnergyScale tool
+
+## sequence for ttGenEvent
+process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
+
+
+## sequence for TtSemiLeptonicEvent
+process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff")
+
+## enable additional per-event printout from the TtSemiLeptonicEvent
+process.ttSemiLepEvent.verbosity = 0
+
+## TRIGGER
+from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+if os.getenv('CMSSW_VERSION').startswith('CMSSW_7_4_'):
+    process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", throw=True)
+#else:
+    #process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_IsoMu24_eta2p1_v*"], throw=True)
+#if(options.mcversion=="Summer11"):
+    #process.hltFilter.HLTPaths=["HLT_IsoMu24_v*"]
+#if(options.mcversion=="Summer12"):
+    #process.hltFilter.HLTPaths=["HLT_IsoMu24_eta2p1_v*"]
+#if data:
+    #process.hltFilter.HLTPaths=["HLT_IsoMu24_eta2p1_v*"]
+
+## JET selection
+# process.tightBottomSSVPFJets  = process.selectedPatJets.clone(src = 'goodJetsPF30',
+#                                            cut='bDiscriminator(\"simpleSecondaryVertexHighEffBJetTags\") > 1.74'
+#                                            )
+# process.tightBottomCSVPFJets  = process.selectedPatJets.clone(src = 'goodJetsPF30',
+#                                            cut='bDiscriminator(\"combinedSecondaryVertexBJetTags\") > ' + str(options.csvm)
+#                                            )
+#
+# process.leadingJetSelection.src = 'tightLeadingPFJets'
+#
+# process.bottomJetSelection.src  = 'tightBottomCSVPFJets'
+# process.bottomJetSelection.minNumber = options.nbjets;
+
+## choose which hypotheses to produce
+from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
+if (options.lepton=='muon'):
+ setForAllTtSemiLepHypotheses(process, "leps", "signalMuons")
+else:
+ if (options.mcversion=='genLevel'):
+  setForAllTtSemiLepHypotheses(process, "leps", 'goodElectronsEJ')
+ else:
+  useElectronsForAllTtSemiLepHypotheses(process, 'signalElectrons')
+setForAllTtSemiLepHypotheses(process, "jets", "signalVeryLooseJets")
+setForAllTtSemiLepHypotheses(process, "maxNJets", 4)
+#setForAllTtSemiLepHypotheses(process, "mets", "scaledMET:scaledMETs")
+setForAllTtSemiLepHypotheses(process, "mets", "patPFMetT1")
+
+setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
+#if data:
+    #setForAllTtSemiLepHypotheses(process, "mets", "patMETs")
+    #setForAllTtSemiLepHypotheses(process, "jetCorrectionLevel", "L2L3Residual")
+
+## change jet-parton matching algorithm
+process.ttSemiLepJetPartonMatch.algorithm = "unambiguousOnly"
+process.ttSemiLepJetPartonMatch.maxNJets  = -1
+
+# consider b-tagging in event reconstruction
+process.hitFitTtSemiLepEventHypothesis.bTagAlgo = "pfCombinedInclusiveSecondaryVertexV2BJetTags"
+process.hitFitTtSemiLepEventHypothesis.minBDiscBJets     = options.csvm
+process.hitFitTtSemiLepEventHypothesis.maxBDiscLightJets = options.csvm
+#process.hitFitTtSemiLepEventHypothesis.minBDiscBJets     = 1.0
+#process.hitFitTtSemiLepEventHypothesis.maxBDiscLightJets = 3.0
+process.hitFitTtSemiLepEventHypothesis.useBTagging       = True
+
+addTtSemiLepHypotheses(process,
+                       ["kHitFit", "kMVADisc"]
+                       )
+#if data: removeTtSemiLepHypGenMatch(process)
+if (data): removeTtSemiLepHypGenMatch(process)
+
+## load HypothesisAnalyzer
+from TopMass.TopEventTree.EventHypothesisAnalyzer_cfi import analyzeHypothesis
+process.analyzeHitFit = analyzeHypothesis.clone(hypoClassKey = "ttSemiLepHypHitFit:Key", jets= "signalVeryLooseJets")
+from TopMass.TopEventTree.JetEventAnalyzer_cfi import analyzeJets
+process.analyzeJets = analyzeJets.clone(jets = "signalVeryLooseJets",met = "patPFMetT1")
+from TopMass.TopEventTree.WeightEventAnalyzer_cfi import analyzeWeights
+process.analyzeWeights = analyzeWeights.clone(
+
+                                              mcWeight        = options.mcWeight,
+                                              puWeightSrc     = cms.InputTag("eventWeightPUsysNo"  , "eventWeightPU"),
+                                              puWeightUpSrc   = cms.InputTag("eventWeightPUsysUp"  , "eventWeightPUUp"),
+                                              puWeightDownSrc = cms.InputTag("eventWeightPUsysDown", "eventWeightPUDown"),
+                                              savePDFWeights = True,
+                                              brCorrection   = options.brCorrection
+                                             )
+
+process.ttSemiLepHypGenMatch.useBReg = cms.bool(False)
+process.ttSemiLepHypMVADisc.useBReg = cms.bool(False)
+
+
+if runOnMiniAOD:
+	process.initSubset.src = "prunedGenParticles"
+	process.decaySubset.src = "prunedGenParticles"
+
+#process.analyzeHitFitSel = process.analyzeHitFit.clone(topBranchName = 'topSel.')
+#process.analyzer         = cms.Sequence(process.makeGenEvt+process.makeTtSemiLepEvent+process.analyzeHitFit+process.analyzeJets+process.analyzeWeights )
+process.content = cms.EDAnalyzer("EventContentAnalyzer")
+process.analyzer         = cms.Sequence(process.analyzeHitFit+process.analyzeJets+process.analyzeWeights)
+
+if runOnMC:
+    #use smeared jets and MET
+    process.analyzeJets.met = "patPFMetT1Smear"
+    setForAllTtSemiLepHypotheses(process, "mets", "patPFMetT1Smear")
+    process.cleanedJets.src = src = "patSmearedJets"
+    
+    #*****************************************************************************
+    #add systematic variations here using products from the MET uncertainty tool
+    #*****************************************************************************
+#old stuff
+#     ## configure JetEnergyScale tool 
 #     process.load("TopAnalysis.TopUtils.JetEnergyScale_cff")
 #     from TopAnalysis.TopUtils.JetEnergyScale_cff import *
 #
@@ -776,109 +899,11 @@ if addTriggerMatch:
 #     process.scaledMET.inputMuons      = "scaledMuonEnergy:selectedPatMuons"
 #     process.scaledMET.scaleFactor     = options.uncFactor
 
-## sequence for ttGenEvent
-process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 
 
-## sequence for TtSemiLeptonicEvent
-process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff")
-
-## enable additional per-event printout from the TtSemiLeptonicEvent
-process.ttSemiLepEvent.verbosity = 0
-
-## TRIGGER
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-if os.getenv('CMSSW_VERSION').startswith('CMSSW_7_4_'):
-    process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", throw=True)
-#else:
-    #process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_IsoMu24_eta2p1_v*"], throw=True)
-#if(options.mcversion=="Summer11"):
-    #process.hltFilter.HLTPaths=["HLT_IsoMu24_v*"]
-#if(options.mcversion=="Summer12"):
-    #process.hltFilter.HLTPaths=["HLT_IsoMu24_eta2p1_v*"]
-#if data:
-    #process.hltFilter.HLTPaths=["HLT_IsoMu24_eta2p1_v*"]
-
-## JET selection
-# process.tightBottomSSVPFJets  = process.selectedPatJets.clone(src = 'goodJetsPF30',
-#                                            cut='bDiscriminator(\"simpleSecondaryVertexHighEffBJetTags\") > 1.74'
-#                                            )
-# process.tightBottomCSVPFJets  = process.selectedPatJets.clone(src = 'goodJetsPF30',
-#                                            cut='bDiscriminator(\"combinedSecondaryVertexBJetTags\") > ' + str(options.csvm)
-#                                            )
-#
-# process.leadingJetSelection.src = 'tightLeadingPFJets'
-#
-# process.bottomJetSelection.src  = 'tightBottomCSVPFJets'
-# process.bottomJetSelection.minNumber = options.nbjets;
-
-## choose which hypotheses to produce
-from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
-if (options.lepton=='muon'):
- setForAllTtSemiLepHypotheses(process, "leps", "signalMuons")
-else:
- if (options.mcversion=='genLevel'):
-  setForAllTtSemiLepHypotheses(process, "leps", 'goodElectronsEJ')
- else:
-  useElectronsForAllTtSemiLepHypotheses(process, 'signalElectrons')
-setForAllTtSemiLepHypotheses(process, "jets", "signalVeryLooseJets")
-setForAllTtSemiLepHypotheses(process, "maxNJets", 4)
-#setForAllTtSemiLepHypotheses(process, "mets", "scaledMET:scaledMETs")
-setForAllTtSemiLepHypotheses(process, "mets", "slimmedMETs")
-
-setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
-#if data:
-    #setForAllTtSemiLepHypotheses(process, "mets", "patMETs")
-    #setForAllTtSemiLepHypotheses(process, "jetCorrectionLevel", "L2L3Residual")
-
-## change jet-parton matching algorithm
-process.ttSemiLepJetPartonMatch.algorithm = "unambiguousOnly"
-process.ttSemiLepJetPartonMatch.maxNJets  = -1
-
-# consider b-tagging in event reconstruction
-process.hitFitTtSemiLepEventHypothesis.bTagAlgo = "pfCombinedInclusiveSecondaryVertexV2BJetTags"
-process.hitFitTtSemiLepEventHypothesis.minBDiscBJets     = options.csvm
-process.hitFitTtSemiLepEventHypothesis.maxBDiscLightJets = options.csvm
-#process.hitFitTtSemiLepEventHypothesis.minBDiscBJets     = 1.0
-#process.hitFitTtSemiLepEventHypothesis.maxBDiscLightJets = 3.0
-process.hitFitTtSemiLepEventHypothesis.useBTagging       = True
-
-addTtSemiLepHypotheses(process,
-                       ["kHitFit", "kMVADisc"]
-                       )
-#if data: removeTtSemiLepHypGenMatch(process)
-if (data): removeTtSemiLepHypGenMatch(process)
-
-## load HypothesisAnalyzer
-from TopMass.TopEventTree.EventHypothesisAnalyzer_cfi import analyzeHypothesis
-process.analyzeHitFit = analyzeHypothesis.clone(hypoClassKey = "ttSemiLepHypHitFit:Key")
-from TopMass.TopEventTree.JetEventAnalyzer_cfi import analyzeJets
-process.analyzeJets = analyzeJets.clone(jets = "selectedJets")
-if runOnMiniAOD:
-    process.analyzeJets.met = "slimmedMETs"
-from TopMass.TopEventTree.WeightEventAnalyzer_cfi import analyzeWeights
-process.analyzeWeights = analyzeWeights.clone(
-
-                                              mcWeight        = options.mcWeight,
-                                              puWeightSrc     = cms.InputTag("eventWeightPUsysNo"  , "eventWeightPU"),
-                                              puWeightUpSrc   = cms.InputTag("eventWeightPUsysUp"  , "eventWeightPUUp"),
-                                              puWeightDownSrc = cms.InputTag("eventWeightPUsysDown", "eventWeightPUDown"),
-                                              savePDFWeights = True,
-                                              brCorrection   = options.brCorrection
-                                             )
-
-process.ttSemiLepHypGenMatch.useBReg = cms.bool(False)
-process.ttSemiLepHypMVADisc.useBReg = cms.bool(False)
 
 
-if runOnMiniAOD:
-	process.initSubset.src = "prunedGenParticles"
-	process.decaySubset.src = "prunedGenParticles"
 
-#process.analyzeHitFitSel = process.analyzeHitFit.clone(topBranchName = 'topSel.')
-#process.analyzer         = cms.Sequence(process.makeGenEvt+process.makeTtSemiLepEvent+process.analyzeHitFit+process.analyzeJets+process.analyzeWeights )
-process.content = cms.EDAnalyzer("EventContentAnalyzer")
-process.analyzer         = cms.Sequence(process.analyzeHitFit+process.analyzeJets+process.analyzeWeights)
 
 
 #the FilterDummy Analyser
@@ -968,8 +993,6 @@ process.p2Jets         = cms.Path( process.s2Jets)
 process.p3Jets         = cms.Path( process.s3Jets)
 process.p4Jets         = cms.Path( process.s4Jets )
 process.pBTags         = cms.Path( process.sBTags )
-
-del process.slimmedMETs.t01Variation #brute the swarm
 
 process.pAnalysis = cms.Path(process.serialFilter + process.analyzer + process.FDAnalyzer)
 
