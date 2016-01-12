@@ -11,11 +11,11 @@
 #include "TemplateDerivation.h"
 
 BOOST_AUTO_TEST_CASE(template_derivation_test_TemplateName) {
-  BOOST_CHECK_EQUAL(TemplateDerivation::constructTemplateName(172.5, 1.02),
+  BOOST_CHECK_EQUAL(TemplateDerivation::templateName(172.5, 1.02),
                     "jes102mass1725");
-  BOOST_CHECK_EQUAL(TemplateDerivation::constructTemplateName(168.0, 0.98),
+  BOOST_CHECK_EQUAL(TemplateDerivation::templateName(168.0, 0.98),
                     "jes098mass1680");
   BOOST_CHECK_EQUAL(
-      TemplateDerivation::constructTemplateName(166.5, 0.95999999),
+      TemplateDerivation::templateName(166.5, 0.95999999),
       "jes096mass1665");
 }

@@ -4,6 +4,6 @@
 int main(int ac, char** av) {
   ProgramOptionsReader por = ProgramOptionsReader(ac, av);
 
-  TemplateDerivation* top = new TemplateDerivation();
-  delete top;
+  TemplateDerivation top;
+  top.run();
 }

@@ -26,7 +26,7 @@ class TemplateDerivation {
   const int maxPermutations_;
   const double maxMtop_;
 
-  std::vector<double> jesValues_;
+  std::vector<double> jsfValues_;
   std::vector<double> massValues_;
 
   enum channelID {
@@ -39,31 +39,34 @@ class TemplateDerivation {
   int channelID_;
   RooWorkspace* workspace_;
 
-  // do all the calculation
-  void rooFitTopMass();
-
   // because RooFit only likes plain trees with standard data types (int, float,
   // double, ...)
   // the original tree has to be adapted for the new content
   TTree* modifiedTree(TChain* tree, int minComboType = -10,
                       int maxComboType = 10, bool isData = false);
   void UnknownChannelAbort();
-
-  void addTemplateFunction(int templType, int comboType, int nComboTypes,
-                           RooRealVar* mTop, RooRealVar* JES);
-  RooFitResult* fitTemplate(int templType, int comboType, int nComboTypes);
-  void plotResult(int templType, int comboType, int nComboTypes);
-  void printResult(int templType, int comboType, int nComboTypes);
-  void fillAlpha(std::vector<RooFormulaVar*>& alpha, int& h, RooArgSet argSet,
-                 std::string add = "");
-
- public:
+  void addTemplateFunction(const std::string& varType,
+                           const std::string& comboType, RooRealVar* mTop,
+                           RooRealVar* JES);
+  RooFitResult* fitTemplate(const std::string& varType,
+                            const std::string& comboType);
+  void plotResult(const std::string& varType, const std::string& comboType);
+  void printResult(const std::string& varType, const std::string& comboType);
+  RooFormulaVar* createAlpha(const std::string& name, const RooArgSet& argSet,
+                             const std::string& addTerm = "");
   std::vector<RooDataSet*> createDataSets(const RooArgSet* varSet);
   std::string constructFileName(double mass, double jes);
-  static std::string constructTemplateName(double mass, double jes);
-  unsigned int numVariables(TString startName) const;
-  static TString constructName(const std::string& name, int i);
-  static TString constructName(const std::string& name, int i, int j);
+  unsigned int numVariables(const std::string& startName) const;
+  void addTopCP();
+
+ public:
+  // do all the calculation
+  void run();
+  static std::string templateName(double mass, double jes);
+  static std::string addInt(const std::string& name, int i);
+  static std::string catName(const std::string& name, const std::string& cat1,
+                          const std::string& cat2 = "",
+                          const std::string& cat3 = "");
 };
 
 #endif /* TEMPLATE_DERIVATION_H */
