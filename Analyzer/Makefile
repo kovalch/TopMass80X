@@ -1,6 +1,6 @@
 CC := g++
-C := $(CC) -O3 -Wall -fPIC -std=c++0x -g
-L := $(CC) -O3 
+C := $(CC) -O3 -Wall -fPIC -g -pg
+L := $(CC) -O3 -pg
 
 ROOTCFLAGS  := $(shell root-config --cflags)
 ROOTLIBS    := $(shell root-config --libs) -lTreePlayer
@@ -111,7 +111,7 @@ SystematicUncertainties: obj $(OBJ_FILES_SYSTEMATICUNCERTAINTIES) obj/3/Systemat
 	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -o $@ obj/3/SystematicUncertainties_main.o $(OBJ_FILES_SYSTEMATICUNCERTAINTIES)
 	@echo -e "\033[32m\033[1mSuccessfully compiled SystematicUncertainties\033[0m"
 
-TemplateDerivationTest: obj $(OBJ_FILES) $(OBJ_FILES_TEMPLATES) obj/tests/TemplateDerivation_test.o
+TemplateDerivationTest: obj $(OBJ_FILES) $(OBJ_FILES_TEMPLATES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/tests/TemplateDerivation_test.o
 	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) $(ROOFITLIBS) -Wl,-rpath -Wl,lib -L$(BOOSTDIR)/lib -lboost_program_options -lboost_unit_test_framework -o $@ obj/tests/TemplateDerivation_test.o $(OBJ_FILES_TEMPLATES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled TemplateDerivationTest\033[0m"
 	@echo -e "\033[32m\033[1mRunning TemplateDerivationTest\033[0m"
