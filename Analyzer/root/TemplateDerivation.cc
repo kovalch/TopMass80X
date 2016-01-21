@@ -13,6 +13,7 @@
 #include "TClonesArray.h"
 #include "TEventList.h"
 #include "TTreeFormula.h"
+#include "TMemFile.h"
 
 #include "RooAddition.h"
 #include "RooAddPdf.h"
@@ -60,6 +61,7 @@ TemplateDerivation::TemplateDerivation()
       fVar1_(po::GetOption<std::string>("analysisConfig.var1")),
       fVar2_(po::GetOption<std::string>("analysisConfig.var2")),
       fVar3_(po::GetOption<std::string>("analysisConfig.var3")),
+      fVar4_(po::GetOption<std::string>("analysisConfig.var4")),
       fWeight_(po::GetOption<std::string>("weight")),
       fChannel_(po::GetOption<std::string>("channel")),
       activeBranches_(
@@ -90,6 +92,10 @@ std::string TemplateDerivation::constructFileName(double mass, double jes) {
                              (int)mass % (int)((mass - int(mass)) * 10) % jes);
   if (channelID_ == kAllJets) {
     fileName += "_alljets.root";
+  } else if (channelID_ == kMuonJets) {
+    fileName += "_muon/*_analyzeTop.root";
+  } else if (channelID_ == kElectronJets) {
+    fileName += "_electron/*_analyzeTop.root";
   }
   return fileName;
 }
@@ -103,35 +109,31 @@ std::string TemplateDerivation::templateName(double mass, double jes) {
 
 std::vector<RooDataSet *> TemplateDerivation::createDataSets(
     const RooArgSet *varSet) {
-  TFile *tmpFile = TFile::Open("tmpFileRooFitTopMass.root", "RECREATE");
+  TFile *tmpFile = TMemFile::Open("tmpFileRooFitTopMass.root", "RECREATE");
   std::vector<RooDataSet *> dataset;
   for (auto mass : massValues_) {
     for (auto jes : jsfValues_) {
       std::string fileName = constructFileName(mass, jes);
       std::cout << "Creating RooDataSet for: " << fileName;
-      TChain *chain = new TChain("analyzeKinFit/eventTree");
+      TChain *chain = (channelID_ == kAllJets)
+                          ? new TChain("analyzeKinFit/eventTree")
+                          : new TChain("analyzeHitFit/eventTree");
       std::cout << " (nFiles: " << chain->Add(samplePath_ + TString(fileName))
                 << ") ";  // << std::endl;
       tmpFile->cd();
       TTree *tree = modifiedTree(chain);  //, minComboType, maxComboType);
-      // needed to avoid a crash
-      double co, /*pr,*/ mt, mw, cw;
-      tree->SetBranchAddress("comboType", &co);
-      // tree->SetBranchAddress("prob", &pr);
-      tree->SetBranchAddress("fitTopMass", &mt);
-      tree->SetBranchAddress("meanWMass", &mw);
+      double var1, var2, var3, var4, cw, co;
+      tree->SetBranchAddress("fitTopMass", &var1);
+      tree->SetBranchAddress("recoWMass", &var2);
+      tree->SetBranchAddress("fitProb", &var3);
+      tree->SetBranchAddress("leptonFlavour", &var4);
       tree->SetBranchAddress("combinedWeight", &cw);
+      tree->SetBranchAddress("comboType", &co);
+
       TString name = templateName(mass, jes);
       dataset.push_back(new RooDataSet(name, name, *varSet,
                                        RooFit::Import(*tree),
                                        RooFit::WeightVar("combinedWeight")));
-      // if(binnedTemplates){
-      //  for(unsigned h=0; h<1; ++h) {
-      //    name = "hist_"; name += iTempl;
-      //    hist[h][iTempl] = new RooDataHist(name, name, mTop,
-      //    *dataset[iTempl]);
-      //  }
-      //}
       workspace_->import(*dataset.back());
     }
   }
@@ -147,38 +149,61 @@ void TemplateDerivation::addTemplateFunction(const std::string &varType,
   std::vector<RooRealVar *> par;
   std::vector<double> iniPar;
 
-  if (varType == "mTop") {
-    if (comboType == "CP") {
-      iniPar = {172.399, 0.989847,  81.225,  0.758306,
-                7.92651, 0.0730216, 5.03205, 0.0241954};
-    } else if (comboType == "WP") {
-      iniPar = {190.009, 0.23107,   123.714,  -2.41287,   173.325, 1.11063,
-                80.0112, 1.32969,   26.2827,  -0.0172727, 35.0065, -0.442854,
-                10.0152, 0.0656903, -4.72985, -0.108491,  0.700556};
-    } else if (comboType == "UN") {
-      iniPar = {178.883, 0.306507,  40.7573, 0.445759,  174.681, 1.06829,
-                83.8601, 0.280563,  22.065,  0.0542991, 4.93823, 0.3491,
-                9.74,    0.0548014, 2.31277, -0.181041};
+  if (channelID_ == kAllJets) {
+    if (varType == "mTop") {
+      if (comboType == "CP") {
+        iniPar = {172.399, 0.989847,  81.225,  0.758306,
+                  7.92651, 0.0730216, 5.03205, 0.0241954};
+      } else if (comboType == "WP") {
+        iniPar = {190.009, 0.23107,   123.714,  -2.41287,   173.325, 1.11063,
+                  80.0112, 1.32969,   26.2827,  -0.0172727, 35.0065, -0.442854,
+                  10.0152, 0.0656903, -4.72985, -0.108491,  0.700556};
+      } else if (comboType == "UN") {
+        iniPar = {178.883, 0.306507,  40.7573, 0.445759,  174.681, 1.06829,
+                  83.8601, 0.280563,  22.065,  0.0542991, 4.93823, 0.3491,
+                  9.74,    0.0548014, 2.31277, -0.181041};
+      }
     }
-  }
-  if (varType == "mW") {
-    if (comboType == "CP") {  // mW, correct
-      iniPar = {84.4535, -0.0154884, 91.1495, -0.00943573, 5.20726,  -0.0115877,
-                23.4646, -0.0249863, 6.75636, 0.0019251,   -19.8341, 0.0724597};
-    } else if (comboType == "WP") {  // mW, wrong
-      iniPar = {87.2093,    -0.00584533, 20.9648,  -0.0912001, 3.91928,
-                0.00521933, 3.8585,      -0.28899, 5.9744,     0.00351353,
-                -5.70177,   -0.231188,   3.80803,  0.00289055, -11.4316,
-                -0.264811,  5.0,         5.0,      0.25,       0.5};
-    } else if (comboType == "UN") {  // mW, unmatched
-      iniPar = {86.6185, -0.0184471, 32.1242,  0.0815632,  6.48169, -0.0108763,
-                7.37265, 0.0139849,  6.48169,  -0.0108763, 7.37265, 0.0139849,
-                7.91363, 0.00815331, -17.3423, -0.00100213};
+    if (varType == "mW") {
+      if (comboType == "CP") {  // mW, correct
+        iniPar = {84.4535, -0.0154884, 91.1495,  -0.00943573,
+                  5.20726, -0.0115877, 23.4646,  -0.0249863,
+                  6.75636, 0.0019251,  -19.8341, 0.0724597};
+      } else if (comboType == "WP") {  // mW, wrong
+        iniPar = {87.2093,    -0.00584533, 20.9648,  -0.0912001, 3.91928,
+                  0.00521933, 3.8585,      -0.28899, 5.9744,     0.00351353,
+                  -5.70177,   -0.231188,   3.80803,  0.00289055, -11.4316,
+                  -0.264811,  5.0,         5.0,      0.25,       0.5};
+      } else if (comboType == "UN") {  // mW, unmatched
+        iniPar = {86.6185, -0.0184471, 32.1242,  0.0815632,
+                  6.48169, -0.0108763, 7.37265,  0.0139849,
+                  6.48169, -0.0108763, 7.37265,  0.0139849,
+                  7.91363, 0.00815331, -17.3423, -0.00100213};
+      }
+    }
+  } else {  // lepton+jet
+    if (varType == "mTop") {
+      if (comboType == "CP") {
+        iniPar = {171.755, 0.99381,    79.8565, 0.893298, 10.3643, 0.0790784,
+                  9.89278, -0.0371068, 0,       0,        0,       0};
+      } else if (comboType == "WP") {
+        iniPar = {173.785,  0.938106,  103.341, 2.76756,  29.5164,
+                  0.394661, 40.1086,   1.74947, 0.391431, 0.00436452,
+                  0.323069, 0.0252243, 15};
+      } else if (comboType == "UN") {
+        iniPar = {169.893,  0.910911,   83.3198,   1.08382,  19.0538,
+                  0.208581, 13.355,     0.0288625, 0.818267, 0.00834576,
+                  0.292096, -0.0189799, 5};
+      }
+    }
+    if (varType == "mW") {
+      iniPar = {83.2533, 0.0236372,   44.1158, -0.18204,   6.22374,  0.0115167,
+                12.0021, -0.00948197, 7.32155, -0.0146219, -2.03811, 0.227249};
     }
   }
   // init parameters
   for (unsigned int i = 0; i < iniPar.size(); ++i) {
-    TString name = addInt(catName("par", varType, comboType), i);
+    TString name = addInt(addCat("par", varType, comboType), i);
     RooRealVar myVar(name, name, iniPar[i]);
     myVar.setVal(iniPar[i]);
     myVar.setConstant(kFALSE);
@@ -195,7 +220,7 @@ void TemplateDerivation::addTemplateFunction(const std::string &varType,
       workspace_->factory(
           "Voigtian::pdf_mTop_CP(fitTopMass,alpha_mTop_CP_0,width_mTop_CP[2],"
           "alpha_mTop_CP_1)");
-    } else if (comboType == "WP") {
+    } else if (channelID_ == kAllJets) {
       createAlpha("alpha_mTop_WP_0",
                   RooArgSet(*par[0], *par[1], *par[2], *par[3], *mTop, *JSF));
       createAlpha("alpha_mTop_WP_1",
@@ -213,50 +238,82 @@ void TemplateDerivation::addTemplateFunction(const std::string &varType,
       workspace_->factory(
           "SUM::pdf_mTop_WP(par_mTop_WP_16*pdf_mTop_WP1,pdf_mTop_"
           "WP2)");
-    } else if (comboType == "UN") {
+    } else {
+      RooFormulaVar *alpha0 = createAlpha(
+          addInt(addCat("alpha", varType, comboType), 0),
+          RooArgSet(*par[0], *par[1], *par[2], *par[3], *mTop, *JSF));
+      RooFormulaVar *alpha1 = createAlpha(
+          addInt(addCat("alpha", varType, comboType), 1),
+          RooArgSet(*par[4], *par[5], *par[6], *par[7], *mTop, *JSF));
+      RooFormulaVar *alpha2 = createAlpha(
+          addInt(addCat("alpha", varType, comboType), 2),
+          RooArgSet(*par[8], *par[9], *par[10], *par[11], *mTop, *JSF));
+      std::string factString = addCat("CBShape::pdf", varType, comboType);
+      factString += str(boost::format("(fitTopMass,%1%,%2%,%3%,%4%)") %
+                        alpha0->GetName() % alpha1->GetName() %
+                        alpha2->GetName() % par[12]->GetName());
+      workspace_->factory(factString.c_str());
+      par[12]->setConstant(true);
     }
   }
   if (varType == "mW") {
-    if (comboType == "CP") {  // mW, correct
-      createAlpha("alpha_mW_CP_0",
-                  RooArgSet(*par[0], *par[1], *par[2], *par[3], *mTop, *JSF));
-      createAlpha("alpha_mw_CP_1",
-                  RooArgSet(*par[4], *par[5], *par[6], *par[7], *mTop, *JSF));
-      createAlpha("alpha_mW_CP_2",
-                  RooArgSet(*par[8], *par[9], *par[10], *par[11], *mTop, *JSF));
-      workspace_->factory(
-          "BifurGauss::pdf_mW_CP(meanWMass,alpha_mW_CP_0,alpha_mw_CP_1,alpha_"
-          "mW_CP_2)");
-    } else if (comboType == "WP") {  // mW, wrong
-      createAlpha("alpha_mW_WP_0", RooArgSet(*par[0], *par[1], *par[2], *par[3],
-                                             *mTop, *JSF, *par[16]),
-                  "-@6");
-      createAlpha("alpha_mW_WP_1",
-                  RooArgSet(*par[0], *par[1], *par[2], *par[3], *mTop, *JSF));
-      createAlpha("alpha_mW_WP_2", RooArgSet(*par[0], *par[1], *par[2], *par[3],
-                                             *mTop, *JSF, *par[17]),
-                  "+@6");
-      createAlpha("alpha_mW_WP_3",
-                  RooArgSet(*par[4], *par[5], *par[6], *par[7], *mTop, *JSF));
-      createAlpha("alpha_mW_WP_4",
-                  RooArgSet(*par[8], *par[9], *par[10], *par[11], *mTop, *JSF));
-      createAlpha("alpha_mW_WP_5", RooArgSet(*par[12], *par[13], *par[14],
-                                             *par[15], *mTop, *JSF));
-      workspace_->factory(
-          "Gaussian::pdf_mW_WP1(meanWMass,alpha_mW_WP_0,alpha_mW_WP_3)");
-      workspace_->factory(
-          "Gaussian::pdf_mW_WP2(meanWMass,alpha_mW_WP_1,alpha_mW_WP_4)");
+    if (channelID_ == kAllJets) {
+      if (comboType == "CP") {  // mW, correct
+        createAlpha("alpha_mW_CP_0",
+                    RooArgSet(*par[0], *par[1], *par[2], *par[3], *mTop, *JSF));
+        createAlpha("alpha_mw_CP_1",
+                    RooArgSet(*par[4], *par[5], *par[6], *par[7], *mTop, *JSF));
+        createAlpha("alpha_mW_CP_2", RooArgSet(*par[8], *par[9], *par[10],
+                                               *par[11], *mTop, *JSF));
+        workspace_->factory(
+            "BifurGauss::pdf_mW_CP(recoWMass,alpha_mW_CP_0,alpha_mw_CP_1,alpha_"
+            "mW_CP_2)");
+      } else if (comboType == "WP") {  // mW, wrong
+        createAlpha("alpha_mW_WP_0", RooArgSet(*par[0], *par[1], *par[2],
+                                               *par[3], *mTop, *JSF, *par[16]),
+                    "-@6");
+        createAlpha("alpha_mW_WP_1",
+                    RooArgSet(*par[0], *par[1], *par[2], *par[3], *mTop, *JSF));
+        createAlpha("alpha_mW_WP_2", RooArgSet(*par[0], *par[1], *par[2],
+                                               *par[3], *mTop, *JSF, *par[17]),
+                    "+@6");
+        createAlpha("alpha_mW_WP_3",
+                    RooArgSet(*par[4], *par[5], *par[6], *par[7], *mTop, *JSF));
+        createAlpha("alpha_mW_WP_4", RooArgSet(*par[8], *par[9], *par[10],
+                                               *par[11], *mTop, *JSF));
+        createAlpha("alpha_mW_WP_5", RooArgSet(*par[12], *par[13], *par[14],
+                                               *par[15], *mTop, *JSF));
+        workspace_->factory(
+            "Gaussian::pdf_mW_WP1(recoWMass,alpha_mW_WP_0,alpha_mW_WP_3)");
+        workspace_->factory(
+            "Gaussian::pdf_mW_WP2(recoWMass,alpha_mW_WP_1,alpha_mW_WP_4)");
 
-      workspace_->factory(
-          "Gaussian::pdf_mW_WP3(meanWMass,alpha_mW_WP_2,alpha_mW_WP_5)");
-      workspace_->factory(
-          "SUM::pdf_mW_WP(par_mW_WP_18*pdf_mW_WP1,par_mW_WP_19*pdf_mW_WP2, "
-          "pdf_mW_WP3)");
-      par[16]->setConstant(true);
-      par[17]->setConstant(true);
-      par[18]->setConstant(true);
-      par[19]->setConstant(true);
-    } else if (comboType == "UN") {  // mW, unmatched
+        workspace_->factory(
+            "Gaussian::pdf_mW_WP3(recoWMass,alpha_mW_WP_2,alpha_mW_WP_5)");
+        workspace_->factory(
+            "SUM::pdf_mW_WP(par_mW_WP_18*pdf_mW_WP1,par_mW_WP_19*pdf_mW_WP2, "
+            "pdf_mW_WP3)");
+        par[16]->setConstant(true);
+        par[17]->setConstant(true);
+        par[18]->setConstant(true);
+        par[19]->setConstant(true);
+      } else if (comboType == "UN") {  // mW, unmatched
+      }
+    } else {
+      RooFormulaVar *alpha0 = createAlpha(
+          addInt(addCat("alpha", varType, comboType), 0),
+          RooArgSet(*par[0], *par[1], *par[2], *par[3], *mTop, *JSF));
+      RooFormulaVar *alpha1 = createAlpha(
+          addInt(addCat("alpha", varType, comboType), 1),
+          RooArgSet(*par[4], *par[5], *par[6], *par[7], *mTop, *JSF));
+      RooFormulaVar *alpha2 = createAlpha(
+          addInt(addCat("alpha", varType, comboType), 2),
+          RooArgSet(*par[8], *par[9], *par[10], *par[11], *mTop, *JSF));
+      std::string factString = addCat("BifurGauss::pdf", varType, comboType);
+      factString +=
+          str(boost::format("(recoWMass,%1%,%2%,%3%)") % alpha0->GetName() %
+              alpha1->GetName() % alpha2->GetName());
+      workspace_->factory(factString.c_str());
     }
   }
   std::cout << "old: ";
@@ -270,7 +327,7 @@ void TemplateDerivation::addTemplateFunction(const std::string &varType,
 RooFitResult *TemplateDerivation::fitTemplate(const std::string &varType,
                                               const std::string &comboType) {
   RooSimWSTool *simWST = new RooSimWSTool(*workspace_);
-  std::string pdfName = catName("pdf", varType, comboType);
+  std::string pdfName = addCat("pdf", varType, comboType);
   std::string simName = pdfName + "_sim";
   RooSimultaneous *sim =
       simWST->build(simName.c_str(), pdfName.c_str(),
@@ -283,10 +340,10 @@ RooFitResult *TemplateDerivation::fitTemplate(const std::string &varType,
   for (auto mass : massValues_) {
     for (auto jsf : jsfValues_) {
       std::string templname = templateName(mass, jsf);
-      std::string name = catName(templname, varType, comboType);
+      std::string name = addCat(templname, varType, comboType);
       RooAbsData *dataset = workspace_->data(templname.c_str());
-      workspace_->var(catName("JSF", templname).c_str())->setVal(jsf);
-      workspace_->var(catName("mTop", templname).c_str())->setVal(mass);
+      workspace_->var(addCat("JSF", templname).c_str())->setVal(jsf);
+      workspace_->var(addCat("mTop", templname).c_str())->setVal(mass);
       RooDataSet *reducedDataset =
           (RooDataSet *)dataset->reduce(RooFit::CutRange(comboType.c_str()));
       reducedDataset->SetName(name.c_str());
@@ -297,17 +354,17 @@ RooFitResult *TemplateDerivation::fitTemplate(const std::string &varType,
       datamap[templname] = reducedDataset;
     }
   }
-  std::string dataName = catName("data", varType, comboType);
+  std::string dataName = addCat("data", varType, comboType);
 
   RooDataSet combData(dataName.c_str(), dataName.c_str(),
                       *(workspace_->set("varSet")),
                       RooFit::Index(*(workspace_->cat("calibPoints"))),
                       RooFit::Import(datamap));
   RooFitResult *result = sim->fitTo(
-      combData, RooFit::Strategy(2), RooFit::NumCPU(4, RooFit::SimComponents),
-      RooFit::Range("mTopFitRange"), RooFit::Save(true),
-      RooFit::SumW2Error(true));
-
+      combData, RooFit::Minimizer("Minuit2", "migrad"),
+      // RooFit::Strategy(2),
+      RooFit::NumCPU(8, RooFit::SimComponents), RooFit::Range("mTopFitRange"),
+      RooFit::Save(true), RooFit::SumW2Error(true), RooFit::Offset(true));
   std::cout << "result:" << result << '\n';
   result->Print();
   workspace_->import(*result);
@@ -316,11 +373,11 @@ RooFitResult *TemplateDerivation::fitTemplate(const std::string &varType,
 
 void TemplateDerivation::plotResult(const std::string &varType,
                                     const std::string &comboType) {
-  std::string pdfName = catName("pdf", varType, comboType);
+  std::string pdfName = addCat("pdf", varType, comboType);
   std::string simName = pdfName + "_sim";
   RooFitResult *result = (RooFitResult *)workspace_->genobj(simName.c_str());
   RooRealVar *var = (varType == "mTop") ? workspace_->var("fitTopMass")
-                                        : workspace_->var("meanWMass");
+                                        : workspace_->var("recoWMass");
   RooPlot *frame = 0;
 
   TCanvas *canvas = new TCanvas("canvas", "canvas", 10, 10, 600, 600);
@@ -328,20 +385,20 @@ void TemplateDerivation::plotResult(const std::string &varType,
     for (auto jsf : jsfValues_) {
       if (varType == "mTop") {
         if (comboType == "CP")
-          frame = var->frame(RooFit::Range(100., 215.));
+          frame = var->frame(RooFit::Range(100., 250.));
         else
           frame = var->frame(RooFit::Range(100., maxMtop_));
       } else if (varType == "mW")
         frame = var->frame(RooFit::Range(50., 120.));
 
       std::string templName = templateName(mass, jsf);
-      std::string name = catName(templName, varType, comboType);
+      std::string name = addCat(templName, varType, comboType);
 
       RooAbsData *reducedDataset = workspace_->data(name.c_str());
       reducedDataset->statOn(frame, RooFit::Layout(.6, .9, .9));
       reducedDataset->plotOn(frame);
 
-      std::string tempname = catName(pdfName, templName);
+      std::string tempname = addCat(pdfName, templName);
       std::cout << "PDF Name: " << tempname << std::endl;
       workspace_->pdf(tempname.c_str())->plotOn(
           frame, RooFit::FillColor(kGray), RooFit::VisualizeError(*result));
@@ -353,7 +410,7 @@ void TemplateDerivation::plotResult(const std::string &varType,
               jsf);
       frame->SetTitle(title.c_str());
       frame->Draw();
-      std::string figName = catName("template", varType, comboType, templName);
+      std::string figName = addCat("template", varType, comboType, templName);
       TString outDir = "plot/calibration";
       canvas->Print(outDir + "/" + figName + ".eps");
       canvas->Print(outDir + "/catalog.ps(");
@@ -370,21 +427,21 @@ void TemplateDerivation::plotResult(const std::string &varType,
   // for(unsigned t=20; t<25; ++templateIndex) {
   if (varType == "mTop") {
     if (comboType == "CP")
-      frame = var->frame(RooFit::Range(100., 215.));
+      frame = var->frame(RooFit::Range(100., 250.));
     else
       frame = var->frame(RooFit::Range(100., maxMtop_));
   } else if (varType == "mW")
     frame = var->frame(RooFit::Range(50., 120.));
   for (auto jsf : jsfValues_) {
     std::string templName = templateName(172.5, jsf);
-    std::string pdfname = catName("pdf", varType, comboType, templName);
+    std::string pdfname = addCat("pdf", varType, comboType, templName);
     workspace_->pdf(pdfname.c_str())->plotOn(frame, RooFit::LineColor(kRed));
   }
   frame->SetMinimum(.0);
   frame->GetYaxis()->SetTitle("Probability");
   frame->SetTitle("JES = 0.96, 0.98, 1.00, 1.02, 1.04 (mTop = 172.5 GeV)");
   frame->Draw();
-  std::string figName = catName("funcFamily", "jsf", varType, comboType);
+  std::string figName = addCat("funcFamily", "jsf", varType, comboType);
   TString outDir = "plot/calibration";
   canvas->Print(outDir + "/" + figName + ".eps");
   canvas->Print(outDir + "/catalog.ps");
@@ -395,14 +452,14 @@ void TemplateDerivation::plotResult(const std::string &varType,
   // RooFit::LineColor(kRed+1));
   if (varType == "mTop") {
     if (comboType == "CP")
-      frame = var->frame(RooFit::Range(100., 215.));
+      frame = var->frame(RooFit::Range(100., 250.));
     else
       frame = var->frame(RooFit::Range(100., maxMtop_));
   } else if (varType == "mW")
     frame = var->frame(RooFit::Range(50., 120.));
   for (auto mass : massValues_) {
     std::string templName = templateName(mass, 1.0);
-    std::string pdfname = catName("pdf", varType, comboType, templName);
+    std::string pdfname = addCat("pdf", varType, comboType, templName);
     workspace_->pdf(pdfname.c_str())->plotOn(frame, RooFit::LineColor(kRed));
   }
   frame->SetMinimum(.0);
@@ -420,7 +477,7 @@ void TemplateDerivation::plotResult(const std::string &varType,
   gStyle->SetOptTitle(0);
   // plot different alpha_i as a function of JES
   char yTitle[99];
-  std::string alphaName = catName("alpha", varType, comboType);
+  std::string alphaName = addCat("alpha", varType, comboType);
   for (unsigned i = 0; i < numVariables(alphaName); ++i) {
     TString jesName("JSF_");
     jesName += templateName(massValues_[0], jsfValues_[0]);
@@ -463,8 +520,8 @@ void TemplateDerivation::plotResult(const std::string &varType,
     TString mtopName("mTop_");
     mtopName += templateName(massValues_[2], jsfValues_[0]);
     frame = workspace_->var(mtopName)->frame(RooFit::Range(150., 200.));
-    name = catName(addInt(catName("alpha", varType, comboType), i),
-                   templateName(massValues_[2], jsfValues_[0]));
+    name = addCat(addInt(addCat("alpha", varType, comboType), i),
+                  templateName(massValues_[2], jsfValues_[0]));
     if (workspace_->function(name)) {
       workspace_->function(name)->plotOn(frame, RooFit::FillColor(kGray),
                                          RooFit::VisualizeError(*result));
@@ -495,7 +552,7 @@ void TemplateDerivation::printResult(const std::string &varType,
   std::string vars_helper = "";
   std::stringstream vars(vars_helper,
                          std::stringstream::in | std::stringstream::out);
-  std::string parName = catName("par", varType, comboType);
+  std::string parName = addCat("par", varType, comboType);
   for (unsigned int i = 0; i < numVariables(parName); ++i) {
     RooRealVar *curPar = workspace_->var(addInt(parName, i).c_str());
     curPar->setConstant(kTRUE);
@@ -518,8 +575,14 @@ void TemplateDerivation::run() {
   workspace_ = new RooWorkspace("workspaceMtop", "workspaceMtop");
   workspace_->factory("comboType[-10,20]");
   workspace_->factory("fitTopMass[100,400]");
+  workspace_->var("fitTopMass")->setUnit("GeV");
   workspace_->var("fitTopMass")->setMax(maxMtop_);
-  workspace_->factory("meanWMass[50,300]");
+  workspace_->factory("recoWMass[50,130]");
+  workspace_->var("recoWMass")->setUnit("GeV");
+  workspace_->factory("fitProb[0,1]");
+  workspace_->factory("leptonFlavour[10,14]");
+  workspace_->var("leptonFlavour")->setRange("Ele", 10, 12);
+  workspace_->var("leptonFlavour")->setRange("Muon", 12, 14);
   workspace_->factory("combinedWeight[-100,100]");
 
   workspace_->var("fitTopMass")->setRange("mTopFitRange", 100, maxMtop_);
@@ -531,7 +594,7 @@ void TemplateDerivation::run() {
     permutationTypes = {"CP", "WP"};
   } else {
     workspace_->var("comboType")->setRange("CP", 0.9, 1.1);
-    workspace_->var("comboType")->setRange("UN", 5.1, 20.1);
+    workspace_->var("comboType")->setRange("UN", 5.9, 20.1);
     workspace_->var("comboType")->setRange("WP", 1.9, 5.1);
   }
   std::vector<std::string> variables({"mTop", "mW"});
@@ -585,30 +648,27 @@ void TemplateDerivation::run() {
                           workspace_->var("JSF"));
     }
   }
+
   /// create datasets and import for later use
-  workspace_->defineSet("varSet",
-                        "comboType,fitTopMass,meanWMass,combinedWeight");
+  if (channelID_ == kAllJets) {
+    workspace_->defineSet("varSet",
+                          "comboType,fitTopMass,recoWMass,combinedWeight");
+  } else {
+    workspace_->defineSet(
+        "varSet",
+        "comboType,fitTopMass,recoWMass,combinedWeight,fitProb,leptonFlavour");
+  }
+  workspace_->Print();
+
   std::vector<RooDataSet *> datasets =
       createDataSets(workspace_->set("varSet"));
-  // fitTemplate("mTop", "WP");
-  // plotResult("mTop", "WP");
-  // printResult("mTop", "WP");
 
-  // workspace_->Print();
   for (auto variable : variables) {
     for (auto permutationType : permutationTypes) {
       fitTemplate(variable, permutationType);
       plotResult(variable, permutationType);
     }
   }
-  // fitTemplate("mTop", "CP");
-  //  for (int templType = 0; templType < nTemplTypes; ++templType) {
-  //    for (int comboType = 0; comboType < nComboTypes; ++comboType) {
-  //      fitTemplate(templType, comboType, nComboTypes);
-  //      // plotResult(templType, comboType, nComboTypes);
-  //      printResult(templType, comboType, nComboTypes);
-  //    }
-  //  }
 
   workspace_->writeToFile("RooWorkspace_TEST.root");
 }
@@ -623,33 +683,43 @@ TTree *TemplateDerivation::modifiedTree(TChain *tree, int minComboType,
   std::vector<std::string> vActiveBanches;
   boost::split(vActiveBanches, activeBranches_, boost::is_any_of("|"));
   for (const auto &branch : vActiveBanches) {
-    tree->SetBranchStatus(branch.c_str(), 1);
+    tree->SetBranchStatus(branch.c_str(), true);
   }
+  Int_t cachesize = 10000000;  // 10 MBytes
+  tree->SetCacheSize(cachesize);
+  for (const auto &branch : vActiveBanches) {
+    tree->AddBranchToCache(branch.c_str(), true);
+  }
+  tree->StopCacheLearningPhase();
 
   TTreeFormula *f1 = new TTreeFormula("f1", fVar1_, tree);
   TTreeFormula *f2 = new TTreeFormula("f2", fVar2_, tree);
   TTreeFormula *f3 = new TTreeFormula("f3", fVar3_, tree);
+  TTreeFormula *f4 = new TTreeFormula("f4", fVar4_, tree);
   TTreeFormula *weight = new TTreeFormula("weight", fWeight_, tree);
   TTreeFormula *sel = new TTreeFormula("sel", selection_, tree);
   TTreeFormula *combo = new TTreeFormula("combo", "top.combinationType", tree);
 
-  double topMass, meanWMass, combinedWeight, comboType;
+  double var1, var2, var3, var4, combinedWeight, comboType;
   TTree *newTree = new TTree("tree", "tree");
-  newTree->Branch("fitTopMass", &topMass, "fitTopMass/D");
-  newTree->Branch("meanWMass", &meanWMass, "meanWMass/D");
+  newTree->Branch("fitTopMass", &var1, "fitTopMass/D");
+  newTree->Branch("recoWMass", &var2, "recoWMass/D");
+  newTree->Branch("fitProb", &var3, "fitProb/D");
+  newTree->Branch("leptonFlavour", &var4, "leptonFlavour/D");
+  newTree->Branch("combinedWeight", &combinedWeight, "combinedWeight/D");
   if (!isData) {
-    newTree->Branch("combinedWeight", &combinedWeight, "combinedWeight/D");
     newTree->Branch("comboType", &comboType, "comboType/D");
   }
 
-  int selected = 0;
-  for (int i = 0;; ++i) {
+  int selected = 0, nevents = tree->GetEntries();
+  for (int i = 0; i < nevents; ++i) {
     long entry = tree->LoadTree(i);
-    if (entry < 0) break;
+    // if (entry < 0) break;
     if (entry == 0) {
       f1->UpdateFormulaLeaves();
       f2->UpdateFormulaLeaves();
       f3->UpdateFormulaLeaves();
+      f4->UpdateFormulaLeaves();
       weight->UpdateFormulaLeaves();
       sel->UpdateFormulaLeaves();
       combo->UpdateFormulaLeaves();
@@ -657,6 +727,7 @@ TTree *TemplateDerivation::modifiedTree(TChain *tree, int minComboType,
     if (!f1->GetNdata()) continue;
     if (!f2->GetNdata()) continue;
     if (!f3->GetNdata()) continue;
+    if (!f4->GetNdata()) continue;
     if (!weight->GetNdata()) continue;
     if (!sel->GetNdata()) continue;
     if (!combo->GetNdata()) continue;
@@ -664,9 +735,11 @@ TTree *TemplateDerivation::modifiedTree(TChain *tree, int minComboType,
     for (int j = 0, l = std::min(maxPermutations_, sel->GetNdata()); j < l;
          ++j) {
       if (!sel->EvalInstance(j)) continue;
-      topMass = f1->EvalInstance(j);
-      meanWMass = f2->EvalInstance(j);
-      combinedWeight = f3->EvalInstance(j) * weight->EvalInstance(j);
+      var1 = f1->EvalInstance(j);
+      var2 = f2->EvalInstance(j);
+      var3 = f3->EvalInstance(j);
+      var4 = f4->EvalInstance(j);
+      combinedWeight = weight->EvalInstance(j) * var3;  // HACK!!!!
       if (!isData) {
         comboType = combo->EvalInstance(j);
         if (comboType < 0) comboType = std::abs(comboType) + 10.;
@@ -677,12 +750,14 @@ TTree *TemplateDerivation::modifiedTree(TChain *tree, int minComboType,
     if (filledPermutations) ++selected;
   }
 
-  std::cout << ": " << selected << " events" << std::endl;
+  std::cout << ": " << selected << " events resulting " << newTree->GetEntries()
+            << " entries." << std::endl;
 
   delete tree;
   delete f1;
   delete f2;
   delete f3;
+  delete f4;
   delete weight;
   delete sel;
   delete combo;
@@ -710,10 +785,10 @@ std::string TemplateDerivation::addInt(const std::string &name, int i) {
   return str(boost::format(name + "_%1%") % i);
 }
 
-std::string TemplateDerivation::catName(const std::string &name,
-                                        const std::string &cat1,
-                                        const std::string &cat2,
-                                        const std::string &cat3) {
+std::string TemplateDerivation::addCat(const std::string &name,
+                                       const std::string &cat1,
+                                       const std::string &cat2,
+                                       const std::string &cat3) {
   std::string temp(name);
   temp += "_" + cat1;
   if (cat2 != "") {

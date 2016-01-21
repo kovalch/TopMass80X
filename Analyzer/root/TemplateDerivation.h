@@ -4,6 +4,7 @@
 #include "TTree.h"
 #include "TChain.h"
 #include "TH2F.h"
+#include "TSelector.h"
 
 #include <string>
 
@@ -20,7 +21,8 @@ class TemplateDerivation {
   ~TemplateDerivation();
 
  private:
-  TString selection_, samplePath_, fVar1_, fVar2_, fVar3_, fWeight_, fChannel_;
+  TString selection_, samplePath_, fVar1_, fVar2_, fVar3_, fVar4_, fWeight_,
+      fChannel_;
   std::string activeBranches_;
 
   const int maxPermutations_;
@@ -64,9 +66,9 @@ class TemplateDerivation {
   void run();
   static std::string templateName(double mass, double jes);
   static std::string addInt(const std::string& name, int i);
-  static std::string catName(const std::string& name, const std::string& cat1,
-                          const std::string& cat2 = "",
-                          const std::string& cat3 = "");
+  static std::string addCat(const std::string& name, const std::string& cat1,
+                            const std::string& cat2 = "",
+                            const std::string& cat3 = "");
 };
 
 #endif /* TEMPLATE_DERIVATION_H */
