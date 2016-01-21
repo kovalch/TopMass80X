@@ -688,7 +688,6 @@ int EventHypothesisAnalyzer::fillGenPartons(const TtGenEvent *genEvent) {
               genEvent->daughterQuarkOfTopBar()->pz(),
               genEvent->daughterQuarkOfTopBar()->energy());
       }
-
       top->genpartonW1Prod1.SetPxPyPzE(
           genEvent->hadronicDecayQuark()->px(),
           genEvent->hadronicDecayQuark()->py(),
@@ -719,7 +718,6 @@ int EventHypothesisAnalyzer::fillGenPartons(const TtGenEvent *genEvent) {
               genEvent->daughterQuarkOfTopBar()->pz(),
               genEvent->daughterQuarkOfTopBar()->energy());
       }
-
       top->genpartonW2Prod1.SetPxPyPzE(
           genEvent->singleLepton()->px(), genEvent->singleLepton()->py(),
           genEvent->singleLepton()->pz(), genEvent->singleLepton()->energy());

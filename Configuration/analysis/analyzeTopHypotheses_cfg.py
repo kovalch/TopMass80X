@@ -26,7 +26,7 @@ options.register('mesShift', 0.0, VarParsing.VarParsing.multiplicity.singleton,V
 options.register('eesShift', 0.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "Electron energy scale shift in sigma")
 options.register('uncFactor', 1.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "Unclustered energy factor")
 
-options.register('csvm', 0.814, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "CSVM working point")
+options.register('csvm', 0.890, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "CSVM working point")
 options.register('nbjets', 2, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.int, "Minimum number of bjets")
 
 options.register('brCorrection', True, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.bool, "Do BR correction (MadGraph)")
@@ -58,7 +58,7 @@ allCut = (options.cut=='allCut')
 jet4Cut = (options.cut=='jet4Cut') 
 
 # nTupel Output
-#outputNTupel = cms.string( 'analyzeTop_{0}_{1}_{2}_Test.root'.format( options.lepton , options.mcversion , options.cut ) )
+#outputNTupel = cms.string( 'analyzeTop_{0}_{1}_{2}_Test.root'.format( options.lepton , options.lJesFactor , options.cut ) )
 outputNTupel = cms.string('analyzeTop.root')
 
 if (options.mcversion == "data"):
@@ -103,11 +103,17 @@ else:
     inputFiles = [
                 #'/store/mc/RunIISpring15MiniAODv2/TT_TuneEE5C_13TeV-amcatnlo-herwigpp/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/02F8D87E-C76D-E511-A602-0025904CF95C.root'
                   #'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/00000/0AB045B5-BB0C-E511-81FD-0025905A60B8.root'
+#'/store/mc/RunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/1020444C-AA71-E511-9CC7-0002C90F8036.root'
+		#'/store/mc/RunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/50000/5A6C10EC-A370-E511-B921-0002C90A3464.root'
+		'/store/mc/RunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/50000/140280F9-5470-E511-B1D9-0002C90C0FDA.root'
+			#'/store/mcRunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/004C9C92-AE71-E511-AE40-F45214C748C4.root'
+#'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/00000/0AB045B5-BB0C-E511-81FD-0025905A60B8.root'
 			#'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Startup25ns_EXOReReco_74X_Spring15_mcRun2_startup25ns_v0-v1/50000/00C91219-9A7A-E511-ACA2-001C23C0D109.root'
-			'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9_ext3-v1/30000/FC35E6B6-B142-E511-9093-002590200AE0.root'
+			#'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9_ext3-v1/30000/FC35E6B6-B142-E511-9093-002590200AE0.root'
 			#,'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9_ext3-v1/30000/00705CAD-B142-E511-951B-20CF305616E2.root'
 			#,'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9_ext3-v1/30000/00EC732C-B342-E511-92F2-002590A3C96C.root'
 			#,'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9_ext3-v1/30000/022D5094-E542-E511-A39E-0026189438B5.root'
+			#'/store/mc/RunIISpring15MiniAODv2/ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/50000/12DCEE99-C56D-E511-AA75-08606E15EABA.root'
 		 ]
 
 
@@ -166,6 +172,7 @@ useCalibElec     = options.useCalibElec
 
 electronVetoCut = electronGsfVetoCut
 electronCut = electronGsfCut
+signalElectronCut = 'pt > 20 && abs(eta) <2.5'
 
 # Step 4 
 #only interresting for the electron case
@@ -606,50 +613,6 @@ if (options.lepton=='electron'):
 from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_cfi import selectedJets
 process.selectedJets = selectedJets.clone( cut = jetCut )
 
-if (options.lepton=='electron'):
-    process.cleanedJets = cms.EDProducer("PATJetCleaner", 
-                                        src = cms.InputTag("patJets"),
-                                         # preselection (any string-based cut on pat::Jet)     
-                                         preselection = cms.string(''), 
-                                         # overlap checking configurables
-                                         checkOverlaps = cms.PSet(
-                                                                  electrons = 
-                                                                  cms.PSet(
-                                                                       src       = cms.InputTag("goodElectronsEJ"),
-                                                                       algorithm = cms.string("byDeltaR"),
-                                                                       preselection        = cms.string(""),
-                                                                       deltaR              = cms.double(0.3),
-                                                                       checkRecoComponents = cms.bool(False), # don't check if they share some AOD object ref
-                                                                       pairCut             = cms.string(""),
-                                                                       requireNoOverlaps   = cms.bool(True), # overlaps don't cause the jet to be discared
-                                                                       )
-                                                              ),
-                                         # finalCut (any string-based cut on pat::Jet)
-                                         finalCut = cms.string(''))
-
-
-else:
-    process.cleanedJets = cms.EDProducer("PATJetCleaner", 
-                                         src = cms.InputTag("patJets"),
-                                         # preselection (any string-based cut on pat::Jet)     
-                                         preselection = cms.string(''), 
-                                         # overlap checking configurables
-                                         checkOverlaps = cms.PSet(muons = 
-                                                                cms.PSet(
-                                                                         src       = cms.InputTag("signalMuons"),
-                                                                         algorithm = cms.string("byDeltaR"),
-                                                                         preselection        = cms.string(""), 
-                                                                         deltaR              = cms.double(0.3),
-                                                                         checkRecoComponents = cms.bool(False), # don't check if they share some AOD object ref          
-                                                                         pairCut             = cms.string(""),
-                                                                         requireNoOverlaps   = cms.bool(True)
-                                                                         )
-                                                              ),
-                                         # finalCut (any string-based cut on pat::Jet)
-                                         finalCut = cms.string(''))
-
-process.selectedJets.src = 'cleanedJets'
-
 process.goodOfflinePrimaryVertices.taggedMode=cms.untracked.bool( True )
 
 from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_cfi import signalVeryTightJets, standAloneSignalVeryTightJetsFilter
@@ -675,6 +638,55 @@ process.signalVeryLooseJets = signalVeryLooseJets.clone( cut = veryLooseJetCut )
 process.standAloneSignalVeryLooseJetsFilter = standAloneSignalVeryLooseJetsFilter.clone(  )
 process.sStandAlone4Jets = cms.Sequence( process.standAloneSignalVeryLooseJetsFilter )
 process.pStandAlone4Jets = cms.Path( process.sStandAlone4Jets )
+
+
+#first scaling, then cleaning!
+#now, ees and mes not working with that. oder doch?
+
+if (options.lepton=='electron'):
+    process.cleanedJets = cms.EDProducer("PATJetCleaner", 
+                                        src = cms.InputTag("selectedJets"),
+                                         # preselection (any string-based cut on pat::Jet)     
+                                         preselection = cms.string(''), 
+                                         # overlap checking configurables
+                                         checkOverlaps = cms.PSet(
+                                                                  electrons = 
+                                                                  cms.PSet(
+                                                                       src       = cms.InputTag("signalElectrons"), 
+                                                                       algorithm = cms.string("byDeltaR"),
+                                                                       preselection        = cms.string(""),
+                                                                       deltaR              = cms.double(0.3),
+                                                                       checkRecoComponents = cms.bool(False), # don't check if they share some AOD object ref
+                                                                       pairCut             = cms.string(""),
+                                                                       requireNoOverlaps   = cms.bool(True), # overlaps don't cause the jet to be discared
+                                                                       )
+                                                              ),
+                                         # finalCut (any string-based cut on pat::Jet)
+                                         finalCut = cms.string(''))
+
+
+else:
+    process.cleanedJets = cms.EDProducer("PATJetCleaner", 
+                                         src = cms.InputTag("selectedJets"),
+                                         # preselection (any string-based cut on pat::Jet)     
+                                         preselection = cms.string(''), 
+                                         # overlap checking configurables
+                                         checkOverlaps = cms.PSet(muons = 
+                                                                cms.PSet(
+                                                                         src       = cms.InputTag("signalMuons"),
+                                                                         algorithm = cms.string("byDeltaR"),
+                                                                         preselection        = cms.string(""), 
+                                                                         deltaR              = cms.double(0.3),
+                                                                         checkRecoComponents = cms.bool(False), # don't check if they share some AOD object ref          
+                                                                         pairCut             = cms.string(""),
+                                                                         requireNoOverlaps   = cms.bool(True)
+                                                                         )
+                                                              ),
+                                         # finalCut (any string-based cut on pat::Jet)
+                                         finalCut = cms.string(''))
+
+process.signalVeryLooseJets.src = 'cleanedJets'
+
 
 # Step 6
 
@@ -786,9 +798,10 @@ setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
     #setForAllTtSemiLepHypotheses(process, "mets", "patMETs")
     #setForAllTtSemiLepHypotheses(process, "jetCorrectionLevel", "L2L3Residual")
 
-## change jet-parton matching algorithm
+## change jet-parton matching algorithm #FIXME enstspricht nicht der empfehlung in seinem Komentar
 process.ttSemiLepJetPartonMatch.algorithm = "unambiguousOnly"
 process.ttSemiLepJetPartonMatch.maxNJets  = -1
+process.ttSemiLepJetPartonMatch.useMaxDist = True
 
 # consider b-tagging in event reconstruction
 process.hitFitTtSemiLepEventHypothesis.bTagAlgo = "pfCombinedInclusiveSecondaryVertexV2BJetTags"
@@ -807,12 +820,15 @@ if (data): removeTtSemiLepHypGenMatch(process)
 ## load HypothesisAnalyzer
 from TopMass.TopEventTree.EventHypothesisAnalyzer_cfi import analyzeHypothesis
 process.analyzeHitFit = analyzeHypothesis.clone(hypoClassKey = "ttSemiLepHypHitFit:Key", jets= "signalVeryLooseJets")
+if (options.lepton=="electron"): 
+     process.analyzeHitFit.lepton = 11
 from TopMass.TopEventTree.JetEventAnalyzer_cfi import analyzeJets
 process.analyzeJets = analyzeJets.clone(jets = "signalVeryLooseJets",met = "patPFMetT1")
 from TopMass.TopEventTree.WeightEventAnalyzer_cfi import analyzeWeights
 process.analyzeWeights = analyzeWeights.clone(
 
                                               mcWeight        = options.mcWeight,
+					      puSrc     = cms.InputTag("slimmedAddPileupInfo"),
                                               puWeightSrc     = cms.InputTag("eventWeightPUsysNo"  , "eventWeightPU"),
                                               puWeightUpSrc   = cms.InputTag("eventWeightPUsysUp"  , "eventWeightPUUp"),
                                               puWeightDownSrc = cms.InputTag("eventWeightPUsysDown", "eventWeightPUDown"),
@@ -837,67 +853,70 @@ if runOnMC:
     #use smeared jets and MET
     process.analyzeJets.met = "patPFMetT1Smear"
     setForAllTtSemiLepHypotheses(process, "mets", "patPFMetT1Smear")
-    process.cleanedJets.src = src = "patSmearedJets"
+    #process.cleanedJets.src = src = "patSmearedJets" #why was that?
     
+#atm first scaling, then cleaning!
+
+if options.lJesFactor!=1.00:
     #*****************************************************************************
     #add systematic variations here using products from the MET uncertainty tool
     #*****************************************************************************
-#old stuff
-#     ## configure JetEnergyScale tool 
-#     process.load("TopAnalysis.TopUtils.JetEnergyScale_cff")
-#     from TopAnalysis.TopUtils.JetEnergyScale_cff import *
-#
-#     scaledJetEnergy.scaleType    = options.scaleType
-#     scaledJetEnergy.JECUncSrcFile= "TopAnalysis/TopUtils/data/Summer13_V5_DATA_UncertaintySources_AK5PFchs.txt" #Uncertainty sources
-#     scaledJetEnergy.sourceName   = options.jessource
-#     scaledJetEnergy.flavor       = options.flavor
-#     scaledJetEnergy.scaleFactor  = options.lJesFactor
-#     scaledJetEnergy.scaleFactorB = options.bJesFactor
-#
-#     if options.mcversion == "genLevel":
-#         resolutionNominal = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-#     else:
-#         resolutionNominal = [1.079, 1.099, 1.121, 1.208, 1.254, 1.395, 1.056]
-#     resolutionUnc     = [0.026, 0.028, 0.029, 0.046, 0.062, 0.063, 0.191]
-#
-#     scaledJetEnergy.resolutionFactors   = []
-#     for nom,unc in zip(resolutionNominal,resolutionUnc):
-#       scaledJetEnergy.resolutionFactors.append(nom+options.resolutionSigma*unc)
-#
-#     scaledJetEnergy.resolutionEtaRanges   = [0.0,0.5, 0.5,1.1, 1.1,1.7, 1.7,2.3, 2.3,2.8, 2.8,3.2, 3.2,-1.]
-#
-#     scaledJetEnergy.inputJets    = "selectedJets"
-#     scaledJetEnergy.inputMETs    = "patMETs"
-#
-#     process.signalJets.src = "scaledJetEnergy:selectedJets"
-#
-#     ## electron shift
-#     process.load("TopAnalysis.TopUtils.ElectronEnergyScale_cfi")
-#     from TopAnalysis.TopUtils.MuonEnergyScale_cfi import *
-#
-#     process.scaledElectronEnergy.src      = "selectedElectrons"
-#     process.scaledElectronEnergy.mets     = "scaledJetEnergy:patMETs"
-#     process.scaledElectronEnergy.shiftBy  = options.eesShift
-#     process.signalElectrons.src   = "scaledElectronEnergy:selectedPatElectrons"
-#
-#     ## muon shift
-#     process.load("TopAnalysis.TopUtils.MuonEnergyScale_cfi")
-#     from TopAnalysis.TopUtils.MuonEnergyScale_cfi import *
-#
-#     process.scaledMuonEnergy.src      = "selectedMuons"
-#     process.scaledMuonEnergy.mets     = "scaledElectronEnergy:METs"
-#     process.scaledMuonEnergy.shiftBy  = options.mesShift
-#     process.signalMuons.src   = "scaledMuonEnergy:selectedMuons"
-#
-#     ## unclustered energy scale
-#     process.load("TopAnalysis.TopUtils.UnclusteredMETScale_cfi")
-#     from TopAnalysis.TopUtils.UnclusteredMETScale_cfi import *
-#
-#     process.scaledMET.inputJets       = "scaledJetEnergy:selectedPatJets"
-#     process.scaledMET.inputMETs       = "scaledMuonEnergy:METs"
-#     process.scaledMET.inputElectrons  = "scaledElectronEnergy:selectedPatElectrons"
-#     process.scaledMET.inputMuons      = "scaledMuonEnergy:selectedPatMuons"
-#     process.scaledMET.scaleFactor     = options.uncFactor
+     ## configure JetEnergyScale tool 
+	process.load("TopAnalysis.TopUtils.JetEnergyScale_cff")
+	from TopAnalysis.TopUtils.JetEnergyScale_cff import *
+
+	scaledJetEnergy.scaleType    = options.scaleType
+	scaledJetEnergy.JECUncSrcFile= "TopMass/Configuration/data/Summer15_25nsV6_DATA_UncertaintySources_AK4PFchs.txt" #Uncertainty sources 
+	scaledJetEnergy.sourceName   = options.jessource
+	scaledJetEnergy.flavor       = options.flavor
+	scaledJetEnergy.scaleFactor  = options.lJesFactor
+	scaledJetEnergy.scaleFactorB = options.bJesFactor
+
+	if options.mcversion == "genLevel":
+	    resolutionNominal = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+	else:
+	    resolutionNominal = [1.079, 1.099, 1.121, 1.208, 1.254, 1.395, 1.056] #FIXME
+	resolutionUnc     = [0.026, 0.028, 0.029, 0.046, 0.062, 0.063, 0.191]
+	
+	scaledJetEnergy.resolutionFactors   = [] 
+	for nom,unc in zip(resolutionNominal,resolutionUnc):
+	  scaledJetEnergy.resolutionFactors.append(nom+options.resolutionSigma*unc)
+	
+	scaledJetEnergy.resolutionEtaRanges   = [0.0,0.5, 0.5,1.1, 1.1,1.7, 1.7,2.3, 2.3,2.8, 2.8,3.2, 3.2,-1.]
+
+	scaledJetEnergy.inputJets    = "patJets" #"selectedJets" 
+	scaledJetEnergy.inputMETs    = "patPFMetT1" #oder mit smear? oder vor T1?  #original "patMETs"
+
+	process.selectedJets.src = "scaledJetEnergy:patJets" #original with signalJets
+	#soll das atm verwendet werden?
+	if (options.lepton=='electron' and options.eesShift!=0.0):
+		## electron shift
+		process.load("TopAnalysis.TopUtils.ElectronEnergyScale_cfi")
+		from TopAnalysis.TopUtils.ElectronEnergyScale_cfi import *
+	
+		process.scaledElectronEnergy.src      = "selectedElectrons" 
+		process.scaledElectronEnergy.mets     = "scaledJetEnergy:patPFMetT1" #oder mit smear? oder vor T1? 
+		process.scaledElectronEnergy.shiftBy  = options.eesShift
+		process.preSignalElectrons.src   = "scaledElectronEnergy:selectedPatElectrons" #FIXME Pat mistake?
+	elif(options.mesShift!=0.0):
+		## muon shift
+		process.load("TopAnalysis.TopUtils.MuonEnergyScale_cfi")
+		from TopAnalysis.TopUtils.MuonEnergyScale_cfi import *
+	
+		process.scaledMuonEnergy.src      = "selectedMuons"  #original selectedMuons
+		process.scaledMuonEnergy.mets     = "scaledJetEnergy:patPFMetT1" #oder mit smear? oder vor T1? 
+		process.scaledMuonEnergy.shiftBy  = options.mesShift
+		process.preSignalMuons.src   = "scaledMuonEnergy:selectedMuons" #orignal direct to signalMuons
+
+## unclustered energy scale
+process.load("TopAnalysis.TopUtils.UnclusteredMETScale_cfi")
+from TopAnalysis.TopUtils.UnclusteredMETScale_cfi import *
+
+process.scaledMET.inputJets       = "scaledJetEnergy:selectedPatJets"
+process.scaledMET.inputMETs       = "scaledMuonEnergy:METs"
+process.scaledMET.inputElectrons  = "scaledElectronEnergy:selectedPatElectrons"
+process.scaledMET.inputMuons      = "scaledMuonEnergy:selectedPatMuons"
+process.scaledMET.scaleFactor     = options.uncFactor
 
 
 
@@ -1038,14 +1057,17 @@ if not data:
 
         process.eventWeightPU.MCSampleFile             = "TopAnalysis/TopUtils/data/MC_PUDist_Summer12_S10.root"
     elif (options.mcversion == "RunIISpring15DR"):
+	process.eventWeightPU.PUSource                 = cms.InputTag("slimmedAddPileupInfo")
         process.eventWeightPU.MCSampleHistoName        = "puhisto"
         process.eventWeightPU.DataHistoName            = "pileup"
 
-        process.eventWeightPU.MCSampleFile             = "TopAnalysis/TopUtils/data/MC_PUDist_Summer12_S10.root"
+        process.eventWeightPU.MCSampleFile             = "data/PUhists/Run2_MC_2015D_amcatnlo_truePU.root" 
+	process.eventWeightPU.DataFile		       = "TopAnalysis/TopUtils/data/Data_PUHist_Run2015D.root"
 
     if (options.generator == "rd"):
         process.eventWeightPU.MCSampleHistoName        = ""
         process.eventWeightPU.DataHistoName            = ""
+    
 
     process.eventWeightPUsysNo   = process.eventWeightPU.clone()
     process.eventWeightPUsysUp   = process.eventWeightPU.clone()
@@ -1053,35 +1075,35 @@ if not data:
 
     #### Parameters 'CreateWeight3DHisto' and 'Weight3DHistoFile' required for cff-file, but actually not used for Fall11 samples
 
-    #### Configuration for Nominal PU Weights
+    #### Configuration for Nominal PU Weights #TODO aktualisieren sollte passen
 
     process.eventWeightPUsysNo.WeightName          = "eventWeightPU"
-    process.eventWeightPUsysNo.DataFile            = "TopAnalysis/TopUtils/data/Data_PUDist_sysNo_69400_2012ABCD22JanReReco_190456-208686_8TeV.root"
+    process.eventWeightPUsysNo.DataFile            = "TopAnalysis/TopUtils/data/Data_PUHist_Run2015D.root"
     process.eventWeightPUsysNo.CreateWeight3DHisto = False
     #process.eventWeightPUsysNo.Weight3DHistoFile   = "TopMass/Configuration/data/Weight3D.root"
 
     #### Configuration for PU Up Variations
-
-    process.eventWeightPUsysUp.WeightName          = "eventWeightPUUp"
-    process.eventWeightPUsysUp.DataFile            = "TopAnalysis/TopUtils/data/Data_PUDist_sysUp_73564_2012ABCD22JanReReco_190456-208686_8TeV.root"
-    process.eventWeightPUsysUp.CreateWeight3DHisto = False
+    if(options.mcversion != "RunIISpring15DR"):
+    	 process.eventWeightPUsysUp.WeightName          = "eventWeightPUUp"
+    	 process.eventWeightPUsysUp.DataFile            = "TopAnalysis/TopUtils/data/Data_PUHist_Run2015D.root"
+    	 process.eventWeightPUsysUp.CreateWeight3DHisto = False
     #process.eventWeightPUsysUp.Weight3DHistoFile   = "TopMass/Configuration/data/Weight3DUp.root"
 
     #### Configuration for PU Down Variations
 
-    process.eventWeightPUsysDown.WeightName          = "eventWeightPUDown"
-    process.eventWeightPUsysDown.DataFile            = "TopAnalysis/TopUtils/data/Data_PUDist_sysDn_65236_2012ABCD22JanReReco_190456-208686_8TeV.root"
-    process.eventWeightPUsysDown.CreateWeight3DHisto = False
+   	 process.eventWeightPUsysDown.WeightName          = "eventWeightPUDown"
+    	 process.eventWeightPUsysDown.DataFile            = "TopAnalysis/TopUtils/data/Data_PUHist_Run2015D.root"
+    	 process.eventWeightPUsysDown.CreateWeight3DHisto = False
     #process.eventWeightPUsysDown.Weight3DHistoFile   = "TopMass/Configuration/data/Weight3DDown.root"
 
     #### event weight sequence
 
-    process.makeEventWeightsPU = cms.Sequence(process.eventWeightPUsysNo   *
-                                              process.eventWeightPUsysUp   *
-                                              process.eventWeightPUsysDown  )
+    	 process.makeEventWeightsPU = cms.Sequence(process.eventWeightPUsysNo ) # * #atm no Variations
+                                             # process.eventWeightPUsysUp   *
+                                              #process.eventWeightPUsysDown  )
 
     ## ---
-    ##    MC B-tag reweighting
+    ##    MC B-tag reweighting   #TODO aktualitaet checken
     ## ---
     ## load BTV database
     process.load ("RecoBTag.PerformanceDB.PoolBTagPerformanceDB1107")

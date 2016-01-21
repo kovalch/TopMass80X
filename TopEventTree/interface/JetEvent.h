@@ -21,7 +21,7 @@ public:
 
   unsigned int nJet() const { return jet.size(); }
 
-  ClassDef(JetEvent,3);
+  ClassDef(JetEvent,4);
 
   // JetEvent data
 
