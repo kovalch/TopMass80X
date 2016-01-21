@@ -433,6 +433,11 @@ if (options.generator == 'w0jets'):
 ### Selection configuration
 ###
 
+## std sequence for pat
+process.load("PhysicsTools.PatAlgos.patSequences_cff")
+#process.patJetFlavourAssociation.physicsDefinition = options.phys
+
+
 # Individual steps
 
 # Step 0
@@ -755,6 +760,7 @@ process.ttSemiLepEvent.verbosity = 0
 
 ## TRIGGER
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+
 if os.getenv('CMSSW_VERSION').startswith('CMSSW_7_4_'):
     process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", throw=True)
 #else:
@@ -765,6 +771,31 @@ if os.getenv('CMSSW_VERSION').startswith('CMSSW_7_4_'):
     #process.hltFilter.HLTPaths=["HLT_IsoMu24_eta2p1_v*"]
 #if data:
     #process.hltFilter.HLTPaths=["HLT_IsoMu24_eta2p1_v*"]
+##======= old but where form??
+##if os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
+##    process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::REDIGI311X", HLTPaths = ["HLT_Mu15_v*"], throw=True)
+##else:
+##    process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_IsoMu24_eta2p1_v*"], throw=True)
+##if(options.mcversion=="Summer11"):
+##    process.hltFilter.HLTPaths=["HLT_IsoMu24_v*"]
+##if(options.mcversion=="Summer12"):
+##    process.hltFilter.HLTPaths=["HLT_IsoMu24_eta2p1_v*"]
+##if data:
+##    process.hltFilter.HLTPaths=["HLT_IsoMu24_eta2p1_v*"]
+##
+## import QuarkGluonTagger
+##process.load('QuarkGluonTagger.EightTeV.QGTagger_RecoJets_cff')  
+##process.QGTagger.srcJets = cms.InputTag("goodJetsPF30")
+##process.QGTagger.isPatJet  = cms.untracked.bool(True)     
+##process.QGTagger.useCHS  = cms.untracked.bool(True)
+##
+### load the PU JetID sequence
+##process.load("CMGTools.External.pujetidsequence_cff")
+##process.puJetIdChs.jets = cms.InputTag("goodJetsPF30")
+##process.puJetMvaChs.jets = cms.InputTag("goodJetsPF30")
+###process.puJetId.jets = cms.InputTag("goodJetsPF30")
+###process.puJetMva.jets = cms.InputTag("goodJetsPF30")
+##>>>>>>> origin
 
 ## JET selection
 # process.tightBottomSSVPFJets  = process.selectedPatJets.clone(src = 'goodJetsPF30',
@@ -838,7 +869,6 @@ process.analyzeWeights = analyzeWeights.clone(
 
 process.ttSemiLepHypGenMatch.useBReg = cms.bool(False)
 process.ttSemiLepHypMVADisc.useBReg = cms.bool(False)
-
 
 if runOnMiniAOD:
 	process.initSubset.src = "prunedGenParticles"
@@ -1031,6 +1061,7 @@ process.schedule = cms.Schedule(
   process.pAnalysis
   )
 
+
 if not data:
     ## MC weights
     process.load("TopAnalysis.TopUtils.EventWeightMC_cfi")
@@ -1187,14 +1218,13 @@ process.TreeRegistryService.treeTitle = ""
 #process.MessageLogger = cms.Service("MessageLogger")
 
 
+
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.printTree = cms.EDAnalyzer("ParticleListDrawer",
    maxEventsToPrint = cms.untracked.int32(20),
    printVertex = cms.untracked.bool(False),
    src = cms.InputTag("genParticles")
 )
-
-
 
 
 #process.schedule.append(process.epath)

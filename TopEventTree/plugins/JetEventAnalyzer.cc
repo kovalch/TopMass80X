@@ -141,6 +141,30 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
       jet->SVMomentum.push_back(TLorentzVector(0,0,0,0));
     }
 
+    const reco::SecondaryVertexTagInfo &svTagInfo = *ijet->tagInfoSecondaryVertex();
+    jet->nSV.push_back(svTagInfo.nVertices());
+    if(svTagInfo.nVertices()>0){
+      jet->SVChi2.push_back(svTagInfo.secondaryVertex(0).chi2());
+      jet->SV3DLength.push_back      ( svTagInfo.flightDistance(0).value());
+      jet->SV3DLengthError.push_back ( svTagInfo.flightDistance(0).error());
+      std::vector<const reco::BaseTagInfo*>  baseTagInfos;
+      baseTagInfos.push_back( ijet->tagInfoTrackIP ("impactParameter"));
+      baseTagInfos.push_back( ijet->tagInfoSecondaryVertex("secondaryVertex"));
+      JetTagComputer::TagInfoHelper helper(baseTagInfos);
+      reco::TaggingVariableList vars = computer->taggingVariables(helper);
+      TLorentzVector svmom;   
+      if(vars.checkTag(reco::btau::vertexMass)) {
+	const reco::Vertex &vertex = svTagInfo.secondaryVertex(0);
+	svmom.SetPtEtaPhiM(vertex.p4().pt(), vertex.p4().eta(), vertex.p4().phi(), vars.get(reco::btau::vertexMass));
+      }
+      jet->SVMomentum.push_back(svmom);
+    } else {
+      jet->SVChi2.push_back(-1);
+      jet->SV3DLength.push_back      (0);
+      jet->SV3DLengthError.push_back (0 );
+      jet->SVMomentum.push_back(TLorentzVector(0,0,0,0));
+    }
+
     if(hasQGTag  ) jet->gluonTag.push_back(ijet->userFloat(gluonTagName_));
     if(hasJERSF  ) jet->jerSF   .push_back(ijet->userFloat("jerSF"      ));
     if(hasJESSF  ) jet->jesSF   .push_back(ijet->userFloat("jesSF"      ));
