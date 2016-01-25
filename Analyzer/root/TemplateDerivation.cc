@@ -187,13 +187,13 @@ void TemplateDerivation::addTemplateFunction(const std::string &varType,
         iniPar = {171.755, 0.99381,    79.8565, 0.893298, 10.3643, 0.0790784,
                   9.89278, -0.0371068, 0,       0,        0,       0};
       } else if (comboType == "WP") {
-        iniPar = {173.785,  0.938106,  103.341, 2.76756,  29.5164,
-                  0.394661, 40.1086,   1.74947, 0.391431, 0.00436452,
-                  0.323069, 0.0252243, 15};
+        iniPar = {173.785,   0.938106,   103.341, 2.76756,   29.5164,
+                  0.394661,  40.1086,    1.74947, -0.391431, -0.00436452,
+                  -0.323069, -0.0252243, 15};
       } else if (comboType == "UN") {
-        iniPar = {169.893,  0.910911,   83.3198,   1.08382,  19.0538,
-                  0.208581, 13.355,     0.0288625, 0.818267, 0.00834576,
-                  0.292096, -0.0189799, 5};
+        iniPar = {169.893,   0.910911,  83.3198,   1.08382,   19.0538,
+                  0.208581,  13.355,    0.0288625, -0.818267, -0.00834576,
+                  -0.292096, 0.0189799, 5};
       }
     }
     if (varType == "mW") {
@@ -333,7 +333,6 @@ RooFitResult *TemplateDerivation::fitTemplate(const std::string &varType,
       simWST->build(simName.c_str(), pdfName.c_str(),
                     RooFit::SplitParam("JSF", "calibPoints"),
                     RooFit::SplitParam("mTop", "calibPoints"));
-
   // RooArgSet nllSet;
   // int templateIndex = 0;
   std::map<std::string, RooDataSet *> datamap;
@@ -361,10 +360,11 @@ RooFitResult *TemplateDerivation::fitTemplate(const std::string &varType,
                       RooFit::Index(*(workspace_->cat("calibPoints"))),
                       RooFit::Import(datamap));
   RooFitResult *result = sim->fitTo(
-      combData, RooFit::Minimizer("Minuit2", "migrad"),
-      // RooFit::Strategy(2),
-      RooFit::NumCPU(8, RooFit::SimComponents), RooFit::Range("mTopFitRange"),
-      RooFit::Save(true), RooFit::SumW2Error(true), RooFit::Offset(true));
+      combData,
+      // RooFit::Minimizer("Minuit2", "migrad"),
+      RooFit::Strategy(2), RooFit::NumCPU(8, RooFit::SimComponents),
+      RooFit::Range("mTopFitRange"), RooFit::Save(true), RooFit::Offset(true));
+  // RooFit::SumW2Error(true));  //, RooFit::Offset(true));
   std::cout << "result:" << result << '\n';
   result->Print();
   workspace_->import(*result);
@@ -667,6 +667,7 @@ void TemplateDerivation::run() {
     for (auto permutationType : permutationTypes) {
       fitTemplate(variable, permutationType);
       plotResult(variable, permutationType);
+      printResult(variable, permutationType);
     }
   }
 
@@ -802,6 +803,6 @@ std::string TemplateDerivation::addCat(const std::string &name,
 
 unsigned int TemplateDerivation::numVariables(
     const std::string &startName) const {
-  std::string temp = startName + "_";
+  std::string temp = startName + "_*";
   return workspace_->allVars().selectByName(temp.c_str())->getSize();
 }
