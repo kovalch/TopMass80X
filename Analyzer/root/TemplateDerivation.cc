@@ -68,10 +68,10 @@ TemplateDerivation::TemplateDerivation()
           po::GetOption<std::string>("analysisConfig.activeBranches")),
       maxPermutations_(po::GetOption<int>("analysisConfig.maxPermutations")),
       maxMtop_(po::GetOption<double>("templates.maxTopMass")),
-      jsfValues_({0.96, 0.98, 1.00, 1.02, 1.04}),
-      massValues_({166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5}),
-      // jsfValues_({0.96, 1.00, 1.04}),
-      // massValues_({166.5, 172.5, 178.5}),
+      // jsfValues_({0.96, 0.98, 1.00, 1.02, 1.04}),
+      // massValues_({166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5}),
+      jsfValues_({0.96, 1.00, 1.04}),
+      massValues_({166.5, 172.5, 178.5}),
       workspace_(0) {
   if (!strncmp(fChannel_, "alljets", 7))
     channelID_ = kAllJets;
@@ -187,13 +187,13 @@ void TemplateDerivation::addTemplateFunction(const std::string &varType,
         iniPar = {171.755, 0.99381,    79.8565, 0.893298, 10.3643, 0.0790784,
                   9.89278, -0.0371068, 0,       0,        0,       0};
       } else if (comboType == "WP") {
-        iniPar = {173.785,   0.938106,   103.341, 2.76756,   29.5164,
-                  0.394661,  40.1086,    1.74947, -0.391431, -0.00436452,
-                  -0.323069, -0.0252243, 15};
+        iniPar = {173.785,  0.938106,  103.341, 2.76756,  29.5164,
+                  0.394661, 40.1086,   1.74947, 0.391431, 0.00436452,
+                  0.323069, 0.0252243, 15};
       } else if (comboType == "UN") {
-        iniPar = {169.893,   0.910911,  83.3198,   1.08382,   19.0538,
-                  0.208581,  13.355,    0.0288625, -0.818267, -0.00834576,
-                  -0.292096, 0.0189799, 5};
+        iniPar = {169.893,  0.910911,   83.3198,   1.08382,  19.0538,
+                  0.208581, 13.355,     0.0288625, 0.818267, 0.00834576,
+                  0.292096, -0.0189799, 5};
       }
     }
     if (varType == "mW") {
@@ -247,7 +247,7 @@ void TemplateDerivation::addTemplateFunction(const std::string &varType,
           RooArgSet(*par[4], *par[5], *par[6], *par[7], *mTop, *JSF));
       RooFormulaVar *alpha2 = createAlpha(
           addInt(addCat("alpha", varType, comboType), 2),
-          RooArgSet(*par[8], *par[9], *par[10], *par[11], *mTop, *JSF));
+          RooArgSet(*par[8], *par[9], *par[10], *par[11], *mTop, *JSF), "*-1");
       std::string factString = addCat("CBShape::pdf", varType, comboType);
       factString += str(boost::format("(fitTopMass,%1%,%2%,%3%,%4%)") %
                         alpha0->GetName() % alpha1->GetName() %
@@ -776,7 +776,7 @@ RooFormulaVar *TemplateDerivation::createAlpha(const std::string &name,
                                                const RooArgSet &argSet,
                                                const std::string &addTerm) {
   std::string cmd = "expr::";
-  cmd += name + "('@0+@1*(@4-172.5)+(@2+@3*(@4-172.5))*(@5-1.)" + addTerm +
+  cmd += name + "('(@0+@1*(@4-172.5)+(@2+@3*(@4-172.5))*(@5-1.))" + addTerm +
          "'," + argSet.contentsString() + ")";
   RooFormulaVar *form = (RooFormulaVar *)workspace_->factory(cmd.c_str());
   return form;
