@@ -68,10 +68,10 @@ TemplateDerivation::TemplateDerivation()
           po::GetOption<std::string>("analysisConfig.activeBranches")),
       maxPermutations_(po::GetOption<int>("analysisConfig.maxPermutations")),
       maxMtop_(po::GetOption<double>("templates.maxTopMass")),
-      // jsfValues_({0.96, 0.98, 1.00, 1.02, 1.04}),
-      // massValues_({166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5}),
-      jsfValues_({0.96, 1.00, 1.04}),
-      massValues_({166.5, 172.5, 178.5}),
+      jsfValues_({0.96, 0.98, 1.00, 1.02, 1.04}),
+      massValues_({166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5}),
+      // jsfValues_({0.96, 1.00, 1.04}),
+      // massValues_({166.5, 172.5, 178.5}),
       workspace_(0) {
   if (!strncmp(fChannel_, "alljets", 7))
     channelID_ = kAllJets;
