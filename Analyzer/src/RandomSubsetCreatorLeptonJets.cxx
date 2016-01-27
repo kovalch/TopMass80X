@@ -28,16 +28,18 @@ fSig   (po::GetOption<double>("fsig")),
 fBDisc (po::GetOption<double>("bdisc")),
 fWeight(po::GetOption<std::string>("weight"))
 {
-  if (!strcmp(fChannel_, "muon") || !strcmp(fChannel_, "all")) {
-    fTreeTTmu = PrepareTree(samplePath_+fIdentifier_+TString("_muon/analyzeTop.root"));
-    fTreeWmu  = PrepareTree("/scratch/hh/lustre/cms/user/mseidel/Fall11_Wbb_muon/analyzeTop.root");
-    fTreeSTmu = PrepareTree("/scratch/hh/lustre/cms/user/mseidel/Fall11_T_muon/analyzeTop.root");
+
+std::cout<<"RandomSubsetCreatorLeptonJets DEBUG: fBDisc="<<fBDisc<<std::endl;
+  if (!strcmp(fChannel_, "muon") || !strcmp(fChannel_, "all")) { 
+    fTreeTTmu = PrepareTree(samplePath_+fIdentifier_+TString("_muon/*analyzeTop.root"));
+    fTreeWmu = PrepareTree(samplePath_+TString("/WJets_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1_WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_matchingCleaned_allCut_muon/*.root"));
+  //  fTreeSTmu  = PrepareTree(samplePath_+TString("ST_*-pythia8_matchingCleaned_allCut_muon/*analyzeTop.root")); //FIXME zu debugging zwecken auf nur WJets gestellt
   }
 
   if (!strcmp(fChannel_, "electron") || !strcmp(fChannel_, "all")) {
-    fTreeTTe  = PrepareTree(samplePath_+fIdentifier_+TString("_electron/analyzeTop.root"));
-    fTreeWe   = PrepareTree("/scratch/hh/lustre/cms/user/mseidel/Fall11_Wbb_electron/analyzeTop.root");
-    fTreeSTe  = PrepareTree("/scratch/hh/lustre/cms/user/mseidel/Fall11_T_electron/analyzeTop.root");
+    fTreeTTe  = PrepareTree(samplePath_+fIdentifier_+TString("_electron/*analyzeTop.root"));
+    fTreeWe   = PrepareTree("/scratch/hh/lustre/cms/user/mseidel/Fall11_Wbb_electron/analyzeTop.root");//FIXME
+    fTreeSTe  = PrepareTree("/scratch/hh/lustre/cms/user/mseidel/Fall11_T_electron/analyzeTop.root");//FIXME
   }
 }
 
@@ -93,16 +95,16 @@ TTree* RandomSubsetCreatorLeptonJets::CreateRandomSubset() {
     // DATA
     // eventTree->GetEntries("leptonPt>30 & bottomCSVJetMultiplicity > 1 & hitFitProb>0.2 & combi==0")
     // (Long64_t)5144
-    double nEventsDataMuon      = 2906.;
-    double nEventsDataElectron  = 2268.;
+    double nEventsDataMuon      = 4057.;
+    double nEventsDataElectron  = 2268.; //TODO muss das hardgecodet werden?
 
-    int eventsPEMuon      = random->Poisson(nEventsDataMuon/5000.*fLumi);
+    int eventsPEMuon      = random->Poisson(nEventsDataMuon/5000.*fLumi); //TODO 5000?
     int eventsPEElectron  = random->Poisson(nEventsDataElectron/5000.*fLumi);
 
     if (!strcmp(fChannel_, "muon") || !strcmp(fChannel_, "all")) {
       DrawEvents(fTreeTTmu, eventsPEMuon*fSig);
-      DrawEvents(fTreeWmu,  eventsPEMuon*(1.-fSig)*1./4.);
-      DrawEvents(fTreeSTmu, eventsPEMuon*(1.-fSig)*3./4.);
+      DrawEvents(fTreeWmu,  eventsPEMuon*(1.-fSig)/*1./4.*/);  //warum diese WJ zu ST raio?
+     // DrawEvents(fTreeSTmu, eventsPEMuon*(1.-fSig)*3./4.);
     }
 
     if (!strcmp(fChannel_, "electron") || !strcmp(fChannel_, "all")) {
@@ -218,7 +220,7 @@ void RandomSubsetCreatorLeptonJets::DrawEvents(TTree* tempTree, double nEventsPE
 
 TTree* RandomSubsetCreatorLeptonJets::PrepareTree(TString file) {
   TChain* chain = new TChain("analyzeHitFit/eventTree");
-  chain->Add(file);
+  std::cout<<"RandomSubsetCreatorLeptonJets is preparing Tree with " << chain->Add(file) << " files" ;
 
   chain->SetBranchStatus("*",0);
   chain->SetBranchStatus("target", 1);

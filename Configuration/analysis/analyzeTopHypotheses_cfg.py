@@ -105,7 +105,8 @@ else:
                   #'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/00000/0AB045B5-BB0C-E511-81FD-0025905A60B8.root'
 #'/store/mc/RunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/1020444C-AA71-E511-9CC7-0002C90F8036.root'
 		#'/store/mc/RunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/50000/5A6C10EC-A370-E511-B921-0002C90A3464.root'
-		'/store/mc/RunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/50000/140280F9-5470-E511-B1D9-0002C90C0FDA.root'
+		#'/store/mc/RunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/50000/140280F9-5470-E511-B1D9-0002C90C0FDA.root'
+		 '/store/mc/RunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/004C9C92-AE71-E511-AE40-F45214C748C4.root'
 			#'/store/mcRunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/004C9C92-AE71-E511-AE40-F45214C748C4.root'
 #'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/00000/0AB045B5-BB0C-E511-81FD-0025905A60B8.root'
 			#'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Startup25ns_EXOReReco_74X_Spring15_mcRun2_startup25ns_v0-v1/50000/00C91219-9A7A-E511-ACA2-001C23C0D109.root'
@@ -313,7 +314,7 @@ process.noHFCands = cms.EDFilter("CandPtrSelector",
 if runOnMiniAOD:
     runMetCorAndUncFromMiniAOD(process,
                                isData= (data),
-                               pfCandColl=cms.InputTag("noHFCands"),#comment for MET with HF
+                               pfCandColl=cms.InputTag("noHFCands"),#comment for MET with HF #FIXME noHFCands not recommended
                                jecUncFile='TopMass/Configuration/data/Summer15_25nsV6_DATA_UncertaintySources_AK4PFchs.txt',
                                )
 else:
@@ -434,7 +435,7 @@ if (options.generator == 'w0jets'):
 ###
 
 ## std sequence for pat
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
+#process.load("PhysicsTools.PatAlgos.patSequences_cff") #wo kommt diese Zeile her?
 #process.patJetFlavourAssociation.physicsDefinition = options.phys
 
 
@@ -494,7 +495,7 @@ else:
  if runOnMiniAOD:
   	 process.selectedElectrons.src = 'slimmedElectrons'
  process.preSignalElectrons = preSignalElectrons.clone( cut = signalElectronCut ) 
- process.signalElectrons = signalElectrons.clone() 
+ process.signalElectrons = signalElectrons.clone()   #FIXME signal Muons hat zwei src, umgeht den "signalElectronCut"
  process.standAloneSignalLeptonFilter = standAloneSignalElectronFilter.clone( ) 
 
 process.sStandAloneSignalLepton = cms.Sequence( process.standAloneSignalLeptonFilter )
@@ -625,6 +626,17 @@ process.signalVeryTightJets = signalVeryTightJets.clone( cut = veryTightJetCut )
 process.standAloneSignalVeryTightJetsFilter = standAloneSignalVeryTightJetsFilter.clone(  ) 
 process.sStandAlone1Jet = cms.Sequence( process.standAloneSignalVeryTightJetsFilter )
 process.pStandAlone1Jet = cms.Path( process.sStandAlone1Jet )
+
+
+#TODO dows is work? adjustment for some new generator stuff...
+#process.patJetPartons.particles = cms.InputTag("prunedGenParticles")
+#process.patJetPartonMatch.matched = cms.InputTag("prunedGenParticles")
+#process.patJetGenJetMatch.matched = cms.InputTag("slimmedGenJets")
+#process.patJetCorrFactors.primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
+#process.impactParameterTagInfos.jetTracks= cms.InputTag("")
+#process.combinedSecondaryVertexBJetTags.tagInfos = cms.VInputTag(cms.InputTag("pfImpactParameterTagInfos"), cms.InputTag("secondaryVertexTagInfos")) #FIXME pfImpactParameterTagInfos instead of impactParameterTagInfos? means a CandIPProducer instead of a TrackIPProducer 
+#process.secondaryVertexTagInfos hat auch die impactParameterTagInfos drin....
+
 
 from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_cfi import signalTightJets, standAloneSignalTightJetsFilter
 process.signalTightJets = signalTightJets.clone( cut = tightJetCut )

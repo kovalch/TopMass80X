@@ -181,7 +181,7 @@ void TopMass::WriteEnsembleTest(const std::vector<float>& vBinning) {
     genfSig = genfSigRead;
     for (unsigned int i = 0; i < vBinning.size()-1; i++) {
       for(std::map<std::string, TH1F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
-        values[hist->first] = hist->second->GetBinContent(i+1);
+        values[hist->first] = hist->second->GetBinContent(i+1);  
       }
       bin = i+1;
       tree->Fill();
@@ -195,11 +195,11 @@ void TopMass::WriteEnsembleTest(const std::vector<float>& vBinning) {
   delete analysis;
 
   tree->GetCurrentFile()->Write();
-  
+
   Helper* helper = new Helper(fBinning_, vBinning);
   TH1F* hBinning = helper->GetH1("hBinning");
   hBinning->Write();
-  
+
   ensembleFile->Close("R");
 }
 

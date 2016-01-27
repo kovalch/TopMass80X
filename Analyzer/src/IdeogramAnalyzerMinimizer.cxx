@@ -32,6 +32,7 @@
 
 typedef ProgramOptionsReader po;
 
+//Tree out of Constructor is never used! needs DataSample over SetDataSample()
 IdeogramAnalyzerMinimizer::IdeogramAnalyzerMinimizer(const std::string& identifier, TTree* tree) :
     MassAnalyzer(identifier, tree),
     sample_(*(new DataSample())),

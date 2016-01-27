@@ -43,6 +43,7 @@ private:
   DataSample mergedsample_;
   DataSample subset_;
 
+//always return 0! get the output as DataSample over GetDataSample()
   TTree* CreateRandomSubset();
   void DrawEvents(const DataSample& sample, double nEventsPE);
   void PrepareEvents(const std::string& file, const Helper::ChannelID currentID = Helper::kMaxChannels, double sampleFactor = 1.);

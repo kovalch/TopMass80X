@@ -69,13 +69,15 @@ void Analysis::Analyze() {
       }
     }
   }
-  fTree_ = fCreator_->CreateRandomSubset();
+  fTree_ = fCreator_->CreateRandomSubset(); //fuer RandomSubsetCreatorNewInterface == 0 !!!
+
+
 
   if      (fMethodID_ == Helper::kGenMatch   ) fAnalyzer_ = new GenMatchAnalyzer            (fIdentifier_, fTree_);
   else if (fMethodID_ == Helper::kMVA        ) fAnalyzer_ = new MVAAnalyzer                 (fIdentifier_, fTree_);
   else if (fMethodID_ == Helper::kIdeogram   ) fAnalyzer_ = new IdeogramAnalyzer            (fIdentifier_, fTree_);
   else if (fMethodID_ == Helper::kIdeogramNew) { if(!fAnalyzer_) { fAnalyzer_ = new IdeogramAnalyzerNewInterface(fIdentifier_, fTree_); } }
-  else if (fMethodID_ == Helper::kIdeogramMin) { if(!fAnalyzer_) { fAnalyzer_ = new IdeogramAnalyzerMinimizer   (fIdentifier_, fTree_); } }
+  else if (fMethodID_ == Helper::kIdeogramMin) { if(!fAnalyzer_) { fAnalyzer_ = new IdeogramAnalyzerMinimizer   (fIdentifier_,  0 /*fTree_*/); } } //fTree_ wird nicht verwendet (anders wenn nicht RandomSubsetCreatorNewInterface verwendet wird)
   else if (fMethodID_ == Helper::kRooFit     ) fAnalyzer_ = new RooFitTemplateAnalyzer      (fIdentifier_, fTree_);
   else {
     std::cerr << "Stopping analysis! Specified analysis method *" << fMethod_ << "* not known!" << std::endl;
@@ -92,13 +94,16 @@ void Analysis::Analyze() {
   for(unsigned int i = 0; i < vBinning_.size()-1; ++i) {
     // FIXME binning not yet implemented, still needs some implementation ...
     
-    // FIXME Entries per bin
+    // FIXME Entries per bin     C: wie ist das Binning formatiert?? for-Schleife hat fuer fitTop1[0].M grad ja eh nur einen Durchlauf
     int entries = ((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample().nEvents;
     CreateHisto("Entries");
     GetH1("Entries")->SetBinContent(i+1, 10+i);
 
+//debugging
+ std::cout << "Analysis DEBUG: her i am with ((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample().nEvents = "<<entries << std::endl;
+
     if (entries > 25) {
-      if      (fMethodID_ == Helper::kIdeogramMin) ((IdeogramAnalyzerMinimizer   *)fAnalyzer_)->SetDataSample(((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample());
+      if      (fMethodID_ == Helper::kIdeogramMin) ((IdeogramAnalyzerMinimizer   *)fAnalyzer_)->SetDataSample(((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample()); //hier bekommt er die Pseudodaten
       else if (fMethodID_ == Helper::kIdeogramNew) ((IdeogramAnalyzerNewInterface*)fAnalyzer_)->SetDataSample(((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample());
       fAnalyzer_->Analyze("", i+1, 0);
       const std::map<std::string, std::pair<double, double>> values = fAnalyzer_->GetValues();
@@ -169,7 +174,7 @@ void Analysis::Analyze() {
   canvas->Print(path.c_str());
   
   delete canvas;
-  if (fMethodID_ != Helper::kIdeogramNew && fMethodID_ != Helper::kIdeogramMin) delete fAnalyzer_;
+  if (fMethodID_ != Helper::kIdeogramNew && fMethodID_ != Helper::kIdeogramMin) delete fAnalyzer_;  //wird also atm nicht aufgerufen?? (wuerde eh nur "fTree_=0" deleten...)
 }
 
 void Analysis::CreateHisto(std::string name) {

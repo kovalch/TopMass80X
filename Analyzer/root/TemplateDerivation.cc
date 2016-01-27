@@ -53,6 +53,9 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/format.hpp>
 
+
+#include "TClass.h"
+
 typedef ProgramOptionsReader po;
 
 TemplateDerivation::TemplateDerivation()
@@ -69,10 +72,13 @@ TemplateDerivation::TemplateDerivation()
       maxPermutations_(po::GetOption<int>("analysisConfig.maxPermutations")),
       maxMtop_(po::GetOption<double>("templates.maxTopMass")),
       jsfValues_({0.96, 0.98, 1.00, 1.02, 1.04}),
-      massValues_({166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5}),
+      massValues_({169.5, 172.5,  175.5}),
       // jsfValues_({0.96, 1.00, 1.04}),
-      // massValues_({166.5, 172.5, 178.5}),
+      //massValues_({166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5}),
       workspace_(0) {
+
+//std::cout<<"TemplateDerivation DEBUG TClass::GetClass(TopEvent): "<< TClass::GetClass("TopEvent") <<std::endl;
+
   if (!strncmp(fChannel_, "alljets", 7))
     channelID_ = kAllJets;
   else if (!strncmp(fChannel_, "muon", 4))
@@ -88,7 +94,7 @@ TemplateDerivation::TemplateDerivation()
 TemplateDerivation::~TemplateDerivation() {}
 
 std::string TemplateDerivation::constructFileName(double mass, double jes) {
-  std::string fileName = str(boost::format("Summer12_TTJetsMS%1%%2%_%3$3.2f") %
+  std::string fileName = str(boost::format("../2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS%1%%2%_%3$3.2f") %
                              (int)mass % (int)((mass - int(mass)) * 10) % jes);
   if (channelID_ == kAllJets) {
     fileName += "_alljets.root";
@@ -123,7 +129,8 @@ std::vector<RooDataSet *> TemplateDerivation::createDataSets(
       tmpFile->cd();
       TTree *tree = modifiedTree(chain);  //, minComboType, maxComboType);
       double var1, var2, var3, var4, cw, co;
-      tree->SetBranchAddress("fitTopMass", &var1);
+//std::cout<<"TemplateDerivation::createDataSets DEBUG: before tree->SetBranchAddress(...)"<<std::endl;
+      tree->SetBranchAddress("fitTopMass", &var1); 
       tree->SetBranchAddress("recoWMass", &var2);
       tree->SetBranchAddress("fitProb", &var3);
       tree->SetBranchAddress("leptonFlavour", &var4);
@@ -188,11 +195,11 @@ void TemplateDerivation::addTemplateFunction(const std::string &varType,
                   9.89278, -0.0371068, 0,       0,        0,       0};
       } else if (comboType == "WP") {
         iniPar = {173.785,  0.938106,  103.341, 2.76756,  29.5164,
-                  0.394661, 40.1086,   1.74947, 0.391431, 0.00436452,
+                  0.394661, 40.1086,   1.74947, -0.391431, 0.00436452,
                   0.323069, 0.0252243, 15};
       } else if (comboType == "UN") {
         iniPar = {169.893,  0.910911,   83.3198,   1.08382,  19.0538,
-                  0.208581, 13.355,     0.0288625, 0.818267, 0.00834576,
+                  0.208581, 13.355,     0.0288625, -0.818267, 0.00834576,
                   0.292096, -0.0189799, 5};
       }
     }
@@ -410,8 +417,10 @@ void TemplateDerivation::plotResult(const std::string &varType,
               jsf);
       frame->SetTitle(title.c_str());
       frame->Draw();
+
       std::string figName = addCat("template", varType, comboType, templName);
-      TString outDir = "plot/calibration";
+//std::cout<<"TemplateDerivation::plotResult DEBUG: "<<figName<<std::endl;
+      TString outDir = "plot/calibration";   //TODO direction is NOT created
       canvas->Print(outDir + "/" + figName + ".eps");
       canvas->Print(outDir + "/catalog.ps(");
     }
@@ -443,7 +452,7 @@ void TemplateDerivation::plotResult(const std::string &varType,
   frame->Draw();
   std::string figName = addCat("funcFamily", "jsf", varType, comboType);
   TString outDir = "plot/calibration";
-  canvas->Print(outDir + "/" + figName + ".eps");
+  canvas->Print(outDir + "/" + figName + ".eps"); 
   canvas->Print(outDir + "/catalog.ps");
   // show functions for different mTop values
   // frame = var_mass[index]->frame();
@@ -514,7 +523,7 @@ void TemplateDerivation::plotResult(const std::string &varType,
     figName += varType;
     figName += "_";
     figName += comboType;
-    canvas->Print(outDir + "/" + figName + ".eps");
+    canvas->Print(outDir + "/" + figName + ".eps"); 
     canvas->Print(outDir + "/catalog.ps");
     // plot different alpha_i as a function of mTop
     TString mtopName("mTop_");
@@ -539,7 +548,7 @@ void TemplateDerivation::plotResult(const std::string &varType,
     figName += varType;
     figName += "_";
     figName += comboType;
-    canvas->Print(outDir + "/" + figName + ".eps");
+    canvas->Print(outDir + "/" + figName + ".eps"); 
     canvas->Print(outDir + "/catalog.ps)");
   }
 }
@@ -597,7 +606,7 @@ void TemplateDerivation::run() {
     workspace_->var("comboType")->setRange("UN", 5.9, 20.1);
     workspace_->var("comboType")->setRange("WP", 1.9, 5.1);
   }
-  std::vector<std::string> variables({"mTop", "mW"});
+  std::vector<std::string> variables({"mTop", "mW"});  
   workspace_->factory().createCategory("varType", "mTop,mW");
   if (channelID_ == kAllJets) {
     workspace_->factory().createCategory("permType", "CP,WP");
@@ -658,7 +667,10 @@ void TemplateDerivation::run() {
         "varSet",
         "comboType,fitTopMass,recoWMass,combinedWeight,fitProb,leptonFlavour");
   }
+
+ // std::cout<<"TemplateDerivation::run DEBUG: the following is the workspace_->Print()"<<std::endl;
   workspace_->Print();
+//std::cout<<"TemplateDerivation::run DEBUG: the following is AFTER the workspace_->Print()"<<std::endl;
 
   std::vector<RooDataSet *> datasets =
       createDataSets(workspace_->set("varSet"));
@@ -667,6 +679,7 @@ void TemplateDerivation::run() {
     for (auto permutationType : permutationTypes) {
       fitTemplate(variable, permutationType);
       plotResult(variable, permutationType);
+      printResult(variable, permutationType);
     }
   }
 
@@ -682,6 +695,7 @@ TTree *TemplateDerivation::modifiedTree(TChain *tree, int minComboType,
   tree->SetBranchStatus("*", 0);
   std::vector<std::string> vActiveBanches;
   boost::split(vActiveBanches, activeBranches_, boost::is_any_of("|"));
+//std::cout<<"TemplateDerivation::modifiedTree DEBUG: THIS IS the point where he didnt get Branches 4 th 1st time"<<std::endl;
   for (const auto &branch : vActiveBanches) {
     tree->SetBranchStatus(branch.c_str(), true);
   }
@@ -700,6 +714,7 @@ TTree *TemplateDerivation::modifiedTree(TChain *tree, int minComboType,
   TTreeFormula *sel = new TTreeFormula("sel", selection_, tree);
   TTreeFormula *combo = new TTreeFormula("combo", "top.combinationType", tree);
 
+//std::cout<<"TemplateDerivation::modifiedTree DEBUG: this the point where he didnt get Branches 4 th 1st time???"<<std::endl;
   double var1, var2, var3, var4, combinedWeight, comboType;
   TTree *newTree = new TTree("tree", "tree");
   newTree->Branch("fitTopMass", &var1, "fitTopMass/D");

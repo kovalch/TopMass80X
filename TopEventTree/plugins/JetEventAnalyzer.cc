@@ -140,7 +140,7 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
       jet->SV3DLengthError.push_back (0 );
       jet->SVMomentum.push_back(TLorentzVector(0,0,0,0));
     }
-
+/*  //FIXME wtf happened here???
     const reco::SecondaryVertexTagInfo &svTagInfo = *ijet->tagInfoSecondaryVertex();
     jet->nSV.push_back(svTagInfo.nVertices());
     if(svTagInfo.nVertices()>0){
@@ -164,7 +164,7 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
       jet->SV3DLengthError.push_back (0 );
       jet->SVMomentum.push_back(TLorentzVector(0,0,0,0));
     }
-
+*/
     if(hasQGTag  ) jet->gluonTag.push_back(ijet->userFloat(gluonTagName_));
     if(hasJERSF  ) jet->jerSF   .push_back(ijet->userFloat("jerSF"      ));
     if(hasJESSF  ) jet->jesSF   .push_back(ijet->userFloat("jesSF"      ));

@@ -92,11 +92,11 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
     PrepareEvents(samplePathLept_+fIdentifier_+std::string("_electron/job_*.root"), Helper::kLeptonJets);
     if(fLumiLept_>0 || fLumiJets_>0){
       //PrepareEvents(samplePathJets_+"QCDMixing_MJPS12_v1_data.root", Helper::kAllJets);
-      PrepareEvents(samplePathJets_+"Background_MJP12.root", Helper::kAllJets);
+      PrepareEvents(samplePathJets_+"Background_MJP12.root", Helper::kAllJets); 
       //PrepareEvents(samplePathJets_+"Run2012_Mixing8_fix_alljets.root", Helper::kAllJets);
       //PrepareEvents(samplePathJets_+"mix6_QCDMixing_MJPS12.root", Helper::kAllJets);
       if(fSigLept_<1.) {
-        PrepareEvents(""+samplePathLept_+"Summer12_WJets_muon/job_*.root", Helper::kLeptonJets);
+        PrepareEvents(""+samplePathLept_+"Summer12_WJets_muon/job_*.root", Helper::kLeptonJets); 
         PrepareEvents(""+samplePathLept_+"Summer12_singleTop_muon/job_*.root", Helper::kLeptonJets);
         PrepareEvents(""+samplePathLept_+"Summer12_WJets_electron/job_*.root", Helper::kLeptonJets);
         PrepareEvents(""+samplePathLept_+"Summer12_singleTop_electron/job_*.root", Helper::kLeptonJets);
@@ -117,7 +117,7 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
           PrepareEvents(samplePath_+"Background_MJP12.root");
       }                   
     }
-    if (channelID_ == Helper::kMuonJets || channelID_ == Helper::kLeptonJets) {
+    if (channelID_ == Helper::kMuonJets || channelID_ == Helper::kLeptonJets) {  //here we go .................
       PrepareEvents(samplePath_+fIdentifier_+std::string("_muon/job_*.root"), Helper::kLeptonJets, po::GetOption<double>("analysisConfig.signalFactor"));
       // Get background samples and normalization from config
       if(fLumiLept_>0 && fSigLept_<1.) {
@@ -151,6 +151,7 @@ RandomSubsetCreatorNewInterface::~RandomSubsetCreatorNewInterface()
   delete random_;
 }
 
+//always return 0! get the output as DataSample over GetDataSample()
 TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
   subset_.Clear();
   if (fLumiLept_>0 || fLumiJets_>0) {
@@ -162,13 +163,13 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
 
     // DATA
     // TODO: update AllJets event yields with latest JEC
-    double nEventsDataAllJets  =  7049.;
-    double nEventsDataMuon     = 14685.;
-    double nEventsDataElectron = 13514.;
+    double nEventsDataAllJets  =  4057.;//FIXME
+    double nEventsDataMuon     = 4057.;
+    double nEventsDataElectron = 3847.;
 
-    int eventsPEAllJets  = random_->Poisson(nEventsDataAllJets /18192.000*fLumiJets_);
-    int eventsPEMuon     = random_->Poisson(nEventsDataMuon    /19712.000*fLumiLept_);
-    int eventsPEElectron = random_->Poisson(nEventsDataElectron/19712.000*fLumiLept_);
+    int eventsPEAllJets  = random_->Poisson(nEventsDataAllJets /18192.000*fLumiJets_); 
+    int eventsPEMuon     = random_->Poisson(nEventsDataMuon);    // /2192.000*fLumiLept_);//hradcoded number seems to be integr lumi, is what i took as lumi only fraction integr lumi?
+    int eventsPEElectron = random_->Poisson(nEventsDataElectron);// /2192.000*fLumiLept_);
 
     // TODO: Use mergedsample_ in kHamburg and kAllJets
     if (channelID_ == Helper::kHamburg) {
@@ -211,7 +212,7 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
       subset_ += events_.at(2);
     }
   }
-  return 0;
+  return 0; //FIXME ???
 }
 
 void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, double nEventsPE) {
