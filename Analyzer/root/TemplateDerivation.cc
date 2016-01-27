@@ -254,7 +254,7 @@ void TemplateDerivation::addTemplateFunction(const std::string &varType,
           RooArgSet(*par[4], *par[5], *par[6], *par[7], *mTop, *JSF));
       RooFormulaVar *alpha2 = createAlpha(
           addInt(addCat("alpha", varType, comboType), 2),
-          RooArgSet(*par[8], *par[9], *par[10], *par[11], *mTop, *JSF));
+          RooArgSet(*par[8], *par[9], *par[10], *par[11], *mTop, *JSF), "*-1");
       std::string factString = addCat("CBShape::pdf", varType, comboType);
       factString += str(boost::format("(fitTopMass,%1%,%2%,%3%,%4%)") %
                         alpha0->GetName() % alpha1->GetName() %
@@ -340,7 +340,6 @@ RooFitResult *TemplateDerivation::fitTemplate(const std::string &varType,
       simWST->build(simName.c_str(), pdfName.c_str(),
                     RooFit::SplitParam("JSF", "calibPoints"),
                     RooFit::SplitParam("mTop", "calibPoints"));
-
   // RooArgSet nllSet;
   // int templateIndex = 0;
   std::map<std::string, RooDataSet *> datamap;
@@ -368,10 +367,11 @@ RooFitResult *TemplateDerivation::fitTemplate(const std::string &varType,
                       RooFit::Index(*(workspace_->cat("calibPoints"))),
                       RooFit::Import(datamap));
   RooFitResult *result = sim->fitTo(
-      combData, RooFit::Minimizer("Minuit2", "migrad"),
-      // RooFit::Strategy(2),
-      RooFit::NumCPU(8, RooFit::SimComponents), RooFit::Range("mTopFitRange"),
-      RooFit::Save(true), RooFit::SumW2Error(true), RooFit::Offset(true));
+      combData,
+      // RooFit::Minimizer("Minuit2", "migrad"),
+      RooFit::Strategy(2), RooFit::NumCPU(8, RooFit::SimComponents),
+      RooFit::Range("mTopFitRange"), RooFit::Save(true), RooFit::Offset(true));
+  // RooFit::SumW2Error(true));  //, RooFit::Offset(true));
   std::cout << "result:" << result << '\n';
   result->Print();
   workspace_->import(*result);
@@ -790,7 +790,7 @@ RooFormulaVar *TemplateDerivation::createAlpha(const std::string &name,
                                                const RooArgSet &argSet,
                                                const std::string &addTerm) {
   std::string cmd = "expr::";
-  cmd += name + "('@0+@1*(@4-172.5)+(@2+@3*(@4-172.5))*(@5-1.)" + addTerm +
+  cmd += name + "('(@0+@1*(@4-172.5)+(@2+@3*(@4-172.5))*(@5-1.))" + addTerm +
          "'," + argSet.contentsString() + ")";
   RooFormulaVar *form = (RooFormulaVar *)workspace_->factory(cmd.c_str());
   return form;
@@ -817,6 +817,6 @@ std::string TemplateDerivation::addCat(const std::string &name,
 
 unsigned int TemplateDerivation::numVariables(
     const std::string &startName) const {
-  std::string temp = startName + "_";
+  std::string temp = startName + "_*";
   return workspace_->allVars().selectByName(temp.c_str())->getSize();
 }
