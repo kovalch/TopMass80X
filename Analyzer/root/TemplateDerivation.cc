@@ -195,11 +195,11 @@ void TemplateDerivation::addTemplateFunction(const std::string &varType,
                   9.89278, -0.0371068, 0,       0,        0,       0};
       } else if (comboType == "WP") {
         iniPar = {173.785,  0.938106,  103.341, 2.76756,  29.5164,
-                  0.394661, 40.1086,   1.74947, -0.391431, 0.00436452,
+                  0.394661, 40.1086,   1.74947, 0.391431, 0.00436452,
                   0.323069, 0.0252243, 15};
       } else if (comboType == "UN") {
         iniPar = {169.893,  0.910911,   83.3198,   1.08382,  19.0538,
-                  0.208581, 13.355,     0.0288625, -0.818267, 0.00834576,
+                  0.208581, 13.355,     0.0288625, 0.818267, 0.00834576,
                   0.292096, -0.0189799, 5};
       }
     }
@@ -586,7 +586,7 @@ void TemplateDerivation::run() {
   workspace_->factory("fitTopMass[100,400]");
   workspace_->var("fitTopMass")->setUnit("GeV");
   workspace_->var("fitTopMass")->setMax(maxMtop_);
-  workspace_->factory("recoWMass[50,130]");
+  workspace_->factory("recoWMass[60,110]");
   workspace_->var("recoWMass")->setUnit("GeV");
   workspace_->factory("fitProb[0,1]");
   workspace_->factory("leptonFlavour[10,14]");
@@ -623,7 +623,7 @@ void TemplateDerivation::run() {
   categories.pop_back();  // remove last ','
   workspace_->factory().createCategory("calibPoints", categories.c_str());
 
-  workspace_->factory("JSF[1.0, 0.8, 1.2]");
+  workspace_->factory("JSF[1.0, 0.8, 1.2]"); 
   workspace_->factory("mTop[172.5,100.,400]");
   workspace_->var("JSF")->setConstant(kTRUE);
   workspace_->var("mTop")->setConstant(kTRUE);
@@ -704,7 +704,7 @@ TTree *TemplateDerivation::modifiedTree(TChain *tree, int minComboType,
   for (const auto &branch : vActiveBanches) {
     tree->AddBranchToCache(branch.c_str(), true);
   }
-  tree->StopCacheLearningPhase();
+  //tree->StopCacheLearningPhase();
 
   TTreeFormula *f1 = new TTreeFormula("f1", fVar1_, tree);
   TTreeFormula *f2 = new TTreeFormula("f2", fVar2_, tree);

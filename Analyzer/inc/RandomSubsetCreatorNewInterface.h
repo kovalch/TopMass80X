@@ -7,10 +7,16 @@
 
 #include <string>
 
+//DEBUG
+#include "TH1D.h"
+
 class TRandom3;
 
 class RandomSubsetCreatorNewInterface : public RandomSubsetCreator {
 public:
+	//DEBUG
+	//TH1D* drawnWeightHist;
+	
   RandomSubsetCreatorNewInterface(const std::vector<float>& v);
   virtual ~RandomSubsetCreatorNewInterface();
   const DataSample& GetDataSample() const { return subset_; }
@@ -36,6 +42,7 @@ private:
   double fSigLept_, fSigJets_;
   const int maxPermutations_;
   int channelID_;
+
 
   TRandom3* random_;
 

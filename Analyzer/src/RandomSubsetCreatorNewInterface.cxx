@@ -10,6 +10,10 @@
 #include "TRandom3.h"
 #include "TTreeFormula.h"
 
+//DEBUG
+/*#include "TCanvas.h"
+#include "TH1D.h"**/
+
 typedef ProgramOptionsReader po;
 
 RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vector<float>& v) :
@@ -38,6 +42,7 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
     //fBDisc_ (po::GetOption<double>("bdisc")),
     maxPermutations_(po::GetOption<int>("analysisConfig.maxPermutations")),
     random_(0)
+   //drawnWeightHist(new TH1D("mergedWeightHist","mergedWeightHist",500,0.,10))//DEBUG
 {
   channelID_ = Helper::channelID();
   mergedsample_.nEvents = 0;
@@ -142,6 +147,14 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
   time(&end);
   std::cout << "Read data from disk in " << difftime(end, start) << " seconds." << std::endl;
 
+//DEBUG
+/*TCanvas* c = new TCanvas("mergedSampleWeights");
+drawnWeightHist->Draw();
+gPad->SetLogy();
+c->Print("mergedSampleWeightsDirekt.eps","eps");
+delete c;*/
+
+
   random_ = new TRandom3(po::GetOption<int>("seed")+1);
   std::cout << "Random seed: " << random_->GetSeed() << std::endl;
 }
@@ -162,10 +175,9 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
     time(&end);
 
     // DATA
-    // TODO: update AllJets event yields with latest JEC
     double nEventsDataAllJets  =  4057.;//FIXME
-    double nEventsDataMuon     = 4057.;
-    double nEventsDataElectron = 3847.;
+    double nEventsDataMuon     = 10131.; //with All Permutations
+    double nEventsDataElectron = 9373.;
 
     int eventsPEAllJets  = random_->Poisson(nEventsDataAllJets /18192.000*fLumiJets_); 
     int eventsPEMuon     = random_->Poisson(nEventsDataMuon);    // /2192.000*fLumiLept_);//hradcoded number seems to be integr lumi, is what i took as lumi only fraction integr lumi?
@@ -212,7 +224,7 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
       subset_ += events_.at(2);
     }
   }
-  return 0; //FIXME ???
+  return 0;
 }
 
 void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, double nEventsPE) {
@@ -223,6 +235,10 @@ void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, doubl
 
   double maxMCWeight = sample.maxWeight;
 
+//DEBUG
+//TH1D* drawnWeightHist = new TH1D("drawnWeightHist","drawnWeightHist",500,0.,maxMCWeight);
+
+
   std::cout << "maxMCWeight(" << fWeight_ << "): " << maxMCWeight  << std::endl;
 
   if (maxMCWeight ==  0) { std::cout << "Weight not active?" << std::endl; }
@@ -231,12 +247,16 @@ void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, doubl
   int eventsDrawn = 0;
   int nAttempts = 0;
 
+
+
   while (eventsDrawn < (int)nEventsPE) {
     int drawn = random_->Integer(perms);
     ++nAttempts;
 
     if (std::abs(sample.events.at(drawn).weight) > random_->Uniform(0, maxMCWeight)) {
       subset_.AddEvent(sample.events.at(drawn));
+//DEBUG
+	//drawnWeightHist->Fill(sample.events.at(drawn).weight);
       if (sample.events.at(drawn).weight < 0) {
         eventsDrawn += -1;
       }
@@ -246,12 +266,22 @@ void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, doubl
     }
   }
 
+
+//DEBUG
+/*TCanvas* c = new TCanvas("drawnSampleWeights");
+drawnWeightHist->Draw();
+gPad->SetLogy();
+c->Print("drawnSampleWeights.eps","eps");
+delete c;
+delete drawnWeightHist;*/
+
   std::cout << eventsDrawn << " events drawn in " << nAttempts << " attempts." << std::endl;
 }
 
 void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file, const Helper::ChannelID currentID, double sampleFactor) {
 
   TChain* chain;
+
   if (channelID_ == Helper::kAllJets || currentID == Helper::kAllJets) {
     chain = new TChain("analyzeKinFit/eventTree");
     if (Helper::getCMSEnergy() == 7) {
@@ -263,7 +293,6 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file, con
   }
   int nFiles = chain->Add(file.c_str());
   std::cout << "Adding " << nFiles << " files for " << file << std::flush;
-
   chain->SetBranchStatus("*", 0);
   std::vector<std::string> vActiveBanches;
   boost::split(vActiveBanches, activeBranches_, boost::is_any_of("|"));
@@ -325,6 +354,8 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file, con
       }
       if(weight->EvalInstance(j)) {
         sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), f4->EvalInstance(j), weight->EvalInstance(j)*sampleFactor, filledPermutations++, bin);
+//debug
+	//drawnWeightHist->Fill(weight->EvalInstance(j));
       } else {
         if(currentID != Helper::kAllJets) std::cout << "WEIGHTS SHOULD NOT BE SET TO 1 IN L+JETS!" << std::endl; 
         sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), f4->EvalInstance(j), 1.0*sampleFactor, filledPermutations++, bin);
@@ -338,6 +369,8 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file, con
 
   events_.push_back(sample);
   mergedsample_ += sample;
+
+
   delete chain;
   delete f1;
   delete f2;

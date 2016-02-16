@@ -1,5 +1,6 @@
+#include <iostream>
 #include "CMS_lumi.h"
-
+using namespace std;
 void 
 CMS_lumi( TPad* pad, int iPeriod, int iPosX, bool boolExtraText, TString stringExtraText)
 {
@@ -103,6 +104,7 @@ CMS_lumi( TPad* pad, int iPeriod, int iPosX, bool boolExtraText, TString stringE
     {
       lumiText += "8 TeV";
     }
+  
    
   cout << lumiText << endl;
 

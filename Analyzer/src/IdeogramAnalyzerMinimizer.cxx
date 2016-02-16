@@ -198,7 +198,7 @@ void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimize
 {
   if(!toFit.size()) return;
   // starting point
-  static double variable[] = {172.5, 1., po::GetOption<double>("templates.fSig"), po::GetOption<double>("templates.fCP")};
+  static double variable[] = {172.5, 1., po::GetOption<double>("templates.fSig"), po::GetOption<double>("templates.fCP")}; 
   double step[] = {0.01,0.01,0.001,0.001};
 
   min->SetFixedVariable(0, "mass", variable[0]);
@@ -445,7 +445,7 @@ double IdeogramAnalyzerMinimizer::evalAllJets(double *x, double *p)
   like.SetFixedParams(1, x[0], x[1], 0, 0, 0, 0, 0, 1);
   like.SetActive(true);
   double pNew[] = {p[0],p[1],p[2],p[3]};
-  double val = like.Evaluate(pNew,0);
+  double val = like.Evaluate(pNew,0); 
   return val;
 }
 
@@ -512,7 +512,7 @@ void IdeogramAnalyzerMinimizer::DrawIdeograms(int n) {
     
     helper->DrawCMS(-1, -1, canv);
     
-    canv->Print((std::string("plot/eventLikelihood/")+std::to_string(i)+std::string(".eps")).c_str());
+    canv->Print((std::string("plot/eventLikelihood/")+std::to_string(i)+std::string(".eps")).c_str()); //FIXME does doe anything if the folders are not there yet
   }
 }
 

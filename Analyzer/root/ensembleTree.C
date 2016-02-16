@@ -50,18 +50,18 @@
 // double maxMCWeight[]  = {1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8};
 
 const int nJES = 3;
-const int nMasses = 7;
-int color_ [] = { kRed+1, kBlue+1, kGreen+1 };
-int marker_[] = { 23, 20, 22 };
-double genJES[]       = {0.98, 1.00, 1.02};
+const int nMasses = 3;
+int color_ [] = { kRed+1, kBlue+1, kGreen+1 ,kOrange+1, kViolet+1};
+int marker_[] = { 23, 20, 22 ,24, 25  };
+double genJES[]       = {/*0.96,*/ 0.98, 1.00, 1.02/*, 1.04*/};
 double genJESError[]  = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
-double genMass[]      = {166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5};
+double genMass[]      = { 169.5, 172.5,  175.5};
 double genMassError[] = { 1e-6,  1e-6,  1e-6,  1e-6,  1e-6,  1e-6,  1e-6};
-double genMassN[]     = {27078777, 39518234, 24439341, 62131965, 26489020, 40244328, 24359161};
+double genMassN[]     = {9969800, 19757190, 9904200};
 double maxMCWeight[]  = {1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8};
 
-double crossSection   = 245.794;
-double peLumi         = 18191.6;
+double crossSection   = 831.7;
+double peLumi         = 2192.;
   
 double measJES[nJES];
 
@@ -137,7 +137,7 @@ void DrawLegend() {
   leg1->SetFillColor(kWhite);
   leg1->SetBorderSize(0);
   if(nJES==3) leg1->AddEntry(gMass[0], "JSF=0.98", "EP");
-  if(nJES==5) leg1->AddEntry(gMass[0], "JSF=0.96", "EP");
+  if(nJES==5) leg1->AddEntry(gMass[0], "JSF=0.98", "EP");
   /*
   leg->AddEntry( constFit, "Const. fit", "L");
   char chi2[6]; sprintf(chi2, "%3.1f", fitResult->Chi2());
@@ -176,7 +176,7 @@ void DrawLegend() {
   leg5->SetFillColor(kWhite);
   leg5->SetBorderSize(0);
   if(nJES==3) leg5->AddEntry(gMass[2], "JSF=1.02", "EP");
-  if(nJES==5) leg5->AddEntry(gMass[4], "JSF=1.04", "EP");
+  if(nJES==5) leg5->AddEntry(gMass[4], "JSF=1.02", "EP");
   leg5->Draw();
 }
 
@@ -196,34 +196,9 @@ void ensembleTree()
   
   TCanvas* canvasFit = new TCanvas("canvasFit", "mt-JSF measurement calibration", 500, 500);
   canvasFit->cd();
-  
-  //// Get histos
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140317_1201/");
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140401_1201/");
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140418_1201/");
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140520_1801/");
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140911_1200/");
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140916_1200/");
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140917_1700/");
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_141006_1400/");
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_141006_1700/");
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140918_1600/");
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140918_1400/");
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_141006_2000/");
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_141007_1300/");
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_141007_1500/");
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_141216_2000/");
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_141217_1600/");
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150112_1600/");
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150114_1701/"); // old
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150120_1400/");
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150121_1300/");
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150121_1700/"); // newer
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150122_1600/"); // oldTEST
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150202_1400/"); // older
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150211_1800/"); // older fixed Mixing
-  TString sFile("/afs/desy.de/user/s/stadie/xxl-af-cms/topmass/CMSSW_5_3_14_patch2/src/TopMass/Analyzer/"); // older fixed Mixing
-  sFile += "ensemble_S12_Uncalibrated.root";
+
+  TString sFile("/nfs/dust/cms/user/garbersc/TopMass/2015_TemplateCalibrationMerged/"); 
+  sFile += "ensemble_2015D_3JES_Calibrated.root";
   //sFile += "ensemble_S12_Calibrated.root";
 
   std::cout << "Doing calibration on: " << sFile << std::endl;
@@ -255,21 +230,23 @@ void ensembleTree()
   for (int iJES = 0; iJES < nJES; iJES++) {
     for (int iMass = 0; iMass < nMasses; ++iMass) {
       //TString sel("mass_mTop_JES_fSig_fCP>0 & JES_mTop_JES_fSig_fCP>0 & JES_mTop_JES_fSig_fCP_Error>0.00 & JES_mTop_JES_fSig_fCP_Error<10.0 & mass_mTop_JES_fSig_fCP_Error>0.5 & mass_mTop_JES_fSig_fCP_Error<2.5 & abs(mass_mTop_JES_fSig_fCP_Pull)<100 & genMass=="); sel+=genMass[iMass]; sel+=" & genJES=="; sel+=genJES[iJES];
-      //TString sel("mass_mTop_JES>0 & JES_mTop_JES>0 & genMass=="); sel+=genMass[iMass]; sel+=" & genJES=="; sel+=genJES[iJES];
-      TString sel("mass_mTop_JES_fSig_fCP>0 & JES_mTop_JES_fSig_fCP>0 & fSig_mTop_JES_fSig_fCP>0 & fCP_mTop_JES_fSig_fCP>0 & genMass=="); sel+=genMass[iMass]; sel+=" & genJES=="; sel+=genJES[iJES];
+      TString sel("mass_mTop_JES>0 & JES_mTop_JES>0 & genMass=="); sel+=genMass[iMass]; sel+=" & genJES=="; sel+=genJES[iJES];
+      //TString sel("mass_mTop_JES_fSig_fCP>0 & JES_mTop_JES_fSig_fCP>0 & fSig_mTop_JES_fSig_fCP>0 & fCP_mTop_JES_fSig_fCP>0 & genMass=="); sel+=genMass[iMass]; sel+=" & genJES=="; sel+=genJES[iJES];
       //TString sel("mass_mTop_JES_fSig>0 & JES_mTop_JES_fSig>0 & fSig_mTop_JES_fSig>0 & genMass=="); sel+=genMass[iMass]; sel+=" & genJES=="; sel+=genJES[iJES];
       double entries = tree->GetEntries(sel);
       
       TF1* gausMassBias = new TF1("gausMassBias", "gaus");
-      tree->Fit("gausMassBias", "mass_mTop_JES_fSig_fCP", sel, "Q0");
+     // tree->Fit("gausMassBias", "mass_mTop_JES_fSig_fCP", sel, "Q0");
       //tree->Fit("gausMassBias", "mass_mTop_JES_fSig", sel, "Q0");
+	tree->Fit("gausMassBias", "mass_mTop_JES", sel, "Q0");
       
       mass[iJES][iMass]          = genMass[iMass];
       massBias[iJES][iMass]      = gausMassBias->GetParameter(1) - genMass[iMass];
       massBiasError[iJES][iMass] = gausMassBias->GetParameter(2) / sqrt(genMassN[iMass]/(crossSection*peLumi*maxMCWeight[iMass]));
         
       TF1* gausJESBias = new TF1("gausJESBias", "gaus");
-      tree->Fit("gausJESBias", "JES_mTop_JES_fSig_fCP", sel, "Q0");
+   //   tree->Fit("gausJESBias", "JES_mTop_JES_fSig_fCP", sel, "Q0");
+      tree->Fit("gausJESBias", "JES_mTop_JES", sel, "Q0");
       //tree->Fit("gausJESBias", "JES_mTop_JES_fSig", sel, "Q0");
       
       JES[iJES][iMass]          = genJES[iJES];
@@ -285,7 +262,8 @@ void ensembleTree()
       h2JES->SetBinError(h2JES->FindBin(gausMassBias->GetParameter(1), gausJESBias->GetParameter(1)), JESBiasError[iJES][iMass]);
       
       TF1* gausMassPull = new TF1("gausMassPull", "gaus");
-      tree->Fit("gausMassPull", "mass_mTop_JES_fSig_fCP_Pull", sel, "Q0");
+     // tree->Fit("gausMassPull", "mass_mTop_JES_fSig_fCP_Pull", sel, "Q0");
+      tree->Fit("gausMassPull", "mass_mTop_JES_Pull", sel, "Q0");
       //tree->Fit("gausMassPull", "mass_mTop_JES_fSig_Pull", sel, "Q0");
  
       double eff = 0.000838398;
@@ -293,7 +271,8 @@ void ensembleTree()
       massPullError[iJES][iMass] = sqrt(1./2. * (maxMCWeight[iMass]/(genMassN[iMass]*eff) + 1./(entries-1.)));
       
       TF1* gausJESPull = new TF1("gausJESPull", "gaus");
-      tree->Fit("gausJESPull", "JES_mTop_JES_fSig_fCP_Pull", sel, "Q0");
+     // tree->Fit("gausJESPull", "JES_mTop_JES_fSig_fCP_Pull", sel, "Q0");
+      tree->Fit("gausJESPull", "JES_mTop_JES_Pull", sel, "Q0");
       //tree->Fit("gausJESPull", "JES_mTop_JES_fSig_Pull", sel, "Q0");
       
       JESPull[iJES][iMass]      = gausJESPull->GetParameter(2);
@@ -411,19 +390,23 @@ void ensembleTree()
     gMass[2]->Fit("topMass1DUncertaintyFit", "EM0");
   }
   else{
-    gMass[0]->Fit("linearFit096", "EM");
+    gMass[0]->Fit("linearFit098", "EM");
     gMass[1]->Fit("linearFit100", "EM");
-    gMass[2]->Fit("linearFit104", "EM");
+    gMass[2]->Fit("linearFit102", "EM");
 
     gMass[1]->Fit("topMass1DUncertaintyFit", "EM0");
   }
-  if(sFile.Contains("Calibrated")){
+
+   mgMass->SetMinimum(-1.58);
+    mgMass->SetMaximum( 1.58);
+
+ /* if(sFile.Contains("Calibrated")){
     mgMass->SetMinimum(-1.06);
     mgMass->SetMaximum( 1.06);
   } else {
     mgMass->SetMinimum(-2.15);
     mgMass->SetMaximum( 2.15);
-  }
+  }*/
   mgMass->Draw("AP");
   gPad->SetBottomMargin(0.005);
   mgMass->GetYaxis()->SetTitleSize(0.11);
@@ -451,12 +434,12 @@ void ensembleTree()
     offsetError[4] = linearFit104->GetParError(0);
   }
   else{
-    offset[0] = linearFit096->GetParameter(0);
+    offset[0] = linearFit098->GetParameter(0);
     offset[1] = linearFit100->GetParameter(0);
-    offset[2] = linearFit104->GetParameter(0);
-    offsetError[0] = linearFit096->GetParError(0);
+    offset[2] = linearFit102->GetParameter(0);
+    offsetError[0] = linearFit098->GetParError(0);
     offsetError[1] = linearFit100->GetParError(0);
-    offsetError[2] = linearFit104->GetParError(0);
+    offsetError[2] = linearFit102->GetParError(0);
   }
 
   //gOffset = new TGraphErrors(nJES, measJES, offset, genJESError, offsetError);
@@ -477,17 +460,20 @@ void ensembleTree()
     gJES[4]->Fit("linearFit104", "EM");
   }
   else{
-    gJES[0]->Fit("linearFit096", "EM");
+    gJES[0]->Fit("linearFit098", "EM");
     gJES[1]->Fit("linearFit100", "EM");
-    gJES[2]->Fit("linearFit104", "EM");
+    gJES[2]->Fit("linearFit102", "EM");
   }
-  if(sFile.Contains("Calibrated")){
+
+    mgJES->SetMinimum(-0.0158);
+    mgJES->SetMaximum( 0.0158);
+ /* if(sFile.Contains("Calibrated")){
     mgJES->SetMinimum(-0.0106);
     mgJES->SetMaximum( 0.0106);
   } else {
     mgJES->SetMinimum(-0.0215);
     mgJES->SetMaximum( 0.0215);
-  }
+  }*/
   mgJES->Draw("AP");
   gPad->SetTopMargin(0.005);
   //DrawLegend();
@@ -497,7 +483,7 @@ void ensembleTree()
   //canvasFit->Clear();
 
   canvasFit->cd(0);
-  DrawCMSSim();
+  DrawLabel("Private Work,  #sqrt{s}=13 TeV", 0.2, 0.93, 0.9);
   DrawLegend();
 
   TString sFitMass("fit_Bias.eps");
@@ -522,15 +508,15 @@ void ensembleTree()
     measJES[4] = linearFit104->GetParameter(0)+genJES[4];
   }
   else{
-    offset[0] = linearFit096->GetParameter(0);
+    offset[0] = linearFit098->GetParameter(0);
     offset[1] = linearFit100->GetParameter(0);
-    offset[2] = linearFit104->GetParameter(0);
-    offsetError[0] = linearFit096->GetParError(0);
+    offset[2] = linearFit102->GetParameter(0);
+    offsetError[0] = linearFit098->GetParError(0);
     offsetError[1] = linearFit100->GetParError(0);
-    offsetError[2] = linearFit104->GetParError(0);
-    measJES[0] = linearFit096->GetParameter(0)+genJES[0];
+    offsetError[2] = linearFit102->GetParError(0);
+    measJES[0] = linearFit098->GetParameter(0)+genJES[0];
     measJES[1] = linearFit100->GetParameter(0)+genJES[1];
-    measJES[2] = linearFit104->GetParameter(0)+genJES[2];
+    measJES[2] = linearFit102->GetParameter(0)+genJES[2];
   }
   
   //TGraphErrors* gOffset = new TGraphErrors(nJES, measJES, offset, genJESError, offsetError);
@@ -568,9 +554,9 @@ void ensembleTree()
     gMassPull[4]->Fit("linearFit104", "EM0");
   }
   else{
-    gMassPull[0]->Fit("linearFit096", "EM0");
+    gMassPull[0]->Fit("linearFit098", "EM0");
     gMassPull[1]->Fit("linearFit100", "EM0");
-    gMassPull[2]->Fit("linearFit104", "EM0");
+    gMassPull[2]->Fit("linearFit102", "EM0");
   }
   //mgMassPull->SetMinimum(0.78);
   //mgMassPull->SetMaximum(1.22);
@@ -599,9 +585,9 @@ void ensembleTree()
     gJESPull[4]->Fit("linearFit104", "EM0");
   }
   else{
-    gJESPull[0]->Fit("linearFit096", "EM0");
+    gJESPull[0]->Fit("linearFit098", "EM0");
     gJESPull[1]->Fit("linearFit100", "EM0");
-    gJESPull[2]->Fit("linearFit104", "EM0");
+    gJESPull[2]->Fit("linearFit102", "EM0");
   }
   //mgJESPull->SetMinimum(0.68);
   //mgJESPull->SetMaximum(1.12);
@@ -617,7 +603,8 @@ void ensembleTree()
   //*/
 
   canvasFitPull->cd(0);
-  DrawCMSSim();
+  //DrawCMSSim();
+  DrawLabel("Private Work,  #sqrt{s}=13 TeV", 0.2, 0.93, 0.9);
   DrawLegend();
 
   TString sFitJESPull("fit_Pull.eps");
