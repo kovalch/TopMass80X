@@ -1116,10 +1116,10 @@ void TopMassControlPlots::doPlots()
       samples.push_back(MySample("Data", "Run2015D", kData, kBlack));
     }
     else {
-      samples.push_back(MySample("Data", "SingleMuon_Run2015D-05Oct2015-v1_btagUpdate_allCut", kData, kBlack));
-      //samples.push_back(MySample("Data", "SingleElectron_Run2015D-PromptReco-v4_btagUpdate_allCut", kData, kBlack));	
-      //samples.push_back(MySample("Data", "SingleElectron_Run2015D-05Oct2015-v1_btagUpdate_allCut", kData, kBlack));
-      samples.push_back(MySample("Data", "SingleMuon_Run2015D-PromptReco-v4_btagUpdate_allCut", kData, kBlack));
+      samples.push_back(MySample("Data", "SingleMuon_Run2015D-05Oct2015-v1_matchingCleaned_allCut", kData, kBlack));
+      samples.push_back(MySample("Data", "SingleElectron_Run2015D-PromptReco-v4_electronCut_allCut", kData, kBlack));	
+      samples.push_back(MySample("Data", "SingleElectron_Run2015D-05Oct2015-v1_electronCut_allCut", kData, kBlack));
+      samples.push_back(MySample("Data", "SingleMuon_Run2015D-PromptReco-v4_matchingCleaned_allCut", kData, kBlack));
     }
     
     // SIGNAL
@@ -1129,7 +1129,7 @@ void TopMassControlPlots::doPlots()
     if(plotSelectedForPlotting.find("NobPlots")!=plotSelectedForPlotting.end()){
       samples.push_back(MySample("t#bar{t}", "Summer12_TTJetsMS1725_nob", kSig, kRed+1, 1, lumi_/1000., "", signalNormUnc));
     }
-    else samples.push_back(MySample("t#bar{t}", "RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1_TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8_PUweighted_allCut", kSig, kRed+1, 1, lumi_/1000., "", signalNormUnc));
+    else samples.push_back(MySample("t#bar{t}", "RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1_TT_TuneCUETP8M1_13TeV-powheg-pythia8_matchingCleaned_allCut", kSig, kRed+1, 1, lumi_/1000., "", signalNormUnc));
     
     // SIGNAL VARIATIONS
     
@@ -1202,11 +1202,8 @@ void TopMassControlPlots::doPlots()
     
     // BACKGROUND
     if(plotSelectedForPlotting.find("BackgroundPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("Single t", "ST_s-channel_4f_leptonDecay_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1_13TeV-amcatnlo-pythia8_allCut", kBkg, kMagenta, 1, lumi_/1000.*0.795630675, "", 0.1));
-      samples.push_back(MySample("Single t", "ST_t-channel_4f_leptonDecay_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1_13TeV-amcatnlo-pythia8_allCut", kBkg, kMagenta, 1, lumi_/1000.*2.220055674, "", 0.1));
-      samples.push_back(MySample("Single t", "ST_tW_antitop_5f_DS_inclusiveDecays_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1_13TeV-powheg-pythia8_allCut", kBkg, kMagenta, 1, lumi_/1000.*0.493462875, "", 0.1));
-      samples.push_back(MySample("Single t", "ST_tW_top_5f_DS_inclusiveDecays_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1_13TeV-powheg-pythia8_allCut", kBkg, kMagenta, 1, lumi_/1000.*0.493462875, "", 0.1));
-      samples.push_back(MySample("W+jets", "WJets_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1_WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_PUweighted_allCut", kBkg, kGreen-3, 1, lumi_/1000. * 0.720375872, "", 0.2));//inkl Umgewichtung von amcatnlo zu amcatnloFXFX
+      samples.push_back(MySample("Single t", "BG_merge/ST_allCut", kBkg, kMagenta, 1, lumi_/1000.*0.795630675, "", 0.1));
+      samples.push_back(MySample("W+jets", "BG_merge/WJets_allCut", kBkg, kGreen-3, 1, lumi_/1000. * 0.720375872, "", 0.2));//inkl Umgewichtung von amcatnlo zu amcatnloFXFX
       //samples.push_back(MySample("Z+jets", "Summer12_ZJets", kBkg, kAzure-2, 1, lumi_/1000., "", 0.2));
       //samples.push_back(MySample("QCD multijet", "Summer12_QCD", kBkg, kYellow, 1, lumi_/1000., "", 1.));
       //samples.push_back(MySample("Diboson", "Summer12_Diboson", kBkg, kWhite, 1, lumi_/1000., "", 0.05));
@@ -1358,7 +1355,7 @@ void TopMassControlPlots::doPlots()
       else{
     	  chain = new TChain("analyzeHitFit/eventTree");
     	  if (channelID != Helper::kElectronJets) nFiles += chain->Add((path_+sample.file+std::string("_muon/job_*.root")).c_str());
-    	 //if (channelID != Helper::kMuonJets    ) nFiles += chain->Add((path_+sample.file+std::string("_electron/job_*.root")).c_str());
+    	 if (channelID != Helper::kMuonJets    ) nFiles += chain->Add((path_+sample.file+std::string("_electron/job_*.root")).c_str());
       }
       std::cout << "Adding " << nFiles << " files for " << sample.name << " (" << sample.file << "), type: " << sample.type << std::endl;
 

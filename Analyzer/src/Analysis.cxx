@@ -21,6 +21,10 @@
 #include "RandomSubsetCreatorNewInterface.h"
 #include "RooFitTemplateAnalyzer.h"
 
+//debug
+//#include "TH1D.h"
+//#include "TFile.h"
+
 typedef ProgramOptionsReader po;
 
 Analysis::Analysis(const std::vector<float>& v):
@@ -48,6 +52,11 @@ Analysis::~Analysis()
 }
 
 void Analysis::Analyze() {
+//debug
+/*TFile* fDebug=new TFile("fDebug.root","UPDATE");
+TH1D* hVal = (TH1D*)fDebug->Get("hVal");
+TH1D* hGen =(TH1D*)fDebug->Get("hGen");
+TH1D* hValErr = (TH1D*)fDebug->Get("hValErr");*/
 
   std::cout << "Analyze " << fIdentifier_ << " with method " << fMethod_ << std::endl;
 
@@ -100,7 +109,7 @@ void Analysis::Analyze() {
     GetH1("Entries")->SetBinContent(i+1, 10+i);
 
 //debugging
- std::cout << "Analysis DEBUG: her i am with ((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample().nEvents = "<<entries << std::endl;
+ //std::cout << "DEBUG Analysis DEBUG: her i am with ((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample().nEvents = "<<entries << std::endl;
 
     if (entries > 25) {
       if      (fMethodID_ == Helper::kIdeogramMin) ((IdeogramAnalyzerMinimizer   *)fAnalyzer_)->SetDataSample(((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample()); //hier bekommt er die Pseudodaten
@@ -129,9 +138,22 @@ void Analysis::Analyze() {
         GetH1(value.first+std::string("_Error"))->SetBinContent(i+1, valError);
         GetH1(value.first+std::string("_Pull" ))->SetBinContent(i+1, (val - gen)/valError);
         std::cout << "Measured " << value.first << ": " << val << " +/- " << valError << std::endl;
+//debug
+	/*if(value.first=="mass_mTop_JES"){
+	std::cout<<"DEBUG check the debug Fill "<<hVal->Fill(val)<<std::endl;
+		hGen->Fill(gen);
+		hValErr->Fill(valError);
+	}*/
       }
       std::cout << std::endl;
     }
+
+//debug
+		/*std::cout<<"DEBUG is dDebug Open? "<<fDebug->IsOpen()<<fDebug->cd()<<std::endl;
+		std::cout<<"DEBUG check the size of hval "<<hVal->Write()<<std::endl;
+		hGen->Write();
+		hValErr->Write();
+fDebug->Close("R");*/
   }
 
   canvas->Clear();

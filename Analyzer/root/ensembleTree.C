@@ -198,7 +198,7 @@ void ensembleTree()
   canvasFit->cd();
 
   TString sFile("/nfs/dust/cms/user/garbersc/TopMass/2015_TemplateCalibrationMerged/"); 
-  sFile += "ensemble_2015D_3JES_Calibrated.root";
+  sFile += "ensemble_2015D3JES_electron_Calibrated.root";
   //sFile += "ensemble_S12_Calibrated.root";
 
   std::cout << "Doing calibration on: " << sFile << std::endl;

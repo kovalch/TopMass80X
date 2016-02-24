@@ -198,6 +198,7 @@ void TopMass::WriteEnsembleTest(const std::vector<float>& vBinning) {
 
   Helper* helper = new Helper(fBinning_, vBinning);
   TH1F* hBinning = helper->GetH1("hBinning");
+  ensembleFile->cd();
   hBinning->Write();
 
   ensembleFile->Close("R");

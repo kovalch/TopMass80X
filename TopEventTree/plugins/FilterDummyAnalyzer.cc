@@ -30,6 +30,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <string>
+#include <vector>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TopMass/TopEventTree/interface/CutFlags.h"
@@ -53,6 +55,7 @@ class FilterDummyAnalyzer : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 
+	std::vector<edm::EDGetTokenT<bool> > vTokens_; //FIXME...
 
 	edm::Service<TreeRegistryService> trs;
 	CutFlags* flags_;
@@ -64,8 +67,12 @@ class FilterDummyAnalyzer : public edm::EDAnalyzer {
 // constructors and destructor
 //
 FilterDummyAnalyzer::FilterDummyAnalyzer(const edm::ParameterSet& iConfig)
-
 {
+  flags_ = new CutFlags();
+ for( unsigned int i = 0 ; i < flags_->getNumberOfFilterLabels() ; i++){
+    vTokens_.push_back( mayConsume<bool>( "FilterDummy" + flags_->getFilterLabel(i) ) ); //FIXME
+ }
+
    //now do what ever initialization is needed
    cutFlagsBranchName_ = iConfig.getParameter<std::string>("CutFlagsBranchName"); // set name of branch to be used to save
    flags_ = 0;
