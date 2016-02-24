@@ -3,7 +3,6 @@
 
 int main(int ac, char** av) {
   ProgramOptionsReader por = ProgramOptionsReader(ac, av);
-
   TemplateDerivation top;
   top.run();
 }

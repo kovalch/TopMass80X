@@ -19,21 +19,25 @@
 #include "TLine.h"
 #include "TPaveStats.h"
 
-#include "tdrstyle_new.C"
+//#include "tdrstyle_new.C"
+#include "tdrstyle.C"
 #include "CMS_lumi.C"
 
-const int nMass = 7;
+const int nMass = 3;
 const int nJES  = 3;
 
 int target = 1; // 1: correct, 0: wrong, -10: unmatched
 int obs    = 0; // 0: hadTopMass, 1: hadWRawMass
-int lepton = 0;
+int lepton = 1;// 0: electron, 1: muon, 2: lepton
 
 int iMassMin = 0;
 int iMassMax = nMass;
 
-bool plotByMass = false;
+bool plotByMass = false; // ??
 bool pas = false;
+
+//bool plotByMass = true;
+//bool pas = true;
 
 int iTarget[]     = {1, 0, -10};
 TString sTarget[] = {"wp", "cp", "un"};
@@ -46,16 +50,16 @@ TGraphErrors* gr2[nMass];
 TGraphErrors* gr3[nMass];
 TGraphErrors* gr4[nMass];
 
-TString sX[nMass] = {"m_{t,gen} = 166.5 GeV",
+TString sX[nMass] = {//"m_{t,gen} = 166.5 GeV",
                      "m_{t,gen} = 169.5 GeV",
-                     "m_{t,gen} = 171.5 GeV",
+                     //"m_{t,gen} = 171.5 GeV",
                      "m_{t,gen} = 172.5 GeV",
-                     "m_{t,gen} = 173.5 GeV",
-                     "m_{t,gen} = 175.5 GeV",
-                     "m_{t,gen} = 178.5 GeV"};
+                     //"m_{t,gen} = 173.5 GeV",
+                     "m_{t,gen} = 175.5 GeV"};
+                     //"m_{t,gen} = 178.5 GeV"};
 
-double X  [nMass] = {166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5};
-TString X_ [nMass] = {"166_5", "169_5", "171_5", "172_5", "173_5", "175_5", "178_5"};
+double X  [nMass] = {/*166.5,*/ 169.5, /*171.5,*/ 172.5, /*173.5,*/ 175.5/*, 178.5*/};
+TString X_ [nMass] = {/*"166_5",*/ "169_5", /*"171_5",*/ "172_5", /*"173_5",*/ "175_5"/*, "178_5"*/};
 double Y10[nMass];
 double Y11[nMass];
 double Y20[nMass];
@@ -63,7 +67,7 @@ double Y21[nMass];
 double Y30[nMass];
 double Y31[nMass];
 
-double eX  [nMass] = {1e-12, 1e-12, 1e-12, 1e-12, 1e-12, 1e-12, 1e-12};
+double eX  [nMass] = {1e-12, 1e-12, 1e-12};//, 1e-12, 1e-12, 1e-12, 1e-12};
 double eY10[nMass];
 double eY11[nMass];
 double eY20[nMass];
@@ -160,8 +164,8 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   lepton = pLepton;
   
   if (plotByMass || pas) {
-    iMassMin = 3;
-    iMassMax = 4;
+    iMassMin = 0;
+    iMassMax = 3;
   }
   
   TStyle* tdrStyle = setTDRStyle();
@@ -462,24 +466,25 @@ void FindParametersMass(int iMass)
   if (!plotByMass) {
     switch(iMass) {
       case 0: {
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1665_0.96", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1665_1.00", 1);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1665_1.04", 2);
+        h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1695_0.96", 0);
+        h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1695_1.00", 1);
+        h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1695_1.04", 2);
         break;
       }
       case 1: {
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1695_0.96", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1695_1.00", 1);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1695_1.04", 2);
+        h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_0.96", 0);
+        h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.00", 1);
+        h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.04", 2);
         break;
       }
 		  case 2: {
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1715_0.96", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1715_1.00", 1);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1715_1.04", 2);
+        h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_0.96", 0);
+        h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_1.00", 1);
+        h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_1.04", 2);
         break;
       }
 		  case 3: {
+std::cout<<"ERROR: atm only 3 masses valid!"<<std::endl;
         h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1725_0.96", 0);
         h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1725_1.00", 1);
         h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1725_1.04", 2);
@@ -507,11 +512,11 @@ void FindParametersMass(int iMass)
   }
   else if (plotByMass) {
     std::cout << "PLOT BY MASS" << std::endl;
-    h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1665_1.00", 0);
-    h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1725_1.00", 1);
-    h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1785_1.00", 2);
+    h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1695_1.00", 0);
+    h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.00", 1);
+    h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_1.00", 2);
   }
-  else {
+  else  {std::cout<<"wtf, how did he got here???"<<std::endl;
     if (obs==0) h166 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 3);
     h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_0.96", 0);
     h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_1.00", 1);
@@ -546,22 +551,22 @@ void FindParametersMass(int iMass)
     leg0->AddEntry((TObject*)0, sX[iMass], "");
   }
   else if (plotByMass) {
-    leg0->AddEntry( h096, "m_{t,gen} = 166.5 GeV", "PL");
+    leg0->AddEntry( h096, "m_{t,gen} = 169.5 GeV", "PL");
     leg0->AddEntry( h100, "m_{t,gen} = 172.5 GeV", "PL");
-    leg0->AddEntry( h104, "m_{t,gen} = 178.5 GeV", "PL");
+    leg0->AddEntry( h104, "m_{t,gen} = 175.5 GeV", "PL");
     leg0->AddEntry((TObject*)0, "JSF = 1.00", "");
   }
   else {
-    if (obs==0) leg0->AddEntry( h166, "m_{t,gen} = 166.5 GeV", "PL");
+    if (obs==0) leg0->AddEntry( h166, "m_{t,gen} = 169.5 GeV", "PL");
     leg0->AddEntry( h096, "m_{t,gen} = 172.5 GeV, JSF -4%", "PL");
     leg0->AddEntry( h100, "m_{t,gen} = 172.5 GeV", "PL");
     leg0->AddEntry( h104, "m_{t,gen} = 172.5 GeV, JSF +4%", "PL");
-    if (obs==0) leg0->AddEntry( h178, "m_{t,gen} = 178.5 GeV", "PL");
+    if (obs==0) leg0->AddEntry( h178, "m_{t,gen} = 175.5 GeV", "PL");
   }
   
   leg0->Draw();
 
-  CMS_lumi(cObservable, 2100+lepton, 0., true, "Simulation");
+  CMS_lumi(cObservable, 4, 0., true, "Simulation");
   
   if (obs==0) DrawCutLine(172.5, h096->GetMaximum()*1.);
   else DrawCutLine(80.4, h096->GetMaximum()*1.);
@@ -721,7 +726,7 @@ TH1F* FindParameters(TString filename, int i)
         fit->SetLineColor(kBlack);
         fit->SetLineWidth(width_[i]);
         
-        double power = 3.;
+        double power = 3.; //TODO oder 5?
         
         fit->SetParNames("N", "#mu", "#sigma", "#alpha", "power");
         fit->SetParameters(1, 170, 15, 0.45, power);
@@ -899,12 +904,12 @@ TH1F* FindParameters(TString filename, int i)
   return h1;
 }
 
-void batchObservableByJESByMass() {
+void batchObservableByJESByMass() { //that the "real" start
   pas = false;
   
   for (int t = 0; t < 3; ++t) { // target
     for (int o = 0; o < 2; ++o) { // obs
-      for (int l = 0; l < 3; ++l) { // lepton
+      for (int l = 1; l < 2; ++l) { // lepton  atm only muon
         observableByJESByMass(iTarget[t], o, l);
       }
     }
@@ -914,7 +919,7 @@ void batchObservableByJESByMass() {
   
   for (int t = 0; t < 3; ++t) { // target
     for (int o = 0; o < 2; ++o) { // obs
-      for (int l = 0; l < 3; ++l) { // lepton
+      for (int l = 1; l < 2; ++l) { // lepton  atm only muon
         observableByJESByMass(iTarget[t], o, l);
       }
     }

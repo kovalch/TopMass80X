@@ -12,7 +12,7 @@ namespace ROOT{
   class Minimizer;
   }
 }
-
+//Tree out of Constructor is never used! needs DataSample over SetDataSample()
 class IdeogramAnalyzerMinimizer : public MassAnalyzer {
  public:
   IdeogramAnalyzerMinimizer(const std::string& identifier, TTree* tree);

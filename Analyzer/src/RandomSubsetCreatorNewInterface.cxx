@@ -10,6 +10,10 @@
 #include "TRandom3.h"
 #include "TTreeFormula.h"
 
+//DEBUG
+/*#include "TCanvas.h"
+#include "TH1D.h"**/
+
 typedef ProgramOptionsReader po;
 
 RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vector<float>& v) :
@@ -38,6 +42,7 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
     //fBDisc_ (po::GetOption<double>("bdisc")),
     maxPermutations_(po::GetOption<int>("analysisConfig.maxPermutations")),
     random_(0)
+   //drawnWeightHist(new TH1D("mergedWeightHist","mergedWeightHist",500,0.,10))//DEBUG
 {
   channelID_ = Helper::channelID();
   mergedsample_.nEvents = 0;
@@ -92,11 +97,11 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
     PrepareEvents(samplePathLept_+fIdentifier_+std::string("_electron/job_*.root"), Helper::kLeptonJets);
     if(fLumiLept_>0 || fLumiJets_>0){
       //PrepareEvents(samplePathJets_+"QCDMixing_MJPS12_v1_data.root", Helper::kAllJets);
-      PrepareEvents(samplePathJets_+"Background_MJP12.root", Helper::kAllJets);
+      PrepareEvents(samplePathJets_+"Background_MJP12.root", Helper::kAllJets); 
       //PrepareEvents(samplePathJets_+"Run2012_Mixing8_fix_alljets.root", Helper::kAllJets);
       //PrepareEvents(samplePathJets_+"mix6_QCDMixing_MJPS12.root", Helper::kAllJets);
       if(fSigLept_<1.) {
-        PrepareEvents(""+samplePathLept_+"Summer12_WJets_muon/job_*.root", Helper::kLeptonJets);
+        PrepareEvents(""+samplePathLept_+"Summer12_WJets_muon/job_*.root", Helper::kLeptonJets); 
         PrepareEvents(""+samplePathLept_+"Summer12_singleTop_muon/job_*.root", Helper::kLeptonJets);
         PrepareEvents(""+samplePathLept_+"Summer12_WJets_electron/job_*.root", Helper::kLeptonJets);
         PrepareEvents(""+samplePathLept_+"Summer12_singleTop_electron/job_*.root", Helper::kLeptonJets);
@@ -117,7 +122,7 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
           PrepareEvents(samplePath_+"Background_MJP12.root");
       }                   
     }
-    if (channelID_ == Helper::kMuonJets || channelID_ == Helper::kLeptonJets) {
+    if (channelID_ == Helper::kMuonJets || channelID_ == Helper::kLeptonJets) {  //here we go .................
       PrepareEvents(samplePath_+fIdentifier_+std::string("_muon/job_*.root"), Helper::kLeptonJets, po::GetOption<double>("analysisConfig.signalFactor"));
       // Get background samples and normalization from config
       if(fLumiLept_>0 && fSigLept_<1.) {
@@ -142,6 +147,14 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
   time(&end);
   std::cout << "Read data from disk in " << difftime(end, start) << " seconds." << std::endl;
 
+//DEBUG
+/*TCanvas* c = new TCanvas("mergedSampleWeights");
+drawnWeightHist->Draw();
+gPad->SetLogy();
+c->Print("mergedSampleWeightsDirekt.eps","eps");
+delete c;*/
+
+
   random_ = new TRandom3(po::GetOption<int>("seed")+1);
   std::cout << "Random seed: " << random_->GetSeed() << std::endl;
 }
@@ -151,6 +164,7 @@ RandomSubsetCreatorNewInterface::~RandomSubsetCreatorNewInterface()
   delete random_;
 }
 
+//always return 0! get the output as DataSample over GetDataSample()
 TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
   subset_.Clear();
   if (fLumiLept_>0 || fLumiJets_>0) {
@@ -161,14 +175,13 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
     time(&end);
 
     // DATA
-    // TODO: update AllJets event yields with latest JEC
-    double nEventsDataAllJets  =  7049.;
-    double nEventsDataMuon     = 14685.;
-    double nEventsDataElectron = 13514.;
+    double nEventsDataAllJets  =  4057.;//FIXME
+    double nEventsDataMuon     = 10131.; //with All Permutations
+    double nEventsDataElectron = 9373.;
 
-    int eventsPEAllJets  = random_->Poisson(nEventsDataAllJets /18192.000*fLumiJets_);
-    int eventsPEMuon     = random_->Poisson(nEventsDataMuon    /19712.000*fLumiLept_);
-    int eventsPEElectron = random_->Poisson(nEventsDataElectron/19712.000*fLumiLept_);
+    int eventsPEAllJets  = random_->Poisson(nEventsDataAllJets /18192.000*fLumiJets_); 
+    int eventsPEMuon     = random_->Poisson(nEventsDataMuon);    // /2192.000*fLumiLept_);//hradcoded number seems to be integr lumi, is what i took as lumi only fraction integr lumi?
+    int eventsPEElectron = random_->Poisson(nEventsDataElectron);// /2192.000*fLumiLept_);
 
     // TODO: Use mergedsample_ in kHamburg and kAllJets
     if (channelID_ == Helper::kHamburg) {
@@ -222,6 +235,10 @@ void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, doubl
 
   double maxMCWeight = sample.maxWeight;
 
+//DEBUG
+//TH1D* drawnWeightHist = new TH1D("drawnWeightHist","drawnWeightHist",500,0.,maxMCWeight);
+
+
   std::cout << "maxMCWeight(" << fWeight_ << "): " << maxMCWeight  << std::endl;
 
   if (maxMCWeight ==  0) { std::cout << "Weight not active?" << std::endl; }
@@ -230,12 +247,16 @@ void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, doubl
   int eventsDrawn = 0;
   int nAttempts = 0;
 
+
+
   while (eventsDrawn < (int)nEventsPE) {
     int drawn = random_->Integer(perms);
     ++nAttempts;
 
     if (std::abs(sample.events.at(drawn).weight) > random_->Uniform(0, maxMCWeight)) {
       subset_.AddEvent(sample.events.at(drawn));
+//DEBUG
+	//drawnWeightHist->Fill(sample.events.at(drawn).weight);
       if (sample.events.at(drawn).weight < 0) {
         eventsDrawn += -1;
       }
@@ -245,12 +266,22 @@ void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, doubl
     }
   }
 
+
+//DEBUG
+/*TCanvas* c = new TCanvas("drawnSampleWeights");
+drawnWeightHist->Draw();
+gPad->SetLogy();
+c->Print("drawnSampleWeights.eps","eps");
+delete c;
+delete drawnWeightHist;*/
+
   std::cout << eventsDrawn << " events drawn in " << nAttempts << " attempts." << std::endl;
 }
 
 void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file, const Helper::ChannelID currentID, double sampleFactor) {
 
   TChain* chain;
+
   if (channelID_ == Helper::kAllJets || currentID == Helper::kAllJets) {
     chain = new TChain("analyzeKinFit/eventTree");
     if (Helper::getCMSEnergy() == 7) {
@@ -262,7 +293,6 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file, con
   }
   int nFiles = chain->Add(file.c_str());
   std::cout << "Adding " << nFiles << " files for " << file << std::flush;
-
   chain->SetBranchStatus("*", 0);
   std::vector<std::string> vActiveBanches;
   boost::split(vActiveBanches, activeBranches_, boost::is_any_of("|"));
@@ -324,6 +354,8 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file, con
       }
       if(weight->EvalInstance(j)) {
         sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), f4->EvalInstance(j), weight->EvalInstance(j)*sampleFactor, filledPermutations++, bin);
+//debug
+	//drawnWeightHist->Fill(weight->EvalInstance(j));
       } else {
         if(currentID != Helper::kAllJets) std::cout << "WEIGHTS SHOULD NOT BE SET TO 1 IN L+JETS!" << std::endl; 
         sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), f4->EvalInstance(j), 1.0*sampleFactor, filledPermutations++, bin);
@@ -337,6 +369,8 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file, con
 
   events_.push_back(sample);
   mergedsample_ += sample;
+
+
   delete chain;
   delete f1;
   delete f2;
