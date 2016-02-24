@@ -31,9 +31,9 @@
 #include "TopMass/TopEventTree/plugins/JetEventAnalyzer.h"
 
 JetEventAnalyzer::JetEventAnalyzer(const edm::ParameterSet& cfg):
-jets_           (cfg.getParameter<edm::InputTag>("jets")),
+jets_        (consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
 alternativeJets_(cfg.getParameter<edm::InputTag>("alternativeJets")),
-met_            (cfg.getParameter<edm::InputTag>("met")),
+met_            (consumes<std::vector<pat::MET> >(cfg.getParameter<edm::InputTag>("met"))),
 gluonTagName_   (cfg.getParameter<edm::InputTag>("gluonTagSrc").encode()),
 kJetMAX_(cfg.getParameter<int>("maxNJets")),
 jet(0),
@@ -57,7 +57,7 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
   ////////////////////////////////////////////////////////////////////////
 
   edm::Handle<std::vector<pat::Jet> > jets;
-  evt.getByLabel(jets_, jets);
+  evt.getByToken(jets_, jets);
 
   //////////////////////////////////////////////////////////////////////// 
   // instantiate a tagging variable computer for unification of some calculations like vertex mass corrections
@@ -168,7 +168,7 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     }
   }
   edm::Handle<std::vector<pat::MET> > met;
-  evt.getByLabel(met_, met);
+  evt.getByToken(met_, met);
   if(met.isValid()){
     jet->met = TLorentzVector(met->at(0).px(), met->at(0).py(), met->at(0).pz(), met->at(0).energy());
     jet->sumEt = met->at(0).sumEt();

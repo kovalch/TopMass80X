@@ -23,7 +23,8 @@ class WeightEventAnalyzer : public edm::EDAnalyzer {
   double mcWeight_;
 
   edm::InputTag puSrc_;
-  edm::InputTag vertexSrc_;
+/*  edm::InputTag vertexSrc_;*/
+  edm::EDGetTokenT<std::vector<reco::Vertex> > vertexSrc_;
 
   edm::InputTag puWeightSrc_;
   edm::InputTag puWeightUpSrc_;
@@ -49,7 +50,9 @@ class WeightEventAnalyzer : public edm::EDAnalyzer {
 
   edm::InputTag genEventSrc_;
   edm::InputTag lheEventSrc_;
-  edm::InputTag ttEvent_;
+//   edm::InputTag ttEvent_;
+  edm::InputTag ttInputTag;
+  edm::EDGetTokenT<edm::View<TtEvent> > ttEvent_;
   bool savePDFWeights_;
   bool brCorrection_;
 

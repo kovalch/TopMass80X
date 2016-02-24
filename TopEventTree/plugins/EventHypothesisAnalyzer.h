@@ -41,11 +41,12 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   std::vector<short> comboTypeAlgoInverted(std::vector<int> jetIndexGen, short comboType);
 
   edm::Service<TreeRegistryService> trs;
-
-  edm::InputTag ttEvent_;
-  edm::InputTag hypoClassKey_;
+  edm::InputTag ttInputTag;
+  edm::EDGetTokenT<edm::View<TtEvent> > ttEvent_;
+  edm::EDGetTokenT<int> hypoClassKey_;
   edm::InputTag ttEventGen2_;
-  edm::InputTag jets_;
+//   edm::InputTag jets_;
+  edm::EDGetTokenT< std::vector<pat::Jet > > jets_;
   std::string topBranchName_;
   
   int lepton_;

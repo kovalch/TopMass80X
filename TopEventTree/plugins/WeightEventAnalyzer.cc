@@ -27,7 +27,7 @@
 WeightEventAnalyzer::WeightEventAnalyzer(const edm::ParameterSet& cfg):
 mcWeight_    (cfg.getParameter<double>("mcWeight")),
 puSrc_       (cfg.getParameter<edm::InputTag>("puSrc")),
-vertexSrc_   (cfg.getParameter<edm::InputTag>("vertexSrc")),
+vertexSrc_   (consumes<std::vector<reco::Vertex> >(cfg.getParameter<edm::InputTag>("vertexSrc"))),
 
 puWeightSrc_    (cfg.getParameter<edm::InputTag>("puWeightSrc")),
 puWeightUpSrc_  (cfg.getParameter<edm::InputTag>("puWeightUpSrc")),
@@ -53,12 +53,29 @@ elWeightSrc_ (cfg.getParameter<edm::InputTag>("elWeightSrc")),
 
 genEventSrc_   (cfg.getParameter<edm::InputTag>("genEventSrc")),
 lheEventSrc_   (cfg.getParameter<edm::InputTag>("lheEventSrc")),
-ttEvent_       (cfg.getParameter<edm::InputTag>("ttEvent")),
+// ttEvent_       (cfg.getParameter<edm::InputTag>("ttEvent")),
+ttInputTag   (cfg.getParameter<edm::InputTag>("ttEvent")),
+ttEvent_     (consumes<edm::View<TtEvent>>(ttInputTag)),
 savePDFWeights_(cfg.getParameter<bool>("savePDFWeights")),
 brCorrection_  (cfg.getParameter<bool>("brCorrection")),
 weight(0)
 {
   //LHAPDF::initPDFSet(1, "cteq66.LHgrid");
+  mayConsume<GenEventInfoProduct>(genEventSrc_);
+  mayConsume<LHEEventProduct>(lheEventSrc_);
+  mayConsume<TtSemiLeptonicEvent>(ttInputTag);
+  mayConsume<TtFullHadronicEvent>(ttInputTag);
+
+  mayConsume<double>(puWeightSrc_);
+  mayConsume<double>(puWeightUpSrc_);
+  mayConsume<double>(puWeightDownSrc_);
+
+  mayConsume<double>(bWeightSrc_);
+  mayConsume<double>(bWeightSrc_bTagSFUp_);
+  mayConsume<double>(bWeightSrc_bTagSFDown_);
+  mayConsume<double>(bWeightSrc_misTagSFUp_);
+  mayConsume<double>(bWeightSrc_misTagSFDown_);
+
 }
 
 void
@@ -127,18 +144,20 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
     const TtFullHadronicEvent *fullHadTtEvent = 0;
     const TtEvent *ttEvent = 0;
 
-    if(ttEvent_.label().find("SemiLep")!=std::string::npos){
-      evt.getByLabel(ttEvent_, hSemiLepTtEvent);
-      semiLepTtEvent = hSemiLepTtEvent.product();
+    if(ttInputTag.label().find("SemiLep")!=std::string::npos){
+      edm::Handle<TtSemiLeptonicEvent> httEvent;
+      evt.getByLabel(ttInputTag, httEvent);
+      semiLepTtEvent = httEvent.product();
       ttEvent = semiLepTtEvent;
     }
-    else if(ttEvent_.label().find("FullHad")!=std::string::npos){
-      evt.getByLabel(ttEvent_, hFullHadTtEvent);
-      fullHadTtEvent = hFullHadTtEvent.product();
+    else if(ttInputTag.label().find("FullHad")!=std::string::npos){
+      edm::Handle<TtFullHadronicEvent> httEvent;
+      evt.getByLabel(ttInputTag, httEvent);
+      fullHadTtEvent = httEvent.product();
       ttEvent = fullHadTtEvent;
     }
     else{
-      std::cout << "The given 'ttEvent' label (" << ttEvent_.label() << ") is not allowed.\n"
+      std::cout << "The given 'ttEvent' label (" << ttInputTag.label() << ") is not allowed.\n"
           << "It has to contain either 'SemiLep' or 'FullHad'!" << std::endl;
     }
     
@@ -178,7 +197,7 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   }
 
   edm::Handle<std::vector<reco::Vertex> > vertecies_h;
-  evt.getByLabel(vertexSrc_, vertecies_h);
+  evt.getByToken(vertexSrc_, vertecies_h);
 
   if(vertecies_h.isValid()) weight->nVertex = vertecies_h->size();
 

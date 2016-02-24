@@ -90,7 +90,7 @@ from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets import *
 if data:
 	if (options.lepton=='muon'):
     		inputFiles = [ #'/store/data/Run2015C_25ns/SingleMuon/MINIAOD/05Oct2015-v1/50000/06D8AEE6-1274-E511-82D0-0025905A60CA.root'
-			'/store/data/Run2015D/SingleMuon/MINIAOD/05Oct2015-v1/10000/021FD3F0-876F-E511-99D2-0025905A6060.root' 
+			'/store/data/Run2015D/SingleMuon/MINIAOD/16Dec2015-v1/10000/0217776C-E1A8-E511-B061-0025904C5DDA.root' 
 			#  '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v4/000/258/159/00000/6CA1C627-246C-E511-8A6A-02163E014147.root'	
 			#, '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v4/000/258/159/00000/BEFDF59A-236C-E511-BDB9-02163E014496.root'
 			]
@@ -104,7 +104,7 @@ else:
                 #'/store/mc/RunIISpring15MiniAODv2/TT_TuneEE5C_13TeV-amcatnlo-herwigpp/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/02F8D87E-C76D-E511-A602-0025904CF95C.root'
                   #'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/00000/0AB045B5-BB0C-E511-81FD-0025905A60B8.root'
 			#'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Startup25ns_EXOReReco_74X_Spring15_mcRun2_startup25ns_v0-v1/50000/00C91219-9A7A-E511-ACA2-001C23C0D109.root'
-			'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9_ext3-v1/30000/FC35E6B6-B142-E511-9093-002590200AE0.root'
+			'/store/mc/RunIIFall15MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12_ext3-v1/20000/FA077BA2-B4C1-E511-9F87-002590A36FA2.root'
 			#,'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9_ext3-v1/30000/00705CAD-B142-E511-951B-20CF305616E2.root'
 			#,'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9_ext3-v1/30000/00EC732C-B342-E511-92F2-002590A3C96C.root'
 			#,'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9_ext3-v1/30000/022D5094-E542-E511-A39E-0026189438B5.root'
@@ -202,10 +202,10 @@ maxEvents = options.maxEvents
 
 # GlobalTags
 #globalTagMC   = '74X_mcRun2_asymptotic_v2'
-globalTagData = '74X_dataRun2_v4'
+#globalTagData = '74X_dataRun2_v4'
 usePrivateSQlite=False #do not use external JECs (sqlite file)
 globalTagMC   = 'DEFAULT'
-#globalTagData = 'DEFAULT'
+globalTagData = 'DEFAULT'
 #usePrivateSQlite=True #use external JECs (sqlite file)
 
 ### Output
@@ -317,6 +317,13 @@ else:
                                       postfix="NoHF")
 
 del process.slimmedMETs.t01Variation #brute the swarm
+
+
+process.pfCHS = cms.EDFilter("CandPtrSelector", src = cms.InputTag("packedPFCandidates"), cut = cms.string("fromPV"))
+from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
+## Define PFJetsCHS
+process.ak4PFJetsCHS = ak4PFJets.clone(src = 'pfCHS', doAreaFastjet = True)
+
 #add mnodules to redo the b-tagging on-the-fly using unscheduled mode
 #from PhysicsTools.PatAlgos.tools.jetTools import *
 ## b-tag discriminators
@@ -328,11 +335,12 @@ jetCorrectionLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']
 if (data):
     jetCorrectionLevels.append('L2L3Residual')
 
+
 from PhysicsTools.PatAlgos.tools.jetTools import *
 ## call addJetCollection to get get b tagging modules prepared
 addJetCollection(
     process,
-    labelName = '',
+    labelName = 'Updated',
     jetSource = cms.InputTag('ak4PFJetsCHS'), #TODO btw what is 'CHS' difference from AK4 to AK8? -> explanaition: https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetAnalysis recommondation (AK4 or AK8), AK4 is CMS default, AK8 is for jet substructure analysis
     pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
     pfCandidates = cms.InputTag('packedPFCandidates'),
@@ -349,9 +357,8 @@ addJetCollection(
 
 #enable GenJets and GenPartons for the Output Jets
 if runOnMC: 
-    process.patJets.addGenJetMatch=cms.bool(True) 
-    process.patJets.addGenPartonMatch=cms.bool(True) 
-
+    process.patJetsUpdated.addGenJetMatch=cms.bool(True) 
+    process.patJetsUpdated.addGenPartonMatch=cms.bool(True) 
 
 
 from PhysicsTools.PatAlgos.tools.pfTools import *
@@ -360,9 +367,9 @@ if runOnMiniAOD:
     adaptPVs(process, pvCollection=cms.InputTag('offlineSlimmedPrimaryVertices'))
 
 
-process.patJets.addBTagInfo = cms.bool(True)
+process.patJetsUpdated.addBTagInfo = cms.bool(True)
 if runOnMC == False:
-   process.patJetCorrFactors.levels.append('L2L3Residual')
+   process.patJetCorrFactorsUpdated.levels.append('L2L3Residual')
 ###
 ### Input configuration
 ###
@@ -608,7 +615,7 @@ process.selectedJets = selectedJets.clone( cut = jetCut )
 
 if (options.lepton=='electron'):
     process.cleanedJets = cms.EDProducer("PATJetCleaner", 
-                                        src = cms.InputTag("patJets"),
+                                        src = cms.InputTag("patJetsUpdated"),
                                          # preselection (any string-based cut on pat::Jet)     
                                          preselection = cms.string(''), 
                                          # overlap checking configurables
@@ -630,7 +637,7 @@ if (options.lepton=='electron'):
 
 else:
     process.cleanedJets = cms.EDProducer("PATJetCleaner", 
-                                         src = cms.InputTag("patJets"),
+                                         src = cms.InputTag("patJetsUpdated"),
                                          # preselection (any string-based cut on pat::Jet)     
                                          preselection = cms.string(''), 
                                          # overlap checking configurables

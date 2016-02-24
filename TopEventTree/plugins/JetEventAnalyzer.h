@@ -24,9 +24,9 @@ class JetEventAnalyzer : public edm::EDAnalyzer {
 
   edm::Service<TreeRegistryService> trs;
 
-  edm::InputTag jets_;
+  edm::EDGetTokenT< std::vector<pat::Jet > > jets_;
   edm::InputTag alternativeJets_;
-  edm::InputTag met_;
+  edm::EDGetTokenT<std::vector<pat::MET> > met_;
   std::string gluonTagName_;
 
   // max possible number of jets in events
