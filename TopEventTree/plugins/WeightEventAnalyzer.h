@@ -22,7 +22,8 @@ class WeightEventAnalyzer : public edm::EDAnalyzer {
 
   double mcWeight_;
 
-  edm::InputTag puSrc_;
+  //edm::InputTag puSrc_;
+  edm::EDGetTokenT<edm::View<PileupSummaryInfo> > puSrcToken_;
 /*  edm::InputTag vertexSrc_;*/
   edm::EDGetTokenT<std::vector<reco::Vertex> > vertexSrc_;
 
