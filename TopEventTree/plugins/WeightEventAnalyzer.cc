@@ -78,6 +78,16 @@ weight(0)
   mayConsume<double>(bWeightSrc_misTagSFUp_);
   mayConsume<double>(bWeightSrc_misTagSFDown_);
 
+
+  mayConsume<double>(bJESSrc_fNuUp_);
+  mayConsume<double>(bJESSrc_fNuDown_);
+  mayConsume<double>(bJESSrc_frag_);
+  mayConsume<double>(bJESSrc_fragHard_);
+  mayConsume<double>(bJESSrc_fragSoft_);
+
+  mayConsume<double>(triggerWeightSrc_);
+  mayConsume<reco::GenParticleCollection>((edm::InputTag)"genParticles");
+
 }
 
 void
