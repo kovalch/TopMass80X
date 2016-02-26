@@ -7,6 +7,8 @@
 
 //#include <memory>
 
+//TODO make getToken out if the getLabels (one day XD)
+
 // user include files
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -26,7 +28,7 @@
 
 WeightEventAnalyzer::WeightEventAnalyzer(const edm::ParameterSet& cfg):
 mcWeight_    (cfg.getParameter<double>("mcWeight")),
-puSrc_       (cfg.getParameter<edm::InputTag>("puSrc")),
+puSrcToken_      (consumes< edm::View<PileupSummaryInfo> >(cfg.getParameter<edm::InputTag>("puSrc"))),
 vertexSrc_   (consumes<std::vector<reco::Vertex> >(cfg.getParameter<edm::InputTag>("vertexSrc"))),
 
 puWeightSrc_    (cfg.getParameter<edm::InputTag>("puWeightSrc")),
@@ -81,6 +83,7 @@ weight(0)
 void
 WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
 {
+
   //////////////////////////////////////////////////////////////////////////////
   // INIT WeightEvent
   ////////////////////////////////////////////////////////////////////////////
@@ -132,7 +135,7 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
     weight->mcWeight       *= -1.;
     weight->combinedWeight *= -1.;
   }
-  
+
   //////////////////////////////////////////////////////////////////////////
   // BR correction for MadGraph
   ////////////////////////////////////////////////////////////////////////
@@ -176,13 +179,14 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
       weight->combinedWeight *= weight->brWeight;
     }
   }
-  
+
   //////////////////////////////////////////////////////////////////////////
   // PU weights & control variables
   ////////////////////////////////////////////////////////////////////////
 
   edm::Handle<edm::View<PileupSummaryInfo> > pu_h;
-  evt.getByLabel(puSrc_, pu_h);
+  //evt.getByLabel(puSrc_, pu_h);
+  evt.getByToken(puSrcToken_, pu_h);
 
   if(pu_h.isValid()){
     weight->nPU.resize(3);
@@ -265,7 +269,6 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   edm::Handle<double> triggerWeight_h;
   evt.getByLabel(triggerWeightSrc_, triggerWeight_h);
   if(triggerWeight_h.isValid()) { weight->triggerWeight = *triggerWeight_h; weight->combinedWeight *= weight->triggerWeight; }
-  
   
   //////////////////////////////////////////////////////////////////////////
   // ME TOP QUARKS
