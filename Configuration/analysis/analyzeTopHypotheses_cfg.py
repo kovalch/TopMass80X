@@ -26,7 +26,7 @@ options.register('mesShift', 0.0, VarParsing.VarParsing.multiplicity.singleton,V
 options.register('eesShift', 0.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "Electron energy scale shift in sigma")
 options.register('uncFactor', 1.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "Unclustered energy factor")
 
-options.register('csvm', 0.890, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "CSVM working point")
+options.register('csvm', 0.8, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "CSVM working point")  #0.89 on 74
 options.register('nbjets', 2, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.int, "Minimum number of bjets")
 
 options.register('brCorrection', True, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.bool, "Do BR correction (MadGraph)")
@@ -86,12 +86,12 @@ process.MessageLogger.cerr.TtSemiLeptonicEvent = cms.untracked.PSet(
 )
 
 
-from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_76x import *
+from TopMass.Configuration.patRefSel_refElectronJets_refMuJets_76x import *
 
-if data:
+if data:  
 	if (options.lepton=='muon'):
     		inputFiles = [ #'/store/data/Run2015C_25ns/SingleMuon/MINIAOD/05Oct2015-v1/50000/06D8AEE6-1274-E511-82D0-0025905A60CA.root'
-			'/store/data/Run2015D/SingleMuon/MINIAOD/16Dec2015-v1/10000/0217776C-E1A8-E511-B061-0025904C5DDA.root' 
+			'/store/data/Run2015D/SingleMuon/MINIAOD/16Dec2015-v1/10000/00006301-CAA8-E511-AD39-549F35AD8BC9.root' 
 			#  '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v4/000/258/159/00000/6CA1C627-246C-E511-8A6A-02163E014147.root'	
 			#, '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v4/000/258/159/00000/BEFDF59A-236C-E511-BDB9-02163E014496.root'
 			]
@@ -108,7 +108,7 @@ else:
 #'/store/mc/RunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/1020444C-AA71-E511-9CC7-0002C90F8036.root'
 		#'/store/mc/RunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/50000/5A6C10EC-A370-E511-B921-0002C90A3464.root'
 		#'/store/mc/RunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/50000/140280F9-5470-E511-B1D9-0002C90C0FDA.root'
-#		 '/store/mc/RunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/004C9C92-AE71-E511-AE40-F45214C748C4.root'
+		 #'/store/mc/RunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/004C9C92-AE71-E511-AE40-F45214C748C4.root'
 			#'/store/mcRunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/004C9C92-AE71-E511-AE40-F45214C748C4.root'
 #'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/00000/0AB045B5-BB0C-E511-81FD-0025905A60B8.root'
 			#'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Startup25ns_EXOReReco_74X_Spring15_mcRun2_startup25ns_v0-v1/50000/00C91219-9A7A-E511-ACA2-001C23C0D109.root'
@@ -146,13 +146,13 @@ else:
 selectEvents = 'pGoodVertex'
 
 # Step 0
-#triggerSelectionDataElectron  = ''
-#triggerSelectionMCElectron = 'HLT_*' #TODO
+triggerSelectionDataElectron  = 'HLT_Ele27_eta2p1_WPLoose_Gsf_v* '
+triggerSelectionMCElectron = 'HLT_Ele27_eta2p1_WPLoose_Gsf_v* ' 
 
-#triggerSelectionDataMuon  = '' 
-#triggerSelectionMCMuon = 'HLT_*'
+triggerSelectionDataMuon  = 'HLT*'# 'HLT_IsoMu20_v*' 
+triggerSelectionMCMuon = 'HLT*' #'HLT_IsoMu20_v*'  #no trigger for Pile Up estimation
 
-#primary Vertex Cut? https://twiki.cern.ch/twiki/bin/view/CMS/TTbarHbbRun2ReferenceAnalysis_76XTransition  
+#FIXME check MET Filters
 
 # Step 1
 #muonCut       = ''
@@ -179,7 +179,7 @@ useCalibElec     = options.useCalibElec
 
 electronVetoCut = electronGsfVetoCut
 electronCut = electronGsfCut
-signalElectronCut = 'pt > 30 && abs(eta) <2.1'
+#signalElectronCut = 'pt > 30 && abs(eta) <2.1'
 
 # Step 4 
 #only interresting for the electron case
@@ -216,7 +216,7 @@ maxEvents = options.maxEvents
 
 # GlobalTags
 #globalTagMC   = '74X_mcRun2_asymptotic_v2'
-globalTagData = '76X_dataRun2_v4' #FIXME
+globalTagData = '76X_dataRun2_v2' #FIXME
 usePrivateSQlite=False #do not use external JECs (sqlite file)
 globalTagMC   = 'DEFAULT'
 #globalTagData = 'DEFAULT'
@@ -285,9 +285,9 @@ if usePrivateSQlite: #now false
     from CondCore.DBCommon.CondDBSetup_cfi import *
     import os
     if runOnMC:
-        era="Summer15_25nsV6_MC"  #TODO V6 correct version?
+        era="Fall15_25nsV2_MC"  
     else:
-        era="Summer15_25nsV6_DATA" #"Summer15_50nsV4_DATA" #TODO V6 correct version?
+        era="Fall15_25nsV2_DATA"   #TODO does he find this?
     dBFile = os.path.expandvars("$CMSSW_BASE/src/PhysicsTools/PatAlgos/test/"+era+".db")
     process.jec = cms.ESSource("PoolDBESSource",CondDBSetup,
                                connect = cms.string( "sqlite_file://"+dBFile ),
@@ -321,13 +321,13 @@ if runOnMiniAOD:
     runMetCorAndUncFromMiniAOD(process,
                                isData= (data),
                                pfCandColl=cms.InputTag("noHFCands"),#comment for MET with HF #FIXME noHFCands not recommended
-                               jecUncFile='TopMass/Configuration/data/Summer15_25nsV6_DATA_UncertaintySources_AK4PFchs.txt',
+                               jecUncFile='TopMass/Configuration/data/Summer15_25nsV6_DATA_UncertaintySources_AK4PFchs.txt', #FIXME update
                                )
 else:
     runMETCorrectionsAndUncertainties(process,
                                       isData= (data),
                                       pfCandColl=cms.InputTag("noHFCands"),#comment for MET with HF
-                                      jecUncFile='TopMass/Configuration/data/Summer15_25nsV6_DATA_UncertaintySources_AK4PFchs.txt',
+                                      jecUncFile='TopMass/Configuration/data/Summer15_25nsV6_DATA_UncertaintySources_AK4PFchs.txt', #FIXME update
                                       postfix="NoHF")
 
 del process.slimmedMETs.t01Variation #brute the swarm
@@ -355,7 +355,7 @@ from PhysicsTools.PatAlgos.tools.jetTools import *
 addJetCollection(
     process,
     labelName = 'Updated',
-    jetSource = cms.InputTag('ak4PFJetsCHS'), #TODO btw what is 'CHS' difference from AK4 to AK8? -> explanaition: https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetAnalysis recommondation (AK4 or AK8), AK4 is CMS default, AK8 is for jet substructure analysis
+    jetSource = cms.InputTag('ak4PFJetsCHS'), #btw what is 'CHS' difference from AK4 to AK8? -> explanaition: https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetAnalysis 
     pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
     pfCandidates = cms.InputTag('packedPFCandidates'),
     svSource = cms.InputTag('slimmedSecondaryVertices'),
@@ -396,25 +396,26 @@ if len( inputFiles ) == 0:
     else:
       from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValSingleMuMINIAOD
       inputFiles = filesRelValSingleMuMINIAOD
-  else:
-    if runOnMC:
-      from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
-      inputFiles = filesRelValProdTTbarAODSIM
-    else:
-      from PhysicsTools.PatAlgos.patInputFiles_cff import filesSingleMuRECO # not available at CERN
-      inputFiles = filesSingleMuRECO
+#  else:
+#    if runOnMC:
+#      from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
+#      inputFiles = filesRelValProdTTbarAODSIM
+#    else:
+#      from PhysicsTools.PatAlgos.patInputFiles_cff import filesSingleMuRECO # not available at CERN
+#      inputFiles = filesSingleMuRECO
 
-process.load( "TopQuarkAnalysis.Configuration.patRefSel_inputModule_cfi" )
+process.load( "TopQuarkAnalysis.Configuration.patRefSel_inputModule_cfi" ) 
+
 process.source.fileNames = inputFiles
-process.maxEvents.input  = maxEvents
-
+# maximum number of events
+process.maxEvents.input = maxEvents 
 
 ###
 ### PAT configuration
 ###
 
-if not runOnMiniAOD:
-  process.load( "PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff" )
+#if not runOnMiniAOD:
+#  process.load( "PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff" )
 
 
 
@@ -462,9 +463,17 @@ process.sStandAloneTrigger = cms.Sequence( process.triggerSelection
                                          )
 process.pStandAloneTrigger = cms.Path( process.sStandAloneTrigger )
 
-process.load('TopQuarkAnalysis.Configuration.patRefSel_eventCleaning_cff')
+#process.load('TopQuarkAnalysis.Configuration.patRefSel_eventCleaning_cff')
+#del process.eventCleaning
+
+from TopQuarkAnalysis.Configuration.patRefSel_eventCleaning_cfi import metFiltersMiniAOD
+process.metFiltersMiniAOD = metFiltersMiniAOD
+
+process.eventCleaningMiniAOD = cms.Sequence(process.metFiltersMiniAOD)
+process.eventCleaningMiniAODData = cms.Sequence()
+process.eventCleaningMiniAODMC = cms.Sequence()
 process.sStandAloneEventCleaning = cms.Sequence()
-if runOnMiniAOD:
+if runOnMiniAOD:  
   process.sStandAloneEventCleaning += process.eventCleaningMiniAOD
   if runOnMC:
     process.sStandAloneEventCleaning += process.eventCleaningMiniAODMC
@@ -473,12 +482,12 @@ if runOnMiniAOD:
     process.metFiltersMiniAOD.TriggerResultsTag = cms.InputTag("TriggerResults","","RECO")
     #HS disable event cleaning at the moment
     process.sStandAloneEventCleaning = cms.Sequence()
-else:
-  process.sStandAloneEventCleaning += process.eventCleaning
-  if runOnMC:
-    process.sStandAloneEventCleaning += process.eventCleaningMC
-  else:
-    process.sStandAloneEventCleaning += process.eventCleaningData
+#else:
+#  process.sStandAloneEventCleaning += process.eventCleaning
+#  if runOnMC:
+#    process.sStandAloneEventCleaning += process.eventCleaningMC
+#  else:
+#    process.sStandAloneEventCleaning += process.eventCleaningData
 process.pStandAloneEventCleaning = cms.Path( process.sStandAloneEventCleaning )
 
 from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import goodOfflinePrimaryVertices
@@ -492,7 +501,7 @@ process.pStandAloneGoodVertex = cms.Path( process.sStandAloneGoodVertex )
 
 # Step 1
 
-from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import selectedMuons, preSignalMuons, signalMuons, standAloneSignalMuonFilter, selectedElectrons, preSignalElectrons, signalElectrons, standAloneSignalElectronFilter
+from TopMass.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import selectedMuons, preSignalMuons, signalMuons, standAloneSignalMuonFilter, selectedElectrons, preSignalElectrons, signalElectrons, standAloneSignalElectronFilter
 
 if (options.lepton=='muon'):
  process.selectedMuons = selectedMuons.clone( cut = muonCut )
@@ -508,7 +517,7 @@ else:
  if runOnMiniAOD:
   	 process.selectedElectrons.src = 'slimmedElectrons'
  process.preSignalElectrons = preSignalElectrons.clone( cut = signalElectronCut ) 
- process.signalElectrons = signalElectrons.clone()   #FIXME signal Muons hat zwei src, umgeht den "signalElectronCut"
+ process.signalElectrons = signalElectrons.clone()  
  process.standAloneSignalLeptonFilter = standAloneSignalElectronFilter.clone( ) 
 
 process.sStandAloneSignalLepton = cms.Sequence( process.standAloneSignalLeptonFilter )
@@ -516,7 +525,7 @@ process.pStandAloneSignalLepton = cms.Path( process.sStandAloneSignalLepton )
 
 # Step 2
 
-from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import standAloneLooseMuonVetoFilter, LooseMuonVetoFilter
+from TopMass.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import standAloneLooseMuonVetoFilter, LooseMuonVetoFilter
 
 if (options.lepton=='muon'):
  process.standAloneLooseMuonVetoFilter = standAloneLooseMuonVetoFilter.clone()
@@ -537,18 +546,18 @@ process.pStandAloneLooseMuonVeto = cms.Path( process.sStandAloneLooseMuonVeto )
 
 # Step 3
 
-if not runOnMiniAOD: #not the case, otherwise the electronIDs need to be checked #TODO use the "electronID" string, not changed bacause only miniAOD->nodebugging
-  from PhysicsTools.SelectorUtils.tools.vid_id_tools import switchOnVIDElectronIdProducer, setupAllVIDIdsInModule, setupVIDElectronSelection
-  electron_ids = [  #'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff'    #neu, nicht Cut-based, noch nicht versucht
- 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_50ns_V1_cff' #original
-                 , 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff'  # original
-                  ]
-  switchOnVIDElectronIdProducer( process )
-  process.electronIDValueMapProducer.ebReducedRecHitCollection = cms.InputTag( 'reducedEcalRecHitsEB' )
-  process.electronIDValueMapProducer.eeReducedRecHitCollection = cms.InputTag( 'reducedEcalRecHitsEE' )
-  process.electronIDValueMapProducer.esReducedRecHitCollection = cms.InputTag( 'reducedEcalRecHitsES' )
-  for idmod in electron_ids:
-    setupAllVIDIdsInModule( process, idmod, setupVIDElectronSelection )
+#if not runOnMiniAOD: #not the case, otherwise the electronIDs need to be checked 
+#  from PhysicsTools.SelectorUtils.tools.vid_id_tools import switchOnVIDElectronIdProducer, setupAllVIDIdsInModule, setupVIDElectronSelection
+#  electron_ids = [  #'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff'    #neu, nicht Cut-based, noch nicht versucht
+# 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_50ns_V1_cff' #original
+#                 , 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff'  # original
+#                  ]
+#  switchOnVIDElectronIdProducer( process )
+#  process.electronIDValueMapProducer.ebReducedRecHitCollection = cms.InputTag( 'reducedEcalRecHitsEB' )
+#  process.electronIDValueMapProducer.eeReducedRecHitCollection = cms.InputTag( 'reducedEcalRecHitsEE' )
+#  process.electronIDValueMapProducer.esReducedRecHitCollection = cms.InputTag( 'reducedEcalRecHitsES' )
+#  for idmod in electron_ids:
+#    setupAllVIDIdsInModule( process, idmod, setupVIDElectronSelection )
 
 if useElecEAIsoCorr:
   from EgammaAnalysis.ElectronTools.electronIsolatorFromEffectiveArea_cfi import elPFIsoValueEA03
@@ -574,7 +583,7 @@ else:
   electronVetoCut.replace( '-1.0*userIsolation("User1Iso")', '-0.5*puChargedHadronIso' )
 
 if useCalibElec: #not used atm (option at the document beginning)
-  from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import electronsWithRegression, calibratedElectrons
+  from TopMass.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import electronsWithRegression, calibratedElectrons
   process.electronsWithRegression = electronsWithRegression.clone()
   if runOnMiniAOD:
     if useElecEAIsoCorr:
@@ -584,9 +593,9 @@ if useCalibElec: #not used atm (option at the document beginning)
     process.electronsWithRegression.vertexCollection  = 'offlineSlimmedPrimaryVertices'
   process.calibratedElectrons = calibratedElectrons.clone( isMC = runOnMC )
   if runOnMC:
-    process.calibratedElectrons.inputDataset = 'Summer12_LegacyPaper' # FIXME: Update as soon as available
+    process.calibratedElectrons.inputDataset = 'Summer12_LegacyPaper' #not used atm
   else:
-    process.calibratedElectrons.inputDataset = '22Jan2013ReReco' # FIXME: Update as soon as available
+    process.calibratedElectrons.inputDataset = '22Jan2013ReReco' #not used atm
   process.RandomNumberGeneratorService = cms.Service( "RandomNumberGeneratorService"
                                                     , calibratedElectrons = cms.PSet( initialSeed = cms.untracked.uint32( 1 )
                                                                                     , engineName  = cms.untracked.string('TRandom3')
@@ -596,7 +605,7 @@ if useCalibElec: #not used atm (option at the document beginning)
 
 
 
-from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import selectedElectrons, standAloneElectronVetoFilter, dileptonElectronVetoFilter, selectedElectrons4Veto
+from TopMass.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import selectedElectrons, standAloneElectronVetoFilter, dileptonElectronVetoFilter, selectedElectrons4Veto
 if (options.lepton=='muon'):
  process.selectedElectrons = selectedElectrons.clone( cut = (electronVetoCut.format( electronID )) )
  if useCalibElec:
@@ -622,56 +631,41 @@ process.pElectronVetoX = cms.Path( process.sElectronVetoX )
 
 # Step 4
 if (options.lepton=='electron'):
- from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import conversionRejectionFilter
+ from TopMass.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import conversionRejectionFilter
  process.conversionRejectionFilter = conversionRejectionFilter.clone( cut = (conversionRejectionCut.format( electronID )) )
  process.sConversionRejectionFilter = cms.Sequence( process.conversionRejectionFilter )
  process.pConversionRejectionFilter = cms.Path( process.sConversionRejectionFilter )
 
 # Step 5
 
-from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import selectedJets
+from TopMass.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import selectedJets
 process.selectedJets = selectedJets.clone( cut = jetCut )
 
 process.goodOfflinePrimaryVertices.taggedMode=cms.untracked.bool( True )
 
-from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import signalVeryTightJets, standAloneSignalVeryTightJetsFilter
+from TopMass.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import signalVeryTightJets, standAloneSignalVeryTightJetsFilter
 process.signalVeryTightJets = signalVeryTightJets.clone( cut = veryTightJetCut )
 process.standAloneSignalVeryTightJetsFilter = standAloneSignalVeryTightJetsFilter.clone(  ) 
 process.sStandAlone1Jet = cms.Sequence( process.standAloneSignalVeryTightJetsFilter )
 process.pStandAlone1Jet = cms.Path( process.sStandAlone1Jet )
 
-
-#TODO dows is work? adjustment for some new generator stuff...
-#process.patJetPartons.particles = cms.InputTag("prunedGenParticles")
-#process.patJetPartonMatch.matched = cms.InputTag("prunedGenParticles")
-#process.patJetGenJetMatch.matched = cms.InputTag("slimmedGenJets")
-#process.patJetCorrFactors.primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
-#process.impactParameterTagInfos.jetTracks= cms.InputTag("")
-#process.combinedSecondaryVertexBJetTags.tagInfos = cms.VInputTag(cms.InputTag("pfImpactParameterTagInfos"), cms.InputTag("secondaryVertexTagInfos")) #FIXME pfImpactParameterTagInfos instead of impactParameterTagInfos? means a CandIPProducer instead of a TrackIPProducer 
-#process.secondaryVertexTagInfos hat auch die impactParameterTagInfos drin....
-
-
-from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import signalTightJets, standAloneSignalTightJetsFilter
+from TopMass.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import signalTightJets, standAloneSignalTightJetsFilter
 process.signalTightJets = signalTightJets.clone( cut = tightJetCut )
 process.standAloneSignalTightJetsFilter = standAloneSignalTightJetsFilter.clone( )
 process.sStandAlone2Jets = cms.Sequence( process.standAloneSignalTightJetsFilter )
 process.pStandAlone2Jets = cms.Path( process.sStandAlone2Jets )
 
-from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import signalLooseJets, standAloneSignalLooseJetsFilter
+from TopMass.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import signalLooseJets, standAloneSignalLooseJetsFilter
 process.signalLooseJets = signalLooseJets.clone( cut = looseJetCut )
 process.standAloneSignalLooseJetsFilter = standAloneSignalLooseJetsFilter.clone(  )
 process.sStandAlone3Jets = cms.Sequence( process.standAloneSignalLooseJetsFilter )
 process.pStandAlone3Jets = cms.Path( process.sStandAlone3Jets )
 
-from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import signalVeryLooseJets, standAloneSignalVeryLooseJetsFilter
+from TopMass.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import signalVeryLooseJets, standAloneSignalVeryLooseJetsFilter
 process.signalVeryLooseJets = signalVeryLooseJets.clone( cut = veryLooseJetCut )
 process.standAloneSignalVeryLooseJetsFilter = standAloneSignalVeryLooseJetsFilter.clone(  )
 process.sStandAlone4Jets = cms.Sequence( process.standAloneSignalVeryLooseJetsFilter )
 process.pStandAlone4Jets = cms.Path( process.sStandAlone4Jets )
-
-
-#first scaling, then cleaning!
-#now, ees and mes not working with that. oder doch?
 
 if (options.lepton=='electron'):
     process.cleanedJets = cms.EDProducer("PATJetCleaner", 
@@ -720,7 +714,7 @@ process.signalVeryLooseJets.src = 'cleanedJets'
 
 # Step 6
 
-from TopQuarkAnalysis.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import selectedBTagJets, standAloneSignalBTagsFilter
+from TopMass.Configuration.patRefSel_refElectronJets_refMuJets_76x_cfi import selectedBTagJets, standAloneSignalBTagsFilter
 process.selectedBTagJets = selectedBTagJets.clone( src = bTagSrc
                                                  , cut = bTagCut
                                                  )
@@ -783,10 +777,13 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_c
 ## enable additional per-event printout from the TtSemiLeptonicEvent
 process.ttSemiLepEvent.verbosity = 0
 
+#new 7.3.16
+process.decaySubset.runMode = cms.string("Run2")
+
 ## TRIGGER
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 
-if os.getenv('CMSSW_VERSION').startswith('CMSSW_7_4_'):
+if os.getenv('CMSSW_VERSION').startswith('CMSSW_7_6_'):  #TODO do we want this on 76?
     process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", throw=True)
 #else:
     #process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_IsoMu24_eta2p1_v*"], throw=True)
@@ -796,44 +793,7 @@ if os.getenv('CMSSW_VERSION').startswith('CMSSW_7_4_'):
     #process.hltFilter.HLTPaths=["HLT_IsoMu24_eta2p1_v*"]
 #if data:
     #process.hltFilter.HLTPaths=["HLT_IsoMu24_eta2p1_v*"]
-##======= old but where form??
-##if os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
-##    process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::REDIGI311X", HLTPaths = ["HLT_Mu15_v*"], throw=True)
-##else:
-##    process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_IsoMu24_eta2p1_v*"], throw=True)
-##if(options.mcversion=="Summer11"):
-##    process.hltFilter.HLTPaths=["HLT_IsoMu24_v*"]
-##if(options.mcversion=="Summer12"):
-##    process.hltFilter.HLTPaths=["HLT_IsoMu24_eta2p1_v*"]
-##if data:
-##    process.hltFilter.HLTPaths=["HLT_IsoMu24_eta2p1_v*"]
-##
-## import QuarkGluonTagger
-##process.load('QuarkGluonTagger.EightTeV.QGTagger_RecoJets_cff')  
-##process.QGTagger.srcJets = cms.InputTag("goodJetsPF30")
-##process.QGTagger.isPatJet  = cms.untracked.bool(True)     
-##process.QGTagger.useCHS  = cms.untracked.bool(True)
-##
-### load the PU JetID sequence
-##process.load("CMGTools.External.pujetidsequence_cff")
-##process.puJetIdChs.jets = cms.InputTag("goodJetsPF30")
-##process.puJetMvaChs.jets = cms.InputTag("goodJetsPF30")
-###process.puJetId.jets = cms.InputTag("goodJetsPF30")
-###process.puJetMva.jets = cms.InputTag("goodJetsPF30")
-##>>>>>>> origin
 
-## JET selection
-# process.tightBottomSSVPFJets  = process.selectedPatJets.clone(src = 'goodJetsPF30',
-#                                            cut='bDiscriminator(\"simpleSecondaryVertexHighEffBJetTags\") > 1.74'
-#                                            )
-# process.tightBottomCSVPFJets  = process.selectedPatJets.clone(src = 'goodJetsPF30',
-#                                            cut='bDiscriminator(\"combinedSecondaryVertexBJetTags\") > ' + str(options.csvm)
-#                                            )
-#
-# process.leadingJetSelection.src = 'tightLeadingPFJets'
-#
-# process.bottomJetSelection.src  = 'tightBottomCSVPFJets'
-# process.bottomJetSelection.minNumber = options.nbjets;
 
 ## choose which hypotheses to produce
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
@@ -849,12 +809,13 @@ setForAllTtSemiLepHypotheses(process, "maxNJets", 4)
 #setForAllTtSemiLepHypotheses(process, "mets", "scaledMET:scaledMETs")
 setForAllTtSemiLepHypotheses(process, "mets", "patPFMetT1")
 
+
 setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
 #if data:
     #setForAllTtSemiLepHypotheses(process, "mets", "patMETs")
     #setForAllTtSemiLepHypotheses(process, "jetCorrectionLevel", "L2L3Residual")
 
-## change jet-parton matching algorithm #FIXME enstspricht nicht der empfehlung in seinem Komentar
+## change jet-parton matching algorithm #FIXME enstspricht nicht der empfehlung in seinem Kommentar
 process.ttSemiLepJetPartonMatch.algorithm = "unambiguousOnly"
 process.ttSemiLepJetPartonMatch.maxNJets  = -1
 process.ttSemiLepJetPartonMatch.useMaxDist = True
@@ -870,7 +831,7 @@ process.hitFitTtSemiLepEventHypothesis.useBTagging       = True
 addTtSemiLepHypotheses(process,
                        ["kHitFit", "kMVADisc"]
                        )
-#if data: removeTtSemiLepHypGenMatch(process)
+
 if (data): removeTtSemiLepHypGenMatch(process)
 
 ## load HypothesisAnalyzer
@@ -902,7 +863,7 @@ if runOnMiniAOD:
 #process.analyzeHitFitSel = process.analyzeHitFit.clone(topBranchName = 'topSel.')
 #process.analyzer         = cms.Sequence(process.makeGenEvt+process.makeTtSemiLepEvent+process.analyzeHitFit+process.analyzeJets+process.analyzeWeights )
 process.content = cms.EDAnalyzer("EventContentAnalyzer")
-process.analyzer         = cms.Sequence(process.analyzeHitFit+process.analyzeJets+process.analyzeWeights)
+process.analyzer         = cms.Sequence(process.analyzeHitFit+process.analyzeJets+process.analyzeWeights) 
 
 if runOnMC:
     #use smeared jets and MET
@@ -932,7 +893,7 @@ if options.lJesFactor!=1.0: #FIXME
 	elif options.mcversion == "genLevel":
 	    resolutionNominal = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
 	else:
-	    resolutionNominal = [1.079, 1.099, 1.121, 1.208, 1.254, 1.395, 1.056] #FIXME alle auf 1.0?  nmbrs from Run I
+	    resolutionNominal = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]   #[1.079, 1.099, 1.121, 1.208, 1.254, 1.395, 1.056] #FIXME alle auf 1.0?  nmbrs from Run I
 	resolutionUnc     = [0.026, 0.028, 0.029, 0.046, 0.062, 0.063, 0.191]
 	
 	scaledJetEnergy.resolutionFactors   = [] 
@@ -969,7 +930,7 @@ if options.lJesFactor!=1.0: #FIXME
 process.load("TopAnalysis.TopUtils.UnclusteredMETScale_cfi")
 from TopAnalysis.TopUtils.UnclusteredMETScale_cfi import *
 
-process.scaledMET.inputJets       = "scaledJetEnergy:selectedPatJets"
+process.scaledMET.inputJets       = "scaledJetEnergy:selectedPatJets"   #FIXME selectedPatJetsUpdated ???
 process.scaledMET.inputMETs       = "scaledMuonEnergy:METs"
 process.scaledMET.inputElectrons  = "scaledElectronEnergy:selectedPatElectrons"
 process.scaledMET.inputMuons      = "scaledMuonEnergy:selectedPatMuons"
@@ -1072,7 +1033,7 @@ process.pBTags         = cms.Path( process.sBTags )
 from TopMass.TopEventTree.FilterDummyAnalyzer_cfi import FilterDummyAnalyzer
 process.FDAnalyzer = FilterDummyAnalyzer.clone()
 
-process.pAnalysis = cms.Path(process.serialFilter + process.analyzer + process.FDAnalyzer)
+process.pAnalysis = cms.Path(process.serialFilter + process.analyzer + process.FDAnalyzer) 
 
 process.schedule = cms.Schedule( 
   process.pTrigger,
@@ -1116,13 +1077,13 @@ if not data:
         process.eventWeightPU.DataHistoName            = "pileup"
 
         process.eventWeightPU.MCSampleFile             = "TopAnalysis/TopUtils/data/MC_PUDist_Summer12_S10.root"
-    elif (options.mcversion == "RunIIFall15DR"):
+    elif (options.mcversion == "RunIIFall15DR"):   
 	process.eventWeightPU.PUSource                 = cms.InputTag("slimmedAddPileupInfo")
         process.eventWeightPU.MCSampleHistoName        = "puhisto"
         process.eventWeightPU.DataHistoName            = "pileup"
 
-        process.eventWeightPU.MCSampleFile             = "data/PUhists/Run2_MC_2015D_amcatnlo_truePU.root" 
-	process.eventWeightPU.DataFile		       = "TopAnalysis/TopUtils/data/Data_PUHist_Run2015D.root"
+        process.eventWeightPU.MCSampleFile             = "data/PUhists/Run2_MC_2015D_asymptotic-v12_truePU.root"   #works for asymptotic_v12 PU generators
+	process.eventWeightPU.DataFile		       = "TopAnalysis/TopUtils/data/Data_PUHist_Run2015D_v2.root"
 
     if (options.generator == "rd"):
         process.eventWeightPU.MCSampleHistoName        = ""
@@ -1145,14 +1106,14 @@ if not data:
     #### Configuration for PU Up Variations
     if(options.mcversion != "RunIIFall15DR"):
     	 process.eventWeightPUsysUp.WeightName          = "eventWeightPUUp"
-    	 process.eventWeightPUsysUp.DataFile            = "TopAnalysis/TopUtils/data/Data_PUHist_Run2015D.root"
+    	 process.eventWeightPUsysUp.DataFile            = "TopAnalysis/TopUtils/data/Data_PUHist_Run2015D.root"  
     	 process.eventWeightPUsysUp.CreateWeight3DHisto = False
     #process.eventWeightPUsysUp.Weight3DHistoFile   = "TopMass/Configuration/data/Weight3DUp.root"
 
     #### Configuration for PU Down Variations
 
    	 process.eventWeightPUsysDown.WeightName          = "eventWeightPUDown"
-    	 process.eventWeightPUsysDown.DataFile            = "TopAnalysis/TopUtils/data/Data_PUHist_Run2015D.root"
+    	 process.eventWeightPUsysDown.DataFile            = "TopAnalysis/TopUtils/data/Data_PUHist_Run2015D.root"  
     	 process.eventWeightPUsysDown.CreateWeight3DHisto = False
     #process.eventWeightPUsysDown.Weight3DHistoFile   = "TopMass/Configuration/data/Weight3DDown.root"
 
@@ -1163,7 +1124,7 @@ if not data:
                                               #process.eventWeightPUsysDown  )
 
     ## ---
-    ##    MC B-tag reweighting   #TODO aktualitaet checken
+    ##    MC B-tag reweighting   #TODO aktualitaet checken, z.Z. B-Tag Weight fixed on 1. FIXME
     ## ---
     ## load BTV database
     process.load ("RecoBTag.PerformanceDB.PoolBTagPerformanceDB1107")
@@ -1176,8 +1137,8 @@ if not data:
     if options.bSFNewRecipe:
         process.bTagSFEventWeight.newRecipe= True
         process.bTagSFEventWeight.maxJets  = 4
-    process.bTagSFEventWeight.sysVar   = "" # bTagSFUp, bTagSFDown, misTagSFUp, misTagSFDown possible;
-    process.bTagSFEventWeight.filename = "TopAnalysis/Configuration/data/analyzeBTagEfficiency2012.root"
+    process.bTagSFEventWeight.sysVar   = "" 
+    process.bTagSFEventWeight.filename = "TopAnalysis/Configuration/data/analyzeBTagEfficiency2012.root" #FIXME aktuell? Nataliia arbeitet dran
     process.bTagSFEventWeight.verbose  = 0
 
     process.bTagSFEventWeightBTagSFUp     = process.bTagSFEventWeight.clone(sysVar = "bTagSFUp")
@@ -1213,12 +1174,12 @@ if not data:
     ## ---
     ##    MC eff SF reweighting
     ## ---
-    ## scale factor for trigger and lepton selection efficiency
+    ## scale factor for trigger and lepton selection efficiency  #TODO where is this used?
     process.load("TopAnalysis.TopUtils.EffSFLepton2DEventWeight_cfi")
     process.effSFMuonEventWeight=process.effSFLepton2DEventWeight.clone()
     process.effSFMuonEventWeight.particles=cms.InputTag("signalMuons")
     process.effSFMuonEventWeight.sysVar   = cms.string("")
-    process.effSFMuonEventWeight.filename= "TopAnalysis/Configuration/data/MuonEffSF2D2012.root"
+    process.effSFMuonEventWeight.filename= "TopAnalysis/Configuration/data/MuonEffSF2D2012.root" #FIXME get new ones from twiki 76x  page
     process.effSFMuonEventWeight.verbose=cms.int32(0)
     process.effSFMuonEventWeight.additionalFactor=1.0 ## lepton selection and trigger eff. SF both included in loaded histo
     process.effSFMuonEventWeight.additionalFactorErr=0.01 ## 1.0% sys error to account for selection difference Z - ttbar
