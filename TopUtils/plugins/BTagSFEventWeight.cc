@@ -89,6 +89,8 @@ BTagSFEventWeight::BTagSFEventWeight(const edm::ParameterSet& cfg):
   measureMap_["BTAGBERRCORR"]=PerformanceResult::BTAGBERRCORR;
   measureMap_["BTAGLEFFCORR"]=PerformanceResult::BTAGLEFFCORR;
   measureMap_["BTAGLERRCORR"]=PerformanceResult::BTAGLERRCORR;
+  
+  mayConsume<edm::View< pat::Jet >>(jets_);
 }
 
 BTagSFEventWeight::~BTagSFEventWeight()
@@ -100,12 +102,14 @@ void
 BTagSFEventWeight::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
     //Setup measurement from database
-  setup.get<BTagPerformanceRecord>().get( "BTAG"+bTagAlgo_, perfHBTag);
-  setup.get<BTagPerformanceRecord>().get( "MISTAG"+bTagAlgo_, perfHMisTag);
+//   setup.get<BTagPerformanceRecord>().get( "BTAG"+bTagAlgo_, perfHBTag);
+//   setup.get<BTagPerformanceRecord>().get( "MISTAG"+bTagAlgo_, perfHMisTag);
   
   edm::Handle<edm::View< pat::Jet > > jets;
   evt.getByLabel(jets_, jets);
-
+//   edm::Handle<std::vector<pat::Jet> > jets;
+//   evt.getByToken(jets_, jets);
+  
   double pt, eta;
   std::vector<double> oneMinusBEffies(0) , oneMinusBEffies_scaled(0);
   std::vector<double> oneMinusBMistags(0), oneMinusBMistags_scaled(0);
@@ -369,7 +373,99 @@ double BTagSFEventWeight::effBTagSFerr2012(double x)
     return 1.; 
   }
 }
+double BTagSFEventWeight::effBTagSF76X(double x)
+{
+  // function from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation76X; x = jetPt
+  // pt binning
+  double pt[] = {30, 60, 120, 320};
+  // corresponding SFb uncertainties
+  // corresponding SFb uncertainties
+    double SFb_CSVL[] = {
+    0.995,
+    0.995,
+    0.964};
+  double SFb_CSVM[] = {
+    0.966,
+    0.971,
+    0.927};
 
+  double SFb_CSVT[] = {
+    0.94,
+    0.959,
+    0.917};
+
+  /// look for index corresponding to pt
+  int iBin = -1;
+  for(int i=0; i<3; i++) {
+    if (x>pt[i] && x<pt[i+1]) {
+      iBin =i;
+      break;
+    }
+  }
+//   double factor = 1.;
+//   if(iBin<0){
+//     // outside the quoted pt range: use twice the error
+//     factor=2;
+//     // if pt>800: use SFb(800)
+//     if(x>800) iBin=14;
+//     // if pt<20: use SFb(20)
+//     if(x<20 ) iBin=0;
+//   } 
+  if     (bTagAlgo_=="CSVM")   return SFb_CSVM[iBin];
+  else if(bTagAlgo_=="CSVT")   return SFb_CSVT[iBin];
+  else if(bTagAlgo_=="CSVL")   return SFb_CSVL[iBin];
+  
+  else { 
+    std::cout<< "WARNING!!! b tag SF for "<< bTagAlgo_ << " in effBTagSF76X not in code!!! CHECK!!!"<<std::endl;
+    return 1.; 
+  }
+}
+double BTagSFEventWeight::effBTagSFerr76X(double x)
+{
+  // function from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation76X; x = jetPt
+  // pt binning
+  double pt[] = {30, 60, 120, 320};
+  // corresponding SFb uncertainties
+    double SFb_errorCSVL[] = {
+    0.054,
+    0.033,
+    0.044};
+  double SFb_errorCSVM[] = {
+    0.032,
+    0.017,
+    0.028};
+
+  double SFb_errorCSVT[] = {
+    0.037,
+    0.020,
+    0.032};
+
+  /// look for index corresponding to pt
+  int iBin = -1;
+  for(int i=0; i<3; i++) {
+    if (x>pt[i] && x<pt[i+1]) {
+      iBin =i;
+      break;
+    }
+  }
+  double factor = 1.;
+//   if(iBin<0){
+//     // outside the quoted pt range: use twice the error
+//     factor=2;
+//     // if pt>800: use SFb(800)
+//     if(x>800) iBin=14;
+//     // if pt<20: use SFb(20)
+//     if(x<20 ) iBin=0;
+//   } 
+  if     (bTagAlgo_=="CSVM")   return factor * SFb_errorCSVM[iBin];
+  else if(bTagAlgo_=="CSVT")   return factor * SFb_errorCSVT[iBin];
+  else if(bTagAlgo_=="CSVL")   return factor * SFb_errorCSVL[iBin];
+  
+  else { 
+    std::cout<< "WARNING!!! b tag SF for "<< bTagAlgo_ << " in effBTagSFerr76X not in code!!! CHECK!!!"<<std::endl;
+    return 1.; 
+  }
+}
 double BTagSFEventWeight::effMisTagSF11004(double x, double jetEta, TString meanminmax)
 {
   // function from PAS 11-004; x = jetPt
@@ -450,6 +546,110 @@ double BTagSFEventWeight::effMisTagSF11004(double x, double jetEta, TString mean
   }
   else { 
     std::cout<< "WARNING!!! b tag SF for "<< bTagAlgo_ <<" not in code!!! CHECK!!!"<<std::endl;
+    return 1.; 
+  }
+  return -1111.;
+}
+
+double BTagSFEventWeight::effMisTagSF76X(double x, double jetEta, TString meanminmax)
+{
+  // function from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation76X; cMVAv2.csv
+  // x = jetPt; meanminmax = "mean" -> central value; = "min" -> down variation; = "max" -> up variation
+  if(bTagAlgo_=="CSVM"){
+    double val =0, valMean=0, valMin=0, valMax=0;
+    bool outOfRange = false;
+    if(x<20) {x=20; outOfRange = true;}
+    if(jetEta>=0. && jetEta <=0.8){
+      if(x>1000.) {x=1000.; outOfRange = true;}
+      valMean= (((1.10175+(-0.000724208*x))+(1.46283e-06*(x*x)))+(-8.31007e-10*(x*(x*x))));
+      valMin= (((1.02873+(-0.000988431*x))+(2.01385e-06*(x*x)))+(-1.15193e-09*(x*(x*x))));
+      valMax= (((1.17475+(-0.000458922*x))+(9.09541e-07*(x*x)))+(-5.09248e-10*(x*(x*x))));
+    }
+    else if(jetEta>0.8 && jetEta <=1.6){
+      if(x>1000.) {x=1000.; outOfRange = true;}
+      valMean= (((1.10358+(-0.000664145*x))+(1.05713e-06*(x*x)))+(-6.61479e-10*(x*(x*x))));
+      valMin= (((1.034+(-0.000884165*x))+(1.571e-06*(x*x)))+(-9.71575e-10*(x*(x*x))));
+      valMax= (((1.17314+(-0.000443333*x))+(5.41428e-07*(x*x)))+(-3.50681e-10*(x*(x*x))));
+    }
+    else if(jetEta>1.6 && jetEta <=2.4){
+      if(x>1000.) {x=1000.; outOfRange = true;}
+      valMean= (((1.01978+(-0.000154877*x))+(5.94704e-08*(x*x)))+(-1.45985e-10*(x*(x*x))));
+      valMin= (((0.961861+(-0.000325026*x))+(4.83892e-07*(x*x)))+(-4.31829e-10*(x*(x*x))));
+      valMax= (((1.07769+(1.53589e-05*x))+(-3.6544e-07*(x*x)))+(1.40114e-10*(x*(x*x))));
+    }
+    if( meanminmax == "mean") val= valMean;
+    if( meanminmax == "min" ) val= outOfRange? valMin-(valMean-valMin) : valMin; // if outOfRange -> 2x the uncertainty
+    if( meanminmax == "max" ) val= outOfRange? valMax+(valMax-valMean) : valMax; // if outOfRange -> 2x the uncertainty
+    if(val!=0) return val;
+  }
+  else if(bTagAlgo_=="CSVT"){
+    double val =0, valMean=0, valMin=0, valMax=0;
+    bool outOfRange = false;
+    if(x<20) {x=20; outOfRange = true;}
+    if(jetEta>=0. && jetEta <=2.4){
+      if(x>1000.) {x=1000.; outOfRange = true;}
+      valMean= (((1.07557+(-0.000176198*x))+(-5.11449e-07*(x*x)))+(6.80495e-10*(x*(x*x))));
+      valMin = (((0.922907+(-0.000413914*x))+(1.48537e-07*(x*x)))+(2.15697e-10*(x*(x*x))));
+      valMax = (((1.22825+(6.09115e-05*x))+(-1.16904e-06*(x*x)))+(1.14407e-09*(x*(x*x))) );
+    }
+    if( meanminmax == "mean") val= valMean;
+    if( meanminmax == "min" ) val= outOfRange? valMin-(valMean-valMin) : valMin; // if outOfRange -> 2x the uncertainty
+    if( meanminmax == "max" ) val= outOfRange? valMax+(valMax-valMean) : valMax; // if outOfRange -> 2x the uncertainty
+    if(val!=0) return val;
+  }
+  else if(bTagAlgo_=="CSVL"){
+    double val =0, valMean=0, valMin=0, valMax=0;
+    bool outOfRange = false;
+    if(x<20) {x=20; outOfRange = true;}
+    if(jetEta>=0. && jetEta <=0.3){
+      if(x>1000.) {x=1000.; outOfRange = true;}
+      valMean= (((0.874921+(0.000885525*x))+(-6.68503e-07*(x*x)))+(7.17689/x));
+      valMin= (((0.842791+(0.000809607*x))+(-5.88337e-07*(x*x)))+(7.10941/x));
+      valMax= (((0.903676+(0.000971152*x))+(-7.56441e-07*(x*x)))+(7.50067/x));
+    }
+    else if(jetEta>0.3 && jetEta <=0.6){
+      if(x>1000.) {x=1000.; outOfRange = true;}
+      valMean= (((0.859206+(0.000613401*x))+(-4.20717e-07*(x*x)))+(6.4676/x));
+      valMin= (((0.829917+(0.0005496*x))+(-3.52954e-07*(x*x)))+(6.39268/x));
+      valMax= (((0.885499+(0.000685967*x))+(-4.95495e-07*(x*x)))+(6.77182/x));
+    }
+    else if(jetEta>0.6 && jetEta <=0.9){
+      if(x>1000.) {x=1000.; outOfRange = true;}
+      valMean= (((0.85091+(0.00044326*x))+(-2.39676e-07*(x*x)))+(6.44336/x));
+      valMin= (((0.822458+(0.000390438*x))+(-1.82749e-07*(x*x)))+(6.37768/x));
+      valMax= (((0.876324+(0.000505268*x))+(-3.04015e-07*(x*x)))+(6.73902/x));
+    }
+    else if(jetEta>0.9 && jetEta <=1.2){
+      if(x>1000.) {x=1000.; outOfRange = true;}
+      valMean= (((0.884116+(0.000452952*x))+(-2.89454e-07*(x*x)))+(5.58513/x));
+      valMin= (((0.854151+(0.000410262*x))+(-2.40923e-07*(x*x)))+(5.57/x));
+      valMax= (((0.911327+(0.000504077*x))+(-3.44914e-07*(x*x)))+(5.80246/x));
+    }
+    else if(jetEta>1.2 && jetEta <=1.5){
+      if(x>1000.) {x=1000.; outOfRange = true;}
+      valMean= (((1.05409+(0.000190909*x))+(-2.65215e-07*(x*x)))+(-1.33829/x));
+      valMin= (((1.01354+(0.000167333*x))+(-2.16554e-07*(x*x)))+(-0.922633/x));
+      valMax= (((1.09533+(0.000212092*x))+(-3.11972e-07*(x*x)))+(-1.80293/x));
+    }
+    else if(jetEta>1.5 && jetEta <=1.8){
+      if(x>1000.) {x=1000.; outOfRange = true;}
+      valMean= (((1.02708+(0.000193904*x))+(-3.316e-07*(x*x)))+(5.82174e-11*(x*(x*x))));
+      valMin= (((1.00578+(1.62714e-05*x))+(1.17942e-07*(x*x)))+(-2.35896e-10*(x*(x*x))));
+      valMax= (((1.04838+(0.000371425*x))+(-7.81332e-07*(x*x)))+(3.52593e-10*(x*(x*x))));
+    }
+    else if(jetEta>1.8 && jetEta <=2.4){
+      if(x>1000.) {x=1000.; outOfRange = true;}
+      valMean= (((0.9986+(0.000458216*x))+(-8.50529e-07*(x*x)))+(3.64084e-10*(x*(x*x))));
+      valMin= (((0.978148+(0.000286299*x))+(-3.80785e-07*(x*x)))+(2.90521e-11*(x*(x*x))));
+      valMax= (((1.01905+(0.0006298*x))+(-1.32015e-06*(x*x)))+(6.99514e-10*(x*(x*x))));
+    }
+    if( meanminmax == "mean") val= valMean;
+    if( meanminmax == "min" ) val= outOfRange? valMin-(valMean-valMin) : valMin; // if outOfRange -> 2x the uncertainty
+    if( meanminmax == "max" ) val= outOfRange? valMax+(valMax-valMean) : valMax; // if outOfRange -> 2x the uncertainty
+    if(val!=0) return val;
+  }
+  else { 
+    std::cout<< "WARNING!!! b tag SF for "<< bTagAlgo_ << " in effMisTagSF76X not in code!!! CHECK!!!"<<std::endl;
     return 1.; 
   }
   return -1111.;
@@ -553,6 +753,10 @@ double BTagSFEventWeight::effBTagSF(double jetPt, double jetEta, bool isCjet)
     /// ...or by hand from 2012 (EPS 2013 recommendation)
     result = effBTagSF2012(jetPt);
   }
+  else if(version_=="76X"){
+    ///by hand from 76X https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation76X/cMVAv2.csv 	
+    result = effBTagSF76X(jetPt);
+  }
   if(uncertaintySFb_<0.){
     if(version_=="DB11-001"){
       /// either take SF from BTV database...
@@ -571,7 +775,10 @@ double BTagSFEventWeight::effBTagSF(double jetPt, double jetEta, bool isCjet)
       /// ...or by hand from 2012 (EPS 2013 recommendation)
       error = effBTagSFerr2012(jetPt);
     }
-
+    else if(version_=="76X"){
+      ///by hand from 76X https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation76X/cMVAv2.csv 
+      error = effBTagSFerr76X(jetPt);
+    }
   }
   else     error = uncertaintySFb_;
   // twice the error for c-jets
@@ -677,7 +884,16 @@ double BTagSFEventWeight::effMisTagSF(double jetPt, double jetEta)
     if(verbose_>=2) std::cout<< "effMisTagSF= "<<effMisTagSF2012(jetPt, jetEta, "mean")<<" + "<<effMisTagSF2012(jetPt, jetEta, "max")
 	  <<" - "<<effMisTagSF2012(jetPt, jetEta, "min")<<std::endl;
   }
-
+  else if(version_=="76X"){
+    /// ...or by hand from 11-004 (Moriond recommendation)
+    if(jetEta >= maxEta_) jetEta = maxEta_-0.1;
+    TString                       meanminmax = "mean";
+    if(sysVar_ == "misTagSFUp"  ) meanminmax = "max";
+    if(sysVar_ == "misTagSFDown") meanminmax = "min";
+    result = effMisTagSF76X(jetPt, jetEta, meanminmax);
+    if(verbose_>=2) std::cout<< "effMisTagSF= "<<effMisTagSF76X(jetPt, jetEta, "mean")<<" + "<<effMisTagSF76X(jetPt, jetEta, "max")
+	  <<" - "<<effMisTagSF76X(jetPt, jetEta, "min")<<std::endl;
+  }
   return result;
 }
 

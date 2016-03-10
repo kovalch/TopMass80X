@@ -79,8 +79,11 @@ class BTagSFEventWeight : public edm::EDProducer {
   double effBTagSFerr11004(double);
   double effMisTagSF11004(double, double, TString);
   double effBTagSF2012(double);
+  double effBTagSF76X(double);
+  double effBTagSFerr76X(double);
   double effBTagSFerr2012(double);
   double effMisTagSF2012(double, double, TString);
+  double effMisTagSF76X(double, double, TString);
   double effBTag    (double, double);
   double effBTagSF  (double, double, bool);
   double effBTagCjet(double, double);
