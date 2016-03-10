@@ -20,6 +20,8 @@ EventWeightBJES::EventWeightBJES(const edm::ParameterSet& cfg):
   fragSourceFile_         (cfg.getParameter<edm::FileInPath>("fragSourceFile")),
   fragTargetFile_         (cfg.getParameter<edm::FileInPath>("fragTargetFile"))
 {
+  consumes<std::vector< reco::GenJet > >(genJets_);
+  consumes<reco::GenParticleCollection>(genParticles_);
   produces<double>();
 
   // load TFile Service

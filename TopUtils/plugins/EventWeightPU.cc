@@ -1,7 +1,9 @@
+// 03.12.'15: extended by Christoph Garbers for the RunIISpring15DR MC 
 #ifndef EventWeightPU_cc
 #define EventWeightPU_cc
 
 #include "EventWeightPU.h"
+#include <TFile.h>
 
 // =============
 //  Constructor
@@ -21,6 +23,7 @@ EventWeightPU::EventWeightPU(const edm::ParameterSet& cfg):
   inTag_CreateWeight3DHisto(cfg.getParameter<bool>("CreateWeight3DHisto")), 
   inTag_Weight3DHistoFile(cfg.getParameter<edm::FileInPath>("Weight3DHistoFile"))
 {
+    consumes<edm::View<PileupSummaryInfo> >(inTag_PUSource);
 
   error_code = 0;
 
@@ -43,6 +46,11 @@ EventWeightPU::EventWeightPU(const edm::ParameterSet& cfg):
       LumiWeights3D_.weight3D_init(1.0);
     }
     else LumiWeights3D_.weight3D_init(inTag_Weight3DHistoFile.fullPath());
+  }
+  else if(inTag_MCSampleTag == "RunIISpring15DR"||inTag_MCSampleTag == "RunIIFall15DR"){
+    LumiWeights3D_ = edm::Lumi3DReWeighting();
+    LumiWeights_   = edm::LumiReWeighting(inTag_MCSampleFile.fullPath(),inTag_DataFile.fullPath(),
+					  inTag_MCSampleHistoName,inTag_DataHistoName);
   }
   else {
 
@@ -94,7 +102,7 @@ void EventWeightPU::produce(edm::Event& evt, const edm::EventSetup& setup)
     { 
       int BX = iterPU->getBunchCrossing(); // -1: previous BX, 0: current BX,  1: next BX
       
-      if (inTag_MCSampleTag == "Fall11" || inTag_MCSampleTag == "Summer12" ){
+      if (inTag_MCSampleTag == "Fall11" || inTag_MCSampleTag == "Summer12" || inTag_MCSampleTag == "RunIISpring15DR"  || inTag_MCSampleTag == "RunIIFall15DR"){
 	if (BX ==  0) fnvtx = iterPU->getTrueNumInteractions();
       }
       else if (inTag_MCSampleTag == "Summer11"){
@@ -104,7 +112,7 @@ void EventWeightPU::produce(edm::Event& evt, const edm::EventSetup& setup)
       }
     }
 
-    if      (inTag_MCSampleTag == "Fall11" || inTag_MCSampleTag == "Summer12") wght_ = LumiWeights_.weight(fnvtx);
+    if      (inTag_MCSampleTag == "Fall11" || inTag_MCSampleTag == "Summer12" || inTag_MCSampleTag == "RunIISpring15DR" || inTag_MCSampleTag == "RunIIFall15DR") wght_ = LumiWeights_.weight(fnvtx);
     else if (inTag_MCSampleTag == "Summer11") wght_ = LumiWeights3D_.weight3D(nvtx_m, nvtx, nvtx_p);
   } 
 

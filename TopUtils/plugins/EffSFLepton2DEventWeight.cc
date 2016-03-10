@@ -17,6 +17,7 @@ EffSFLepton2DEventWeight::EffSFLepton2DEventWeight(const edm::ParameterSet& cfg)
   shapeVarEtaThreshold_ ( cfg.getParameter<double>      ("shapeVarEtaThreshold" ) ),
   shapeVarPtThreshold_  ( cfg.getParameter<double>      ("shapeVarPtThreshold"  ) )
 {
+  consumes<edm::View<reco::Candidate> >(particles_);
   produces<double>();
   
   // debugging control outpu

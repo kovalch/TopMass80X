@@ -21,6 +21,7 @@ BTagSFEventWeight::BTagSFEventWeight(const edm::ParameterSet& cfg):
   filename_               ( cfg.getParameter<edm::FileInPath>  ("filename") ),
   noHistograms_           ( cfg.getParameter<bool>             ("noHistograms"))
 {
+  consumes<edm::View< pat::Jet > >(jets_);
   produces<double>();
   
   // set the edges of the last histo bin
@@ -110,12 +111,15 @@ BTagSFEventWeight::produce(edm::Event& evt, const edm::EventSetup& setup)
 //   edm::Handle<std::vector<pat::Jet> > jets;
 //   evt.getByToken(jets_, jets);
   
+
+
   double pt, eta;
   std::vector<double> oneMinusBEffies(0) , oneMinusBEffies_scaled(0);
   std::vector<double> oneMinusBMistags(0), oneMinusBMistags_scaled(0);
   
   double effBTagEvent_unscaled = 1.;
   double effBTagEvent_scaled   = 1.;
+
   
   if (!newRecipe_) {
     for(edm::View<pat::Jet>::const_iterator jet = jets->begin();jet != jets->end(); ++jet) {
@@ -144,14 +148,13 @@ BTagSFEventWeight::produce(edm::Event& evt, const edm::EventSetup& setup)
   // Use new recipe: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagSFMethods#1a_Event_reweighting_using_scale
   else {
     if (bTagAlgo_ != "CSVM") std::cout<< "WARNING!!! New recipe only implemented for CSVM!!! CHECK!!!"<<std::endl;
-    
     for(edm::View<pat::Jet>::const_iterator jet = jets->begin();jet != jets->end(); ++jet) {
       if (jet - jets->begin() == maxJets_) break;
       pt  = jet->pt();
       eta = std::abs(jet->eta());
       
       // tagged jets
-      if (jet->bDiscriminator("combinedSecondaryVertexBJetTags")>0.679) {
+      if (jet->bDiscriminator("combinedSecondaryVertexBJetTags")>0.679) {    //FIXME hardgecoded?? up-to-date? (dont think so...)
         if (abs(jet->partonFlavour()) == 5) {
           effBTagEvent_unscaled *= effBTag(pt, eta);
           effBTagEvent_scaled   *= effBTag(pt, eta) * effBTagSF(pt, eta, false);
@@ -184,6 +187,7 @@ BTagSFEventWeight::produce(edm::Event& evt, const edm::EventSetup& setup)
     }
   }
 
+
   double effBTagEventSF = effBTagEvent_scaled / effBTagEvent_unscaled;
   // Catch inf and nan
   if (effBTagEventSF>9999. || effBTagEventSF!=effBTagEventSF) effBTagEventSF = 0;
@@ -193,6 +197,9 @@ BTagSFEventWeight::produce(edm::Event& evt, const edm::EventSetup& setup)
                     <<" effBTagEventSF ="       <<effBTagEventSF << std::endl;
 
   if(!noHistograms_) hists_.find("effBTagEventSF" )->second->Fill( effBTagEventSF );
+
+//nataliia is working on this, atm set weight on 1... FIXME
+effBTagEventSF=1.;
 
   std::auto_ptr<double> bTagSFEventWeight(new double);
   *bTagSFEventWeight = effBTagEventSF;    
@@ -729,7 +736,7 @@ double BTagSFEventWeight::effBTag(double jetPt, double jetEta)
 double BTagSFEventWeight::effBTagSF(double jetPt, double jetEta, bool isCjet)
 {
   double result = -1111., error = -1111.;
-  const BtagPerformance & perf = *(perfHBTag.product());
+  const BtagPerformance & perf = *(perfHBTag.product()); //FIXME
   BinningPointByMap measurePoint;
   if(version_=="DB11-001"){
     /// either take SF from BTV database...
@@ -846,7 +853,7 @@ double BTagSFEventWeight::effMisTag(double jetPt, double jetEta)
 double BTagSFEventWeight::effMisTagSF(double jetPt, double jetEta)
 {
   double result = -1111., error = -1111.;
-  const BtagPerformance & perf = *(perfHMisTag.product());
+  const BtagPerformance & perf = *(perfHMisTag.product()); //FIXME
   BinningPointByMap measurePoint;
   if(version_=="DB11-001"){
     /// either take SF from BTV database...
