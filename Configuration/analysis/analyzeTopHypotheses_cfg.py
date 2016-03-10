@@ -86,7 +86,7 @@ process.MessageLogger.cerr.TtSemiLeptonicEvent = cms.untracked.PSet(
 )
 
 
-from TopMass.Configuration.patRefSel_refElectronJets_refMuJets_76x import *
+from TopMass.Configuration.patqRefSel_refElectronJets_refMuJets_76x import *
 
 if data:  
 	if (options.lepton=='muon'):
@@ -1085,7 +1085,7 @@ if not data:
         process.eventWeightPU.MCSampleHistoName        = "puhisto"
         process.eventWeightPU.DataHistoName            = "pileup"
 
-        process.eventWeightPU.MCSampleFile             = "data/PUhists/Run2_MC_2015D_asymptotic-v12_truePU.root"   #works for asymptotic_v12 PU generators
+        process.eventWeightPU.MCSampleFile             = "TopMass/data/PUhists/Run2_MC_2015D_asymptotic-v12_truePU.root"   #works for asymptotic_v12 PU generators
 	process.eventWeightPU.DataFile		       = "TopAnalysis/TopUtils/data/Data_PUHist_Run2015D_v2.root"
 
     if (options.generator == "rd"):
@@ -1183,7 +1183,7 @@ if not data:
     process.effSFMuonEventWeight.particles=cms.InputTag("signalMuons")
     process.effSFMuonEventWeight.sysVar   = cms.string("") #"noSys" ?
     #process.effSFMuonEventWeight.filename= "TopAnalysis/Configuration/data/MuonEffSF2D2012.root" #new ones from twiki 76x  page
-    process.effSFMuonEventWeight.filename= "data/LeptonSFs/mu_TriggerSF_76x.root"  #pt>120 is missing, solved via WeightEventAnalyzer
+    process.effSFMuonEventWeight.filename= "TopMass/data/LeptonSFs/mu_TriggerSF_76x.root"  #pt>120 is missing, solved via WeightEventAnalyzer
     process.effSFMuonEventWeight.verbose=cms.int32(0) 
     process.effSFMuonEventWeight.additionalFactor=1.0 ## lepton selection and trigger eff. SF both included in loaded histo, for 76x only trigger
     process.effSFMuonEventWeight.additionalFactorErr=0.01 ## 1.0% sys error to account for selection difference Z - ttbar
@@ -1194,7 +1194,7 @@ if not data:
     process.effSFElectronEventWeight.jets=cms.InputTag("signalTightJets")
     process.effSFElectronEventWeight.sysVar   = cms.string("")
     #process.effSFElectronEventWeight.filename= "TopAnalysis/Configuration/data/EleEffSF2D2012.root"
-    process.effSFElectronEventWeight.filename= "data/LeptonSFs/ele_TriggerSF_76x.root" 
+    process.effSFElectronEventWeight.filename= "TopMass/data/LeptonSFs/ele_TriggerSF_76x.root" 
     process.effSFElectronEventWeight.verbose=cms.int32(0) 
     process.effSFElectronEventWeight.additionalFactor=1.0 ## lepton selection and trigger eff. SF both included in loaded histo 
     process.effSFElectronEventWeight.additionalFactorErr=0.01 ## 1.0% sys error to account for selection difference Z - ttbar
