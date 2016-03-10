@@ -273,12 +273,12 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   if(bJESWeight_fragSoft_h.isValid()) weight->bJESWeight_fragSoft = *bJESWeight_fragSoft_h;
   
   //////////////////////////////////////////////////////////////////////////
-  // trigger weights
+  // trigger weights  , tiggerweight==0 out of histogramm boundary case of EffSFLepton2DEventWeight is set on 1.0 (case for high lepton pt and to high eta cut)
   ////////////////////////////////////////////////////////////////////////
   
   edm::Handle<double> triggerWeight_h;
   evt.getByLabel(triggerWeightSrc_, triggerWeight_h);
-  if(triggerWeight_h.isValid()) { weight->triggerWeight = *triggerWeight_h; weight->combinedWeight *= weight->triggerWeight; }
+  if(triggerWeight_h.isValid()) { weight->triggerWeight = (*triggerWeight_h!=0.0?*triggerWeight_h:1.0); weight->combinedWeight *= weight->triggerWeight; }
   
   //////////////////////////////////////////////////////////////////////////
   // ME TOP QUARKS

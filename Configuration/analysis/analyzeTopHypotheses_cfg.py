@@ -149,8 +149,8 @@ selectEvents = 'pGoodVertex'
 triggerSelectionDataElectron  = 'HLT_Ele27_eta2p1_WPLoose_Gsf_v* '
 triggerSelectionMCElectron = 'HLT_Ele27_eta2p1_WPLoose_Gsf_v* ' 
 
-triggerSelectionDataMuon  = 'HLT*'# 'HLT_IsoMu20_v*' 
-triggerSelectionMCMuon = 'HLT*' #'HLT_IsoMu20_v*'  #no trigger for Pile Up estimation
+triggerSelectionDataMuon  = 'HLT_IsoMu20_v*' 
+triggerSelectionMCMuon = 'HLT_IsoMu20_v*'  #no trigger for Pile Up estimation
 
 #FIXME check MET Filters
 
@@ -853,6 +853,9 @@ process.analyzeWeights = analyzeWeights.clone(
                                               brCorrection   = options.brCorrection
                                              )
 
+if (options.lepton=='electron'):
+	process.analyzeWeights.triggerWeightSrc  = cms.InputTag("effSFElectronEventWeight")
+
 process.ttSemiLepHypGenMatch.useBReg = cms.bool(False)
 process.ttSemiLepHypMVADisc.useBReg = cms.bool(False)
 
@@ -1174,26 +1177,28 @@ if not data:
     ## ---
     ##    MC eff SF reweighting
     ## ---
-    ## scale factor for trigger and lepton selection efficiency  #TODO where is this used?
+    ## scale factor for trigger and lepton selection efficiency  #TODO where is this used? as trigger weight in the WeightAnalyzer used as TriggerWeight, Lepton Weights label names imported but not used
     process.load("TopAnalysis.TopUtils.EffSFLepton2DEventWeight_cfi")
     process.effSFMuonEventWeight=process.effSFLepton2DEventWeight.clone()
     process.effSFMuonEventWeight.particles=cms.InputTag("signalMuons")
-    process.effSFMuonEventWeight.sysVar   = cms.string("")
-    process.effSFMuonEventWeight.filename= "TopAnalysis/Configuration/data/MuonEffSF2D2012.root" #FIXME get new ones from twiki 76x  page
-    process.effSFMuonEventWeight.verbose=cms.int32(0)
-    process.effSFMuonEventWeight.additionalFactor=1.0 ## lepton selection and trigger eff. SF both included in loaded histo
+    process.effSFMuonEventWeight.sysVar   = cms.string("") #"noSys" ?
+    #process.effSFMuonEventWeight.filename= "TopAnalysis/Configuration/data/MuonEffSF2D2012.root" #new ones from twiki 76x  page
+    process.effSFMuonEventWeight.filename= "data/LeptonSFs/mu_TriggerSF_76x.root"  #pt>120 is missing, solved via WeightEventAnalyzer
+    process.effSFMuonEventWeight.verbose=cms.int32(0) 
+    process.effSFMuonEventWeight.additionalFactor=1.0 ## lepton selection and trigger eff. SF both included in loaded histo, for 76x only trigger
     process.effSFMuonEventWeight.additionalFactorErr=0.01 ## 1.0% sys error to account for selection difference Z - ttbar
-    process.effSFMuonEventWeight.shapeDistortionFactor=-1
+    process.effSFMuonEventWeight.shapeDistortionFactor=-1  #FIXME ???
 
     process.effSFElectronEventWeight=process.effSFLepton2DEventWeight.clone()
     process.effSFElectronEventWeight.particles=cms.InputTag("signalElectrons")
     process.effSFElectronEventWeight.jets=cms.InputTag("signalTightJets")
     process.effSFElectronEventWeight.sysVar   = cms.string("")
-    process.effSFElectronEventWeight.filename= "TopAnalysis/Configuration/data/EleEffSF2D2012.root"
-    process.effSFElectronEventWeight.verbose=cms.int32(0)
-    process.effSFElectronEventWeight.additionalFactor=1.0 ## lepton selection and trigger eff. SF both included in loaded histo
+    #process.effSFElectronEventWeight.filename= "TopAnalysis/Configuration/data/EleEffSF2D2012.root"
+    process.effSFElectronEventWeight.filename= "data/LeptonSFs/ele_TriggerSF_76x.root" 
+    process.effSFElectronEventWeight.verbose=cms.int32(0) 
+    process.effSFElectronEventWeight.additionalFactor=1.0 ## lepton selection and trigger eff. SF both included in loaded histo 
     process.effSFElectronEventWeight.additionalFactorErr=0.01 ## 1.0% sys error to account for selection difference Z - ttbar
-    process.effSFElectronEventWeight.shapeDistortionFactor=-1
+    process.effSFElectronEventWeight.shapeDistortionFactor=-1  #FIXME ???
 
 # register TFileService
 process.TFileService = cms.Service("TFileService",
