@@ -86,7 +86,7 @@ process.MessageLogger.cerr.TtSemiLeptonicEvent = cms.untracked.PSet(
 )
 
 
-from TopMass.Configuration.patqRefSel_refElectronJets_refMuJets_76x import *
+from TopMass.Configuration.patRefSel_refElectronJets_refMuJets_76x import *
 
 if data:  
 	if (options.lepton=='muon'):
