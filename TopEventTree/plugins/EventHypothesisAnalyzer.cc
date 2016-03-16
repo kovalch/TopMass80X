@@ -101,6 +101,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
   // daher habe ich einen Kommentar dazu von Martin eingefügt
   /////////////////////////////////////////////////////////////////////////
 
+
   if(semiLepTtEvent){
     if (semiLepTtEvent->isHypoValid(TtEvent::kGenMatch)) {
       top->genpartonJetIdxB1      = semiLepTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtSemiLepEvtPartons::HadB     ];
@@ -539,6 +540,7 @@ EventHypothesisAnalyzer::fillGenPartons(const TtGenEvent *genEvent)
     }
     else if(  genEvent->isSemiLeptonic() ) {
       bool topDecayToBQuark = true;
+
       top->genpartonTTBar.SetPxPyPzE(
           genEvent->hadronicDecayTop()->px()     + genEvent->leptonicDecayTop()->px(),
           genEvent->hadronicDecayTop()->py()     + genEvent->leptonicDecayTop()->py(),

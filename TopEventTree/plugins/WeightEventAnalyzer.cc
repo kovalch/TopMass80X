@@ -278,7 +278,7 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   
   edm::Handle<double> triggerWeight_h;
   evt.getByLabel(triggerWeightSrc_, triggerWeight_h);
-  if(triggerWeight_h.isValid()) { weight->triggerWeight = (*triggerWeight_h!=0.0?*triggerWeight_h:1.0); weight->combinedWeight *= weight->triggerWeight; }
+  if(triggerWeight_h.isValid()) { weight->triggerWeight = (( *triggerWeight_h!=0.0 && *triggerWeight_h<1000000 *triggerWeight_h>-1000000 && *triggerWeight_h==*triggerWeight_h)?*triggerWeight_h:1.0); weight->combinedWeight *= weight->triggerWeight; }
   
   //////////////////////////////////////////////////////////////////////////
   // ME TOP QUARKS
