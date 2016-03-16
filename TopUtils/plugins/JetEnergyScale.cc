@@ -53,6 +53,11 @@ JetEnergyScale::JetEnergyScale(const edm::ParameterSet& cfg):
   produces<std::vector<pat::Electron> >(outputElectrons_);
   produces<std::vector<pat::Jet> >(outputJets_);
   produces<std::vector<pat::MET> >(outputMETs_); 
+
+  consumes<std::vector<pat::Jet> >(inputJets_);
+  mayConsume<std::vector<pat::MET> >(inputMETs_);
+  mayConsume<std::vector<pat::Electron> > (inputElectrons_);
+
 }
 
 void
