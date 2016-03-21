@@ -39,6 +39,8 @@ options.register('cut', 'allCut', VarParsing.VarParsing.multiplicity.singleton,V
 options.register('dataElectronID', 'cutBasedElectronID-Spring15-25ns-V1', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "ElectronID configuration for data")  
 options.register('mcElectronID', 'cutBasedElectronID-Spring15-25ns-V1', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "ElectronID configuration for MonteCarlo") 
 
+options.register('triggerless', False, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.bool, "set on True if no Triggerfilter is wanted i.e. for PU studies")
+
 # define the syntax for parsing
 # you need to enter in the cfg file:
 # search for arguments entered after cmsRun
@@ -91,6 +93,7 @@ from TopMass.Configuration.patRefSel_refElectronJets_refMuJets_76x import *
 if data:  
 	if (options.lepton=='muon'):
     		inputFiles = [ #'/store/data/Run2015C_25ns/SingleMuon/MINIAOD/05Oct2015-v1/50000/06D8AEE6-1274-E511-82D0-0025905A60CA.root'
+#'/store/mc/RunIIFall15MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12_ext3-v1/00000/00DF0A73-17C2-E511-B086-E41D2D08DE30.root',
 			'/store/data/Run2015D/SingleMuon/MINIAOD/16Dec2015-v1/10000/00006301-CAA8-E511-AD39-549F35AD8BC9.root' 
 			#  '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v4/000/258/159/00000/6CA1C627-246C-E511-8A6A-02163E014147.root'	
 			#, '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v4/000/258/159/00000/BEFDF59A-236C-E511-BDB9-02163E014496.root'
@@ -119,6 +122,8 @@ else:
 			#,'/store/mc/RunIISpring15DR74/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9_ext3-v1/30000/022D5094-E542-E511-A39E-0026189438B5.root'
 			#'/store/mc/RunIISpring15MiniAODv2/ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/50000/12DCEE99-C56D-E511-AA75-08606E15EABA.root'
 #first x76 tests:
+		#'/store/mc/RunIIFall15MiniAODv2/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/26ED394C-97BF-E511-881B-0025905C446A.root'
+		#'/store/mc/RunIIFall15MiniAODv2/TT_TuneCUETP8M1_mtop1695_13TeV-powheg-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v3/00000/067A260B-E4E1-E511-A824-0025904C7B26.root'
 		'/store/mc/RunIIFall15MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12_ext3-v1/00000/00DF0A73-17C2-E511-B086-E41D2D08DE30.root'	
 		 ]
 
@@ -150,7 +155,15 @@ triggerSelectionDataElectron  = 'HLT_Ele27_eta2p1_WPLoose_Gsf_v* '
 triggerSelectionMCElectron = 'HLT_Ele27_eta2p1_WPLoose_Gsf_v* ' 
 
 triggerSelectionDataMuon  = 'HLT_IsoMu20_v*' 
-triggerSelectionMCMuon = 'HLT_IsoMu20_v*'  #no trigger for Pile Up estimation
+triggerSelectionMCMuon = 'HLT_IsoMu20_v*' 
+
+if(options.triggerless):
+	triggerSelectionDataElectron  = 'HLT* '
+	triggerSelectionMCElectron = 'HLT* ' 
+	triggerSelectionDataMuon  = 'HLT*' 
+	triggerSelectionMCMuon = 'HLT*' 
+
+
 
 #FIXME check MET Filters
 
@@ -193,6 +206,8 @@ electronCut = electronGsfCut
 #looseJetCut     = cms.string('') 
 #veryLooseJetCut = cms.string('') 
 
+
+
 # Step 6
 bTagSrc = 'selectedJets'
 #bTagCut = 'bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.890' #0.814'
@@ -216,9 +231,9 @@ maxEvents = options.maxEvents
 
 # GlobalTags
 #globalTagMC   = '74X_mcRun2_asymptotic_v2'
-globalTagData = '76X_dataRun2_v2' #FIXME
+globalTagData = '76X_dataRun2_16Dec2015_v0'
 usePrivateSQlite=False #do not use external JECs (sqlite file)
-globalTagMC   = 'DEFAULT'
+globalTagMC   = '76X_mcRun2_asymptotic_RunIIFall15DR76_v1'
 #globalTagData = 'DEFAULT'
 #usePrivateSQlite=True #use external JECs (sqlite file)
 
@@ -249,6 +264,7 @@ else:
   triggerSelection       = triggerSelectionDataElectron
   if runOnMC:
     triggerSelection       = triggerSelectionMCElectron
+    triggerObjectSelection = triggerObjectSelectionMC
 
 ###
 ### Basic configuration
@@ -261,7 +277,7 @@ process.options = cms.untracked.PSet(
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff") #FIXME this would be the recommended one
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 
 
@@ -318,16 +334,24 @@ process.noHFCands = cms.EDFilter("CandPtrSelector",
 #default configuration for miniAOD reprocessing, change the isData flag to run on data
 #for a full met computation, remove the pfCandColl input
 if runOnMiniAOD:
-    runMetCorAndUncFromMiniAOD(process,
-                               isData= (data),
-                               pfCandColl=cms.InputTag("noHFCands"),#comment for MET with HF #FIXME noHFCands not recommended
-                               jecUncFile='TopMass/Configuration/data/Summer15_25nsV6_DATA_UncertaintySources_AK4PFchs.txt', #FIXME update
-                               )
+	if data:
+   		 runMetCorAndUncFromMiniAOD(process,
+		   	        	            isData= (data),
+		                	     pfCandColl=cms.InputTag("noHFCands"),#comment for MET with HF #FIXME noHFCands not recommended
+                          		     jecUncFile='TopMass/Configuration/data/Fall15_25nsV2_DATA_UncertaintySources_AK4PFchs.txt', 
+                            	  	 )
+
+	else:
+   		 runMetCorAndUncFromMiniAOD(process,
+		   	        	            isData= (data),
+		                	     pfCandColl=cms.InputTag("noHFCands"),#comment for MET with HF #FIXME noHFCands not recommended
+                          		     jecUncFile='TopMass/Configuration/data/Fall15_25nsV2_MC_UncertaintySources_AK4PFchs.txt', 
+                            	  	 )	
 else:
     runMETCorrectionsAndUncertainties(process,
                                       isData= (data),
                                       pfCandColl=cms.InputTag("noHFCands"),#comment for MET with HF
-                                      jecUncFile='TopMass/Configuration/data/Summer15_25nsV6_DATA_UncertaintySources_AK4PFchs.txt', #FIXME update
+                                      jecUncFile='TopMass/Configuration/data/Summer15_25nsV6_DATA_UncertaintySources_AK4PFchs.txt', 
                                       postfix="NoHF")
 
 del process.slimmedMETs.t01Variation #brute the swarm
@@ -346,8 +370,9 @@ bTagDiscriminators = [
 ]
 
 jetCorrectionLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']
+
 if (data):
-    jetCorrectionLevels.append('L2L3Residual')
+    jetCorrectionLevels.append('L2L3Residual')  #FIXME looks plausible like https://twiki.cern.ch/twiki/bin/view/CMS/JECDataMC
 
 
 from PhysicsTools.PatAlgos.tools.jetTools import *
@@ -368,6 +393,10 @@ addJetCollection(
     algo = 'AK',
     rParam = 0.4
 )
+
+
+#Debug
+#process.patJets.addJetCorrFactors = cms.bool(False)
 
 #enable GenJets and GenPartons for the Output Jets
 if runOnMC: 
@@ -411,47 +440,8 @@ process.source.fileNames = inputFiles
 process.maxEvents.input = maxEvents 
 
 ###
-### PAT configuration
-###
-
-#if not runOnMiniAOD:
-#  process.load( "PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff" )
-
-
-
-###
-### Output configuration
-###
-#
-# process.load( "TopQuarkAnalysis.Configuration.patRefSel_outputModule_cff" ) #C: original process.load( "TopQuarkAnalysis.Configuration.patRefSel_outputModule_cff" )
- # output file name
-# process.out.fileName = outputFile
-# from TopQuarkAnalysis.Configuration.patRefSel_eventContent_cff import refMuJets_eventContent
-# process.out.outputCommands += refMuJets_eventContent
-# if runOnMiniAOD:
-#   from TopQuarkAnalysis.Configuration.patRefSel_eventContent_cff import miniAod_eventContent
-#   process.out.outputCommands += miniAod_eventContent
-# else:
-#   from TopQuarkAnalysis.Configuration.patRefSel_eventContent_cff import aod_eventContent
-#   process.out.outputCommands += aod_eventContent
- # clear event selection
- #process.out.SelectEvents.SelectEvents = cms.vstring( selectEvents )
-
-
-## generator filters
-#if (options.mcversion == 'Spring14dr'):
-if (options.generator == 'w0jets'):
-    process.load("TopAnalysis.TopFilter.filters.GeneratorWNJetsFilter_cfi")
-    process.filterWNJets.NJet = 0
-
-###
 ### Selection configuration
 ###
-
-## std sequence for pat
-#process.load("PhysicsTools.PatAlgos.patSequences_cff") #wo kommt diese Zeile her?
-#process.patJetFlavourAssociation.physicsDefinition = options.phys
-
 
 # Individual steps
 
@@ -462,9 +452,6 @@ process.triggerSelection = triggerResults.clone( triggerConditions = [ triggerSe
 process.sStandAloneTrigger = cms.Sequence( process.triggerSelection
                                          )
 process.pStandAloneTrigger = cms.Path( process.sStandAloneTrigger )
-
-#process.load('TopQuarkAnalysis.Configuration.patRefSel_eventCleaning_cff')
-#del process.eventCleaning
 
 from TopQuarkAnalysis.Configuration.patRefSel_eventCleaning_cfi import metFiltersMiniAOD
 process.metFiltersMiniAOD = metFiltersMiniAOD
@@ -482,12 +469,7 @@ if runOnMiniAOD:
     process.metFiltersMiniAOD.TriggerResultsTag = cms.InputTag("TriggerResults","","RECO")
     #HS disable event cleaning at the moment
     process.sStandAloneEventCleaning = cms.Sequence()
-#else:
-#  process.sStandAloneEventCleaning += process.eventCleaning
-#  if runOnMC:
-#    process.sStandAloneEventCleaning += process.eventCleaningMC
-#  else:
-#    process.sStandAloneEventCleaning += process.eventCleaningData
+
 process.pStandAloneEventCleaning = cms.Path( process.sStandAloneEventCleaning )
 
 from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import goodOfflinePrimaryVertices
@@ -545,19 +527,6 @@ process.pStandAloneLooseMuonVeto = cms.Path( process.sStandAloneLooseMuonVeto )
 
 
 # Step 3
-
-#if not runOnMiniAOD: #not the case, otherwise the electronIDs need to be checked 
-#  from PhysicsTools.SelectorUtils.tools.vid_id_tools import switchOnVIDElectronIdProducer, setupAllVIDIdsInModule, setupVIDElectronSelection
-#  electron_ids = [  #'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff'    #neu, nicht Cut-based, noch nicht versucht
-# 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_50ns_V1_cff' #original
-#                 , 'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff'  # original
-#                  ]
-#  switchOnVIDElectronIdProducer( process )
-#  process.electronIDValueMapProducer.ebReducedRecHitCollection = cms.InputTag( 'reducedEcalRecHitsEB' )
-#  process.electronIDValueMapProducer.eeReducedRecHitCollection = cms.InputTag( 'reducedEcalRecHitsEE' )
-#  process.electronIDValueMapProducer.esReducedRecHitCollection = cms.InputTag( 'reducedEcalRecHitsES' )
-#  for idmod in electron_ids:
-#    setupAllVIDIdsInModule( process, idmod, setupVIDElectronSelection )
 
 if useElecEAIsoCorr:
   from EgammaAnalysis.ElectronTools.electronIsolatorFromEffectiveArea_cfi import elPFIsoValueEA03
@@ -740,11 +709,15 @@ process.FilterDummy3Jets = FilterDummy.clone()
 process.FilterDummy4Jets = FilterDummy.clone()
 process.FilterDummyBTags = FilterDummy.clone()
 
+#for Debugging
+#from TopMass.TopEventTree.JetDebug_cfi import JetDebug
+#process.JD1 = JetDebug.clone(jets = cms.InputTag("signalVeryLooseJets"), evtSolLabel= cms.InputTag("ttSemiLepEvent") )
+
 
 # Trigger matching
 
 if addTriggerMatch:
- if (options.lepton=='muon'):
+ if (options.lepton=='muon'):  #FIXME electron case missing, bot available in TopQuarkAnalysis.Configuration.patRefSel_triggerMatching ...
    from TopQuarkAnalysis.Configuration.patRefSel_triggerMatching_cff import muonTriggerMatch
    process.muonTriggerMatch = muonTriggerMatch.clone( matchedCuts = triggerObjectSelection )
    if not runOnMiniAOD:
@@ -785,15 +758,6 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 
 if os.getenv('CMSSW_VERSION').startswith('CMSSW_7_6_'):  #TODO do we want this on 76?
     process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", throw=True)
-#else:
-    #process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_IsoMu24_eta2p1_v*"], throw=True)
-#if(options.mcversion=="Summer11"):
-    #process.hltFilter.HLTPaths=["HLT_IsoMu24_v*"]
-#if(options.mcversion=="Summer12"):
-    #process.hltFilter.HLTPaths=["HLT_IsoMu24_eta2p1_v*"]
-#if data:
-    #process.hltFilter.HLTPaths=["HLT_IsoMu24_eta2p1_v*"]
-
 
 ## choose which hypotheses to produce
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
@@ -813,7 +777,8 @@ setForAllTtSemiLepHypotheses(process, "mets", "patPFMetT1")
 setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
 #if data:
     #setForAllTtSemiLepHypotheses(process, "mets", "patMETs")
-    #setForAllTtSemiLepHypotheses(process, "jetCorrectionLevel", "L2L3Residual")
+    #setForAllTtSemiLepHypotheses(process, "jetCorrectionLevel", "L2L3Residual")  #FIXME what does this do? was commented out before gives Exception Message: This JEC level L2L3Residual does not exist.
+
 
 ## change jet-parton matching algorithm #FIXME enstspricht nicht der empfehlung in seinem Kommentar
 process.ttSemiLepJetPartonMatch.algorithm = "unambiguousOnly"
@@ -1036,7 +1001,7 @@ process.pBTags         = cms.Path( process.sBTags )
 from TopMass.TopEventTree.FilterDummyAnalyzer_cfi import FilterDummyAnalyzer
 process.FDAnalyzer = FilterDummyAnalyzer.clone()
 
-process.pAnalysis = cms.Path(process.serialFilter + process.analyzer + process.FDAnalyzer) 
+process.pAnalysis = cms.Path(process.serialFilter + process.analyzer + process.FDAnalyzer)# + process.JD1) 
 
 process.schedule = cms.Schedule( 
   process.pTrigger,
