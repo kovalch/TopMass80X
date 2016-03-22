@@ -1,7 +1,6 @@
 /.gitignore/
 /TopQuarkAnalyis/TopEventProducers/
 /TopQuarkAnalysis/Configuration/
-/TopQuarkAnalysis/Examples/
 /TopQuarkAnalysis/TopEventProducers/
 /TopQuarkAnalysis/TopEventSelection/
 /TopQuarkAnalysis/TopHitFit/
