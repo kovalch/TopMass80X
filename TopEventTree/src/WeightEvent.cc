@@ -31,6 +31,8 @@ void WeightEvent::init()
   bTagWeight              = -1.;
   bTagWeight_bTagSFUp     = -1.;
   bTagWeight_bTagSFDown   = -1.;
+  bTagWeight_bTagCjetSFUp     = -1.;
+  bTagWeight_bTagCjetSFDown   = -1.;
   bTagWeight_misTagSFUp   = -1.;
   bTagWeight_misTagSFDown = -1.;
   
@@ -40,7 +42,17 @@ void WeightEvent::init()
   bJESWeight_fragHard  = -1.;
   bJESWeight_fragSoft  = -1.;
 
-  triggerWeight = -1.;
+  lepIDWeight     = -1.;
+  lepIDWeightUp   = -1.; 
+  lepIDWeightDown = -1.;
+  
+  isoWeight     = -1.;
+  isoWeightUp   = -1.;
+  isoWeightDown = -1.;
+  
+  triggerWeight     = -1.;
+  triggerWeightUp   = -1.;
+  triggerWeightDown = -1.;
 
   muWeight = -1.;
   elWeight = -1.;

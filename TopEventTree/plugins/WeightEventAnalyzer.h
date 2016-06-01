@@ -35,6 +35,8 @@ class WeightEventAnalyzer : public edm::EDAnalyzer {
   edm::InputTag bWeightSrc_;
   edm::InputTag bWeightSrc_bTagSFUp_;
   edm::InputTag bWeightSrc_bTagSFDown_;
+  edm::InputTag bWeightSrc_bTagCjetSFUp_;
+  edm::InputTag bWeightSrc_bTagCjetSFDown_; 
   edm::InputTag bWeightSrc_misTagSFUp_;
   edm::InputTag bWeightSrc_misTagSFDown_;
   
@@ -44,8 +46,18 @@ class WeightEventAnalyzer : public edm::EDAnalyzer {
   edm::InputTag bJESSrc_fragHard_;
   edm::InputTag bJESSrc_fragSoft_;
 
+  edm::InputTag lepIDWeightSrc_; 
+  edm::InputTag lepIDWeightSrcUp_;
+  edm::InputTag lepIDWeightSrcDown_;
+  
+  edm::InputTag isoWeightSrc_;
+  edm::InputTag isoWeightSrcUp_;
+  edm::InputTag isoWeightSrcDown_;
+  
   edm::InputTag triggerWeightSrc_;
-
+  edm::InputTag triggerWeightSrcUp_;
+  edm::InputTag triggerWeightSrcDown_;
+  
   edm::InputTag muWeightSrc_;
   edm::InputTag elWeightSrc_;
 

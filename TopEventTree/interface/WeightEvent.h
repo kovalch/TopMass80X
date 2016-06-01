@@ -19,7 +19,7 @@ public:
   WeightEvent();
   void init();
 
-  ClassDef(WeightEvent,5);
+  ClassDef(WeightEvent,6);
 
   // WeightEvent data
 
@@ -47,6 +47,8 @@ public:
   double bTagWeight;
   double bTagWeight_bTagSFUp;
   double bTagWeight_bTagSFDown;
+  double bTagWeight_bTagCjetSFUp;
+  double bTagWeight_bTagCjetSFDown;
   double bTagWeight_misTagSFUp;
   double bTagWeight_misTagSFDown;
 
@@ -57,12 +59,22 @@ public:
   double bJESWeight_fragHard;
   double bJESWeight_fragSoft;
   
+  double lepIDWeight;
+  double lepIDWeightUp;
+  double lepIDWeightDown;
+  
+  double isoWeight;
+  double isoWeightUp;
+  double isoWeightDown;
+  
   // trigger weight
   double triggerWeight;
-
+  double triggerWeightUp;
+  double triggerWeightDown;
+  
   // lepton weights
   double muWeight;
-  double elWeight;
+  double elWeight; 
 
   // PDF weights and variables needed for a recalculation of PDF weights
   std::vector<double> pdfWeight;
