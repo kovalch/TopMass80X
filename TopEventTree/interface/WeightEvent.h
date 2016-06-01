@@ -12,24 +12,25 @@
 #include "TLorentzVector.h"
 #include <vector>
 
-
 class WeightEvent : public TObject {
-public:
-
+ public:
   WeightEvent();
   void init();
 
-  ClassDef(WeightEvent,5);
+  ClassDef(WeightEvent, 7);
 
   // WeightEvent data
 
   // MC weight
-  // currently only used for MC@NLO with 1 or -1
   double mcWeight;
-  
-  // Generator weights (scale and pdf variations)
+
+  double mcGenWeight;
+
+  // Generator weights (scale and pdf variations), check
+  // https://twiki.cern.ch/twiki/bin/view/CMS/LHEReaderCMSSW for explanation
   std::vector<double> lheWeight;
-  
+  std::vector<unsigned int> lheWeightID;
+
   // MG BR correction
   double brWeight;
 
@@ -56,7 +57,7 @@ public:
   double bJESWeight_frag;
   double bJESWeight_fragHard;
   double bJESWeight_fragSoft;
-  
+
   // trigger weight
   double triggerWeight;
 
@@ -69,7 +70,7 @@ public:
   double x1, x2;
   float Q;
   int id1, id2;
-  
+
   // ME level top quarks
   TLorentzVector meTop1;
   TLorentzVector meTop2;
@@ -77,8 +78,10 @@ public:
   // default combined event weight
   double combinedWeight;
 
+  // for top pt systematics, not normalized!!!
+  double topPtSysWeight;
 
-private:
+ private:
 };
 
 #endif /* WEIGHTEVENT_H_ */

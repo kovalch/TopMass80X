@@ -40,6 +40,7 @@ options.register('dataElectronID', 'cutBasedElectronID-Spring15-25ns-V1', VarPar
 options.register('mcElectronID', 'cutBasedElectronID-Spring15-25ns-V1', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "ElectronID configuration for MonteCarlo") 
 
 options.register('triggerless', False, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.bool, "set on True if no Triggerfilter is wanted i.e. for PU studies")
+options.register('showLHEscaleWeightTypes', False, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.bool, "set on True to print out available scale Weight Types out of the LHEEventProducer")
 
 # define the syntax for parsing
 # you need to enter in the cfg file:
@@ -125,7 +126,16 @@ else:
 		#'/store/mc/RunIIFall15MiniAODv2/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/26ED394C-97BF-E511-881B-0025905C446A.root'
 		#'/store/mc/RunIIFall15MiniAODv2/TT_TuneCUETP8M1_mtop1695_13TeV-powheg-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v3/00000/067A260B-E4E1-E511-A824-0025904C7B26.root'
 		'/store/mc/RunIIFall15MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12_ext3-v1/00000/00DF0A73-17C2-E511-B086-E41D2D08DE30.root'	
-		 ]
+		 #'/store/mc/RunIIFall15MiniAODv2/ST_t-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/00D0C851-F9BB-E511-86B6-5C260AFFFB63.root'
+         #'/store/mc/RunIIFall15MiniAODv2/ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v2/10000/0EF9A5F0-63C1-E511-BB1F-441EA1616DE6.root'
+         #'/store/mc/RunIIFall15MiniAODv1/QCD_Pt-30to50_EMEnriched_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/04280F1B-03AB-E511-A9E1-0019B9CABE48.root'
+         #'/store/mc/RunIIFall15MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-scaleup-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12_ext3-v1/10000/002A13F7-B8CB-E511-A112-003048CB7B30.root'
+        #'/store/mc/RunIIFall15MiniAODv2/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/04D51FB4-B2B8-E511-A399-047D7B881D6A.root'
+         #'/store/mc/RunIIFall15MiniAODv2/TT_TuneCUETP8M1_13TeV-amcatnlo-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/04D51FB4-B2B8-E511-A399-047D7B881D6A.root'
+         #'/store/mc/RunIIFall15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/043D89DE-2FCC-E511-B2E9-0025907FD442.root'
+         #MC JERC Testfile
+         #'/store/mc/RunIIFall15MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12_ext3-v1/00000/02837459-03C2-E511-8EA2-002590A887AC.root'
+         ]
 
 
 ### Selection steps
@@ -344,8 +354,13 @@ if runOnMiniAOD:
 	else:
    		 runMetCorAndUncFromMiniAOD(process,
 		   	        	            isData= (data),
-		                	     pfCandColl=cms.InputTag("noHFCands"),#comment for MET with HF #FIXME noHFCands not recommended
+		                	        #pfCandColl=cms.InputTag("noHFCands"),#comment for MET with HF #FIXME noHFCands not recommended
+                                    pfCandColl=cms.InputTag("packedPFCandidates"),
+                                    #reclusterJets=True, #True needed for NoHF, but does not work... 
+                                    #recoMetFromPFCs=True, #needed for NoHF, but kills Btagging....
                           		     jecUncFile='TopMass/Configuration/data/Fall15_25nsV2_MC_UncertaintySources_AK4PFchs.txt', 
+                                    #jetCollUnskimmed="slimmedJets", #is default already...
+                                    #jetColl="selectedPatJets"
                             	  	 )	
 else:
     runMETCorrectionsAndUncertainties(process,
@@ -376,7 +391,7 @@ if (data):
 
 
 from PhysicsTools.PatAlgos.tools.jetTools import *
-## call addJetCollection to get get b tagging modules prepared
+## call addJetCollection to get get b tagging modules prepared,  FIXME but not used anymore
 addJetCollection(
     process,
     labelName = 'Updated',
@@ -438,6 +453,10 @@ process.load( "TopQuarkAnalysis.Configuration.patRefSel_inputModule_cfi" )
 process.source.fileNames = inputFiles
 # maximum number of events
 process.maxEvents.input = maxEvents 
+
+
+#TODO
+runMetCorAndUncFromMiniAOD
 
 ###
 ### Selection configuration
@@ -711,7 +730,7 @@ process.FilterDummyBTags = FilterDummy.clone()
 
 #for Debugging
 #from TopMass.TopEventTree.JetDebug_cfi import JetDebug
-#process.JD1 = JetDebug.clone(jets = cms.InputTag("signalVeryLooseJets"), evtSolLabel= cms.InputTag("ttSemiLepEvent") )
+#process.JD1 = JetDebug.clone(jets = cms.InputTag("patJets"), evtSolLabel= cms.InputTag("ttSemiLepEvent") )
 
 
 # Trigger matching
@@ -770,7 +789,8 @@ else:
   useElectronsForAllTtSemiLepHypotheses(process, 'signalElectrons')
 setForAllTtSemiLepHypotheses(process, "jets", "signalVeryLooseJets")
 setForAllTtSemiLepHypotheses(process, "maxNJets", 4)
-#setForAllTtSemiLepHypotheses(process, "mets", "scaledMET:scaledMETs")
+if (options.uncFactor!=1.0) :
+ setForAllTtSemiLepHypotheses(process, "mets", "scaledMET:scaledMETs")
 setForAllTtSemiLepHypotheses(process, "mets", "patPFMetT1")
 
 
@@ -810,13 +830,15 @@ from TopMass.TopEventTree.WeightEventAnalyzer_cfi import analyzeWeights
 process.analyzeWeights = analyzeWeights.clone(
 
                                               mcWeight        = options.mcWeight,
-					      puSrc     = cms.InputTag("slimmedAddPileupInfo"),
+					                          puSrc     = cms.InputTag("slimmedAddPileupInfo"),
                                               puWeightSrc     = cms.InputTag("eventWeightPUsysNo"  , "eventWeightPU"),
-                                              puWeightUpSrc   = cms.InputTag("eventWeightPUsysUp"  , "eventWeightPUUp"),
-                                              puWeightDownSrc = cms.InputTag("eventWeightPUsysDown", "eventWeightPUDown"),
+                                              puWeightUpSrc   = cms.InputTag("eventWeightPUsysUp"  , "eventWeightPU"),
+                                              puWeightDownSrc = cms.InputTag("eventWeightPUsysDown", "eventWeightPU"),
                                               savePDFWeights = True,
                                               brCorrection   = options.brCorrection
                                              )
+if(options.showLHEscaleWeightTypes):
+    process.analyzeWeights.showLHEweightTypes=True
 
 if (options.lepton=='electron'):
 	process.analyzeWeights.triggerWeightSrc  = cms.InputTag("effSFElectronEventWeight")
@@ -841,58 +863,71 @@ if runOnMC:
     
 #atm first scaling, then cleaning!
 
-if options.lJesFactor!=1.0: #FIXME
-    #*****************************************************************************
-    #add systematic variations here using products from the MET uncertainty tool
-    #*****************************************************************************
-     ## configure JetEnergyScale tool 
-	process.load("TopAnalysis.TopUtils.JetEnergyScale_cff")
-	from TopAnalysis.TopUtils.JetEnergyScale_cff import *
+#if options.lJesFactor!=1.0 or options.scaleType!='abs': #FIXME
+   #*****************************************************************************
+   #add systematic variations here using products from the MET uncertainty tool
+   #*****************************************************************************
+    ## configure JetEnergyScale tool 
+process.load("TopAnalysis.TopUtils.JetEnergyScale_cff")
+from TopAnalysis.TopUtils.JetEnergyScale_cff import *
 
-	scaledJetEnergy.scaleType    = options.scaleType
-	scaledJetEnergy.JECUncSrcFile= "TopMass/Configuration/data/Summer15_25nsV6_DATA_UncertaintySources_AK4PFchs.txt" #Uncertainty sources 
-	scaledJetEnergy.sourceName   = options.jessource
-	scaledJetEnergy.flavor       = options.flavor
-	scaledJetEnergy.scaleFactor  = options.lJesFactor
-	scaledJetEnergy.scaleFactorB = options.bJesFactor
+scaledJetEnergy.scaleType    = options.scaleType
+scaledJetEnergy.JECUncSrcFile= "TopMass/Configuration/data/Fall15_25nsV2_DATA_UncertaintySources_AK4PFchs.txt" #Uncertainty sources 
+scaledJetEnergy.sourceName   = options.jessource
+scaledJetEnergy.flavor       = options.flavor
+scaledJetEnergy.scaleFactor  = options.lJesFactor
+scaledJetEnergy.scaleFactorB = options.bJesFactor
 
-	if runOnMiniAOD:
-	    resolutionNominal = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-	elif options.mcversion == "genLevel":
-	    resolutionNominal = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-	else:
-	    resolutionNominal = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]   #[1.079, 1.099, 1.121, 1.208, 1.254, 1.395, 1.056] #FIXME alle auf 1.0?  nmbrs from Run I
-	resolutionUnc     = [0.026, 0.028, 0.029, 0.046, 0.062, 0.063, 0.191]
+   #see https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetResolution#JER_Uncertainty
+if runOnMiniAOD:
+    resolutionNominal = [1.095, 1.120, 1.097, 1.103, 1.118, 1.100, 1.162, 1.160, 1.161, 1.209, 1.564, 1.384, 1.216]
+#elif options.mcversion == "genLevel":
+#    resolutionNominal = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+#else:
+#    resolutionNominal = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]   #[1.079, 1.099, 1.121, 1.208, 1.254, 1.395, 1.056] #FIXME alle auf 1.0?  nmbrs from Run I
+resolutionUnc     = [0.018, 0.028,0.017,0.033,0.014,0.033,0.044,0.048,0.060,0.059,0.321,0.033,0.050]
 	
-	scaledJetEnergy.resolutionFactors   = [] 
-	for nom,unc in zip(resolutionNominal,resolutionUnc):
-	  scaledJetEnergy.resolutionFactors.append(nom+options.resolutionSigma*unc)
+scaledJetEnergy.resolutionFactors   = [] 
+for nom,unc in zip(resolutionNominal,resolutionUnc):
+  scaledJetEnergy.resolutionFactors.append(nom+options.resolutionSigma*unc)
 	
-	scaledJetEnergy.resolutionEtaRanges   = [0.0,0.5, 0.5,1.1, 1.1,1.7, 1.7,2.3, 2.3,2.8, 2.8,3.2, 3.2,-1.]
+#scaledJetEnergy.resolutionEtaRanges   = [0.0,0.5, 0.5,1.1, 1.1,1.7, 1.7,2.3, 2.3,2.8, 2.8,3.2, 3.2,-1.]
+scaledJetEnergy.resolutionEtaRanges   = [0.0,0.5, 0.5,0.8, 0.8,1.1, 1.1,1.3, 1.3,1.7, 1.7,1.9, 1.9,2.1, 2.1,2.3, 2.3,2.5, 2.5,2.8, 2.8,3.0, 3.0,3.2, 3.2,-1.]
 
-	scaledJetEnergy.inputJets    = "patJetsUpdated" 
-	scaledJetEnergy.inputMETs    = "patPFMetT1" 
+scaledJetEnergy.inputJets    = "patJets" #"patJetsUpdated" 
+scaledJetEnergy.inputMETs    = "patPFMetT1" 
 
-	process.selectedJets.src = "scaledJetEnergy:patJetsUpdated" 
-	#soll das atm verwendet werden?
-	if (options.lepton=='electron' and options.eesShift!=0.0):
-		## electron shift
-		process.load("TopAnalysis.TopUtils.ElectronEnergyScale_cfi")
-		from TopAnalysis.TopUtils.ElectronEnergyScale_cfi import *
+process.selectedJets.src ="scaledJetEnergy:patJets"  #"scaledJetEnergy:patJetsUpdated" 
+#soll das atm verwendet werden? uncertainties from http://cms-results.web.cern.ch/cms-results/public-results/publications/TOP-15-003/index.html
+if (options.lepton=='electron' and options.eesShift!=0.0):
+	## electron shift
+	process.load("TopAnalysis.TopUtils.ElectronEnergyScale_cfi")
+	from TopAnalysis.TopUtils.ElectronEnergyScale_cfi import *
 	
-		process.scaledElectronEnergy.src      = "selectedElectrons" 
-		process.scaledElectronEnergy.mets     = "scaledJetEnergy:patPFMetT1"
-		process.scaledElectronEnergy.shiftBy  = options.eesShift
-		process.preSignalElectrons.src   = "scaledElectronEnergy:selectedPatElectrons" 
-	elif(options.mesShift!=0.0):
-		## muon shift
-		process.load("TopAnalysis.TopUtils.MuonEnergyScale_cfi")
-		from TopAnalysis.TopUtils.MuonEnergyScale_cfi import *
+	process.scaledElectronEnergy.src      = "selectedElectrons" 
+	process.scaledElectronEnergy.mets     = "scaledJetEnergy:patPFMetT1"
+   # process.scaledElectronEnergy.binning  = cms.VPSet(
+   #                   cms.PSet(
+   #                       binSelection = cms.string('isEB'),
+   #                       binUncertainty = cms.double(0.01)
+   #                   ),
+   #                   cms.PSet(
+   #                       binSelection = cms.string('!isEB'),
+   #                       binUncertainty = cms.double(0.01)
+   #                   )
+   #                                                   )
+	process.scaledElectronEnergy.shiftBy  = options.eesShift
+	process.preSignalElectrons.src   = "scaledElectronEnergy:selectedElectrons" 
+elif(options.mesShift!=0.0):
+	## muon shift
+	process.load("TopAnalysis.TopUtils.MuonEnergyScale_cfi")
+	from TopAnalysis.TopUtils.MuonEnergyScale_cfi import *
 	
-		process.scaledMuonEnergy.src      = "selectedMuons"  
-		process.scaledMuonEnergy.mets     = "scaledJetEnergy:patPFMetT1" 
-		process.scaledMuonEnergy.shiftBy  = options.mesShift
-		process.preSignalMuons.src   = "scaledMuonEnergy:selectedMuons" 
+	process.scaledMuonEnergy.src      = "selectedMuons"  
+	process.scaledMuonEnergy.mets     = "scaledJetEnergy:patPFMetT1" 
+        process.scaledMuonEnergy.uncertainty = cms.double(0.005)
+	process.scaledMuonEnergy.shiftBy  = options.mesShift
+	process.preSignalMuons.src   = "scaledMuonEnergy:selectedMuons" 
 
 ## unclustered energy scale
 process.load("TopAnalysis.TopUtils.UnclusteredMETScale_cfi")
@@ -900,13 +935,13 @@ from TopAnalysis.TopUtils.UnclusteredMETScale_cfi import *
 
 process.scaledMET.inputJets       = "scaledJetEnergy:selectedPatJets"   #FIXME selectedPatJetsUpdated ???
 process.scaledMET.inputMETs       = "scaledMuonEnergy:METs"
-process.scaledMET.inputElectrons  = "scaledElectronEnergy:selectedPatElectrons"
+process.scaledMET.inputElectrons  = "scaledElectronEnergy:selectedElectrons"
 process.scaledMET.inputMuons      = "scaledMuonEnergy:selectedPatMuons"
 process.scaledMET.scaleFactor     = options.uncFactor
 
 
 
-
+process.makeJets = cms.Path(process.patJets)
 
 
 
@@ -952,6 +987,8 @@ process.sBTags         = cms.Sequence( process.sStandAloneBTags + process.Filter
                                      )
 
 process.serialFilter = cms.Sequence()
+
+
 
 if allCut:
 	process.serialFilter = cms.Sequence( 	process.sTrigger
@@ -1003,7 +1040,8 @@ process.FDAnalyzer = FilterDummyAnalyzer.clone()
 
 process.pAnalysis = cms.Path(process.serialFilter + process.analyzer + process.FDAnalyzer)# + process.JD1) 
 
-process.schedule = cms.Schedule( 
+process.schedule = cms.Schedule(
+  process.makeJets,   
   process.pTrigger,
   process.pEventCleaning,
   process.pGoodVertex,
@@ -1049,18 +1087,18 @@ if not data:
 	process.eventWeightPU.PUSource                 = cms.InputTag("slimmedAddPileupInfo")
         process.eventWeightPU.MCSampleHistoName        = "puhisto"
         process.eventWeightPU.DataHistoName            = "pileup"
-
-        process.eventWeightPU.MCSampleFile             = "TopMass/data/PUhists/Run2_MC_2015D_asymptotic-v12_truePU.root"   #works for asymptotic_v12 PU generators
+        process.eventWeightPU.MCSampleFile             = "TopMass/data/PUhists/Run2_MC_2015D_asymptotic-v12_truePU_Var.root"   #works for asymptotic_v12 PU generators
 	process.eventWeightPU.DataFile		       = "TopAnalysis/TopUtils/data/Data_PUHist_Run2015D_v2.root"
-
+        process.eventWeightPUUp = process.eventWeightPU.clone(DataFile  = "TopAnalysis/TopUtils/data/Data_PUHist_Run2015D_v2_sysUp.root")
+        process.eventWeightPUDown = process.eventWeightPU.clone(DataFile = "TopAnalysis/TopUtils/data/Data_PUHist_Run2015D_v2_sysDown.root")
     if (options.generator == "rd"):
         process.eventWeightPU.MCSampleHistoName        = ""
         process.eventWeightPU.DataHistoName            = ""
     
 
     process.eventWeightPUsysNo   = process.eventWeightPU.clone()
-    process.eventWeightPUsysUp   = process.eventWeightPU.clone()
-    process.eventWeightPUsysDown = process.eventWeightPU.clone()
+    process.eventWeightPUsysUp   = process.eventWeightPUUp.clone()
+    process.eventWeightPUsysDown = process.eventWeightPUDown.clone()
 
     #### Parameters 'CreateWeight3DHisto' and 'Weight3DHistoFile' required for cff-file, but actually not used for Fall11 samples
 

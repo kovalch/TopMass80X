@@ -349,10 +349,13 @@ std::vector<double> Helper::readParameters(const char *whichParameter){
   return pars;
 }
 
-std::vector<std::string> Helper::readParametersString(const char *whichParameter){
+std::vector<std::string> Helper::readParametersString(const char *whichParameter/*, int splitOption*/){
   std::vector<std::string> vsPars;
   std::string sPars = po::GetOption<std::string>(whichParameter);
-  boost::split(vsPars, sPars, boost::is_any_of("|/"));
+  //if(!splitOption)
+  boost::split(vsPars, sPars, boost::is_any_of("|")); //TODO was changed from, maybe make it down compatible...  boost::split(vsPars, sPars, boost::is_any_of("|/"));
+  //else  //could be extended
+	//  boost::split(vsPars, sPars, boost::is_any_of("|"));
   return vsPars;
 }
 

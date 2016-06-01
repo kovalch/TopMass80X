@@ -86,7 +86,7 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
   time(&end);
   
   Helper* helper = new Helper();
-  std::vector<std::string> backgroundSamplesLept = helper->readParametersString("analysisConfig.backgroundSamplesLept");
+  std::vector<std::string> backgroundSamplesLept = helper->readParametersString("analysisConfig.backgroundSamplesLept"/*,1*/);
   std::vector<double>      backgroundFactorsLept = helper->readParameters("analysisConfig.backgroundFactorsLept");
   if(backgroundSamplesLept.size()!=backgroundFactorsLept.size()) std::cerr << "Error: Background samples and factors do not match. You have to check this!" << std::endl;
 
@@ -240,9 +240,13 @@ void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, doubl
 
 
   std::cout << "maxMCWeight(" << fWeight_ << "): " << maxMCWeight  << std::endl;
+  //addition to use this code with amcatnlo samples
+  double minMCWeight = sample.minWeight;
+  if( maxMCWeight < (minMCWeight*-1) ) maxMCWeight=minMCWeight*-1;
 
   if (maxMCWeight ==  0) { std::cout << "Weight not active?" << std::endl; }
   if (maxMCWeight == -1) { std::cout << "Running over data?" << std::endl; }
+  if (minMCWeight < 0) { std::cout << "Running over Sample with negative Weight" << std::endl; }
 
   int eventsDrawn = 0;
   int nAttempts = 0;
@@ -292,6 +296,10 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file, con
     chain = new TChain("analyzeHitFit/eventTree");
   }
   int nFiles = chain->Add(file.c_str());
+  if(!nFiles){
+	  std::cout<<"ERROR: no files at "<<file<<" found"<<std::endl;
+	  throw ; //FIXME get it back in
+  }
   std::cout << "Adding " << nFiles << " files for " << file << std::flush;
   chain->SetBranchStatus("*", 0);
   std::vector<std::string> vActiveBanches;
@@ -341,7 +349,7 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file, con
     if(!f4    ->GetNdata()) continue;
     if(!binning->GetNdata()) continue;
     //if(!weight->GetNdata()) continue;
-    weight->GetNdata();
+    weight->GetNdata(); //FIXME ???
     if(!sel   ->GetNdata()) continue;
     int filledPermutations = 0;
     for(int j = 0, l = std::min(((currentID == Helper::kAllJets) ? maxPermutations_ : 4), sel->GetNdata()); j < l; ++j){

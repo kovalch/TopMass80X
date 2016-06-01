@@ -19,24 +19,25 @@ void SystematicUncertainties::fillLeptonJets()
   std::string lepton_[4] = {"electron", "muon", "lepton", "muon_BReg"};
 
   //int channel = 3;
-  int channel = 2;
+  int channel = 1;
 
-  int selectComparisonSet = 0; //0: full set of uncertainties for Moriond; 1: only uncertainties also determined for B-Regression study; 2: minimal set used for BReg-study
+  int selectComparisonSet = 4; //0: full set of uncertainties for Moriond; 1: only uncertainties also determined for B-Regression study; 2: minimal set used for BReg-study: 76x Test of LHE weight scale uncertainties
 
   std::string path;
   if(channel==3)path = "/nfs/dust/test/cms/user/kirschen/BRegression_PE_NewCalibrationJan2014Applied_MCS3250MinEvtsBReg/";
   //else path = "/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/pseudoexperiments/topmass_141020/";
-  else path = "/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper/";
-  //else path = "/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper_jsfconstraint/";
+  //else path = "/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper/";
+  else path = "/nfs/dust/cms/user/garbersc/TopMass/2015D_TemplateCalibration/76x/";
 
-  path += lepton_[channel]; path += "/";
+  path += lepton_[channel]; path += "_calibrated/2015_JESVariations/76x/";
 
   sample.path = path;
-  sample.crossSection = 230;
-  sample.peLumi = 20000.;
+  sample.crossSection = 832;
+  sample.peLumi = 2000.;
 
   sample.variables = {"mass_mTop_JES", "JES_mTop_JES", "mass_mTop"};
 
+  //TODO whats the second double in the pair?
   sample.ensembles["ref"] = ensemble("", 0, {std::make_pair("mass_mTop_JES",std::make_pair(172.5,0.0)), std::make_pair("JES_mTop_JES",std::make_pair(1.0,0.0)), std::make_pair("mass_mTop",std::make_pair(172.5,0.0))});
   sample.ensembles["calibration"] = ensemble("", 0, {std::make_pair("mass_mTop_JES",std::make_pair(172.5,0.04)), std::make_pair("JES_mTop_JES",std::make_pair(1.0,0.0005)), std::make_pair("mass_mTop",std::make_pair(172.5,0.04))});
   sample.ensembles["stat"] = ensemble("", 0, {std::make_pair("mass_mTop_JES",std::make_pair(172.5,0.194498)), std::make_pair("JES_mTop_JES",std::make_pair(1.0,0.00180928)), std::make_pair("mass_mTop",std::make_pair(172.5,0.118054))});
@@ -47,13 +48,67 @@ void SystematicUncertainties::fillLeptonJets()
   sample.ensembles["nobkg_pdfdown"] = ensemble("", 0, {std::make_pair("mass_mTop_JES",std::make_pair(172.486,0.)), std::make_pair("JES_mTop_JES",std::make_pair(0.9992,0.)), std::make_pair("mass_mTop",std::make_pair(172.501,0.))});
   //*/
   // PDF JSF constraint
-  //*
+  //*  //FIXME check this nmbrs
   sample.ensembles["nobkg_pdfup"] = ensemble("", 0, {std::make_pair("mass_mTop_JES",std::make_pair(172.574,0.)), std::make_pair("JES_mTop_JES",std::make_pair(1.0004,0.)), std::make_pair("mass_mTop",std::make_pair(172.574,0.))});
   sample.ensembles["nobkg_pdfdown"] = ensemble("", 0, {std::make_pair("mass_mTop_JES",std::make_pair(172.512,0.)), std::make_pair("JES_mTop_JES",std::make_pair(0.9996,0.)), std::make_pair("mass_mTop",std::make_pair(172.561,0.))});
   //*/
   
-  sample.ensembles["default"] = ensemble("Summer12_TTJetsMS1725_1.00/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["default"] = ensemble("RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_patJetsUpdated_1.00/job_*_ensemble.root", 97994442); //FIXME event nrs have to be effective, atm no weights are considered
 
+  //sample.ensembles["LHEscaleWeightID_1001"] = ensemble("RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.00_newBG_scaledWidthLHEEventWeight_0/job_*_ensemble.root", 97994442);
+  //sample.ensembles["LHEscaleWeightID_1002"] = ensemble("RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.00_newBG_scaledWidthLHEEventWeight_1/job_*_ensemble.root", 97994442);
+  //sample.ensembles["LHEscaleWeightID_1003"] = ensemble("RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.00_newBG_scaledWidthLHEEventWeight_2/job_*_ensemble.root", 97994442);
+  //sample.ensembles["LHEscaleWeightID_1004"] = ensemble("RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.00_newBG_scaledWidthLHEEventWeight_3/job_*_ensemble.root", 97994442);
+  //sample.ensembles["LHEscaleWeightID_1005"] = ensemble("RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.00_newBG_scaledWidthLHEEventWeight_4/job_*_ensemble.root", 97994442);
+  //sample.ensembles["LHEscaleWeightID_1006"] = ensemble("RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.00_newBG_scaledWidthLHEEventWeight_5/job_*_ensemble.root", 97994442);
+  //sample.ensembles["LHEscaleWeightID_1007"] = ensemble("RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.00_newBG_scaledWidthLHEEventWeight_6/job_*_ensemble.root", 97994442);
+  //sample.ensembles["LHEscaleWeightID_1008"] = ensemble("RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.00_newBG_scaledWidthLHEEventWeight_7/job_*_ensemble.root", 97994442);
+  //sample.ensembles["LHEscaleWeightID_1009"] = ensemble("RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.00_newBG_scaledWidthLHEEventWeight_8/job_*_ensemble.root", 97994442);
+
+  sample.ensembles["scaleUp"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_scaleup_patJetsUpdated__1.00_allCut_scaled/job_*_ensemble.root", 38507969);
+  sample.ensembles["scaleDown"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_scaledown_patJetsUpdated__1.00_allCut_scaled/job_*_ensemble.root", 39461147);
+
+  sample.ensembles["puUp"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_wPUVarWeights_1.00_allCut_puUp/job_*_ensemble.root", 97994442);
+  sample.ensembles["puDown"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_wPUVarWeights_1.00_allCut_puDown/job_*_ensemble.root", 97994442);
+  sample.ensembles["puDef"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_wPUVarWeights_1.00_allCut_puDef/job_*_ensemble.root", 97994442);
+
+  sample.ensembles["halfBG"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_wPUVarWeights_1.00_allCut_halfBG/job_*_ensemble.root", 97994442);
+  sample.ensembles["doubleBG"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_wPUVarWeights_1.00_allCut_doubleBG/job_*_ensemble.root", 97994442);
+
+  sample.ensembles["amcatnlo"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-amcatnlo_76X_mcRun2_asymptotic_v12_v1_patJetsUpdated_1.00_allCut/job_*_ensemble.root", 9373386);
+  sample.ensembles["amcatnloFXFX"] = ensemble("RunII_TT_TuneCUETP8M1_amcatnloFXFX-pythia8_76X_mcRun2_asymptotic_v12-v1_patJetsUpdated__1.00_allCut/job_*_ensemble.root", 9373386);
+  sample.ensembles["amcatnloFXFX Q2 up"] = ensemble("RunII_TT_TuneCUETP8M1_amcatnloFXFX-pythia8_76X_mcRun2_asymptotic_v12-v1_scaleup_patJetsUpdated__1.00_allCut/job_*_ensemble.root", 9373386);
+  sample.ensembles["amcatnloFXFX Q2 down"] = ensemble("RunII_TT_TuneCUETP8M1_amcatnloFXFX-pythia8_76X_mcRun2_asymptotic_v12-v1_scaledown_patJetsUpdated__1.00_allCut/job_*_ensemble.root", 9373386);
+
+
+  sample.ensembles["flavor:up light"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_patJetsUpdated_flavor:up_FlavorPureQuark_allCut/job_*_ensemble.root", 97994442);
+  sample.ensembles["flavor:down light"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_patJetsUpdated_flavor:down_FlavorPureQuark_allCut/job_*_ensemble.root", 97994442);
+  sample.ensembles["flavor:up gluon"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_patJetsUpdated_flavor:up_FlavorPureGluon_allCut/job_*_ensemble.root", 97994442);
+  sample.ensembles["flavor:down gluon"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_patJetsUpdated_flavor:down_FlavorPureGluon_allCut/job_*_ensemble.root", 97994442);
+  sample.ensembles["flavor:up charm"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_patJetsUpdated_flavor:up_FlavorPureCharm_allCut/job_*_ensemble.root", 97994442);
+  sample.ensembles["flavor:down charm"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_patJetsUpdated_flavor:down_FlavorPureCharm_allCut/job_*_ensemble.root", 97994442);
+  sample.ensembles["flavor:up bottom"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_patJetsUpdated_flavor:up_FlavorPureBottom_allCut/job_*_ensemble.root", 97994442);
+  sample.ensembles["flavor:down bottom"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_patJetsUpdated_flavor:down_FlavorPureBottom_allCut/job_*_ensemble.root", 97994442);
+
+  sample.ensembles["source:up_TotalNoFlavorNoTime"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_patJetsUpdated_source:up_TotalNoFlavorNoTime_allCut/job_*_ensemble.root", 97994442);
+  sample.ensembles["source:down_TotalNoFlavorNoTime"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_patJetsUpdated_source:down_TotalNoFlavorNoTime_allCut/job_*_ensemble.root", 97994442);
+
+  sample.ensembles["source:up_CorrelationGroupIntercalibration"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_patJetsUpdated_source:up_CorrelationGroupIntercalibration_allCut/job_*_ensemble.root", 97994442);
+  sample.ensembles["source:down_CorrelationGroupIntercalibration"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_patJetsUpdated_source:down_CorrelationGroupIntercalibration_allCut/job_*_ensemble.root", 97994442);
+  sample.ensembles["source:up_CorrelationGroupUncorrelated"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_patJetsUpdated_source:up_CorrelationGroupUncorrelated_allCut/job_*_ensemble.root", 97994442);
+  sample.ensembles["source:down_CorrelationGroupUncorrelated"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_patJetsUpdated_source:down_CorrelationGroupUncorrelated_allCut/job_*_ensemble.root", 97994442);
+  sample.ensembles["source:up_CorrelationGroupMPFInSitu"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_patJetsUpdated_source:up_CorrelationGroupMPFInSitu_allCut/job_*_ensemble.root", 97994442);
+  sample.ensembles["source:down_CorrelationGroupMPFInSitu"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_patJetsUpdated_source:down_CorrelationGroupMPFInSitu_allCut/job_*_ensemble.root", 97994442);
+
+  sample.ensembles["JER correction"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_sysJER_1.00_sigRes0.0_allCut/job_*_ensemble.root", 97994442);
+  sample.ensembles["JER up"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_sysJER_1.00_sigRes1.0_allCut/job_*_ensemble.root", 97994442);
+  sample.ensembles["JER down"] = ensemble("RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_sysJER_1.00_sigRes-1.0_allCut/job_*_ensemble.root", 97994442);
+
+  sample.ensembles["mpiOff"] = ensemble("RunII_TT_TuneCUETP8M1mpiOFF_powheg-pythia8_76X_mcRun2_asymptotic_v12_v1_1.00_allCut/job_*_ensemble.root", 24523000);
+  sample.ensembles["noCR"] = ensemble("RunII_TT_TuneCUETP8M1noCR_powheg-pythia8_76X_mcRun2_asymptotic_v12-v1_1.00_allCut/job_*_ensemble.root", 24478000);
+
+
+/*
   sample.ensembles["puUp"] = ensemble("weight_puUp/job_*_ensemble.root", 62131965./1.2);
   sample.ensembles["puDown"] = ensemble("weight_puDown/job_*_ensemble.root", 62131965./1.2);
 
@@ -204,7 +259,7 @@ void SystematicUncertainties::fillLeptonJets()
   sample.ensembles["SinglePionECALDown"] = ensemble("Summer12_TTJetsMS1725_source:down_SinglePionECAL_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
   sample.ensembles["SinglePionHCALUp"] = ensemble("Summer12_TTJetsMS1725_source:up_SinglePionHCAL_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
   sample.ensembles["SinglePionHCALDown"] = ensemble("Summer12_TTJetsMS1725_source:down_SinglePionHCAL_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
-
+*/
   ///////////////////////////////////
 
 
@@ -292,9 +347,80 @@ void SystematicUncertainties::fillLeptonJets()
       //sample.comparisons["b fragmentation                  "] = comparison("default", "bFragLEP");
       //sample.comparisons["Semi-leptonic B hadron decays    "] = comparison("default", "bFNuUp", "bFNuDown");
       break;
+
+    case 4:
+    //	sample.comparisons["Factorisation                   "] = comparison("default", "LHEscaleWeightID_1002", "LHEscaleWeightID_1003", true,false);
+    //	sample.comparisons["Renormalisation                 "] = comparison("default", "LHEscaleWeightID_1004", "LHEscaleWeightID_1007", true,false);
+    	//sample.comparisons["$Q^{2}$ scale via weight        "] = comparison("default", "LHEscaleWeightID_1005", "LHEscaleWeightID_1009", true,false);
+    	//sample.comparisons["$Q^{2}$ scale   active?         "] = comparison("default", "LHEscaleWeightID_1005", "LHEscaleWeightID_1009", true);
+    	//sample.comparisons["$Q^{2}$ scale   uncor?          "] = comparison("default", "LHEscaleWeightID_1005", "LHEscaleWeightID_1009", false);
+    	//sample.comparisons["$Q^{2}$ scale  active and uncot?"] = comparison("default", "LHEscaleWeightID_1005", "LHEscaleWeightID_1009", false);
+    //	sample.comparisons["$Q^{2}$ scale to 1001 weight    "] = comparison("LHEscaleWeightID_1001", "LHEscaleWeightID_1005", "LHEscaleWeightID_1009", true,false);
+    	sample.comparisons["$Q^{2}$ scale         "] = comparison("default", "scaleUp", "scaleDown", true,false);
+    	//sample.comparisons["Pileup, wrong BG      "] = comparison("default", "puUp", "puDown", true,false);
+    	sample.comparisons["rough BG overestimate "] = comparison("default", "doubleBG", "halfBG", true,false);
+    	sample.comparisons["Pileup, no BG         "] = comparison("puDef", "puUp", "puDown", true,false);
+    	//sample.comparisons["oldschool $Q^{2}$ scale uncor?  "] = comparison("default", "scaleUp", "scaleDown", false,false);
+    	//sample.comparisons["aMCatNLO, same configuration    "] = comparison("default", "amcatnlo", "", false,false);
+    	//sample.comparisons["aMCatNLOFXFX, same configuration"] = comparison("default", "amcatnloFXFX", "", false,false);
+    	//sample.comparisons["aMCatNLOFXFX $Q^{2}$ scale      "] = comparison("amcatnloFXFX", "amcatnloFXFX Q2 up", "amcatnloFXFX Q2 down", false,false);
+    	sample.comparisons["flavor light                    "] = comparison("default", "flavor:up light", "flavor:down light", true,false);
+    	//sample.comparisons["calibration                     "] = comparison("default", "calibration", "", true,false);
+    	sample.comparisons["flavor gluon                    "] = comparison("default", "flavor:up gluon", "flavor:down gluon", true,false);
+    	sample.comparisons["flavor charm                    "] = comparison("default", "flavor:up charm", "flavor:down charm", true,false);
+    	sample.comparisons["flavor bottom                   "] = comparison("default", "flavor:up bottom", "flavor:down bottom", true,false);
+       	//sample.comparisons["source:up_TotalNoFlavorNoTime   "] = comparison("default", "source:up_TotalNoFlavorNoTime", "source:down_TotalNoFlavorNoTime", true,false);
+       	sample.comparisons["JEC : Intercalibration          "] = comparison("default", "source:up_CorrelationGroupIntercalibration", "source:down_CorrelationGroupIntercalibration", true,false);
+       	sample.comparisons["JEC : MPFInSitu                 "] = comparison("default", "source:up_CorrelationGroupMPFInSitu", "source:down_CorrelationGroupMPFInSitu", true,false);
+       	sample.comparisons["JEC : Uncorrelated              "] = comparison("default", "source:up_CorrelationGroupUncorrelated", "source:down_CorrelationGroupUncorrelated", true,false);
+       	sample.comparisons["JER correction                  "] = comparison("default", "JER correction", "", true,false);
+       	sample.comparisons["JER                             "] = comparison("JER correction", "JER up", "JER down", true,false);
+       	//sample.comparisons["Underlying Event                "] = comparison("default", "mpiOff", "", false,false);
+       	//sample.comparisons["Color reconnection modelling    "] = comparison("default", "noCR", "", false,false);
+       	sample.comparisons["Underlying Event, corrected JER "] = comparison("JER correction", "mpiOff", "", false,false);
+       	sample.comparisons["ColorReconnectionModellingCorJER"] = comparison("JER correction", "noCR", "", false,false);
+    	break;
     }
 
-    sample.mergedcomparisons["JEC pt/eta                      "] = mergedcomparison({
+  sample.mergedcomparisons["JEC: Flavor           "] = mergedcomparison({
+          "flavor light                    ",
+          "flavor gluon                    ",
+  		  "flavor charm                    ",
+		  "flavor bottom                   "
+        },true);
+
+  sample.mergedcomparisons["JEC quad. sum         "] = mergedcomparison({
+	  "JEC : Intercalibration          ",
+	  "JEC : MPFInSitu                 ",
+	  "JEC : Uncorrelated              "
+  });
+
+  sample.mergedcomparisons["nonlin-merged         "] = mergedcomparison({
+	  "$Q^{2}$ scale         ",
+	  "Pileup, no BG         ",
+	  "JER                             ",
+	  "Underlying Event, corrected JER ",
+	  "ColorReconnectionModellingCorJER",
+      "flavor light                    ",
+      "flavor gluon                    ",
+	"flavor charm                    ",
+	  "flavor bottom                   "
+  });
+
+
+ /* sample.mergedcomparisons["all weight tests         "] = mergedcomparison({
+        "Factorisation                   ",
+        "Renormalisation                 ",
+		"$Q^{2}$ scale                   ",
+		//"$Q^{2}$ scale anti-correlated   "
+      });
+
+  sample.mergedcomparisons["weight to gen scale       "] = mergedcomparison({
+		"$Q^{2}$ scale                   ",
+		"$Q^{2}$ scale on gen lvl        "
+      });
+*/
+/*    sample.mergedcomparisons["JEC pt/eta                      "] = mergedcomparison({
       "AbsoluteFlavMap                  ",
       "AbsoluteMPFBias                  ",
       "AbsoluteScale                    ",
@@ -413,7 +539,7 @@ void SystematicUncertainties::fillLeptonJets()
       "Lepton energy scale (electron)   ",
       "Lepton energy scale (muon)       "
     });
-
+*/
 }
 
 void SystematicUncertainties::fillAllJets()
@@ -773,14 +899,17 @@ void SystematicUncertainties::deriveSystematics()
     if (strcmp(it->second.file.c_str(), "") == 0){}
     else{
       // Get files
+
+    	// std::cout<<"debug "<<(sample.path + it->second.file)<<std::endl;
+
       it->second.chain = new TChain("tree");
       it->second.chain->Add((sample.path + it->second.file).c_str());
-
       // Fit
       TF1* gaus = new TF1("gaus", "gaus");
 
       for(auto& var : sample.variables){
         std::string selection = getSelectionFromVariable(var);
+     //   std::cout<<"debug var:"<<var<<"    selection:"<<selection<<std::endl;
         it->second.chain->Fit("gaus", var.c_str(), selection.c_str(), "LEMQ0");
         it->second.values[var].first  = gaus->GetParameter(1);
         it->second.values[var].second = gaus->GetParameter(2) / sqrt(it->second.size/(sample.crossSection*sample.peLumi));
@@ -816,7 +945,9 @@ void SystematicUncertainties::deriveSystematics()
       down   = up;
       upDown = false;
     }
-    else down = sample.ensembles.find(it->second.down)->second;
+    else{
+    	down = sample.ensembles.find(it->second.down)->second;
+    }
 
     //std::map<std::string, double> shifts;
     for(auto& var : sample.variables) {

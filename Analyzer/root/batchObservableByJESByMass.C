@@ -19,13 +19,15 @@
 #include "TLine.h"
 #include "TPaveStats.h"
 #include "TSystem.h"
+#include "TProof.h"
+#include "TROOT.h"
 
 //#include "tdrstyle_new.C"
 #include "tdrstyle.C"
 #include "CMS_lumi.C"
 
-const int nMass = 3;
-const int nJES  = 3;
+const int nMass = 5;
+const int nJES  = 5;
 
 int target = 1; // 1: correct, 0: wrong, -10: unmatched
 int obs    = 0; // 0: hadTopMass, 1: hadWRawMass
@@ -53,14 +55,14 @@ TGraphErrors* gr4[nMass];
 
 TString sX[nMass] = {//"m_{t,gen} = 166.5 GeV",
                      "m_{t,gen} = 169.5 GeV",
-                     //"m_{t,gen} = 171.5 GeV",
+                     "m_{t,gen} = 171.5 GeV",
                      "m_{t,gen} = 172.5 GeV",
-                     //"m_{t,gen} = 173.5 GeV",
+                     "m_{t,gen} = 173.5 GeV",
                      "m_{t,gen} = 175.5 GeV"};
                      //"m_{t,gen} = 178.5 GeV"};
 
-double X  [nMass] = {/*166.5,*/ 169.5, /*171.5,*/ 172.5, /*173.5,*/ 175.5/*, 178.5*/};
-TString X_ [nMass] = {/*"166_5",*/ "169_5", /*"171_5",*/ "172_5", /*"173_5",*/ "175_5"/*, "178_5"*/};
+double X  [nMass] = {/*166.5,*/ 169.5, 171.5, 172.5, 173.5, 175.5/*, 178.5*/};
+TString X_ [nMass] = {/*"166_5",*/ "169_5", "171_5", "172_5", "173_5", "175_5"/*, "178_5"*/};
 double Y10[nMass];
 double Y11[nMass];
 double Y20[nMass];
@@ -68,7 +70,7 @@ double Y21[nMass];
 double Y30[nMass];
 double Y31[nMass];
 
-double eX  [nMass] = {1e-12, 1e-12, 1e-12};//, 1e-12, 1e-12, 1e-12, 1e-12};
+double eX  [nMass] = {1e-12, 1e-12, 1e-12, 1e-12, 1e-12};
 double eY10[nMass];
 double eY11[nMass];
 double eY20[nMass];
@@ -76,8 +78,8 @@ double eY21[nMass];
 double eY30[nMass];
 double eY31[nMass];
 
-double xJES[nJES] = {/*0.96,*/ 0.98, 1.00, 1.02/*, 1.04*/};
-TString xJES_[nJES] = {/*"0_96",*/ "0_98", "1_00", "1_02"/*, "1_04"*/};
+double xJES[nJES] = {0.96, 0.98, 1.00, 1.02, 1.04};
+TString xJES_[nJES] = {"0_96", "0_98", "1_00", "1_02", "1_04"};
 double y00 [nJES];
 double y01 [nJES];
 double y2  [nJES];
@@ -85,7 +87,7 @@ double y3  [nJES];
 double y4  [nJES];
 double y5  [nJES];
 
-double ex  [nJES] = {1e-12, 1e-12, 1e-12/*, 1e-12, 1e-12*/};
+double ex  [nJES] = {1e-12, 1e-12, 1e-12, 1e-12, 1e-12};
 double ey0 [nJES];
 double ey1 [nJES];
 double ey2 [nJES];
@@ -97,10 +99,10 @@ double ey6 [nJES];
 double params[12];
 
 enum styles             { kDown, kNominal, kUp};
-int color_   [ nJES ] = { kRed+1, kOrange+1 , kBlue+1 /*, kGreen+1 , kViolet+1*/};
-int marker_  [ nJES ] = { 23, 24, 20/*, 22, 25*/};
-int line_    [ nJES ] = {  7 , 1, 9};
-int width_   [ nJES ] = {  2, 3, 2};
+int color_   [ nJES ] = { kRed+1, kOrange+1 , kBlue+1 , kGreen+1 , kViolet+1};
+int marker_  [ nJES ] = { 23, 24, 20, 22, 25};
+int line_    [ nJES ] = {7,  9 , 1, 7, 9};
+int width_   [ nJES ] = {2,  2, 3, 2, 2};
 
 void FindParametersMass(int iMass);
 TH1F* FindParameters(TString filename, int i);
@@ -166,7 +168,7 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   
   if (plotByMass || pas) {
     iMassMin = 0;
-    iMassMax = 3;
+    iMassMax = 5;
   }
   
   TStyle* tdrStyle = setTDRStyle();
@@ -358,7 +360,7 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   gr->Draw("A*");
   
   if (!pas && !plotByMass) {
-    TString pathByMass("../plot/template/"); pathByMass+= sFObs[obs]; pathByMass += "_bymass";
+    TString pathByMass("../plot/template_par/"); pathByMass+= sFObs[obs]; pathByMass += "_bymass";
     pathByMass += "_"; pathByMass += sTarget[abs(target%8)];
     pathByMass += "_"; pathByMass += sLepton[lepton]; pathByMass += ".eps";
     cByMass->Print(pathByMass);
@@ -418,7 +420,7 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   leg1->Draw();
   
   if (!pas && !plotByMass) {
-    TString pathByJES("../plot/template/"); pathByJES+= sFObs[obs]; pathByJES += "_byjes";
+    TString pathByJES("../plot/template_par/"); pathByJES+= sFObs[obs]; pathByJES += "_byjes";
     pathByJES += "_"; pathByJES += sTarget[abs(target%8)];
     pathByJES += "_"; pathByJES += sLepton[lepton]; pathByJES += ".eps";
     cSetOfCurves->Print(pathByJES);
@@ -426,7 +428,7 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   
   std::cout << "Parameters for IdeogramCombLikelihood.cxx:" << std::endl;
   ofstream parFile;
-  parFile.open ("../plot/template/parameters.txt", ios::app);
+  parFile.open ("../plot/template_par/parameters.txt", ios::app);
   parFile   << sFObs[obs] << " " << sTarget[abs(target%8)] << " " << sLepton[lepton] << "\n";
   for (int i=0; i<12; i++) {
     std::cout << params[i] << "|";
@@ -469,43 +471,47 @@ void FindParametersMass(int iMass)
   if (!plotByMass) {
     switch(iMass) {
       case 0: {
-       if(nJES==5) h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x_Test_withoutBTagweight//RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1695_0.96", 3);        
-	 h098 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x_Test_withoutBTagweight/RunIISpring15MiniAODv2_76x_asymptotic_v12-v3_TT_TuneCUETP8M1_powheg-pythia8_MS1695_0.98", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x_Test_withoutBTagweight/RunIISpring15MiniAODv2_76x_asymptotic_v12-v3_TT_TuneCUETP8M1_powheg-pythia8_MS1695_1.00", 1);//FIXME last int
-	 h102 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x_Test_withoutBTagweight/RunIISpring15MiniAODv2_76x_asymptotic_v12-v3_TT_TuneCUETP8M1_powheg-pythia8_MS1695_1.02", 2);
-       if(nJES==5) h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x_Test_withoutBTagweight/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1695_1.04", 4);
+           if(nJES==5) h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v3_TT_TuneCUETP8M1_powheg-pythia8_MS1695_patJetsUpdated_0.96", 0);
+                       h098 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v3_TT_TuneCUETP8M1_powheg-pythia8_MS1695_patJetsUpdated_0.98", 1);
+                       h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v3_TT_TuneCUETP8M1_powheg-pythia8_MS1695_patJetsUpdated_1.00", 2);
+                       h102 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v3_TT_TuneCUETP8M1_powheg-pythia8_MS1695_patJetsUpdated_1.02", 3);
+           if(nJES==5) h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v3_TT_TuneCUETP8M1_powheg-pythia8_MS1695_patJetsUpdated_1.04", 4);
         break;
       }
       case 1: {
-       if(nJES==5)   h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x_Test_withoutBTagweight//RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_0.96", 3);
-       h098 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x_Test_withoutBTagweight/RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_0.98", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x_Test_withoutBTagweight/RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.00", 1);
-        h102 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x_Test_withoutBTagweight/RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.02", 2);
-       if(nJES==5)  h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x_Test_withoutBTagweight/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.04", 4);
+    	  if(nJES==5) h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1715_patJetsUpdated_0.96", 0);
+    	              h098 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1715_patJetsUpdated_0.98", 1);
+    	              h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1715_patJetsUpdated_1.00", 2);
+    	              h102 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1715_patJetsUpdated_1.02", 3);
+    	  if(nJES==5) h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1715_patJetsUpdated_1.04", 4);
         break;
       }
 		  case 2: {
-       if(nJES==5)  h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x_Test_withoutBTagweight/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_0.96", 3);
-        h098 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x_Test_withoutBTagweight/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_0.98", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x_Test_withoutBTagweight/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_1.00", 1);
-        h102 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x_Test_withoutBTagweight/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_1.02", 2);
-       if(nJES==5)   h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x_Test_withoutBTagweight/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_1.04", 4);
+	   	 if(nJES==5) h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_patJetsUpdated_0.96", 0);
+	   	             h098 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_patJetsUpdated_0.98", 1);
+	   	             h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_patJetsUpdated_1.00", 2);
+	   	             h102 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_patJetsUpdated_1.02", 3);
+	   	 if(nJES==5) h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_patJetsUpdated_1.04", 4);
         break;
       }
 		  case 3: {
-std::cout<<"ERROR: atm only 3 masses valid!"<<std::endl;
-        h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1725_0.98", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1725_1.00", 1);
-        h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1725_1.02", 2);
+	     if(nJES==5) h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1735_patJetsUpdated_0.96", 0);
+	                 h098 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1735_patJetsUpdated_0.98", 1);
+	                 h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1735_patJetsUpdated_1.00", 2);
+	                 h102 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1735_patJetsUpdated_1.02", 3);
+	     if(nJES==5) h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1735_patJetsUpdated_1.04", 4);
         break;
       }
 		  case 4: {
-        h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1735_0.98", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1735_1.00", 1);
-        h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1735_1.02", 2);
+	     if(nJES==5) h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_patJetsUpdated_0.96", 0);
+	                 h098 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_patJetsUpdated_0.98", 1);
+	                 h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_patJetsUpdated_1.00", 2);
+	                 h102 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_patJetsUpdated_1.02", 3);
+	     if(nJES==5) h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_patJetsUpdated_1.04", 4);
         break;
       }
 		  case 5: {
+			  std::cout<<"ERROR: atm only 3 masses valid!"<<std::endl;
         h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1755_0.98", 0);
         h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1755_1.00", 1);
         h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1755_1.02", 2);
@@ -521,9 +527,11 @@ std::cout<<"ERROR: atm only 3 masses valid!"<<std::endl;
   }
   else if (plotByMass) {
     std::cout << "PLOT BY MASS" << std::endl;
-    h098 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x_Test_withoutBTagweight/RunIISpring15MiniAODv2_76x_asymptotic_v12-v3_TT_TuneCUETP8M1_powheg-pythia8_MS1695_1.00", 0);
-    h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x_Test_withoutBTagweight/RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.00", 1);
-    h102 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x_Test_withoutBTagweight/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_1.00", 2);
+    h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v3_TT_TuneCUETP8M1_powheg-pythia8_MS1695_patJetsUpdated_1.00", 0);
+    if(nMass==5) h098 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1715_patJetsUpdated_1.00", 1);
+    h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_patJetsUpdated_1.00", 2);
+    if(nMass==5) h102 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1735_patJetsUpdated_1.00", 3);
+    h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1735_patJetsUpdated_1.00", 4);
   }
   else  {std::cout<<"wtf, how did he got here???"<<std::endl;//TODO clean up
     if (obs==0) h166 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 3);
@@ -549,7 +557,8 @@ std::cout<<"ERROR: atm only 3 masses valid!"<<std::endl;
     h102->GetXaxis()->SetRangeUser(60, 110);
     h104->GetXaxis()->SetRangeUser(60, 110);
   }
-  if(nJES==5) h098->Draw("SAME");
+  if(nJES==5) h096->Draw("SAME");
+  h098->Draw("SAME");
   h100->Draw("SAME");
   h102->Draw("SAME");
  if(nJES==5) h104->Draw("SAME");
@@ -569,9 +578,11 @@ std::cout<<"ERROR: atm only 3 masses valid!"<<std::endl;
     leg0->AddEntry((TObject*)0, sX[iMass], "");
   }
   else if (plotByMass) {
-    leg0->AddEntry( h098, "m_{t,gen} = 169.5 GeV", "PL");
+	 leg0->AddEntry( h096, "m_{t,gen} = 169.5 GeV", "PL");
+	 if(nMass==5) leg0->AddEntry( h098, "m_{t,gen} = 171.5 GeV", "PL");
     leg0->AddEntry( h100, "m_{t,gen} = 172.5 GeV", "PL");
-    leg0->AddEntry( h102, "m_{t,gen} = 175.5 GeV", "PL");
+    if(nMass==5) leg0->AddEntry( h102, "m_{t,gen} = 173.5 GeV", "PL");
+    leg0->AddEntry( h104, "m_{t,gen} = 175.5 GeV", "PL");
     leg0->AddEntry((TObject*)0, "JSF = 1.00", "");
   }
   else {std::cout<<" still wtf, how did he got here???"<<std::endl; //TODO clean up
@@ -598,7 +609,7 @@ std::cout<<"ERROR: atm only 3 masses valid!"<<std::endl;
   
   gStyle->SetOptFit(1);
   
-  TString path("../plot/template/"); path+= sFObs[obs]; path += "_";
+  TString path("../plot/templatepar/"); path+= sFObs[obs]; path += "_";
   if (plotByMass) {
     path += "mass";
   }
@@ -699,6 +710,13 @@ std::cout<<"ERROR: atm only 3 masses valid!"<<std::endl;
 TH1F* FindParameters(TString filename, int i)
 {
   TChain* eventTree = new TChain("analyzeHitFit/eventTree");
+  TString histname = "h";
+  histname += filename(filename.Last('/')+1,filename.Length());
+  histname += obs;
+  histname += target;
+  histname.ReplaceAll(".","");
+  histname.ReplaceAll("_","");
+  histname.ReplaceAll("-","");
   TString filenameEle = filename; filenameEle += "_electron/job_*.root";
   TString filenameMu  = filename; filenameMu  += "_muon/job_*.root";
   if (lepton != 1) {
@@ -815,30 +833,30 @@ TH1F* FindParameters(TString filename, int i)
     case 0: {
       switch(target) {
         case   1: {
-          sObservable = "top.fitTop1.M() >> htemp(30, 100, 250)";
+          sObservable = "top.fitTop1.M() >> " + histname + "(30, 100, 250)";
           break;
         }
         case   0: {
-          sObservable = "top.fitTop1.M() >> htemp(30, 100, 400)";
+          sObservable = "top.fitTop1.M() >> " + histname + "(30, 100, 400)";
           break;
         }
         case -10: {
-          sObservable = "top.fitTop1.M() >> htemp(30, 100, 400)";
+          sObservable = "top.fitTop1.M() >> " + histname + "(30, 100, 400)";
           break;
         }
       }
       break;
     }
     case 1: {
-      sObservable = "top.recoW1.M() >> htemp(30, 60, 120)";
+      sObservable = "top.recoW1.M() >> " + histname + "(30, 60, 120)";
       break;
     }
     case 4: {
-      sObservable = "deltaRHadWHadB/deltaRHadQHadQBar >> htemp(40, 0, 4)";
+      sObservable = "deltaRHadWHadB/deltaRHadQHadQBar >> " + histname + "(40, 0, 4)";
       break;
     }
     case 5: {
-      sObservable = "-(hadWPt-lepWPt)/(hadBPt-lepBPt) >> htemp(50, -5, 5)";
+      sObservable = "-(hadWPt-lepWPt)/(hadBPt-lepBPt) >> " + histname + "(50, -5, 5)";
       break;
     }
   }
@@ -858,14 +876,17 @@ TH1F* FindParameters(TString filename, int i)
     }
   }
   sCutAndWeight += " & top.fitProb > 0.2 & Min$(sqrt(pow(top.recoW2Prod1[0].Eta()-jet.jet.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.recoW2Prod1[0].Phi()-jet.jet.Phi()),2)))>0.3)";
-
+  std::cout << sObservable << std::endl;
   std::cout << sCutAndWeight << std::endl;
   
   // Get observable
-  eventTree->Draw(sObservable, sCutAndWeight, "");
-  
-  TH1F *h1 = (TH1F*)gDirectory->Get("htemp")->Clone();
-  
+  //eventTree->SetProof(1);
+  eventTree->Draw(sObservable, sCutAndWeight, "goff");
+  delete eventTree;
+  gDirectory->ls();
+  //TH1F *h1 = (TH1F*)gProof->GetOutputList()->FindObject(histname)->Clone();
+  TH1F *h1 = (TH1F*)gDirectory->Get(histname)->Clone();
+
   switch(obs) {
     case 0: {
       switch(target) {
@@ -924,19 +945,18 @@ TH1F* FindParameters(TString filename, int i)
 
   fitted->SetParameter(0, fitted->GetParameter(0)/h1->Integral());
   h1->Scale(1/h1->Integral());
-  
   return h1;
 }
 
 void batchObservableByJESByMass() { //that the "real" start
-
+ //TProof* proof = TProof::Open("workers=8");
  gSystem->mkdir("../plot/template");
 
   pas = false;
   
   for (int t = 0; t < 3; ++t) { // target
     for (int o = 0; o < 2; ++o) { // obs
-      for (int l = 0; l < 1; ++l) { // lepton  atm only electron
+      for (int l = 1; l < 2; ++l) { // lepton  atm only muon
         observableByJESByMass(iTarget[t], o, l);
       }
     }
@@ -946,7 +966,7 @@ void batchObservableByJESByMass() { //that the "real" start
   
   for (int t = 0; t < 3; ++t) { // target
     for (int o = 0; o < 2; ++o) { // obs
-      for (int l = 0; l < 1; ++l) { // lepton  atm only electron
+        for (int l = 1; l < 2; ++l) { // lepton  atm only electron
         observableByJESByMass(iTarget[t], o, l);
       }
     }

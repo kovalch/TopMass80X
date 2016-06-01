@@ -43,7 +43,7 @@ public:
   static int methodID();
   static int getCMSEnergy();
   std::vector<double> readParameters(const char *whichParameter);
-  std::vector<std::string> readParametersString(const char *whichParameter);
+  std::vector<std::string> readParametersString(const char *whichParameter/*, int splitOption=0*/);
 };
 
 namespace HelperFunctions {

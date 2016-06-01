@@ -1,5 +1,9 @@
 #include <vector>
 #include <iostream>
+#include <stdio.h>
+#include <math.h>
+#include <fstream>
+
 
 #include "TFile.h"
 #include "TTree.h"
@@ -18,6 +22,8 @@
 #include "TStyle.h"
 #include "TPaveStats.h"
 #include "TFitResult.h"
+
+#include "TSystem.h"
 
 #include "tdrstyle.C"
 
@@ -49,15 +55,15 @@
 // double genMassN[]     = {27078777, 39518234, 24439341, 62131965, 26489020, 40244328, 24359161};
 // double maxMCWeight[]  = {1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8};
 
-const int nJES = 3;
-const int nMasses = 3;
+const int nJES = 5;
+const int nMasses = 5;
 int color_ [] = { kRed+1, kBlue+1, kGreen+1 ,kOrange+1, kViolet+1};
 int marker_[] = { 23, 20, 22 ,24, 25  };
-double genJES[]       = {/*0.96,*/ 0.98, 1.00, 1.02/*, 1.04*/};
+double genJES[]       = {0.96, 0.98, 1.00, 1.02, 1.04};
 double genJESError[]  = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
-double genMass[]      = { 169.5, 172.5,  175.5};
+double genMass[]      = { 169.5, 171.5, 172.5, 173.5,  175.5};
 double genMassError[] = { 1e-6,  1e-6,  1e-6,  1e-6,  1e-6,  1e-6,  1e-6};
-double genMassN[]     = {9969800, 19757190, 9904200};
+double genMassN[]     = {9870995, 19735911, 97994442, 19925347 ,9659200};
 double maxMCWeight[]  = {1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8};
 
 double crossSection   = 831.7;
@@ -137,7 +143,7 @@ void DrawLegend() {
   leg1->SetFillColor(kWhite);
   leg1->SetBorderSize(0);
   if(nJES==3) leg1->AddEntry(gMass[0], "JSF=0.98", "EP");
-  if(nJES==5) leg1->AddEntry(gMass[0], "JSF=0.98", "EP");
+  if(nJES==5) leg1->AddEntry(gMass[0], "JSF=0.96", "EP");
   /*
   leg->AddEntry( constFit, "Const. fit", "L");
   char chi2[6]; sprintf(chi2, "%3.1f", fitResult->Chi2());
@@ -176,12 +182,16 @@ void DrawLegend() {
   leg5->SetFillColor(kWhite);
   leg5->SetBorderSize(0);
   if(nJES==3) leg5->AddEntry(gMass[2], "JSF=1.02", "EP");
-  if(nJES==5) leg5->AddEntry(gMass[4], "JSF=1.02", "EP");
+  if(nJES==5) leg5->AddEntry(gMass[4], "JSF=1.04", "EP");
   leg5->Draw();
 }
 
 void ensembleTree()
 {
+
+	  ofstream parFile;
+	  parFile.open("Calibration_parameters.txt", ios::app);
+
   //*
   TStyle *tdrStyle = setTDRStyle();
   tdrStyle->SetPadGridX(true);
@@ -197,8 +207,8 @@ void ensembleTree()
   TCanvas* canvasFit = new TCanvas("canvasFit", "mt-JSF measurement calibration", 500, 500);
   canvasFit->cd();
 
-  TString sFile("/nfs/dust/cms/user/garbersc/TopMass/2015_TemplateCalibrationMerged/"); 
-  sFile += "ensemble_2015D3JES_electron_Calibrated.root";
+  TString sFile("/nfs/dust/cms/user/garbersc/TopMass/2015_TemplateCalibrationMerged/");
+  sFile += "ensemble76x_2015D_5JES_muon_Calibrated_patUpdated.root";
   //sFile += "ensemble_S12_Calibrated.root";
 
   std::cout << "Doing calibration on: " << sFile << std::endl;
@@ -525,15 +535,28 @@ void ensembleTree()
   
   
   TF2* fit2D = new TF2("fit2D", "[0] + [1]*(x-172.5) + [2]*(y-1) + [3]*(x-172.5)*(y-1)");
-  fit2D->SetParNames("offset", "slopeMass", "slopeJES","slopeMassJES");
+  fit2D->SetParNames("Offset", "SlopeMass", "SlopeJES","SlopeMassJES");
   
   //*
   std::cout << "=== 2D calibration - mass ===" << std::endl;
   h2Mass->Fit("fit2D");
+
+  parFile << "=== 2D calibration - mass === \n";
+  for(int mFitPar = 0; mFitPar< fit2D->GetNpar(); mFitPar++){
+	  parFile << "mass" << fit2D->GetParName(mFitPar) << "=" << fit2D->GetParameter(mFitPar)<<"|0.0 \n";
+  }
+
   //h2Mass->Draw("SURF1");
   
   std::cout << "=== 2D calibration - JES ===" << std::endl;
   h2JES->Fit("fit2D");
+
+
+  parFile << "\n=== 2D calibration - JES === \n";
+  for(int mFitPar = 0; mFitPar< fit2D->GetNpar(); mFitPar++){
+	  parFile << "jes" << fit2D->GetParName(mFitPar) << "=" << fit2D->GetParameter(mFitPar)<<"|0.0 \n";
+  }
+
   //h2JES->Draw("SURF1");
   //*/
   
@@ -622,5 +645,15 @@ void ensembleTree()
   std::cout << "topmass 1D calibration uncertainty: " << std::sqrt(     pow(topMass1DUncertaintyFit->GetParError(0),2) +      pow((172.30-172.50)*topMass1DUncertaintyFit->GetParError(1),2)) << std::endl;
   std::cout << "topmass 2D calibration uncertainty: " << std::sqrt(nJES*pow(topMass2DUncertaintyFit->GetParError(0),2) + nJES*pow((171.88-172.50)*topMass2DUncertaintyFit->GetParError(1),2)) << std::endl;
   std::cout << "JES        calibration uncertainty: " << std::sqrt(nJES*pow(      jesUncertaintyFit->GetParError(0),2) + nJES*pow((171.88-172.50)*      jesUncertaintyFit->GetParError(1),2)) << std::endl;
+
+  parFile   << "\n";
+  parFile << "topmass 1D calibration uncertainty: " << std::sqrt(     pow(topMass1DUncertaintyFit->GetParError(0),2) +      pow((172.30-172.50)*topMass1DUncertaintyFit->GetParError(1),2)) << "\n";
+  parFile << "topmass 2D calibration uncertainty: " << std::sqrt(nJES*pow(topMass2DUncertaintyFit->GetParError(0),2) + nJES*pow((171.88-172.50)*topMass2DUncertaintyFit->GetParError(1),2)) << "\n";
+  parFile << "JES        calibration uncertainty: " << std::sqrt(nJES*pow(      jesUncertaintyFit->GetParError(0),2) + nJES*pow((171.88-172.50)*      jesUncertaintyFit->GetParError(1),2)) << "\n";
+
+
+
+  parFile   << "\n";
+  parFile.close();
 }
 

@@ -4,27 +4,25 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "TopMass/TopEventTree/interface/WeightEvent.h"
 
-
 class WeightEventAnalyzer : public edm::EDAnalyzer {
 
  public:
-
   explicit WeightEventAnalyzer(const edm::ParameterSet&);
   ~WeightEventAnalyzer();
 
  private:
-
-  virtual void beginJob() ;
+  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
   edm::Service<TreeRegistryService> trs;
 
   double mcWeight_;
+  double topPtSF_[3];
 
-  //edm::InputTag puSrc_;
+  // edm::InputTag puSrc_;
   edm::EDGetTokenT<edm::View<PileupSummaryInfo> > puSrcToken_;
-/*  edm::InputTag vertexSrc_;*/
+  /*  edm::InputTag vertexSrc_;*/
   edm::EDGetTokenT<std::vector<reco::Vertex> > vertexSrc_;
 
   edm::InputTag puWeightSrc_;
@@ -37,7 +35,7 @@ class WeightEventAnalyzer : public edm::EDAnalyzer {
   edm::InputTag bWeightSrc_bTagSFDown_;
   edm::InputTag bWeightSrc_misTagSFUp_;
   edm::InputTag bWeightSrc_misTagSFDown_;
-  
+
   edm::InputTag bJESSrc_fNuUp_;
   edm::InputTag bJESSrc_fNuDown_;
   edm::InputTag bJESSrc_frag_;
@@ -51,11 +49,12 @@ class WeightEventAnalyzer : public edm::EDAnalyzer {
 
   edm::InputTag genEventSrc_;
   edm::InputTag lheEventSrc_;
-//   edm::InputTag ttEvent_;
+  //   edm::InputTag ttEvent_;
   edm::InputTag ttInputTag;
   edm::EDGetTokenT<edm::View<TtEvent> > ttEvent_;
   bool savePDFWeights_;
   bool brCorrection_;
+  bool showLHEweightTypes_;
 
   // THE WeightEvent to store the information
   WeightEvent* weight;

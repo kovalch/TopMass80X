@@ -36,4 +36,10 @@ analyzeWeights = cms.EDAnalyzer("WeightEventAnalyzer",
     ttEvent        = cms.InputTag("ttSemiLepEvent"),
     savePDFWeights = cms.bool(False),
     brCorrection   = cms.bool(False),
+    showLHEweightTypes = cms.bool(False),
+    
+    topPtSFa =  cms.double(0.159),
+    topPtSFb =  cms.double(-0.00141),
+    topPtSFthreshold =   cms.double(400)
+    
 )

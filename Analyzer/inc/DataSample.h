@@ -21,7 +21,7 @@ public:
     int leptonFlavour;
     double weight;
   };
-  DataSample() : nEvents(0), maxWeight(0) {}
+  DataSample() : nEvents(0), maxWeight(0), minWeight(0) {}
   void Clear();
   void Fill(double topMass, double wMass, double prob, int leptonFlavour, double weight, int index, int bin);
   //template<class T> void Fill(double topMass, double wMass, double prob, double weight, T index) = delete;
@@ -31,6 +31,7 @@ public:
 
   int nEvents;
   double maxWeight;
+  double minWeight;
 
   std::vector<SimpleEvent> events;
 };

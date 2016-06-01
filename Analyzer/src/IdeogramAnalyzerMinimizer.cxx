@@ -25,6 +25,8 @@
 #include "TH1D.h"
 #include "TF2.h"
 
+#include "TSystem.h"
+
 #include "Math/Minimizer.h"
 #include "Math/Factory.h"
 #include "Math/Functor.h"
@@ -512,6 +514,7 @@ void IdeogramAnalyzerMinimizer::DrawIdeograms(int n) {
     
     helper->DrawCMS(-1, -1, canv);
     
+    gSystem->mkdir("/plot/eventLikelihood");
     canv->Print((std::string("plot/eventLikelihood/")+std::to_string(i)+std::string(".eps")).c_str()); //FIXME does doe anything if the folders are not there yet
   }
 }

@@ -30,6 +30,9 @@
 #include <cmath>
 #include <boost/range/adaptor/reversed.hpp>
 
+
+//FIXME doesnt create its "plot/controlplots" directory, add that
+
 typedef ProgramOptionsReader po;
 
 TopMassControlPlots::TopMassControlPlots() :
@@ -407,6 +410,14 @@ void TopMassControlPlots::doPlots()
     hists.push_back(MyHistogram("fitTTBarMBest" , "top.fitTTBar[0].M()"        , "", ";m_{t#bar{t}}^{fit} [GeV]; Events / 30 GeV"        , 40, 300, 1500));
     hists.push_back(MyHistogram("fitTTBarY"     , "top.fitTTBar.Rapidity()"    , "", ";y_{t#bar{t}}^{fit}; Permutations / 0.2"           , 40, -4, 4));
     hists.push_back(MyHistogram("fitTTBarYBest" , "top.fitTTBar[0].Rapidity()" , "", ";y_{t#bar{t}}^{fit}; Events / 0.2"                 , 40, -4, 4));
+  }
+
+  if(plotSelectedForPlotting.find("newCuts")!=plotSelectedForPlotting.end()){
+	    hists.push_back(MyHistogram("recoHt"    , "top.recoB1.Pt()+top.recoB2.Pt()+top.recoW1Prod1.Pt()+top.recoW1Prod2.Pt()+top.recoW2Prod1.Pt()+top.recoW2Prod2.Pt()+jet.met.Pt()" , "", ";H_{T}^{reco} [GeV]; Permutations / 100 GeV", 30, 0,  3000));
+	    hists.push_back(MyHistogram("recoHtBest", "top.recoB1[0].Pt()+top.recoB2[0].Pt()+top.recoW1Prod1[0].Pt()+top.recoW1Prod2[0].Pt()+top.recoW2Prod1[0].Pt()+top.recoW2Prod2[0].Pt()+jet.met.Pt()" , "", ";H_{T}^{reco} [GeV]; Events / 100 GeV", 30, 0,  3000));
+	    hists.push_back(MyHistogram("recoDeltaRLepToB"    , "sqrt(pow(top.recoB1.Eta()-top.recoW2Prod1.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.recoB1.Phi()-top.recoW2Prod1.Phi()),2))" , "", ";/{DelraR}_{/{mu} ,b_{lep}}^{reco} ; Permutations / 0.1", 30, 0,  3));
+	    hists.push_back(MyHistogram("recoDeltaRLepToBBest"    , "sqrt(pow(top.recoB1[0].Eta()-top.recoW2Prod1[0].Eta(),2) + pow(TVector2::Phi_mpi_pi(top.recoB1[0].Phi()-top.recoW2Prod1[0].Phi()),2))" , "", ";/{DelraR}_{/{mu} ,b_{lep}}^{reco} ; Events / 0.1", 30, 0,  3));
+
   }
 
   if(plotSelectedForPlotting.find("WBosonExtra")!=plotSelectedForPlotting.end()){
@@ -1116,10 +1127,10 @@ void TopMassControlPlots::doPlots()
       samples.push_back(MySample("Data", "Run2015D", kData, kBlack));
     }
     else {
-      samples.push_back(MySample("Data", "SingleMuon_Run2015D-05Oct2015-v1_matchingCleaned_allCut", kData, kBlack));
-      samples.push_back(MySample("Data", "SingleElectron_Run2015D-PromptReco-v4_electronCut_allCut", kData, kBlack));	
-      samples.push_back(MySample("Data", "SingleElectron_Run2015D-05Oct2015-v1_electronCut_allCut", kData, kBlack));
-      samples.push_back(MySample("Data", "SingleMuon_Run2015D-PromptReco-v4_matchingCleaned_allCut", kData, kBlack));
+        if (channelID != Helper::kElectronJets) samples.push_back(MySample("Data", "76x/SingleMuon_16Dec2015_workingJEC_allCut", kData, kBlack));
+    	//if (channelID != Helper::kElectronJets) samples.push_back(MySample("Data", "76x/RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_workingJEC_1.00_allCut", kData, kBlack,1,lumi_/1000.));
+
+    	if (channelID != Helper::kMuonJets) samples.push_back(MySample("Data", "76x/SingleElectron_16Dec2015_workingJEC_allCut", kData, kBlack));
     }
     
     // SIGNAL
@@ -1129,8 +1140,10 @@ void TopMassControlPlots::doPlots()
     if(plotSelectedForPlotting.find("NobPlots")!=plotSelectedForPlotting.end()){
       samples.push_back(MySample("t#bar{t}", "Summer12_TTJetsMS1725_nob", kSig, kRed+1, 1, lumi_/1000., "", signalNormUnc));
     }
-    else samples.push_back(MySample("t#bar{t}", "RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1_TT_TuneCUETP8M1_13TeV-powheg-pythia8_matchingCleaned_allCut", kSig, kRed+1, 1, lumi_/1000., "", signalNormUnc));
-    
+    else samples.push_back(MySample("t#bar{t}", "76x/RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_sysJER_1.00_sigRes0.0_allCut", kSig, kRed+1, 1, lumi_/1000., "", signalNormUnc));
+    	//samples.push_back(MySample("t#bar{t}", "76x/RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_workingJEC_1.00_allCut", kSig, kRed+1, 1, lumi_/1000., "", signalNormUnc));
+    //samples.push_back(MySample("t#bar{t}", "../2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_patJetsUpdated_1.00", kSig, kRed+1, 1, lumi_/1000., "", signalNormUnc));
+
     // SIGNAL VARIATIONS
     
     // JES
@@ -1202,11 +1215,11 @@ void TopMassControlPlots::doPlots()
     
     // BACKGROUND
     if(plotSelectedForPlotting.find("BackgroundPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("Single t", "BG_merge/ST_allCut", kBkg, kMagenta, 1, lumi_/1000.*0.795630675, "", 0.1));
-      samples.push_back(MySample("W+jets", "BG_merge/WJets_allCut", kBkg, kGreen-3, 1, lumi_/1000. * 0.720375872, "", 0.2));//inkl Umgewichtung von amcatnlo zu amcatnloFXFX
-      //samples.push_back(MySample("Z+jets", "Summer12_ZJets", kBkg, kAzure-2, 1, lumi_/1000., "", 0.2));
-      //samples.push_back(MySample("QCD multijet", "Summer12_QCD", kBkg, kYellow, 1, lumi_/1000., "", 1.));
-      //samples.push_back(MySample("Diboson", "Summer12_Diboson", kBkg, kWhite, 1, lumi_/1000., "", 0.05));
+	samples.push_back(MySample("Single t", "76x/BG/major/ST_merged_allCut", kBkg, kMagenta, 1, lumi_/1000., "", 0.1));
+      samples.push_back(MySample("W+jets", "76x/BG/major/WJetsToLNu_TuneCUETP8M-amcatnloFXFX-pythia8_asymptotic_v12-v1_allCut", kBkg, kGreen-3, 1, lumi_/1000.  , "", 0.2));   
+      samples.push_back(MySample("Z+jets", "76x/BG/minor/DYJetsToLL_merged_allCut", kBkg, kAzure-2, 1, lumi_/1000., "", 0.2)); //FIXME check if neg. Weight of amcatnloFXFX part were put into acount
+      samples.push_back(MySample("QCD multijet", "76x/BG/minor/QCD_lepEnriched_merged_allCut", kBkg, kYellow, 1, lumi_/1000., "", 1.));
+      samples.push_back(MySample("Diboson", "76x/BG/minor/DiBoson_merged_allCut", kBkg, kWhite, 1, lumi_/1000., "", 0.05));
     }
 
     // OTHER VARIATIONS
@@ -1390,6 +1403,7 @@ void TopMassControlPlots::doPlots()
       double loopFraction = 1.;
       if (po::GetOption<bool>("test")) loopFraction = 0.01;
       for(int i = 0; i < loopSize*loopFraction; ++i){
+    	  if(i%1000==0) std::cout<<"\r  Loop over permutations: "<<(int)((float)i*100./(float)(loopSize*loopFraction-1))<<"%";
         //if(i%1000==0)std::cout << "event " << (Long_t) i << std::endl;
         long entry = chain->LoadTree(i);
         if(entry  < 0) break;
@@ -1414,6 +1428,7 @@ void TopMassControlPlots::doPlots()
 
         // Loop over permutations
         for(int j = 0, l = sel.GetNdata(); j < l; ++j){
+
           if(!sel.EvalInstance(j)) continue;
           // Loop over samples
           for(MyHistogram& hist : hists){
@@ -1752,6 +1767,8 @@ void TopMassControlPlots::doPlots()
   //
   // DRAW CONTROL PLOTS
   //
+
+  gSystem->mkdir((std::string("plot/controlplots/").c_str()));
 
   // initialize file stream for logging
   std::ofstream logResultsFile;
