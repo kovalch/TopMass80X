@@ -13,7 +13,7 @@ options.register('useCalibElec'    , False, VarParsing.VarParsing.multiplicity.s
 
 options.register('generator', 'pythia8', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "MC generator")
 options.register('mcWeight', 1.0 , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.float, "MC sample event weight")
-options.register('lepton', 'muon', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "Lepton+jets channel")
+options.register('lepton', 'electron', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "Lepton+jets channel")
 options.register('metcl', 1, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.int, "MET correction level")
 
 options.register('scaleType', 'abs', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "JES scale type")
@@ -26,6 +26,7 @@ options.register('mesShift', 0.0, VarParsing.VarParsing.multiplicity.singleton,V
 options.register('eesShift', 0.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "Electron energy scale shift in sigma")
 options.register('uncFactor', 1.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "Unclustered energy factor")
 
+options.register('taggerName', 'pfCombinedInclusiveSecondaryVertexV2BJetTags', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "Tagger name in CMSSW")
 options.register('csvm', 0.8, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "CSVM working point")  #0.89 on 74
 options.register('nbjets', 2, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.int, "Minimum number of bjets")
 
@@ -62,7 +63,7 @@ jet4Cut = (options.cut=='jet4Cut')
 
 # nTupel Output
 #outputNTupel = cms.string( 'analyzeTop_{0}_{1}_{2}_Test.root'.format( options.lepton , options.lJesFactor , options.cut ) )
-outputNTupel = cms.string('analyzeTop.root')
+outputNTupel = cms.string('analyzeTop2.root')
 
 if (options.mcversion == "data"):
 	data = True
@@ -175,7 +176,7 @@ if(options.triggerless):
 
 
 
-#FIXME check MET Filters
+#primary Vertex Cut? https://twiki.cern.ch/twiki/bin/view/CMS/TTbarHbbRun2ReferenceAnalysis_76XTransition  
 
 # Step 1
 #muonCut       = ''
@@ -381,7 +382,8 @@ process.ak4PFJetsCHS = ak4PFJets.clone(src = 'pfCHS', doAreaFastjet = True)
 #from PhysicsTools.PatAlgos.tools.jetTools import *
 ## b-tag discriminators
 bTagDiscriminators = [
-    'pfCombinedInclusiveSecondaryVertexV2BJetTags'
+    #'pfCombinedInclusiveSecondaryVertexV2BJetTags'
+    options.taggerName
 ]
 
 jetCorrectionLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']
@@ -806,7 +808,7 @@ process.ttSemiLepJetPartonMatch.maxNJets  = -1
 process.ttSemiLepJetPartonMatch.useMaxDist = True
 
 # consider b-tagging in event reconstruction
-process.hitFitTtSemiLepEventHypothesis.bTagAlgo = "pfCombinedInclusiveSecondaryVertexV2BJetTags"
+process.hitFitTtSemiLepEventHypothesis.bTagAlgo = options.taggerName
 process.hitFitTtSemiLepEventHypothesis.minBDiscBJets     = options.csvm
 process.hitFitTtSemiLepEventHypothesis.maxBDiscLightJets = options.csvm
 #process.hitFitTtSemiLepEventHypothesis.minBDiscBJets     = 1.0
@@ -841,8 +843,36 @@ if(options.showLHEscaleWeightTypes):
     process.analyzeWeights.showLHEweightTypes=True
 
 if (options.lepton=='electron'):
-	process.analyzeWeights.triggerWeightSrc  = cms.InputTag("effSFElectronEventWeight")
+	#process.analyzeWeights.triggerWeightSrc      = cms.InputTag("effSFElectronEventWeight")
+	#process.analyzeWeights.triggerWeightSrcUp    = cms.InputTag("effSFElectronEventWeightUp")
+	#process.analyzeWeights.triggerWeightSrcDown  = cms.InputTag("effSFElectronEventWeightDown")
+	process.analyzeWeights.lepIDWeightSrc      = cms.InputTag("effSFElectronEventWeightLepID")
+	process.analyzeWeights.lepIDWeightSrcUp    = cms.InputTag("effSFElectronEventWeightUpLepID")
+	process.analyzeWeights.lepIDWeightSrcDown  = cms.InputTag("effSFElectronEventWeightDownLepID")
+	
+	process.analyzeWeights.isoWeightSrc      = cms.InputTag("effSFElectronEventWeightIso")
+	process.analyzeWeights.isoWeightSrcUp    = cms.InputTag("effSFElectronEventWeightUpIso")
+	process.analyzeWeights.isoWeightSrcDown  = cms.InputTag("effSFElectronEventWeightDownIso")
+	
+	process.analyzeWeights.triggerWeightSrc      = cms.InputTag("effSFElectronEventWeightTrigger")
+	process.analyzeWeights.triggerWeightSrcUp    = cms.InputTag("effSFElectronEventWeightUpTrigger")
+	process.analyzeWeights.triggerWeightSrcDown  = cms.InputTag("effSFElectronEventWeightDownTrigger")
+	
 
+if (options.lepton=='muon'):
+
+	process.analyzeWeights.lepIDWeightSrc      = cms.InputTag("effSFMuonEventWeightLepID")
+	process.analyzeWeights.lepIDWeightSrcUp    = cms.InputTag("effSFMuonEventWeightUpLepID")
+	process.analyzeWeights.lepIDWeightSrcDown  = cms.InputTag("effSFMuonEventWeightDownLepID")
+	
+	process.analyzeWeights.isoWeightSrc      = cms.InputTag("effSFMuonEventWeightIso")
+	process.analyzeWeights.isoWeightSrcUp    = cms.InputTag("effSFMuonEventWeightUpIso")
+	process.analyzeWeights.isoWeightSrcDown  = cms.InputTag("effSFMuonEventWeightDownIso")
+	
+	process.analyzeWeights.triggerWeightSrc      = cms.InputTag("effSFMuonEventWeightTrigger")
+	process.analyzeWeights.triggerWeightSrcUp    = cms.InputTag("effSFMuonEventWeightUpTrigger")
+	process.analyzeWeights.triggerWeightSrcDown  = cms.InputTag("effSFMuonEventWeightDownTrigger")
+	
 process.ttSemiLepHypGenMatch.useBReg = cms.bool(False)
 process.ttSemiLepHypMVADisc.useBReg = cms.bool(False)
 
@@ -1038,7 +1068,21 @@ process.pBTags         = cms.Path( process.sBTags )
 from TopMass.TopEventTree.FilterDummyAnalyzer_cfi import FilterDummyAnalyzer
 process.FDAnalyzer = FilterDummyAnalyzer.clone()
 
-process.pAnalysis = cms.Path(process.serialFilter + process.analyzer + process.FDAnalyzer)# + process.JD1) 
+
+# calculate b tag efficiencies
+process.load("TopAnalysis.TopAnalyzer.BTagEfficiencyAnalyzer_cfi")
+# NOTE: process needs to be named bTagEff, so that BTagSFEventWeight.cc can find the histo
+process.bTagEff = process.analyzeBTagEfficiency.clone(jets         = "signalVeryLooseJets",
+                                                      bTagAlgo    = options.taggerName,
+                                                      bTagDiscrCut = options.csvm, ## CSVM
+                                                      weight       = process.analyzeWeights.puWeightSrc
+                                                     )
+process.pbTagEff = cms.Path(process.bTagEff)
+
+process.pAnalysis = cms.Path(process.serialFilter + process.analyzer + process.FDAnalyzer) 
+
+ 
+
 
 process.schedule = cms.Schedule(
   process.makeJets,   
@@ -1053,9 +1097,10 @@ process.schedule = cms.Schedule(
   process.p2Jets,
   process.p3Jets,
   process.p4Jets,
+  process.pbTagEff,
   process.pBTags,
   process.pAnalysis
-  )
+  ) 
 
 
 if not data:
@@ -1082,8 +1127,8 @@ if not data:
         process.eventWeightPU.MCSampleHistoName        = "puhisto"
         process.eventWeightPU.DataHistoName            = "pileup"
 
-        process.eventWeightPU.MCSampleFile             = "TopAnalysis/TopUtils/data/MC_PUDist_Summer12_S10.root"
-    elif (options.mcversion == "RunIIFall15DR"):   
+        process.eventWeightPU.MCSampleFile             = "TopAnalysis/TopUtils/data/Run2_MC_2015D_asymptotic-v12_truePU.root"
+    elif (options.mcversion == "RunIIFall15DR"):
 	process.eventWeightPU.PUSource                 = cms.InputTag("slimmedAddPileupInfo")
         process.eventWeightPU.MCSampleHistoName        = "puhisto"
         process.eventWeightPU.DataHistoName            = "pileup"
@@ -1130,7 +1175,7 @@ if not data:
                                               #process.eventWeightPUsysDown  )
 
     ## ---
-    ##    MC B-tag reweighting   #TODO aktualitaet checken, z.Z. B-Tag Weight fixed on 1. FIXME
+    ##    MC B-tag reweighting   
     ## ---
     ## load BTV database
     process.load ("RecoBTag.PerformanceDB.PoolBTagPerformanceDB1107")
@@ -1138,17 +1183,21 @@ if not data:
 
     process.load("TopAnalysis.TopUtils.BTagSFEventWeight_cfi")
     process.bTagSFEventWeight.jets     = "signalTightJets"
-    process.bTagSFEventWeight.bTagAlgo = "CSVM"
-    process.bTagSFEventWeight.version  = "2012"
+    process.bTagSFEventWeight.csv_filename = "TopAnalysis/Configuration/data/CSVv2.csv"
+    process.bTagSFEventWeight.bTagAlgo = options.taggerName #for CSVv2	
+    process.bTagSFEventWeight.discrCut = options.csvm # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation76X
+    process.bTagSFEventWeight.version  = "CSVv2" # JP; CSVv2; cMVAv2 possible;
     if options.bSFNewRecipe:
         process.bTagSFEventWeight.newRecipe= True
         process.bTagSFEventWeight.maxJets  = 4
-    process.bTagSFEventWeight.sysVar   = "" 
-    process.bTagSFEventWeight.filename = "TopAnalysis/Configuration/data/analyzeBTagEfficiency2012.root" #FIXME aktuell? Nataliia arbeitet dran
+    process.bTagSFEventWeight.sysVar   = "" #bTagSFUp, bTagSFDown, bTagCjetSFUp, bTagCjetSFDown, misTagSFUp, misTagSFDown possible;
+    process.bTagSFEventWeight.filename = "TopAnalysis/Configuration/data/eff.root"  # NOTE: efficiency file should be up-to-date for each data sample 
     process.bTagSFEventWeight.verbose  = 0
 
     process.bTagSFEventWeightBTagSFUp     = process.bTagSFEventWeight.clone(sysVar = "bTagSFUp")
     process.bTagSFEventWeightBTagSFDown   = process.bTagSFEventWeight.clone(sysVar = "bTagSFDown")
+    process.bTagSFEventWeightBTagCjetSFUp     = process.bTagSFEventWeight.clone(sysVar = "bTagCjetSFUp")
+    process.bTagSFEventWeightBTagCjetSFDown   = process.bTagSFEventWeight.clone(sysVar = "bTagCjetSFDown")
     process.bTagSFEventWeightMisTagSFUp   = process.bTagSFEventWeight.clone(sysVar = "misTagSFUp")
     process.bTagSFEventWeightMisTagSFDown = process.bTagSFEventWeight.clone(sysVar = "misTagSFDown")
 
@@ -1186,22 +1235,66 @@ if not data:
     process.effSFMuonEventWeight.particles=cms.InputTag("signalMuons")
     process.effSFMuonEventWeight.sysVar   = cms.string("") #"noSys" ?
     #process.effSFMuonEventWeight.filename= "TopAnalysis/Configuration/data/MuonEffSF2D2012.root" #new ones from twiki 76x  page
-    process.effSFMuonEventWeight.filename= "TopMass/data/LeptonSFs/mu_TriggerSF_76x.root"  #pt>120 is missing, solved via WeightEventAnalyzer
-    process.effSFMuonEventWeight.verbose=cms.int32(0) 
-    process.effSFMuonEventWeight.additionalFactor=1.0 ## lepton selection and trigger eff. SF both included in loaded histo, for 76x only trigger
-    process.effSFMuonEventWeight.additionalFactorErr=0.01 ## 1.0% sys error to account for selection difference Z - ttbar
-    process.effSFMuonEventWeight.shapeDistortionFactor=-1  #FIXME ???
+    
+    process.effSFMuonEventWeightLepID     = process.effSFMuonEventWeight.clone(filename="TopMass/data/LeptonSFs/MuonID_Z_RunCD_Reco76X_Feb15.root")
+    process.effSFMuonEventWeightLepID.histoname="MC_NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio"  #pt>120 is missing, solved via WeightEventAnalyzer
+    
+    process.effSFMuonEventWeightUpLepID  =process.effSFMuonEventWeightLepID.clone(sysVar = "combinedEffSFNormUpStat")
+    process.effSFMuonEventWeightDownLepID=process.effSFMuonEventWeightLepID.clone(sysVar = "combinedEffSFNormDownStat")
+    
+    process.effSFMuonEventWeightIso     = process.effSFMuonEventWeight.clone(filename="TopMass/data/LeptonSFs/MuonIso_Z_RunCD_Reco76X_Feb15.root")
+    process.effSFMuonEventWeightIso.histoname="MC_NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1/pt_abseta_ratio"  #pt>120 is missing, solved via WeightEventAnalyzer
+    
+    process.effSFMuonEventWeightUpIso  =process.effSFMuonEventWeightIso.clone(sysVar = "combinedEffSFNormUpStat")
+    process.effSFMuonEventWeightDownIso=process.effSFMuonEventWeightIso.clone(sysVar = "combinedEffSFNormDownStat")
+    
+    
+    process.effSFMuonEventWeightTrigger    = process.effSFMuonEventWeight.clone(filename="TopMass/data/LeptonSFs/SingleMuonTrigger_Z_RunCD_Reco76X_Feb15.root")
+    #process.effSFMuonEventWeight.filename="TopMass/data/LeptonSFs/SingleMuonTrigger_Z_RunCD_Reco76X_Feb15.root"  #https://twiki.cern.ch/twiki/bin/viewauth/CMS/TTbarHbbRun2ReferenceAnalysis_76XTransition
+    process.effSFMuonEventWeightTrigger.histoname="runD_IsoMu20_OR_IsoTkMu20_HLTv4p2_PtEtaBins/pt_abseta_ratio"  #pt>120 is missing, solved via WeightEventAnalyzer
+    process.effSFMuonEventWeightTrigger.additionalSystErr=0.005  #+ 0.5% for single muon triggers to be applyied on top of statistical errors from root/pkl files
+    process.effSFMuonEventWeightTrigger.verbose=cms.int32(0) 
+    
+    process.effSFMuonEventWeightUpTrigger  =process.effSFMuonEventWeightTrigger.clone(sysVar = "combinedEffSFNormUpStat")
+    process.effSFMuonEventWeightDownTrigger=process.effSFMuonEventWeightTrigger.clone(sysVar = "combinedEffSFNormDownStat")
+
+
+
+
 
     process.effSFElectronEventWeight=process.effSFLepton2DEventWeight.clone()
     process.effSFElectronEventWeight.particles=cms.InputTag("signalElectrons")
-    process.effSFElectronEventWeight.jets=cms.InputTag("signalTightJets")
+    #process.effSFElectronEventWeight.jets=cms.InputTag("signalTightJets")
     process.effSFElectronEventWeight.sysVar   = cms.string("")
     #process.effSFElectronEventWeight.filename= "TopAnalysis/Configuration/data/EleEffSF2D2012.root"
-    process.effSFElectronEventWeight.filename= "TopMass/data/LeptonSFs/ele_TriggerSF_76x.root" 
-    process.effSFElectronEventWeight.verbose=cms.int32(0) 
-    process.effSFElectronEventWeight.additionalFactor=1.0 ## lepton selection and trigger eff. SF both included in loaded histo 
-    process.effSFElectronEventWeight.additionalFactorErr=0.01 ## 1.0% sys error to account for selection difference Z - ttbar
-    process.effSFElectronEventWeight.shapeDistortionFactor=-1  #FIXME ???
+    
+    process.effSFElectronEventWeightLepID     = process.effSFElectronEventWeight.clone(filename="TopMass/data/LeptonSFs/ScaleFactor_GsfElectronToRECO_passingTrigWP80.txt.egamma_SF2D.root")
+    process.effSFElectronEventWeightLepID.histoname="EGamma_SF2D"  #pt>120 is missing, solved via WeightEventAnalyzer
+    
+    process.effSFElectronEventWeightUpLepID  =process.effSFElectronEventWeightLepID.clone(sysVar = "combinedEffSFNormUpStat")
+    process.effSFElectronEventWeightDownLepID=process.effSFElectronEventWeightLepID.clone(sysVar = "combinedEffSFNormDownStat")
+    
+    process.effSFElectronEventWeightIso     = process.effSFElectronEventWeight.clone(filename="TopMass/data/LeptonSFs/eleIsolation_SF.root")
+    process.effSFElectronEventWeightIso.histoname="IsolationSF"  #pt>120 is missing, solved via WeightEventAnalyzer
+    
+    process.effSFElectronEventWeightUpIso  =process.effSFElectronEventWeightIso.clone(sysVar = "combinedEffSFNormUpStat")
+    process.effSFElectronEventWeightDownIso=process.effSFElectronEventWeightIso.clone(sysVar = "combinedEffSFNormDownStat")
+    
+    process.effSFElectronEventWeightTrigger    = process.effSFElectronEventWeight.clone(filename="TopMass/data/LeptonSFs/eleTrig_SF.root")
+    process.effSFElectronEventWeightTrigger.histoname="h_eleTrig_SF"  #pt>120 is missing, solved via WeightEventAnalyzer
+    process.effSFElectronEventWeightTrigger.additionalSystErr=0  #+ 0.5% for single muon triggers to be applyied on top of statistical errors from root/pkl files
+    process.effSFElectronEventWeightTrigger.verbose=cms.int32(0) 
+    
+    process.effSFElectronEventWeightUpTrigger  =process.effSFElectronEventWeightTrigger.clone(sysVar = "combinedEffSFNormUpStat")
+    process.effSFElectronEventWeightDownTrigger=process.effSFElectronEventWeightTrigger.clone(sysVar = "combinedEffSFNormDownStat")
+    
+    #process.effSFElectronEventWeight.filename= "TopMass/data/LeptonSFs/eleTrig_SF.root" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/TTbarHbbRun2ReferenceAnalysis_76XTransition
+    #process.effSFElectronEventWeight.histoname= "h_eleTrig_SF"  #pt>120 is missing, solved via WeightEventAnalyzer
+    #process.effSFElectronEventWeight.additionalSystErr= 0  #pt>120 is missing, solved via WeightEventAnalyzer
+    #process.effSFElectronEventWeight.verbose=cms.int32(0) 
+    
+    #process.effSFElectronEventWeightUp  =process.effSFElectronEventWeight.clone(sysVar = "combinedEffSFNormUpStat")
+    #process.effSFElectronEventWeightDown=process.effSFElectronEventWeight.clone(sysVar = "combinedEffSFNormDownStat")
 
 # register TFileService
 process.TFileService = cms.Service("TFileService",

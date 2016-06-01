@@ -17,7 +17,7 @@ class WeightEvent : public TObject {
   WeightEvent();
   void init();
 
-  ClassDef(WeightEvent, 7);
+  ClassDef(WeightEvent, 8);
 
   // WeightEvent data
 
@@ -48,6 +48,8 @@ class WeightEvent : public TObject {
   double bTagWeight;
   double bTagWeight_bTagSFUp;
   double bTagWeight_bTagSFDown;
+  double bTagWeight_bTagCjetSFUp;
+  double bTagWeight_bTagCjetSFDown;
   double bTagWeight_misTagSFUp;
   double bTagWeight_misTagSFDown;
 
@@ -58,8 +60,18 @@ class WeightEvent : public TObject {
   double bJESWeight_fragHard;
   double bJESWeight_fragSoft;
 
+  double lepIDWeight;
+  double lepIDWeightUp;
+  double lepIDWeightDown;
+
+  double isoWeight;
+  double isoWeightUp;
+  double isoWeightDown;
+
   // trigger weight
   double triggerWeight;
+  double triggerWeightUp;
+  double triggerWeightDown;
 
   // lepton weights
   double muWeight;

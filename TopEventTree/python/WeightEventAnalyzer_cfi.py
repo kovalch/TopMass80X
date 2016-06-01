@@ -17,10 +17,14 @@ analyzeWeights = cms.EDAnalyzer("WeightEventAnalyzer",
     bWeightSrc              = cms.InputTag("bTagSFEventWeight"),
     bWeightSrc_bTagSFUp     = cms.InputTag("bTagSFEventWeightBTagSFUp"),
     bWeightSrc_bTagSFDown   = cms.InputTag("bTagSFEventWeightBTagSFDown"),
+    bWeightSrc_bTagCjetSFUp     = cms.InputTag("bTagSFEventWeightBTagCjetSFUp"),
+    bWeightSrc_bTagCjetSFDown   = cms.InputTag("bTagSFEventWeightBTagCjetSFDown"),
     bWeightSrc_misTagSFUp   = cms.InputTag("bTagSFEventWeightMisTagSFUp"),
     bWeightSrc_misTagSFDown = cms.InputTag("bTagSFEventWeightMisTagSFDown"),
     
-    triggerWeightSrc  = cms.InputTag("effSFMuonEventWeight"),
+    triggerWeightSrc        = cms.InputTag("effSFMuonEventWeight"),
+    triggerWeightSrcUp      = cms.InputTag("effSFMuonEventWeightUp"),
+    triggerWeightSrcDown    = cms.InputTag("effSFMuonEventWeightDown"),
     
     bJESSrc_fNuUp     = cms.InputTag("bJESEventWeightFNuUp"),
     bJESSrc_fNuDown   = cms.InputTag("bJESEventWeightFNuDown"),
@@ -43,3 +47,4 @@ analyzeWeights = cms.EDAnalyzer("WeightEventAnalyzer",
     topPtSFthreshold =   cms.double(400)
     
 )
+ 

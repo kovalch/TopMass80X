@@ -7,8 +7,6 @@
 
 //#include <memory>
 
-// TODO make getToken out if the getLabels (one day XD)
-
 // user include files
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -45,6 +43,10 @@ WeightEventAnalyzer::WeightEventAnalyzer(const edm::ParameterSet& cfg)
           cfg.getParameter<edm::InputTag>("bWeightSrc_bTagSFUp")),
       bWeightSrc_bTagSFDown_(
           cfg.getParameter<edm::InputTag>("bWeightSrc_bTagSFDown")),
+      bWeightSrc_bTagCjetSFUp_(
+          cfg.getParameter<edm::InputTag>("bWeightSrc_bTagCjetSFUp")),
+      bWeightSrc_bTagCjetSFDown_(
+          cfg.getParameter<edm::InputTag>("bWeightSrc_bTagCjetSFDown")),
       bWeightSrc_misTagSFUp_(
           cfg.getParameter<edm::InputTag>("bWeightSrc_misTagSFUp")),
       bWeightSrc_misTagSFDown_(
@@ -54,7 +56,18 @@ WeightEventAnalyzer::WeightEventAnalyzer(const edm::ParameterSet& cfg)
       bJESSrc_frag_(cfg.getParameter<edm::InputTag>("bJESSrc_frag")),
       bJESSrc_fragHard_(cfg.getParameter<edm::InputTag>("bJESSrc_fragHard")),
       bJESSrc_fragSoft_(cfg.getParameter<edm::InputTag>("bJESSrc_fragSoft")),
+      lepIDWeightSrc_(cfg.getParameter<edm::InputTag>("lepIDWeightSrc")),
+      lepIDWeightSrcUp_(cfg.getParameter<edm::InputTag>("lepIDWeightSrcUp")),
+      lepIDWeightSrcDown_(
+          cfg.getParameter<edm::InputTag>("lepIDWeightSrcDown")),
+      isoWeightSrc_(cfg.getParameter<edm::InputTag>("isoWeightSrc")),
+      isoWeightSrcUp_(cfg.getParameter<edm::InputTag>("isoWeightSrcUp")),
+      isoWeightSrcDown_(cfg.getParameter<edm::InputTag>("isoWeightSrcDown")),
       triggerWeightSrc_(cfg.getParameter<edm::InputTag>("triggerWeightSrc")),
+      triggerWeightSrcUp_(
+          cfg.getParameter<edm::InputTag>("triggerWeightSrcUp")),
+      triggerWeightSrcDown_(
+          cfg.getParameter<edm::InputTag>("triggerWeightSrcDown")),
       muWeightSrc_(cfg.getParameter<edm::InputTag>("muWeightSrc")),
       elWeightSrc_(cfg.getParameter<edm::InputTag>("elWeightSrc")),
       genEventSrc_(cfg.getParameter<edm::InputTag>("genEventSrc")),
@@ -63,8 +76,8 @@ WeightEventAnalyzer::WeightEventAnalyzer(const edm::ParameterSet& cfg)
       ttInputTag(cfg.getParameter<edm::InputTag>("ttEvent")),
       ttEvent_(consumes<edm::View<TtEvent>>(ttInputTag)),
       savePDFWeights_(cfg.getParameter<bool>("savePDFWeights")),
-      brCorrection_(cfg.getParameter<bool>("brCorrection")),
       showLHEweightTypes_(cfg.getParameter<bool>("showLHEweightTypes")),
+      brCorrection_(cfg.getParameter<bool>("brCorrection")),
       weight(0) {
   // LHAPDF::initPDFSet(1, "cteq66.LHgrid");
   mayConsume<GenEventInfoProduct>(genEventSrc_);
@@ -79,6 +92,8 @@ WeightEventAnalyzer::WeightEventAnalyzer(const edm::ParameterSet& cfg)
   mayConsume<double>(bWeightSrc_);
   mayConsume<double>(bWeightSrc_bTagSFUp_);
   mayConsume<double>(bWeightSrc_bTagSFDown_);
+  mayConsume<double>(bWeightSrc_bTagCjetSFUp_);
+  mayConsume<double>(bWeightSrc_bTagCjetSFDown_);
   mayConsume<double>(bWeightSrc_misTagSFUp_);
   mayConsume<double>(bWeightSrc_misTagSFDown_);
 
@@ -88,13 +103,22 @@ WeightEventAnalyzer::WeightEventAnalyzer(const edm::ParameterSet& cfg)
   mayConsume<double>(bJESSrc_fragHard_);
   mayConsume<double>(bJESSrc_fragSoft_);
 
-  mayConsume<double>(triggerWeightSrc_);
   mayConsume<reco::GenParticleCollection>((edm::InputTag) "genParticles");
+  mayConsume<double>(lepIDWeightSrc_);
+  mayConsume<double>(lepIDWeightSrcUp_);
+  mayConsume<double>(lepIDWeightSrcDown_);
+
+  mayConsume<double>(isoWeightSrc_);
+  mayConsume<double>(isoWeightSrcUp_);
+  mayConsume<double>(isoWeightSrcDown_);
+
+  mayConsume<double>(triggerWeightSrc_);
+  mayConsume<double>(triggerWeightSrcUp_);
+  mayConsume<double>(triggerWeightSrcDown_);
 }
 
 void WeightEventAnalyzer::analyze(const edm::Event& evt,
                                   const edm::EventSetup& setup) {
-
   //////////////////////////////////////////////////////////////////////////////
   // INIT WeightEvent
   ////////////////////////////////////////////////////////////////////////////
@@ -284,6 +308,12 @@ void WeightEventAnalyzer::analyze(const edm::Event& evt,
   edm::Handle<double> bWeight_bTagSFDown_h;
   evt.getByLabel(bWeightSrc_bTagSFDown_, bWeight_bTagSFDown_h);
 
+  edm::Handle<double> bWeight_bTagCjetSFUp_h;
+  evt.getByLabel(bWeightSrc_bTagCjetSFUp_, bWeight_bTagCjetSFUp_h);
+
+  edm::Handle<double> bWeight_bTagCjetSFDown_h;
+  evt.getByLabel(bWeightSrc_bTagCjetSFDown_, bWeight_bTagCjetSFDown_h);
+
   edm::Handle<double> bWeight_misTagSFUp_h;
   evt.getByLabel(bWeightSrc_misTagSFUp_, bWeight_misTagSFUp_h);
 
@@ -298,6 +328,10 @@ void WeightEventAnalyzer::analyze(const edm::Event& evt,
     weight->bTagWeight_bTagSFUp = *bWeight_bTagSFUp_h;
   if (bWeight_bTagSFDown_h.isValid())
     weight->bTagWeight_bTagSFDown = *bWeight_bTagSFDown_h;
+  if (bWeight_bTagCjetSFUp_h.isValid())
+    weight->bTagWeight_bTagCjetSFUp = *bWeight_bTagCjetSFUp_h;
+  if (bWeight_bTagCjetSFDown_h.isValid())
+    weight->bTagWeight_bTagCjetSFDown = *bWeight_bTagCjetSFDown_h;
   if (bWeight_misTagSFUp_h.isValid())
     weight->bTagWeight_misTagSFUp = *bWeight_misTagSFUp_h;
   if (bWeight_misTagSFDown_h.isValid())
@@ -332,26 +366,78 @@ void WeightEventAnalyzer::analyze(const edm::Event& evt,
     weight->bJESWeight_fragSoft = *bJESWeight_fragSoft_h;
 
   //////////////////////////////////////////////////////////////////////////
+  // lepton ID SF
+  ////////////////////////////////////////////////////////////////////////
+  edm::Handle<double> lepIDWeight_h;
+  evt.getByLabel(lepIDWeightSrc_, lepIDWeight_h);
+
+  edm::Handle<double> lepIDWeightUp_h;
+  evt.getByLabel(lepIDWeightSrcUp_, lepIDWeightUp_h);
+
+  edm::Handle<double> lepIDWeightDown_h;
+  evt.getByLabel(lepIDWeightSrcDown_, lepIDWeightDown_h);
+
+  //   if(triggerWeight_h    .isValid()) { weight->triggerWeight 	=
+  // (*triggerWeight_h!=0.0?*triggerWeight_h:1.0); weight->combinedWeight *=
+  // weight->triggerWeight; }
+  if (lepIDWeight_h.isValid()) {
+    weight->lepIDWeight = *lepIDWeight_h;
+    weight->combinedWeight *= weight->lepIDWeight;
+  }
+  if (lepIDWeightUp_h.isValid()) weight->lepIDWeightUp = *lepIDWeightUp_h;
+  if (lepIDWeightDown_h.isValid()) weight->lepIDWeightDown = *lepIDWeightDown_h;
+
+  //////////////////////////////////////////////////////////////////////////
+  // lepton Isolation SF
+  ////////////////////////////////////////////////////////////////////////
+
+  edm::Handle<double> isoWeight_h;
+  evt.getByLabel(isoWeightSrc_, isoWeight_h);
+
+  edm::Handle<double> isoWeightUp_h;
+  evt.getByLabel(isoWeightSrcUp_, isoWeightUp_h);
+
+  edm::Handle<double> isoWeightDown_h;
+  evt.getByLabel(isoWeightSrcDown_, isoWeightDown_h);
+
+  //   if(triggerWeight_h    .isValid()) { weight->triggerWeight 	=
+  // (*triggerWeight_h!=0.0?*triggerWeight_h:1.0); weight->combinedWeight *=
+  // weight->triggerWeight; }
+  if (isoWeight_h.isValid()) {
+    weight->isoWeight = *isoWeight_h;
+    weight->combinedWeight *= weight->isoWeight;
+  }
+  if (isoWeightUp_h.isValid()) weight->isoWeightUp = *isoWeightUp_h;
+  if (isoWeightDown_h.isValid()) weight->isoWeightDown = *isoWeightDown_h;
+
+  //////////////////////////////////////////////////////////////////////////
   // trigger weights  , tiggerweight==0 out of histogramm boundary case of
   // EffSFLepton2DEventWeight is set on 1.0 (case for high lepton pt and to high
   // eta cut)
-  ////////////////////////////////////////////////////////////////////////
 
+  ////////////////////////////////////////////////////////////////////////
   edm::Handle<double> triggerWeight_h;
   evt.getByLabel(triggerWeightSrc_, triggerWeight_h);
+  edm::Handle<double> triggerWeightUp_h;
+  evt.getByLabel(triggerWeightSrcUp_, triggerWeightUp_h);
+
+  edm::Handle<double> triggerWeightDown_h;
+  evt.getByLabel(triggerWeightSrcDown_, triggerWeightDown_h);
+
+  //   if(triggerWeight_h    .isValid()) { weight->triggerWeight 	=
+  // (*triggerWeight_h!=0.0?*triggerWeight_h:1.0); weight->combinedWeight *=
+  // weight->triggerWeight; }
   if (triggerWeight_h.isValid()) {
-    weight->triggerWeight =
-        ((*triggerWeight_h != 0.0 && *triggerWeight_h < 1000000 &&
-          *triggerWeight_h > -1000000 && *triggerWeight_h == *triggerWeight_h)
-             ? *triggerWeight_h
-             : 1.0);
+    weight->triggerWeight = *triggerWeight_h;
     weight->combinedWeight *= weight->triggerWeight;
   }
+  if (triggerWeightUp_h.isValid()) weight->triggerWeightUp = *triggerWeightUp_h;
+  if (triggerWeightDown_h.isValid())
+    weight->triggerWeightDown = *triggerWeightDown_h;
 
   //////////////////////////////////////////////////////////////////////////
   // ME TOP QUARKS
   ////////////////////////////////////////////////////////////////////////
-
   edm::Handle<reco::GenParticleCollection> genParticles;
   evt.getByLabel("genParticles", genParticles);
   if (genParticles.isValid()) {
