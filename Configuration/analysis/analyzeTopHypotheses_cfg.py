@@ -13,7 +13,7 @@ options.register('useCalibElec'    , False, VarParsing.VarParsing.multiplicity.s
 
 options.register('generator', 'pythia8', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "MC generator")
 options.register('mcWeight', 1.0 , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.float, "MC sample event weight")
-options.register('lepton', 'electron', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "Lepton+jets channel")
+options.register('lepton', 'muon', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "Lepton+jets channel")
 options.register('metcl', 1, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.int, "MET correction level")
 
 options.register('scaleType', 'abs', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "JES scale type")
@@ -30,7 +30,7 @@ options.register('taggerName', 'pfCombinedInclusiveSecondaryVertexV2BJetTags', V
 options.register('csvm', 0.8, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "CSVM working point")  #0.89 on 74
 options.register('nbjets', 2, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.int, "Minimum number of bjets")
 
-options.register('brCorrection', True, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.bool, "Do BR correction (MadGraph)")
+options.register('brCorrection', False, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.bool, "Do BR correction (MadGraph)") #Off??? was on after nataliia merge
 options.register('bSFNewRecipe', True, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.bool, "Use new b-tag SF recipe")
 
 options.register('addTriggerMatch' , True , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if trigger objects are matched to signal muons' )
@@ -63,7 +63,7 @@ jet4Cut = (options.cut=='jet4Cut')
 
 # nTupel Output
 #outputNTupel = cms.string( 'analyzeTop_{0}_{1}_{2}_Test.root'.format( options.lepton , options.lJesFactor , options.cut ) )
-outputNTupel = cms.string('analyzeTop2.root')
+outputNTupel = cms.string('analyzeTop.root')
 
 if (options.mcversion == "data"):
 	data = True
@@ -843,9 +843,7 @@ if(options.showLHEscaleWeightTypes):
     process.analyzeWeights.showLHEweightTypes=True
 
 if (options.lepton=='electron'):
-	#process.analyzeWeights.triggerWeightSrc      = cms.InputTag("effSFElectronEventWeight")
-	#process.analyzeWeights.triggerWeightSrcUp    = cms.InputTag("effSFElectronEventWeightUp")
-	#process.analyzeWeights.triggerWeightSrcDown  = cms.InputTag("effSFElectronEventWeightDown")
+    
 	process.analyzeWeights.lepIDWeightSrc      = cms.InputTag("effSFElectronEventWeightLepID")
 	process.analyzeWeights.lepIDWeightSrcUp    = cms.InputTag("effSFElectronEventWeightUpLepID")
 	process.analyzeWeights.lepIDWeightSrcDown  = cms.InputTag("effSFElectronEventWeightDownLepID")
@@ -892,8 +890,6 @@ if runOnMC:
     #process.cleanedJets.src = src = "patSmearedJets" #why was that?
     
 #atm first scaling, then cleaning!
-
-#if options.lJesFactor!=1.0 or options.scaleType!='abs': #FIXME
    #*****************************************************************************
    #add systematic variations here using products from the MET uncertainty tool
    #*****************************************************************************
@@ -1217,7 +1213,7 @@ if not data:
         nuDecayFractionTarget = 0.239
     )
     process.bJESEventWeightFrag     = process.EventWeightBJES.clone(
-        fragTargetFile = "TopAnalysis/TopUtils/data/MC_BJES_TuneZ2star_rbLEP.root"
+        fragTargetFile = "TopAnalysis/TopUtils/data/MC_BJES_TuneZ2star_rbLEP.root"  #TODO fragTargetSource to rbLEP
     )
     process.bJESEventWeightFragHard = process.EventWeightBJES.clone(
         fragTargetFile = "TopAnalysis/TopUtils/data/MC_BJES_TuneZ2star_rbLEPhard.root"
@@ -1244,6 +1240,7 @@ if not data:
     
     process.effSFMuonEventWeightIso     = process.effSFMuonEventWeight.clone(filename="TopMass/data/LeptonSFs/MuonIso_Z_RunCD_Reco76X_Feb15.root")
     process.effSFMuonEventWeightIso.histoname="MC_NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1/pt_abseta_ratio"  #pt>120 is missing, solved via WeightEventAnalyzer
+    #process.effSFMuonEventWeightIso.verbose=cms.int32(15) #debugging 
     
     process.effSFMuonEventWeightUpIso  =process.effSFMuonEventWeightIso.clone(sysVar = "combinedEffSFNormUpStat")
     process.effSFMuonEventWeightDownIso=process.effSFMuonEventWeightIso.clone(sysVar = "combinedEffSFNormDownStat")

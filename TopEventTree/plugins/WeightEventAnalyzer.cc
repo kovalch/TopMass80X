@@ -68,16 +68,18 @@ WeightEventAnalyzer::WeightEventAnalyzer(const edm::ParameterSet& cfg)
           cfg.getParameter<edm::InputTag>("triggerWeightSrcUp")),
       triggerWeightSrcDown_(
           cfg.getParameter<edm::InputTag>("triggerWeightSrcDown")),
-      muWeightSrc_(cfg.getParameter<edm::InputTag>("muWeightSrc")),
-      elWeightSrc_(cfg.getParameter<edm::InputTag>("elWeightSrc")),
+      muWeightSrc_(
+          cfg.getParameter<edm::InputTag>("muWeightSrc")),  // not used???
+      elWeightSrc_(
+          cfg.getParameter<edm::InputTag>("elWeightSrc")),  // not used???
       genEventSrc_(cfg.getParameter<edm::InputTag>("genEventSrc")),
       lheEventSrc_(cfg.getParameter<edm::InputTag>("lheEventSrc")),
       // ttEvent_       (cfg.getParameter<edm::InputTag>("ttEvent")),
       ttInputTag(cfg.getParameter<edm::InputTag>("ttEvent")),
       ttEvent_(consumes<edm::View<TtEvent>>(ttInputTag)),
       savePDFWeights_(cfg.getParameter<bool>("savePDFWeights")),
-      showLHEweightTypes_(cfg.getParameter<bool>("showLHEweightTypes")),
       brCorrection_(cfg.getParameter<bool>("brCorrection")),
+      showLHEweightTypes_(cfg.getParameter<bool>("showLHEweightTypes")),
       weight(0) {
   // LHAPDF::initPDFSet(1, "cteq66.LHgrid");
   mayConsume<GenEventInfoProduct>(genEventSrc_);
@@ -403,6 +405,7 @@ void WeightEventAnalyzer::analyze(const edm::Event& evt,
   //   if(triggerWeight_h    .isValid()) { weight->triggerWeight 	=
   // (*triggerWeight_h!=0.0?*triggerWeight_h:1.0); weight->combinedWeight *=
   // weight->triggerWeight; }
+
   if (isoWeight_h.isValid()) {
     weight->isoWeight = *isoWeight_h;
     weight->combinedWeight *= weight->isoWeight;
