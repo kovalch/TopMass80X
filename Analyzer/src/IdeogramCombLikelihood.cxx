@@ -48,3 +48,4 @@ void IdeogramCombLikelihood::SetActive(bool active) {
 bool IdeogramCombLikelihood::IsActive() {
   return active_;
 }
+

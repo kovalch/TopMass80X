@@ -2,7 +2,7 @@ era = 'FT_53_V21_AN5'
 
 import FWCore.ParameterSet.Config as cms
 process = cms.Process('jecdb')
-process.load('CondCore.DBCommon.CondDBCommon_cfi')
+process.load('CondCore.DBCommon.CondDB_cfi')
 process.CondDBCommon.connect = 'sqlite_file:'+era+'_private.db'
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 process.source = cms.Source('EmptySource')

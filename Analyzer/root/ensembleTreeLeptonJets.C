@@ -20,74 +20,50 @@
 #include "TPaveStats.h"
 #include "TFitResult.h"
 
-//#include "tdrstyle_new.C"
 #include "tdrstyle.C"
-#include "CMS_lumi.C"
-
-using namespace std;
 
 enum lepton           { kElectron, kMuon, kAll, kMuon_BReg};
 std::string lepton_ [4] = { "electron", "muon", "lepton", "muon_BReg"};
 
 int channel = 1;
-bool calibrated = false;
 std::string suffix = "";
-//bool calibrated = true;
-//std::string suffix = "_calibrated";
 
-Long64_t nentries = 1000000000; //1000*27;  //TODO
+Long64_t nentries = 1000000000; //1000*27;
 Long64_t firstentry = nentries*0 + 0;
 
 enum styles          { kDown, kNominal, kUp};
-int color_   [ 5 ] = { kRed+1, kBlue+1, kGreen+1,kBlue+1,kOrange+1};
-int marker_  [ 5 ] = { 23, 20, 22 ,24,25};
+int color_   [ 5 ] = { kMagenta, kRed+1, kBlack, kGreen+1, kBlue};
+int marker_  [ 5 ] = {32, 23, 20, 22, 26};
 
-double genMass[]      = {169.5, 172.5,  175.5};
-double genMassError[] = {1e-6, 1e-6, 1e-6,};
-double genMassN[]     = {41000000,  62000000,  40000000}; //TODO is this the MassN before the Selection? used for Errors
+double genMass[]      = {166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5};
+double genMassError[] = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
+double genMassN[]     = {27000000, 41000000, 62000000, 40000000, 24000000};
 //double genMassN[]     = {1620072, 1.5, 1.5, 1.5, 59613991, 1.5, 1.5, 1.5, 1.5};
-double maxMCWeight[]  = {1.2, 1.2, 1.2};  //TODO used for Errors
+double maxMCWeight[]  = {1.2, 1.2, 1.2, 1.2, 1.2};
 double crossSection   = 831.7;
-double peLumi         = 2192.;
+double peLumi         = 5748.;
 double eff;
-
-std::string samples[15] = {"2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1695_0.96"
-, "2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_0.96"
-, "2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_0.96"
-, "2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1695_1.04"
-, "2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.04"
-, "2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_1.04"
-, "2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1695_0.98"
-, "2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_0.98"
-, "2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_0.98"
-, "2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1695_1.00"
-, "2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.00"
-, "2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_1.00"
-, "2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1695_1.02"
-, "2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.02"
-, "2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_1.02"
-};
   
 double genJES[]       = {0.96, 0.98, 1.00, 1.02 , 1.04};
 double genJESError[]  = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
-double measJES[5]; //umbauen in Variable nJES und nMass
+double measJES[5];
 
 double offset[5];
 double offsetError[5];
   
-double mass[5][3];
-double massBias[5][3];
-double massBiasError[5][3];
+double mass[5][5];
+double massBias[5][5];
+double massBiasError[5][5];
 
-double massPull[5][3];
-double massPullError[5][3];
+double massPull[5][5];
+double massPullError[5][5];
   
-double JES[5][3];
-double JESBias[5][3];
-double JESBiasError[5][3];
+double JES[5][5];
+double JESBias[5][5];
+double JESBiasError[5][5];
 
-double JESPull[5][3];
-double JESPullError[5][3];
+double JESPull[5][5];
+double JESPullError[5][5];
 
 std::vector<TGraphErrors*> gMass;
 std::vector<TGraphErrors*> gJES;
@@ -99,8 +75,8 @@ TChain* tree;
 
 TF1* constFit;
 TF1* linearFit096;
-TF1* linearFit100;
 TF1* linearFit098;
+TF1* linearFit100;
 TF1* linearFit102;
 TF1* linearFit104;
 TF1* linearFitJES;
@@ -108,36 +84,65 @@ TFitResultPtr fitResult;
 
 
 void DrawLegend(bool bwlines = false) {
-  double y1 = 0.84; double y2 = 0.9;
-  int textsize = 10;
-  TLegend *leg1 = new TLegend(0.25, y1, 0.92, y2);
-  leg1->SetNColumns(3);
+  double y1 = 0.915; double y2 = 0.955;
+  int textsize = 8;
+  TLegend *leg1 = new TLegend(0.20, y1, 0.92, y2);
+  leg1->SetNColumns(5);
   leg1->SetTextSizePixels(textsize);
   leg1->SetFillColor(kWhite);
   leg1->SetBorderSize(0);
-  TString legOpt("P");
-  if(bwlines) legOpt+="L";
-
-  leg1->AddEntry( linearFit096, "JSF=0.96", legOpt);
-  leg1->AddEntry( linearFit098, "JSF=0.98", legOpt);
-  leg1->AddEntry( linearFit100, "JSF=1.00", legOpt);
-  leg1->AddEntry( linearFit102, "JSF=1.02", legOpt);
-  leg1->AddEntry( linearFit104, "JSF=1.04", legOpt);
+  if (bwlines) {
+    leg1->AddEntry( linearFit096, "JSF=0.96", "LP");
+    leg1->AddEntry( linearFit098, "JSF=0.98", "LP");
+    leg1->AddEntry( linearFit100, "JSF=1.00", "LP");
+    leg1->AddEntry( linearFit102, "JSF=1.02", "LP");
+    leg1->AddEntry( linearFit104, "JSF=1.04", "LP");
+  }
+  else {
+    leg1->AddEntry( linearFit096, "JSF=0.96", "P");
+    leg1->AddEntry( linearFit098, "JSF=0.98", "P");
+    leg1->AddEntry( linearFit100, "JSF=1.00", "P");
+    leg1->AddEntry( linearFit102, "JSF=1.02", "P");
+    leg1->AddEntry( linearFit104, "JSF=1.04", "P");
+  }
+  /*
+  leg->AddEntry( constFit, "Const. fit", "L");
+  char chi2[6]; sprintf(chi2, "%3.1f", fitResult->Chi2());
+  TString sConstFit("#chi^{2}/ndf="); sConstFit+=chi2; sConstFit+="/"; sConstFit+=fitResult->Ndf();
+  leg->AddEntry((TObject*)0, sConstFit, "");
+  */
   leg1->Draw();
+  
+  /*
+  TLegend *leg2 = new TLegend(0.44, y1, 0.68, y2);
+  leg2->SetTextSizePixels(textsize);
+  leg2->SetFillColor(kWhite);
+  leg2->SetBorderSize(0);
+  if (bwlines) leg2->AddEntry( linearFit100, "JES=1.00", "LP");
+  else         leg2->AddEntry( linearFit100, "JES=1.00", "P");
+  leg2->Draw();
+  
+  TLegend *leg3 = new TLegend(0.68, y1, 0.92, y2);
+  leg3->SetTextSizePixels(textsize);
+  leg3->SetFillColor(kWhite);
+  leg3->SetBorderSize(0);
+  if (bwlines) leg3->AddEntry( linearFit104, "JES=1.04", "LP");
+  else         leg3->AddEntry( linearFit104, "JES=1.04", "P");
+  leg3->Draw();
+  */
 }
 
-void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/garbersc/TopMass/2015D_TemplateCalibration")
+void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/TopMass/pseudoexperiments/templateConfiguration_muon_160720")
 {
-
   //*
   TStyle *tdrStyle = setTDRStyle();
-  //tdrStyle->SetPadGridX(true);
-  //tdrStyle->SetPadGridY(true);
+  tdrStyle->SetPadGridX(true);
+  tdrStyle->SetPadGridY(true);
   tdrStyle->SetOptFit(0);
   tdrStyle->SetTitleSize(0.09, "XYZ");
   tdrStyle->SetLabelSize(0.08, "XYZ");
-  tdrStyle->SetPadTopMargin(0.16);
-  tdrStyle->SetPadBottomMargin(0.24);
+  tdrStyle->SetPadTopMargin(0.2);
+  tdrStyle->SetPadBottomMargin(0.2);
   tdrStyle->SetTitleYOffset(1.);
   //*/
   
@@ -149,20 +154,16 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/garbersc/
   // topmass_120503_2140 - e mu
   // topmass_120530_0840 - all
   // topmass_120412_2120cp
-  tree = new TChain("tree"); //hate it when they do that...
-  
-  for (int s = 0; s < 15; ++s) {
-    std::string pathToRootFiles = pathToPE+suffix+std::string("/")+lepton_[channel]+std::string("/")+samples[s]+std::string("/job_*ensemble.root");
-    std::cout << "opening root files from " << pathToRootFiles << std::endl;
-    std::cout <<tree->Add(pathToRootFiles.c_str())<<" files were added"<<std::endl;
-  }
-  
+  tree = new TChain("tree");
+  std::string pathToRootFiles = pathToPE+suffix+std::string("/")+lepton_[channel]+std::string("/*.root");
+  std::cout << "opening root files from " << pathToRootFiles << std::endl;
+  tree->Add(pathToRootFiles.c_str());
   switch(channel) {
     case kElectron:
       eff = 0.003022831;
       break;
     case kMuon:
-      eff = 0.003728336;//TODO ist das die Cut effieciency?  "only" used for errors
+      eff = 0.003728336;
       break;
     case kAll:
       eff = 0.006751167;
@@ -173,14 +174,14 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/garbersc/
   }
   
   TMultiGraph *mgMass = new TMultiGraph();
-  mgMass->SetTitle(";m_{t,gen} [GeV];<m_{t,extr} #font[122]{\55} m_{t,gen}> [GeV]"); 
+  mgMass->SetTitle(";m_{t,gen} [GeV];<m_{t,extr}-m_{t,gen}> [GeV]"); 
 
   TMultiGraph *mgJES = new TMultiGraph();
-  mgJES->SetTitle(";m_{t,gen} [GeV];<JSF_{extr} #font[122]{\55} JSF>");
+  mgJES->SetTitle(";m_{t,gen} [GeV];<JSF_{extr}-JSF>");
   
-  if (calibrated) {
-    mgMass->SetTitle(";m_{t,gen} [GeV];<m_{t,cal} #font[122]{\55} m_{t,gen}> [GeV]");
-    mgJES->SetTitle(";m_{t,gen} [GeV];<JSF_{cal} #font[122]{\55} JSF>");
+  if (channel == 2) {
+    mgMass->SetTitle(";m_{t,gen} [GeV];<m_{t,cal}-m_{t,gen}> [GeV]");
+    mgJES->SetTitle(";m_{t,gen} [GeV];<JSF_{cal}-JSF>");
   }
   
   TMultiGraph *mgMassPull = new TMultiGraph();
@@ -192,32 +193,26 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/garbersc/
   TH2D* h2Mass = new TH2D("h2Mass", "h2Mass", 1000, 150, 200, 1000, 0.9, 1.1);
   TH2D* h2JES = new TH2D("h2JES", "h2JES", 1000, 150, 200, 1000, 0.9, 1.1);
   
-  for (int iJES = 0 ; iJES < 5 ; ++iJES) {
-
-      for (int iMass = 0; iMass < 3; iMass++) {
-
+  for (int iJES = 0; iJES < 5; iJES++) {
+    for (int iMass = 0; iMass < 5; iMass++) {
+      
       TString sel("mass_mTop_JES>0 & JES_mTop_JES>0 & genMass=="); sel+=genMass[iMass]; sel+=" & genJES=="; sel+=genJES[iJES];
       double entries = tree->GetEntries(sel);
-
-std::cout<<"calc loop @ genJES = "<<genJES[iJES]<<" , genMass = "<<genMass[iMass]<<" with Selection of "<<entries<<" events"<<std::endl;
       /*
       entries = nentries/27;
       if (iMass == 4) entries = entries/3;
       //*/ 
-
-//DEBUG FIXME because of binning, is ne scheiss Variante...
-sel+="&mass_mTop_JES<2*";sel+=genMass[iMass];
-
+      
       TF1* gausMassBias = new TF1("gausMassBias", "gaus");
-     tree->Fit("gausMassBias", "mass_mTop_JES", sel, "Q0", "", nentries, firstentry);
+      tree->Fit("gausMassBias", "mass_mTop_JES", sel, "Q0", "", nentries, firstentry);
       //tree->Fit("gausMassBias", "mass+2.25341e-01+0.2/0.04*(1-JES)", sel, "Q0");
-     
+      
       mass[iJES][iMass]          = genMass[iMass];
       massBias[iJES][iMass]      = gausMassBias->GetParameter(1) - genMass[iMass];
-      massBiasError[iJES][iMass] = gausMassBias->GetParameter(2) / sqrt(genMassN[iMass]/(crossSection*peLumi*maxMCWeight[iMass])); //die Zeile muesste es sein!!!! massBiasError war als 3x3 statt 5x3 initialisiert
+      massBiasError[iJES][iMass] = gausMassBias->GetParameter(2) / sqrt(genMassN[iMass]/(crossSection*peLumi*maxMCWeight[iMass]));
         
       TF1* gausJESBias = new TF1("gausJESBias", "gaus");
-	tree->Fit("gausJESBias", "JES_mTop_JES", sel, "Q0", "", nentries, firstentry);
+      tree->Fit("gausJESBias", "JES_mTop_JES", sel, "Q0", "", nentries, firstentry);
       //tree->Fit("gausJESBias", "JES + 2.66486e-03 + 0.002/0.035*(JES-1)", sel, "Q0");
       
       JES[iJES][iMass]          = genJES[iJES];
@@ -240,7 +235,7 @@ sel+="&mass_mTop_JES<2*";sel+=genMass[iMass];
       h2JES->SetBinError(h2JES->FindBin(gausMassBias->GetParameter(1), gausJESBias->GetParameter(1)), JESBiasError[iJES][iMass]);
       //*/
       
-     TF1* gausMassPull = new TF1("gausMassPull", "gaus");
+      TF1* gausMassPull = new TF1("gausMassPull", "gaus");
       tree->Fit("gausMassPull", "mass_mTop_JES_Pull", sel, "Q0", "", nentries, firstentry);
       
       massPull[iJES][iMass]      = gausMassPull->GetParameter(2);
@@ -249,37 +244,36 @@ sel+="&mass_mTop_JES<2*";sel+=genMass[iMass];
       //std::cout << sqrt(1./2. * (1./(5144.*genMassN[iMass])+1./2000)) << std::endl;
         
       TF1* gausJESPull = new TF1("gausJESPull", "gaus");
-       tree->Fit("gausJESPull", "JES_mTop_JES_Pull", sel, "Q0", "", nentries, firstentry);
+      tree->Fit("gausJESPull", "JES_mTop_JES_Pull", sel, "Q0", "", nentries, firstentry);
       
       JESPull[iJES][iMass]      = gausJESPull->GetParameter(2);
       JESPullError[iJES][iMass] = sqrt(1./2. * (maxMCWeight[iMass]/(genMassN[iMass]*eff) + 1./(entries-1.)));
     }
     
-    double genMassMod[3];
-    for (int i = 0; i < 3; i++) {
+    double genMassMod[5];
+    for (int i = 0; i < 5; i++) {
       genMassMod[i] = genMass[i] + 0.2*(iJES-1);
     }
 
-    gMass.push_back(new TGraphErrors(3, genMassMod, massBias[iJES], genMassError, massBiasError[iJES]));
+    gMass.push_back(new TGraphErrors(5, genMassMod, massBias[iJES], genMassError, massBiasError[iJES]));
     gMass[iJES]->SetMarkerStyle(marker_[iJES]);
     gMass[iJES]->SetMarkerColor(color_ [iJES]);
     gMass[iJES]->SetLineColor  (color_ [iJES]);
     mgMass->Add(gMass[iJES]);
 
-
-    gJES.push_back(new TGraphErrors(3, genMassMod, JESBias[iJES], genMassError, JESBiasError[iJES]));
+    gJES.push_back(new TGraphErrors(5, genMassMod, JESBias[iJES], genMassError, JESBiasError[iJES]));
     gJES[iJES]->SetMarkerStyle(marker_[iJES]);
     gJES[iJES]->SetMarkerColor(color_ [iJES]);
     gJES[iJES]->SetLineColor  (color_ [iJES]);
     mgJES->Add(gJES[iJES]);
 
-    gMassPull.push_back(new TGraphErrors(3, genMassMod, massPull[iJES], genMassError, massPullError[iJES]));
+    gMassPull.push_back(new TGraphErrors(5, genMassMod, massPull[iJES], genMassError, massPullError[iJES]));
     gMassPull[iJES]->SetMarkerStyle(marker_[iJES]);
     gMassPull[iJES]->SetMarkerColor(color_ [iJES]);
     gMassPull[iJES]->SetLineColor  (color_ [iJES]);
     mgMassPull->Add(gMassPull[iJES]);
 
-    gJESPull.push_back(new TGraphErrors(3, genMassMod, JESPull[iJES], genMassError, JESPullError[iJES]));
+    gJESPull.push_back(new TGraphErrors(5, genMassMod, JESPull[iJES], genMassError, JESPullError[iJES]));
     gJESPull[iJES]->SetMarkerStyle(marker_[iJES]);
     gJESPull[iJES]->SetMarkerColor(color_ [iJES]);
     gJESPull[iJES]->SetLineColor  (color_ [iJES]);
@@ -299,7 +293,7 @@ sel+="&mass_mTop_JES<2*";sel+=genMass[iMass];
   linearFit096->SetLineStyle(9);
   linearFit096->SetMarkerStyle(marker_[0]);
   linearFit096->SetMarkerColor(color_ [0]);
-
+  
   linearFit098 = new TF1("linearFit098", "[0]+[1]*(x-172.5)");
   linearFit098->SetParNames("offset", "slope");
   linearFit098->SetLineColor(color_[1]);
@@ -331,6 +325,7 @@ sel+="&mass_mTop_JES<2*";sel+=genMass[iMass];
   linearFit104->SetLineStyle(5);
   linearFit104->SetMarkerStyle(marker_[4]);
   linearFit104->SetMarkerColor(color_ [4]);
+  
   
   linearFitJES = new TF1("linearFitJES", "[0]+[1]*(x-1.0)");
   linearFitJES->SetParNames("offset", "slope");
@@ -382,7 +377,7 @@ sel+="&mass_mTop_JES<2*";sel+=genMass[iMass];
   */
   
   canvasFit->cd(2);
-
+  
   std::cout << std::endl;
   std::cout << std::endl;
   std::cout << "JES, fit constant" << std::endl;
@@ -409,10 +404,10 @@ sel+="&mass_mTop_JES<2*";sel+=genMass[iMass];
   //canvasFit->Update();
   
   canvasFit->cd(0);
-  CMS_lumi(canvasFit, 4, 0., true, "Simulation"); // lepton+jets
+  DrawCMSSim(channel);
   DrawLegend(true);
   
-  TString sFitMass("fit_Bias_"); sFitMass += lepton_[channel]; sFitMass += suffix; sFitMass += ".eps";
+  TString sFitMass("fit_Bias1_"); sFitMass += lepton_[channel]; sFitMass += suffix; sFitMass += ".eps";
   canvasFit->Print(sFitMass);
   
   /*
@@ -429,19 +424,15 @@ sel+="&mass_mTop_JES<2*";sel+=genMass[iMass];
   */
   
   TF2* fit2D = new TF2("fit2D", "[0] + [1]*(x-172.5) + [2]*(y-1) + [3]*(x-172.5)*(y-1)");
-  fit2D->SetParNames("offset", "slopeMass", "slopeJES","slopeMassJES");
+  fit2D->SetParNames("offset", "slopeMass", "slopeJES");
   
   //*
-  std::cout << std::endl;
-  std::cout << std::endl;
   std::cout << "=== 2D calibration - mass ===" << std::endl;
-  h2Mass->Fit("fit2D");  //TODO Ausgabe fuer schnelles copy&paste der Calibration
+  h2Mass->Fit("fit2D");
   h2Mass->Draw("SURF1");
   
-  std::cout << std::endl;
-  std::cout << std::endl;
   std::cout << "=== 2D calibration - JES ===" << std::endl;
-  h2JES->Fit("fit2D"); //TODO Ausgabe fuer schnelles copy&paste der Calibration
+  h2JES->Fit("fit2D");
   h2JES->Draw("SURF1");
   //*/
   
@@ -451,15 +442,11 @@ sel+="&mass_mTop_JES<2*";sel+=genMass[iMass];
   canvasFitPull->Divide(1, 2, 0, 0);
   canvasFitPull->cd(1);
   
-  std::cout << std::endl;
-  std::cout << std::endl;
-  std::cout << "MASS PULL" << std::endl;  //C's analysis atm Pull ~ 10^6 .... -> sigma viel zu klein..
+  std::cout << "MASS PULL" << std::endl;
   fitResult = mgMassPull->Fit("constFit", "EMS");
-  gMassPull[0]->Fit("linearFit096", "EM");
-  gMassPull[1]->Fit("linearFit098", "EM");
-  gMassPull[2]->Fit("linearFit100", "EM");
-  gMassPull[3]->Fit("linearFit102", "EM");
-  gMassPull[4]->Fit("linearFit104", "EM");
+  gMassPull[0]->Fit("linearFit096", "EM0");
+  gMassPull[1]->Fit("linearFit100", "EM0");
+  gMassPull[2]->Fit("linearFit104", "EM0");
   mgMassPull->SetMinimum(0.81);
   mgMassPull->SetMaximum(1.19);
   mgMassPull->Draw("AP");
@@ -471,18 +458,16 @@ sel+="&mass_mTop_JES<2*";sel+=genMass[iMass];
   canvasFitPull->cd(2);
   std::cout << "JES PULL" << std::endl;
   fitResult = mgJESPull->Fit("constFit", "EMS");
-  gJESPull[0]->Fit("linearFit096", "EM");
-  gJESPull[1]->Fit("linearFit098", "EM");
-  gJESPull[2]->Fit("linearFit100", "EM");
-  gJESPull[3]->Fit("linearFit102", "EM");
-  gJESPull[4]->Fit("linearFit104", "EM");
+  gJESPull[0]->Fit("linearFit096", "EM0");
+  gJESPull[1]->Fit("linearFit100", "EM0");
+  gJESPull[2]->Fit("linearFit104", "EM0");
   mgJESPull->SetMinimum(0.81);
   mgJESPull->SetMaximum(1.19);
   mgJESPull->Draw("AP");
   gPad->SetTopMargin(0.005);
   
   canvasFitPull->cd(0);
-  CMS_lumi(canvasFitPull, 4, 0., true, "Simulation"); // lepton+jets
+  DrawCMSSim(channel);
   DrawLegend();
   
   TString sFitJESPull("fit_Pull_"); sFitJESPull += lepton_[channel]; sFitJESPull += suffix; sFitJESPull += ".eps";

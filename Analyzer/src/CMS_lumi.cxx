@@ -182,11 +182,11 @@ CMS_lumi::Draw_CMS_lumi( TPad* pad, int iPeriod, int iPosX, bool boolExtraText, 
 	  float yl_0 = posY_ - 0.15;
 	  float xl_1 = posX_ + 0.15*H/W;
 	  float yl_1 = posY_;
-	  TASImage* CMS_logo = new TASImage("CMS-BW-label.png");
+          //	  TASImage* CMS_logo = new TASImage("CMS-BW-label.png");
 	  TPad* pad_logo = new TPad("logo","logo", xl_0, yl_0, xl_1, yl_1 );
 	  pad_logo->Draw();
 	  pad_logo->cd();
-	  CMS_logo->Draw("X");
+	  //CMS_logo->Draw("X");
 	  pad_logo->Modified();
 	  pad->cd();
 	}

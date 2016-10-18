@@ -27,10 +27,10 @@ void DumpEvent::analyze(const edm::Event& event, const edm::EventSetup& setup)
 
 void DumpEvent::endRun(edm::Run const& run, edm::EventSetup const&)
 {
-	std::vector<edm::Provenance const*> plist;
-	run.getAllProvenance(plist);
+	std::vector<edm::StableProvenance const*> plist;
+	run.getAllStableProvenance(plist);
 
-	for (std::vector<edm::Provenance const*>::const_iterator prov = plist.begin(); prov < plist.end(); ++prov)
+	for (std::vector<edm::StableProvenance const*>::const_iterator prov = plist.begin(); prov < plist.end(); ++prov)
 		std::cout << (*prov)->className() << " " << (*prov)->branchName() << " " << (*prov)->moduleLabel() << " " << (*prov)->productInstanceName() << " " << (*prov)->processName() << std::endl;
 }
 

@@ -294,7 +294,39 @@ void Helper::DrawCMS(int channelID, int energy, TCanvas* canvas) {
       else if(channelID == kHamburg     ) DrawLabel("CMS, 19.7 fb^{-1},  #sqrt{s} = 8 TeV"          , 0.2, 0.93, 0.9);
     }
   }
-  
+  else if(energy == 13){
+    if(po::GetOption<int>("preliminary") == 4){
+      if     (channelID == kLeptonJets  ) DrawLabel("12.9 fb^{-1},  #sqrt{s} = 13 TeV, l+jets"  , 0.5, 0.93, 0.9);
+      else if(channelID == kElectronJets) DrawLabel("12.9 fb^{-1},  #sqrt{s} = 13 TeV, e+jets"  , 0.5, 0.93, 0.9);
+      else if(channelID == kMuonJets    ) DrawLabel("12.9 fb^{-1},  #sqrt{s} = 13 TeV, #mu+jets", 0.5, 0.93, 0.9);
+      else if(channelID == kHamburg     ) DrawLabel("12.9 fb^{-1},  #sqrt{s} = 13 TeV"          , 0.5, 0.93, 0.9);
+    }
+    else if(po::GetOption<int>("preliminary") == 3){
+      if     (channelID == kLeptonJets  ) DrawLabel("Private Work,  #sqrt{s} = 13 TeV, l+jets"  , 0.2, 0.93, 0.9);
+      else if(channelID == kElectronJets) DrawLabel("Private Work,  #sqrt{s} = 13 TeV, e+jets"  , 0.2, 0.93, 0.9);
+      else if(channelID == kMuonJets    ) DrawLabel("Private Work,  #sqrt{s} = 13 TeV, #mu+jets", 0.2, 0.93, 0.9);
+      else if(channelID == kHamburg     ) DrawLabel("Private Work,  #sqrt{s} = 13 TeV"          , 0.2, 0.93, 0.9);
+    }
+    else if(po::GetOption<int>("preliminary") == 2){
+      if     (channelID == kLeptonJets  ) DrawLabel("Private Work, 12.9 fb^{-1},  #sqrt{s} = 13 TeV, l+jets"  , 0.2, 0.93, 0.9);
+      else if(channelID == kElectronJets) DrawLabel("Private Work, 12.9 fb^{-1},  #sqrt{s} = 13 TeV, e+jets"  , 0.2, 0.93, 0.9);
+      else if(channelID == kMuonJets    ) DrawLabel("Private Work, 12.9 fb^{-1},  #sqrt{s} = 13 TeV, #mu+jets", 0.2, 0.93, 0.9);
+      else if(channelID == kHamburg     ) DrawLabel("Private Work, 12.9 fb^{-1},  #sqrt{s} = 13 TeV"          , 0.2, 0.93, 0.9);
+    }
+    else if(po::GetOption<int>("preliminary") == 1){
+      if     (channelID == kLeptonJets  ) DrawLabel("CMS Preliminary, 12.9 fb^{-1},  #sqrt{s} = 13 TeV, l+jets"  , 0.2, 0.93, 0.9);
+      else if(channelID == kElectronJets) DrawLabel("CMS Preliminary, 12.9 fb^{-1},  #sqrt{s} = 13 TeV, e+jets"  , 0.2, 0.93, 0.9);
+      else if(channelID == kMuonJets    ) DrawLabel("CMS Preliminary, 12.9 fb^{-1},  #sqrt{s} = 13 TeV, #mu+jets", 0.2, 0.93, 0.9);
+      else if(channelID == kHamburg     ) DrawLabel("CMS Preliminary, 12.9 fb^{-1},  #sqrt{s} = 13 TeV"          , 0.2, 0.93, 0.9);
+    }
+    else{
+      if     (channelID == kAllJets     ) lumi->Draw_CMS_lumi(canvas, 22, 0.);
+      else if(channelID == kLeptonJets  ) lumi->Draw_CMS_lumi(canvas, 21, 0.);
+      else if(channelID == kElectronJets) lumi->Draw_CMS_lumi(canvas, 21, 0.);
+      else if(channelID == kMuonJets    ) lumi->Draw_CMS_lumi(canvas, 21, 0.);
+      else if(channelID == kHamburg     ) DrawLabel("CMS, 12.9 fb^{-1},  #sqrt{s} = 13 TeV"          , 0.2, 0.93, 0.9);
+    }
+  }
   delete lumi;
 }
 
@@ -327,6 +359,17 @@ void Helper::DrawCMSSim(int energy) {
     }
     else{
       DrawLabel("CMS Simulation,  #sqrt{s} = 8 TeV", 0.2, 0.93, 0.9);
+    }
+  }
+  else if(energy == 13){
+    if(po::GetOption<int>("preliminary") == 2){
+      DrawLabel("Private Work,  #sqrt{s} = 13 TeV", 0.2, 0.93, 0.9);
+    }
+    else if(po::GetOption<int>("preliminary") == 1){
+      DrawLabel("CMS Simulation Preliminary,  #sqrt{s} = 13 TeV", 0.2, 0.93, 0.9);
+    }
+    else{
+      DrawLabel("CMS Simulation,  #sqrt{s} = 13 TeV", 0.2, 0.93, 0.9);
     }
   }
 }

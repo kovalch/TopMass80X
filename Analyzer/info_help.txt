@@ -1,0 +1,180 @@
+Loading base setup with information from Configuration_AllJets.conf
+Allowed options:
+  -h [ --help ]                                                                                               produce help message
+  --test arg (=0)                                                                                             Speed-ups for code testing purposes 
+                                                                                                              (restricts sample size)
+                                                                                                              
+  --seed arg (=-1)                                                                                            Random seed for pseudo-experiments
+  -o [ --outPath ] arg
+  -m [ --method ] arg (=Ideogram)                                                                             Top mass measurement method
+                                                                                                                GenMatch: Gaussian fit of correct 
+                                                                                                                          permutations (MC only)
+                                                                                                                Ideogram: Joint likelihood fit of mt 
+                                                                                                                          and JES given data sample
+                                                                                                                IdeogramNew: New interface
+                                                                                                                IdeogramMin: Minimizer function
+                                                                                                                RooFit:   Template fit of mt (JES, 
+                                                                                                                          fSig) given data sample 
+                                                                                                                          using RooFit
+  --minPlot arg (=0)                                                                                          Plot IdeogramMin result
+                                                                                                              
+  --temPlot arg (=0)                                                                                          Plot IdeogramMin templates
+                                                                                                              
+  --drawIdeograms arg (=0)                                                                                    Draw ideograms for first N events
+                                                                                                              
+  --constrainJSF arg (=1)                                                                                     Add Gaussian constraint to JSF
+                                                                                                              
+  --constrainJSFweight arg (=0.5)                                                                             Weight of Gaussian constraint to JSF
+                                                                                                              
+  --constrainJSFsigma arg (=-1)                                                                               Sigma value of Gaussian constraint to 
+                                                                                                              JSF
+                                                                                                              
+  -t [ --task ] arg (=sm)                                                                                     Task to be done
+                                                                                                                sm: Single measurement based on input
+                                                                                                                    parameters
+                                                                                                                pe: Perform pseudo-experiments, 
+                                                                                                                    additional settings necessary
+                                                                                                                hc: Perform any hardcoded tasks in 
+                                                                                                                    TopMass constructor
+                                                                                                                diff: Differential top mass, specify 
+                                                                                                                      binning option
+  -i [ --input ] arg (=MJP12*_v1_data)                                                                        Identifier of input file to be 
+                                                                                                              analyzed: Z2_F11_172_5_sig
+  -c [ --channel ] arg (=alljets)                                                                             Channel
+                                                                                                                electron: 
+                                                                                                                muon: 
+                                                                                                                lepton: electron+muon
+                                                                                                                alljets: alljets
+                                                                                                                hamburg: electron+muon+alljets
+  --topBranchName arg (=top.)                                                                                 Top branch name in eventTree
+                                                                                                                top: (default value)
+                                                                                                                bRegTop: choose branch containing fit
+                                                                                                                         with b-regression applied
+                                                                                                              
+  --topTreeName arg (=analyzeHitFit/eventTre)                                                                 Top tree name in file
+                                                                                                                analyzeHitFit/eventTree: used for 
+                                                                                                                                         l+jets 
+                                                                                                                                         (default 
+                                                                                                                                         value)
+                                                                                                                analyzeKinFit/eventTree: used for 
+                                                                                                                                         all-jets
+                                                                                                              
+  -b [ --binning ] arg (=deltaThetaHadWHadB)                                                                  Phasespace binning
+                                                                                                                deltaThetaHadWHadB
+                                                                                                                hadTopPt
+                                                                                                                hadBEta
+  -w [ --weight ] arg (=muWeight*bWeight*PUWeight)                                                            Event weight used in pseudo-experiments
+  -M [ --mass ] arg (=172.5)                                                                                  Input top mass for pseudo-experiments
+  -J [ --jes ] arg (=1)                                                                                       Input JES for pseudo-experiments
+  -B [ --bdisc ] arg (=0.67900000000000005)                                                                   Threshold for b-jets
+  -f [ --fsig ] arg (=0.76799548699999998)                                                                    Input signal fraction for 
+                                                                                                              pseudo-experiments
+  --fsigLept arg (=0)                                                                                         Input signal fraction for 
+                                                                                                              pseudo-experiments for LeptonJets 
+                                                                                                              channel
+  --fsigJets arg (=0)                                                                                         Input signal fraction for 
+                                                                                                              pseudo-experiments for AllJets channel
+  -L [ --lumi ] arg (=0)                                                                                      Luminosity for each pseudo-experiment
+  --lumiLept arg (=0)                                                                                         Luminosity for each pseudo-experiment 
+                                                                                                              in Lepton+Jets
+  --lumiJets arg (=0)                                                                                         Luminosity for each pseudo-experiment 
+                                                                                                              in Alljets
+  -N [ --number ] arg (=10000)                                                                                Number of pseudo-experiments per job
+  -W [ --walltime ] arg (=10)                                                                                 set walltime limit for 
+                                                                                                              pseudo-experiments in minutes
+  -S [ --shape ] arg (=0)                                                                                     Background shape scaling factor for top
+                                                                                                              distribution
+  -T [ --shape2 ] arg (=0)                                                                                    Background shape scaling factor for w 
+                                                                                                              distribution
+  -P [ --permu ] arg (=0)                                                                                     Change permutation fractions by: fUN-P,
+                                                                                                              fWP+0.5P, fCP+0.5P
+  -F [ --fastsim ] arg (=0)                                                                                   use additional calibration for FastSim
+  -p [ --preliminary ] arg (=1)                                                                               use "Preliminary" label for plots
+  -e [ --cmsenergy ] arg (=7)                                                                                 cms energy to be used (for example for 
+                                                                                                              plots)
+  --pullWidth arg (=1)                                                                                        pull width correction factor
+  --muo_pullWidth arg (=1)                                                                                    pull width correction factor (mu+jets)
+  --ele_pullWidth arg (=1)                                                                                    pull width correction factor (e+jets)
+  --analysisConfig.selection arg
+  --analysisConfig.selectionLept arg
+  --analysisConfig.selectionJets arg
+  --analysisConfig.selectionCP arg
+  --analysisConfig.selectionWP arg
+  --analysisConfig.selectionUN arg
+  --analysisConfig.samplePath arg
+  --analysisConfig.samplePathLept arg
+  --analysisConfig.samplePathJets arg
+  --analysisConfig.var1 arg
+  --analysisConfig.var2 arg
+  --analysisConfig.var3 arg
+  --analysisConfig.var4 arg
+  --analysisConfig.maxPermutations arg (=666666)
+  --analysisConfig.activeBranches arg (=*)
+  --analysisConfig.plotsToDraw arg (=StandardPlots|UETunePlots|MCGeneratorPlots|JESVariationPlots|SignalModellingPlots|BasicMasses|LightPulls|BJetPulls|MixedPulls|ExtraPlotsFitCombTypeEtc|JetPts|TopPts|FitPts|LeptonJetsExtra|JetDetails|EventObservables)
+  --analysisConfig.ratioYMin arg (=0.48999999999999999)
+  --analysisConfig.ratioYMax arg (=1.51)
+  --analysisConfig.plotPermutations arg (=1)
+  --analysisConfig.renameCombinationTypes arg (= correct| wrong| unmatched)
+  --analysisConfig.redefineCombinationTypeColorShifts arg (=0|-8|-11)
+  --analysisConfig.normalizeToData arg (=0)
+  --analysisConfig.signalFactor arg (=1)
+  --analysisConfig.backgroundSamplesLept arg (=Summer12_WJets|Summer12_ZJets|Summer12_singleTop|Summer12_QCD|Summer12_Diboson)
+  --analysisConfig.backgroundFactorsLept arg (=1|1|1|1|1)
+  --analysisConfig.extraLabel arg
+  --templates.fSig arg (=0)
+  --templates.fCP arg (=0)
+  --templates.fWP arg (=0)
+  --templates.fUN arg (=0)
+  --templates.muo_fCP arg (=0)
+  --templates.muo_fWP arg (=0)
+  --templates.muo_fUN arg (=0)
+  --templates.ele_fCP arg (=0)
+  --templates.ele_fWP arg (=0)
+  --templates.ele_fUN arg (=0)
+  --templates.parsCP arg
+  --templates.parsWP arg
+  --templates.parsUN arg
+  --templates.parsCPJES arg
+  --templates.parsWPJES arg
+  --templates.parsUNJES arg
+  --templates.muo_parsCP arg
+  --templates.muo_parsWP arg
+  --templates.muo_parsUN arg
+  --templates.muo_parsCPJES arg
+  --templates.muo_parsWPJES arg
+  --templates.muo_parsUNJES arg
+  --templates.ele_parsCP arg
+  --templates.ele_parsWP arg
+  --templates.ele_parsUN arg
+  --templates.ele_parsCPJES arg
+  --templates.ele_parsWPJES arg
+  --templates.ele_parsUNJES arg
+  --templates.parsBKG arg
+  --templates.parsBKGJES arg
+  --templates.maxTopMass arg (=400)
+  --calibration.massOffset arg (=0.0)
+  --calibration.massSlopeMass arg (=0.0)
+  --calibration.massSlopeJES arg (=0.0)
+  --calibration.massSlopeMassJES arg (=0.0)
+  --calibration.jesOffset arg (=0.0)
+  --calibration.jesSlopeMass arg (=0.0)
+  --calibration.jesSlopeJES arg (=0.0)
+  --calibration.jesSlopeMassJES arg (=0.0)
+  --calibration.muo_massOffset arg (=0.0)
+  --calibration.muo_massSlopeMass arg (=0.0)
+  --calibration.muo_massSlopeJES arg (=0.0)
+  --calibration.muo_massSlopeMassJES arg (=0.0)
+  --calibration.muo_jesOffset arg (=0.0)
+  --calibration.muo_jesSlopeMass arg (=0.0)
+  --calibration.muo_jesSlopeJES arg (=0.0)
+  --calibration.muo_jesSlopeMassJES arg (=0.0)
+  --calibration.ele_massOffset arg (=0.0)
+  --calibration.ele_massSlopeMass arg (=0.0)
+  --calibration.ele_massSlopeJES arg (=0.0)
+  --calibration.ele_massSlopeMassJES arg (=0.0)
+  --calibration.ele_jesOffset arg (=0.0)
+  --calibration.ele_jesSlopeMass arg (=0.0)
+  --calibration.ele_jesSlopeJES arg (=0.0)
+  --calibration.ele_jesSlopeMassJES arg (=0.0)
+  --skimmer.mcweight arg (=-1)
+

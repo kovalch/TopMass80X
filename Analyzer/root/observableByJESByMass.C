@@ -23,8 +23,8 @@
 #include "tdrstyle.C"
 #include "CMS_lumi.C"
 
-const int nMass = 3;
-const int nJES  = 3;
+const int nMass = 5;
+const int nJES  = 5;
 
 int target = 1; // 1: correct, 0: wrong, -10: unmatched
 int obs    = 0; // 0: hadTopMass, 1: hadWRawMass
@@ -33,11 +33,11 @@ int lepton = 1;// 0: electron, 1: muon, 2: lepton
 int iMassMin = 0;
 int iMassMax = nMass;
 
-bool plotByMass = false; // ??
-bool pas = false;
+// bool plotByMass = false; // ??
+// bool pas = false;
 
-//bool plotByMass = true;
-//bool pas = true;
+bool plotByMass = true;
+bool pas = true;
 
 int iTarget[]     = {1, 0, -10};
 TString sTarget[] = {"wp", "cp", "un"};
@@ -50,16 +50,16 @@ TGraphErrors* gr2[nMass];
 TGraphErrors* gr3[nMass];
 TGraphErrors* gr4[nMass];
 
-TString sX[nMass] = {//"m_{t,gen} = 166.5 GeV",
+TString sX[nMass] = {"m_{t,gen} = 166.5 GeV",
                      "m_{t,gen} = 169.5 GeV",
                      //"m_{t,gen} = 171.5 GeV",
                      "m_{t,gen} = 172.5 GeV",
                      //"m_{t,gen} = 173.5 GeV",
-                     "m_{t,gen} = 175.5 GeV"};
-                     //"m_{t,gen} = 178.5 GeV"};
+                     "m_{t,gen} = 175.5 GeV",
+                     "m_{t,gen} = 178.5 GeV"};
 
-double X  [nMass] = {/*166.5,*/ 169.5, /*171.5,*/ 172.5, /*173.5,*/ 175.5/*, 178.5*/};
-TString X_ [nMass] = {/*"166_5",*/ "169_5", /*"171_5",*/ "172_5", /*"173_5",*/ "175_5"/*, "178_5"*/};
+double X  [nMass] = {166.5, 169.5, /*171.5,*/ 172.5, /*173.5,*/ 175.5, 178.5};
+TString X_ [nMass] = {"166_5", "169_5", /*"171_5",*/ "172_5", /*"173_5",*/ "175_5", "178_5"};
 double Y10[nMass];
 double Y11[nMass];
 double Y20[nMass];
@@ -67,7 +67,7 @@ double Y21[nMass];
 double Y30[nMass];
 double Y31[nMass];
 
-double eX  [nMass] = {1e-12, 1e-12, 1e-12};//, 1e-12, 1e-12, 1e-12, 1e-12};
+double eX  [nMass] = { 1e-12, 1e-12, 1e-12, 1e-12};//, 1e-12, 1e-12, 1e-12, 1e-12};
 double eY10[nMass];
 double eY11[nMass];
 double eY20[nMass];
@@ -75,8 +75,8 @@ double eY21[nMass];
 double eY30[nMass];
 double eY31[nMass];
 
-double xJES[nJES] = {0.96, 1.00, 1.04};
-TString xJES_[nJES] = {"0_96", "1_00", "1_04"};
+double xJES[nJES] = {0.96, 0.98, 1.00, 1.02, 1.04};
+TString xJES_[nJES] = {"0_96", "0_98", "1_00", "1_02", "1_04"};
 double y00 [nJES];
 double y01 [nJES];
 double y2  [nJES];
@@ -84,7 +84,7 @@ double y3  [nJES];
 double y4  [nJES];
 double y5  [nJES];
 
-double ex  [nJES] = {1e-12, 1e-12, 1e-12};
+double ex  [nJES] = { 1e-12, 1e-12, 1e-12, 1e-12, 1e-12};
 double ey0 [nJES];
 double ey1 [nJES];
 double ey2 [nJES];
@@ -96,10 +96,10 @@ double ey6 [nJES];
 double params[12];
 
 enum styles             { kDown, kNominal, kUp};
-int color_   [ nJES ] = { kRed+1, kBlue+1, kGreen+1};
-int marker_  [ nJES ] = { 23, 20, 22};
-int line_    [ nJES ] = { 7, 1, 9};
-int width_   [ nJES ] = { 2, 3, 2};
+int color_   [ nJES ] = { kMagenta, kRed+1, kBlack, kGreen+1, kBlue};
+int marker_  [ nJES ] = {32, 23, 20, 22, 26};
+int line_    [ nJES ] = {2, 7, 1, 9, 10};
+int width_   [ nJES ] = {2, 2, 3, 2, 2};
 
 void FindParametersMass(int iMass);
 TH1F* FindParameters(TString filename, int i);
@@ -114,16 +114,16 @@ namespace cb {
 }
 
 // 7 parameters: [0] -> [6]
-double crystalBall(const double* xx, const double* p)
+double crystalBall(const double* xx, const double* p) //m_top: the probability densities for the wp and um
 {
-  double N     = p[0];
+  double N     = p[0]; //N_wp = 15 ???; N_un = 3 ??
   double mu    = p[1];
   double sigma = p[2];
   double alpha = p[3];
   double power = p[4];
   double t = (xx[0] - mu) / sigma;
   
-  if(t < alpha)
+  if(t < alpha) 
     return N * TMath::Exp(-t*t/2);
   else
     return N * cb::A(alpha,power) * TMath::Power(cb::B(alpha,power) + t, -power);
@@ -138,14 +138,17 @@ double asymGaus(const double* xx, const double* p)
   double t1     = (xx[0] - mu) / sigma1;
   double t2     = (xx[0] - mu) / sigma2;
   
-  double N1     = 1./sqrt(2*sigma1*sigma1);
-  double N2     = 1./sqrt(2*sigma2*sigma2);
+  double N1     = 1./sqrt(2*TMath::Pi()*sigma1*sigma1);
+  double N2     = 1./sqrt(2*TMath::Pi()*sigma2*sigma2);
   
   N = (N1+N2)/2. * p[0];
   
   if(xx[0] < mu)
+//     if(t1 < 0)
+//     return N * TMath::Exp(t1*t1/2);
     return N * TMath::Exp(-t1*t1/2);
   else
+//     return N * TMath::Exp(t2*t2/2);
     return N * TMath::Exp(-t2*t2/2);
 }
 
@@ -457,46 +460,59 @@ void FindParametersMass(int iMass)
 	linearFit->SetParLimits(1, -50, 200);
 	linearFit->SetParameters(100, 50);
 	
-	TH1F* h096 = new TH1F();
+  TH1F* h096 = new TH1F();
+  TH1F* h098 = new TH1F();
   TH1F* h100 = new TH1F();
+  TH1F* h102 = new TH1F();
   TH1F* h104 = new TH1F();
   TH1F* h166 = new TH1F();
   TH1F* h178 = new TH1F();
   
+  
   if (!plotByMass) {
     switch(iMass) {
       case 0: {
-        h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1695_0.96", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1695_1.00", 1);
-        h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1695_1.04", 2);
+	h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1665_0.96", 0);
+        h098 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1665_0.98", 1);
+        h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1665_1.00", 2);
+	h102 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1665_1.02", 3);
+        h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1665_1.04", 4);
         break;
       }
       case 1: {
-        h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_0.96", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.00", 1);
-        h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.04", 2);
+	h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1695_0.96", 0);
+        h098 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1695_0.98", 1);
+        h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1695_1.00", 2);
+	h102 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1695_1.02", 3);
+        h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1695_1.04", 4);
         break;
       }
-		  case 2: {
-        h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_0.96", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_1.00", 1);
-        h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_1.04", 2);
+      case 2: {
+	h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1725_0.96", 0);
+        h098 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1725_0.98", 1);
+        h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1725_1.00", 2);
+	h102 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1725_1.02", 3);
+        h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1725_1.04", 4);
         break;
       }
-		  case 3: {
-std::cout<<"ERROR: atm only 3 masses valid!"<<std::endl;
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1725_0.96", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1725_1.00", 1);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1725_1.04", 2);
+      case 3: {
+	h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1755_0.96", 0);
+        h098 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1755_0.98", 1);
+        h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1755_1.00", 2);
+	h102 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1755_1.02", 3);
+        h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1755_1.04", 4);
         break;
       }
-		  case 4: {
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1735_0.96", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1735_1.00", 1);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1735_1.04", 2);
+      case 4: {
+	h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1785_0.96", 0);
+        h098 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1785_0.98", 1);
+        h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1785_1.00", 2);
+	h102 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1785_1.02", 3);
+        h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1785_1.04", 4);
         break;
       }
 		  case 5: {
+		    		    std::cout<<"ERROR: atm only 5 masses valid!"<<std::endl;
         h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1755_0.96", 0);
         h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1755_1.00", 1);
         h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1755_1.04", 2);
@@ -512,9 +528,11 @@ std::cout<<"ERROR: atm only 3 masses valid!"<<std::endl;
   }
   else if (plotByMass) {
     std::cout << "PLOT BY MASS" << std::endl;
-    h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1695_1.00", 0);
-    h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_1.00", 1);
-    h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/RunIISpring15MiniAODv2_asymptotic_v2-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_1.00", 2);
+    h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1665_1.00", 0);
+    h098 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1695_1.00", 1);
+    h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1725_1.00", 2);
+    h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1755_1.00", 3);
+    h166 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1785_1.00", 3);
   }
   else  {std::cout<<"wtf, how did he got here???"<<std::endl;
     if (obs==0) h166 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 3);
@@ -527,17 +545,23 @@ std::cout<<"ERROR: atm only 3 masses valid!"<<std::endl;
   h096->Draw();
   if (obs == 0) {
     h096->GetXaxis()->SetRangeUser(100, 240);
+    h098->GetXaxis()->SetRangeUser(100, 240);
     h100->GetXaxis()->SetRangeUser(100, 240);
+    h102->GetXaxis()->SetRangeUser(100, 240);
     h104->GetXaxis()->SetRangeUser(100, 240);
   }
   if (obs == 1) {
     h096->GetXaxis()->SetRangeUser(60, 110);
+    h098->GetXaxis()->SetRangeUser(60, 110);
     h100->GetXaxis()->SetRangeUser(60, 110);
+    h102->GetXaxis()->SetRangeUser(60, 110);
     h104->GetXaxis()->SetRangeUser(60, 110);
+
   }
+  h098->Draw("SAME");
   h100->Draw("SAME");
-  h104->Draw("SAME");
-  
+  h102->Draw("SAME");
+  h104->Draw("SAME"); 
   // ---
   //    create legend
   // ---
@@ -546,14 +570,18 @@ std::cout<<"ERROR: atm only 3 masses valid!"<<std::endl;
   leg0->SetBorderSize(0);
   if (!plotByMass) {
     leg0->AddEntry( h096, "JSF = 0.96", "PL");
+    leg0->AddEntry( h098, "JSF = 0.98", "PL");
     leg0->AddEntry( h100, "JSF = 1.00", "PL");
+    leg0->AddEntry( h102, "JSF = 1.02", "PL");
     leg0->AddEntry( h104, "JSF = 1.04", "PL");
     leg0->AddEntry((TObject*)0, sX[iMass], "");
   }
   else if (plotByMass) {
-    leg0->AddEntry( h096, "m_{t,gen} = 169.5 GeV", "PL");
+    leg0->AddEntry( h096, "m_{t,gen} = 166.5 GeV", "PL");
+    leg0->AddEntry( h098, "m_{t,gen} = 169.5 GeV", "PL");
     leg0->AddEntry( h100, "m_{t,gen} = 172.5 GeV", "PL");
-    leg0->AddEntry( h104, "m_{t,gen} = 175.5 GeV", "PL");
+    leg0->AddEntry( h102, "m_{t,gen} = 175.5 GeV", "PL");
+    leg0->AddEntry( h104, "m_{t,gen} = 178.5 GeV", "PL");
     leg0->AddEntry((TObject*)0, "JSF = 1.00", "");
   }
   else {
@@ -566,7 +594,7 @@ std::cout<<"ERROR: atm only 3 masses valid!"<<std::endl;
   
   leg0->Draw();
 
-  CMS_lumi(cObservable, 4, 0., true, "Simulation");
+  CMS_lumi(cObservable, 4, 0., true, "Privat work");
   
   if (obs==0) DrawCutLine(172.5, h096->GetMaximum()*1.);
   else DrawCutLine(80.4, h096->GetMaximum()*1.);
@@ -675,8 +703,8 @@ std::cout<<"ERROR: atm only 3 masses valid!"<<std::endl;
 TH1F* FindParameters(TString filename, int i)
 {
   TChain* eventTree = new TChain("analyzeHitFit/eventTree");
-  TString filenameEle = filename; filenameEle += "_electron/job_*.root";
-  TString filenameMu  = filename; filenameMu  += "_muon/job_*.root";
+  TString filenameEle = filename; filenameEle += "_electron/*.root";
+  TString filenameMu  = filename; filenameMu  += "_muon/*.root";
   if (lepton != 1) {
     std::cout << filenameEle << std::endl;
     eventTree->Add(filenameEle);
@@ -909,9 +937,9 @@ void batchObservableByJESByMass() { //that the "real" start
   
   for (int t = 0; t < 3; ++t) { // target
     for (int o = 0; o < 2; ++o) { // obs
-      for (int l = 1; l < 2; ++l) { // lepton  atm only muon
-        observableByJESByMass(iTarget[t], o, l);
-      }
+     // for (int l = 1; l < 2; ++l) { // lepton  atm only muon
+        observableByJESByMass(iTarget[t], o, 1);
+     // }
     }
   }
   
@@ -919,9 +947,9 @@ void batchObservableByJESByMass() { //that the "real" start
   
   for (int t = 0; t < 3; ++t) { // target
     for (int o = 0; o < 2; ++o) { // obs
-      for (int l = 1; l < 2; ++l) { // lepton  atm only muon
-        observableByJESByMass(iTarget[t], o, l);
-      }
+      //for (int l = 1; l < 2; ++l) { // lepton  atm only muon
+        observableByJESByMass(iTarget[t], o, 1);
+     // }
     }
   }
 }

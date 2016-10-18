@@ -42,7 +42,7 @@ bool pas = false;
 //bool plotByMass = true;
 //bool pas = true;
 
-int iTarget[]     = {1, 0, -10};
+int iTarget[]     = {1, 0, 1};
 TString sTarget[] = {"wp", "cp", "un"};
 TString sFObs[]   = {"mt", "mW"};
 TString sObs[]    = {"m_{t}", "m_{W}^{reco}"};
@@ -471,43 +471,44 @@ void FindParametersMass(int iMass)
   if (!plotByMass) {
     switch(iMass) {
       case 0: {
-           if(nJES==5) h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v3_TT_TuneCUETP8M1_powheg-pythia8_MS1695_patJetsUpdated_0.96", 0);
-                       h098 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v3_TT_TuneCUETP8M1_powheg-pythia8_MS1695_patJetsUpdated_0.98", 1);
-                       h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v3_TT_TuneCUETP8M1_powheg-pythia8_MS1695_patJetsUpdated_1.00", 2);
-                       h102 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v3_TT_TuneCUETP8M1_powheg-pythia8_MS1695_patJetsUpdated_1.02", 3);
-           if(nJES==5) h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v3_TT_TuneCUETP8M1_powheg-pythia8_MS1695_patJetsUpdated_1.04", 4);
+           if(nJES==5)h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1665_0.96", 0);
+			h098 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1665_0.98", 1);
+			h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1665_1.00", 2);
+			h102 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1665_1.02", 3);
+           if(nJES==5)h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1665_1.04", 4);
+	   
         break;
       }
       case 1: {
-    	  if(nJES==5) h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1715_patJetsUpdated_0.96", 0);
-    	              h098 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1715_patJetsUpdated_0.98", 1);
-    	              h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1715_patJetsUpdated_1.00", 2);
-    	              h102 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1715_patJetsUpdated_1.02", 3);
-    	  if(nJES==5) h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1715_patJetsUpdated_1.04", 4);
+    	  if(nJES==5) h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1695_0.96", 0);
+		      h098 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1695_0.98", 1);
+		      h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1695_1.00", 2);
+		      h102 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1695_1.02", 3);
+    	  if(nJES==5) h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1695_1.04", 4);
         break;
       }
-		  case 2: {
-	   	 if(nJES==5) h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_patJetsUpdated_0.96", 0);
-	   	             h098 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_patJetsUpdated_0.98", 1);
-	   	             h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_patJetsUpdated_1.00", 2);
-	   	             h102 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_patJetsUpdated_1.02", 3);
-	   	 if(nJES==5) h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_patJetsUpdated_1.04", 4);
+	case 2: {
+	   	 if(nJES==5) h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1725_0.96", 0);
+			    h098 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1725_0.98", 1);
+			    h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1725_1.00", 2);
+			    h102 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1725_1.02", 3);
+	   	 if(nJES==5) h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1725_1.04", 4);
         break;
       }
 		  case 3: {
-	     if(nJES==5) h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1735_patJetsUpdated_0.96", 0);
-	                 h098 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1735_patJetsUpdated_0.98", 1);
-	                 h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1735_patJetsUpdated_1.00", 2);
-	                 h102 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1735_patJetsUpdated_1.02", 3);
-	     if(nJES==5) h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1735_patJetsUpdated_1.04", 4);
+	     if(nJES==5) h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1755_0.96", 0);
+			h098 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1755_0.98", 1);
+			h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1755_1.00", 2);
+			h102 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1755_1.02", 3);
+	     if(nJES==5) h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1755_1.04", 4);
         break;
       }
 		  case 4: {
-	     if(nJES==5) h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_patJetsUpdated_0.96", 0);
-	                 h098 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_patJetsUpdated_0.98", 1);
-	                 h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_patJetsUpdated_1.00", 2);
-	                 h102 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_patJetsUpdated_1.02", 3);
-	     if(nJES==5) h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1755_patJetsUpdated_1.04", 4);
+	     if(nJES==5) h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1785_0.96", 0);
+			h098 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1785_0.98", 1);
+			h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1785_1.00", 2);
+			h102 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1785_1.02", 3);
+	     if(nJES==5) h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1785_1.04", 4);
         break;
       }
 		  case 5: {
@@ -527,11 +528,11 @@ void FindParametersMass(int iMass)
   }
   else if (plotByMass) {
     std::cout << "PLOT BY MASS" << std::endl;
-    h096 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v3_TT_TuneCUETP8M1_powheg-pythia8_MS1695_patJetsUpdated_1.00", 0);
-    if(nMass==5) h098 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1715_patJetsUpdated_1.00", 1);
-    h100 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_patJetsUpdated_1.00", 2);
-    if(nMass==5) h102 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1735_patJetsUpdated_1.00", 3);
-    h104 = FindParameters("/nfs/dust/cms/user/garbersc/TopMass/2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1735_patJetsUpdated_1.00", 4);
+    h096 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1665_1.00", 0);
+    if(nMass==5) h098 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1695_1.00", 1);
+    h100 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1725_1.00", 2);
+    if(nMass==5) h102  = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1755_1.00", 3);
+    h104 = FindParameters("/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/Trees_80X/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1785_1.00", 4);
   }
   else  {std::cout<<"wtf, how did he got here???"<<std::endl;//TODO clean up
     if (obs==0) h166 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 3);
@@ -579,10 +580,10 @@ void FindParametersMass(int iMass)
   }
   else if (plotByMass) {
 	 leg0->AddEntry( h096, "m_{t,gen} = 169.5 GeV", "PL");
-	 if(nMass==5) leg0->AddEntry( h098, "m_{t,gen} = 171.5 GeV", "PL");
+	 if(nMass==5) leg0->AddEntry( h098, "m_{t,gen} = 169.5 GeV", "PL");
     leg0->AddEntry( h100, "m_{t,gen} = 172.5 GeV", "PL");
     if(nMass==5) leg0->AddEntry( h102, "m_{t,gen} = 173.5 GeV", "PL");
-    leg0->AddEntry( h104, "m_{t,gen} = 175.5 GeV", "PL");
+    leg0->AddEntry( h104, "m_{t,gen} = 178.5 GeV", "PL");
     leg0->AddEntry((TObject*)0, "JSF = 1.00", "");
   }
   else {std::cout<<" still wtf, how did he got here???"<<std::endl; //TODO clean up

@@ -30,9 +30,6 @@
 #include <cmath>
 #include <boost/range/adaptor/reversed.hpp>
 
-
-//FIXME doesnt create its "plot/controlplots" directory, add that
-
 typedef ProgramOptionsReader po;
 
 TopMassControlPlots::TopMassControlPlots() :
@@ -412,14 +409,6 @@ void TopMassControlPlots::doPlots()
     hists.push_back(MyHistogram("fitTTBarYBest" , "top.fitTTBar[0].Rapidity()" , "", ";y_{t#bar{t}}^{fit}; Events / 0.2"                 , 40, -4, 4));
   }
 
-  if(plotSelectedForPlotting.find("newCuts")!=plotSelectedForPlotting.end()){
-	    hists.push_back(MyHistogram("recoHt"    , "top.recoB1.Pt()+top.recoB2.Pt()+top.recoW1Prod1.Pt()+top.recoW1Prod2.Pt()+top.recoW2Prod1.Pt()+top.recoW2Prod2.Pt()+jet.met.Pt()" , "", ";H_{T}^{reco} [GeV]; Permutations / 100 GeV", 30, 0,  3000));
-	    hists.push_back(MyHistogram("recoHtBest", "top.recoB1[0].Pt()+top.recoB2[0].Pt()+top.recoW1Prod1[0].Pt()+top.recoW1Prod2[0].Pt()+top.recoW2Prod1[0].Pt()+top.recoW2Prod2[0].Pt()+jet.met.Pt()" , "", ";H_{T}^{reco} [GeV]; Events / 100 GeV", 30, 0,  3000));
-	    hists.push_back(MyHistogram("recoDeltaRLepToB"    , "sqrt(pow(top.recoB1.Eta()-top.recoW2Prod1.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.recoB1.Phi()-top.recoW2Prod1.Phi()),2))" , "", ";/{DelraR}_{/{mu} ,b_{lep}}^{reco} ; Permutations / 0.1", 30, 0,  3));
-	    hists.push_back(MyHistogram("recoDeltaRLepToBBest"    , "sqrt(pow(top.recoB1[0].Eta()-top.recoW2Prod1[0].Eta(),2) + pow(TVector2::Phi_mpi_pi(top.recoB1[0].Phi()-top.recoW2Prod1[0].Phi()),2))" , "", ";/{DelraR}_{/{mu} ,b_{lep}}^{reco} ; Events / 0.1", 30, 0,  3));
-
-  }
-
   if(plotSelectedForPlotting.find("WBosonExtra")!=plotSelectedForPlotting.end()){
     hists.push_back(MyHistogram("fitWPt"     , std::vector<std::string>({"top.fitW1.Pt()"         , "top.fitW2.Pt()"         }) , "", ";p_{T,W}^{fit} [GeV]; W Bosons / 10 GeV", 40, 0, 400));
     hists.push_back(MyHistogram("fitWPtBest" , std::vector<std::string>({"top.fitW1[0].Pt()"      , "top.fitW2[0].Pt()"      }) , "", ";p_{T,W}^{fit} [GeV]; W Bosons / 10 GeV", 40, 0, 400));
@@ -490,6 +479,10 @@ void TopMassControlPlots::doPlots()
     hists.push_back(MyHistogram("nJet", "jet.@jet.size()", "", ";N_{jet}; Events", 15, -0.5, 14.5));
     hists.push_back(MyHistogram("nJet30", "Sum$((jet.jet.Pt()>30))", "", ";N_{jet}; Events", 15, -0.5, 14.5));
     hists.push_back(MyHistogram("nVertex", "weight.nVertex", "", ";N_{PV}; Events", 35, 0, 35));
+    hists.push_back(MyHistogram("Rho", "jet.jet.Rho()", "", ";#rho; Events", 100, 0, 600));
+    hists.push_back(MyHistogram("nPU", "weight.nPU", "", ";N_{PU}; Events", 50, 0, 50));
+
+    
   }
 
   if(plotSelectedForPlotting.find("eventTreeWithJEC")!=plotSelectedForPlotting.end()){//50,60,110
@@ -541,284 +534,7 @@ void TopMassControlPlots::doPlots()
     hists.back().SetFitGaussToCore();
 
   }
-  if(plotSelectedForPlotting.find("BRegExtraPlots")!=plotSelectedForPlotting.end()){
-    MyBRegVarInfo helperMyBRegVarInfo; 
-    for (size_t bvar_i=0;bvar_i<helperMyBRegVarInfo.varNames.size();++bvar_i){
-      hists.push_back(MyHistogram("BothBs"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),
-				  std::vector<std::string>({HelperFunctions::addProperArrayIndex(helperMyBRegVarInfo.varForms.at(bvar_i),"["+topBranchName_+"recoJetIdxB1]"),
-					HelperFunctions::addProperArrayIndex(helperMyBRegVarInfo.varForms.at(bvar_i),"["+topBranchName_+"recoJetIdxB2]")}),
-				  "",";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; Events",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i) ));
 
-      hists.push_back(MyHistogram("BothBsLogY"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),
-				  std::vector<std::string>({HelperFunctions::addProperArrayIndex(helperMyBRegVarInfo.varForms.at(bvar_i),"["+topBranchName_+"recoJetIdxB1]"),
-					HelperFunctions::addProperArrayIndex(helperMyBRegVarInfo.varForms.at(bvar_i),"["+topBranchName_+"recoJetIdxB2]")}),
-				  "",";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; Events",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i) ));
-      hists.back().ConfigureExtraOptions(false, "1.", false, "", false, true);
-
-
-      hists.push_back(MyHistogram("B1LogY"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),HelperFunctions::addProperArrayIndex(helperMyBRegVarInfo.varForms.at(bvar_i),"["+topBranchName_+"recoJetIdxB1]"), "",";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; Events",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i) ));
-      hists.back().ConfigureExtraOptions(false, "1.", false, "", false, true);
-
-
-      hists.push_back(MyHistogram("B1"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),HelperFunctions::addProperArrayIndex(helperMyBRegVarInfo.varForms.at(bvar_i),"["+topBranchName_+"recoJetIdxB1]"), "",";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; Events",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i) ));
-      //		  hists.back().SetFitGaussToCore();
-
-      //                                                "top.fitW2Prod2.Phi()-jet.jet[top.recoJetIdxW2Prod2].Phi()"}
-
-      //		  hists.back().SetFitGaussToCore();
-      //		  hists.push_back(MyHistogram("CorrFactorWeightedB1"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),HelperFunctions::addProperArrayIndex(helperMyBRegVarInfo.varForms.at(bvar_i),"["+topBranchName_+"recoJetIdxB1]"), "",";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; Events",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i) ));
-      //		  hists.back().ConfigureExtraOptions(false, "BRegJet.genJetPt["+topBranchName_+"recoJetIdxB1]/BRegJet.jetPtCorr["+topBranchName_+"recoJetIdxB1]");
-      //		  hists.push_back(MyHistogram("GBRCorrFactorWeightedB1"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),HelperFunctions::addProperArrayIndex(helperMyBRegVarInfo.varForms.at(bvar_i),"["+topBranchName_+"recoJetIdxB1]"), "",";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; Events",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i) ));
-      //		  hists.back().ConfigureExtraOptions(false, "BRegJet.BRegGBRTrainResult["+topBranchName_+"recoJetIdxB1]");
-      //		  hists.push_back(MyHistogram("B1HighGBR"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),HelperFunctions::addProperArrayIndex(helperMyBRegVarInfo.varForms.at(bvar_i),"["+topBranchName_+"recoJetIdxB1]"), "BRegJet.BRegGBRTrainResult["+topBranchName_+"recoJetIdxB1]>1.6",";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; Events",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i) ));
-      //		  hists.push_back(MyHistogram("W1Prod1"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),HelperFunctions::addProperArrayIndex(helperMyBRegVarInfo.varForms.at(bvar_i),"["+topBranchName_+"recoJetIdxW1Prod1]"), "",";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; Events",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i) ));
-      //		  //2D
-      hists.push_back(MyHistogram("B1TopMassVs"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),HelperFunctions::addProperArrayIndex(helperMyBRegVarInfo.varForms.at(bvar_i),"["+topBranchName_+"recoJetIdxB1]"), topBranchName_+"fitTop1.M()", "",";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; m_{t}^{fit} [GeV]",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i), 20, 50, 400 ));
-      hists.back().ConfigurePlotRanges(0.95,1.05, 150, 250);
-      hists.push_back(MyHistogram("B1TopMassCPVs"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),HelperFunctions::addProperArrayIndex(helperMyBRegVarInfo.varForms.at(bvar_i),"["+topBranchName_+"recoJetIdxB1]"), topBranchName_+"fitTop1.M()", topBranchName_+"combinationType==1",";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; m_{t}^{fit} [GeV]",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i), 20, 50, 400 ));
-      hists.back().ConfigurePlotRanges(0.95,1.05, 150, 200);
-
-      //		  hists.push_back(MyHistogram("B1GBRTrainFactorVs"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),HelperFunctions::addProperArrayIndex(helperMyBRegVarInfo.varForms.at(bvar_i),"["+topBranchName_+"recoJetIdxB1]"), "BRegJet.BRegGBRTrainResult["+topBranchName_+"recoJetIdxB1]", "",";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; GBRFactor",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i), 20, 0., 2. ));
-      //		  hists.push_back(MyHistogram("B1recoRlbVs"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),HelperFunctions::addProperArrayIndex(helperMyBRegVarInfo.varForms.at(bvar_i),"["+topBranchName_+"recoJetIdxB1]"), "(top.recoB1.Pt()+top.recoB2.Pt())/(top.recoW1Prod1.Pt()+top.recoW1Prod2.Pt())", "", ";"+helperMyBRegVarInfo.varNames.at(bvar_i)+";R_{lb}^{reco}",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i), 20, 0, 4));
-      hists.push_back(MyHistogram("B1TrueCorrFactorVs"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),HelperFunctions::addProperArrayIndex(helperMyBRegVarInfo.varForms.at(bvar_i),"["+topBranchName_+"recoJetIdxB1]"), "BRegJet.genJetPt["+topBranchName_+"recoJetIdxB1]/BRegJet.jetPtCorr["+topBranchName_+"recoJetIdxB1]", "", ";"+helperMyBRegVarInfo.varNames.at(bvar_i)+";p_{T}^{gen}/p_{T}^{corr}",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i), 20, 0, 2));
-      hists.push_back(MyHistogram("B1OnlyCPTrueCorrFactorVs"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),HelperFunctions::addProperArrayIndex(helperMyBRegVarInfo.varForms.at(bvar_i),"["+topBranchName_+"recoJetIdxB1]"), "BRegJet.genJetPt["+topBranchName_+"recoJetIdxB1]/BRegJet.jetPtCorr["+topBranchName_+"recoJetIdxB1]", "top.combinationType==1", ";"+helperMyBRegVarInfo.varNames.at(bvar_i)+";p_{T}^{gen}/p_{T}^{corr}",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i), 20, 0, 2));
-      hists.push_back(MyHistogram("B1TrueCorrFactorGBRCorrectedVs"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),HelperFunctions::addProperArrayIndex(helperMyBRegVarInfo.varForms.at(bvar_i),"["+topBranchName_+"recoJetIdxB1]"), "BRegJet.genJetPt["+topBranchName_+"recoJetIdxB1]/(BRegJet.jetPtCorr["+topBranchName_+"recoJetIdxB1]*BRegJet.BRegGBRTrainResult["+topBranchName_+"recoJetIdxB1])", "", ";"+helperMyBRegVarInfo.varNames.at(bvar_i)+";p_{T}^{gen}/p_{T}^{corr}",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i), 20, 0, 2));
-      hists.push_back(MyHistogram("B1OnlyCPTrueCorrFactorGBRCorrectedVs"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),HelperFunctions::addProperArrayIndex(helperMyBRegVarInfo.varForms.at(bvar_i),"["+topBranchName_+"recoJetIdxB1]"), "BRegJet.genJetPt["+topBranchName_+"recoJetIdxB1]/(BRegJet.jetPtCorr["+topBranchName_+"recoJetIdxB1]*BRegJet.BRegGBRTrainResult["+topBranchName_+"recoJetIdxB1])", "top.combinationType==1", ";"+helperMyBRegVarInfo.varNames.at(bvar_i)+";p_{T}^{gen}/p_{T}^{corr}",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i), 20, 0, 2));
-      hists.push_back(MyHistogram("B1FitTrueCorrFactorVs"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),HelperFunctions::addProperArrayIndex(helperMyBRegVarInfo.varForms.at(bvar_i),"["+topBranchName_+"recoJetIdxB1]"), "bRegTop.fitB1.Pt()/BRegJet.genJetPt["+topBranchName_+"recoJetIdxB1]", "", ";"+helperMyBRegVarInfo.varNames.at(bvar_i)+";p_{T}^{after kin. fit}/p_{T}^{gen}",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i), 20, 0, 2));
-    }
-    //	  hists.push_back(MyHistogram("B1TrueCorrFactor","BRegJet.genJetPt["+topBranchName_+"recoJetIdxB1]/BRegJet.jetPtCorr["+topBranchName_+"recoJetIdxB1]", "",";p_{T}^{gen}/p_{T}^{corr}; Events",20,0,2 ));
-    //	  hists.push_back(MyHistogram("B1GBRFactor","BRegJet.BRegGBRTrainResult["+topBranchName_+"recoJetIdxB1]", "",";regression factor; Events",20,0,2 ));
-    //	  hists.back().SetFitGaussToCore();
-  }
-
-  if(plotSelectedForPlotting.find("GBRTestingAll")!=plotSelectedForPlotting.end()){
-    MyBRegVarInfo helperMyBRegVarInfo;
-    helperMyBRegVarInfo.initBRegTest();
-    for (size_t bvar_i=0;bvar_i<helperMyBRegVarInfo.varNames.size();++bvar_i){
-      hists.push_back(MyHistogram("PlainResponse"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "","; Response (GBR="+helperMyBRegVarInfo.varNames.at(bvar_i)+"); Events",50,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i) ));
-      hists.back().SetFitGaussToCore();
-      hists.push_back(MyHistogram("PlainResponseB1Only"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "top.recoB1.Pt()>0","; Response (GBR="+helperMyBRegVarInfo.varNames.at(bvar_i)+"); Events",50,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i) ));
-      hists.back().SetFitGaussToCore();
-      hists.push_back(MyHistogram("PlainResponseB1FPGT02Only"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "top.recoB1.Pt()>0&&top.fitProb>0.2","; Response (GBR="+helperMyBRegVarInfo.varNames.at(bvar_i)+"); Events",50,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i) ));
-      hists.back().SetFitGaussToCore();
-      hists.push_back(MyHistogram("PlainResponseB1FPGT02OnlyCP"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "top.recoB1.Pt()>0&&top.fitProb>0.2&&top.combinationType==1","; Response (GBR="+helperMyBRegVarInfo.varNames.at(bvar_i)+"); Events",50,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i) ));
-      hists.back().SetFitGaussToCore();
-
-      hists.push_back(MyHistogram("FitWRecoB1"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),"TMath::Sqrt(TMath::Power(top.fitW1.E() + " + helperMyBRegVarInfo.varForms.at(bvar_i) + "*top.recoB1.E(),2) - (TMath::Power(top.fitW1.Px() + "+ helperMyBRegVarInfo.varForms.at(bvar_i) + "*top.recoB1.Px(),2) + TMath::Power(top.fitW1.Py() + " + helperMyBRegVarInfo.varForms.at(bvar_i)+"*top.recoB1.Py(),2) + TMath::Power(top.fitW1.Pz() + "+ helperMyBRegVarInfo.varForms.at(bvar_i) +"*top.recoB1.Pz(),2)))","top.fitProb>0.2","; m_{top} (GBR="+helperMyBRegVarInfo.varNames.at(bvar_i)+"); Events",50,100,250));
-      hists.back().SetFitGaussToCore();
-      hists.push_back(MyHistogram("FitWRecoB1CP"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),"TMath::Sqrt(TMath::Power(top.fitW1.E() + " + helperMyBRegVarInfo.varForms.at(bvar_i) + "*top.recoB1.E(),2) - (TMath::Power(top.fitW1.Px() + "+ helperMyBRegVarInfo.varForms.at(bvar_i) + "*top.recoB1.Px(),2) + TMath::Power(top.fitW1.Py() + " + helperMyBRegVarInfo.varForms.at(bvar_i)+"*top.recoB1.Py(),2) + TMath::Power(top.fitW1.Pz() + "+ helperMyBRegVarInfo.varForms.at(bvar_i) +"*top.recoB1.Pz(),2)))","top.fitProb>0.2&&top.combinationType==1","; m_{top} (GBR="+helperMyBRegVarInfo.varNames.at(bvar_i)+"); Events",50,100,250));
-      hists.back().SetFitGaussToCore();
-      hists.push_back(MyHistogram("RecoWRecoB1"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),"TMath::Sqrt(TMath::Power(top.recoW1.E() + " + helperMyBRegVarInfo.varForms.at(bvar_i) + "*top.recoB1.E(),2) - (TMath::Power(top.recoW1.Px() + "+ helperMyBRegVarInfo.varForms.at(bvar_i) + "*top.recoB1.Px(),2) + TMath::Power(top.recoW1.Py() + " + helperMyBRegVarInfo.varForms.at(bvar_i)+"*top.recoB1.Py(),2) + TMath::Power(top.recoW1.Pz() + "+ helperMyBRegVarInfo.varForms.at(bvar_i) +"*top.recoB1.Pz(),2)))","top.fitProb>0.2","; m_{top} (GBR="+helperMyBRegVarInfo.varNames.at(bvar_i)+"); Events",50,100,250));
-      hists.back().SetFitGaussToCore();
-      hists.push_back(MyHistogram("GenPartonWRecoB1"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),"TMath::Sqrt(TMath::Power(top.genpartonW1.E() + " + helperMyBRegVarInfo.varForms.at(bvar_i) + "*top.recoB1.E(),2) - (TMath::Power(top.genpartonW1.Px() + "+ helperMyBRegVarInfo.varForms.at(bvar_i) + "*top.recoB1.Px(),2) + TMath::Power(top.genpartonW1.Py() + " + helperMyBRegVarInfo.varForms.at(bvar_i)+"*top.recoB1.Py(),2) + TMath::Power(top.genpartonW1.Pz() + "+ helperMyBRegVarInfo.varForms.at(bvar_i) +"*top.recoB1.Pz(),2)))","top.fitProb>0.2","; m_{top} (GBR="+helperMyBRegVarInfo.varNames.at(bvar_i)+"); Events",50,100,250));
-      hists.back().SetFitGaussToCore();
-      hists.push_back(MyHistogram("GenPartonWRecoB1CP"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),"TMath::Sqrt(TMath::Power(top.genpartonW1.E() + " + helperMyBRegVarInfo.varForms.at(bvar_i) + "*top.recoB1.E(),2) - (TMath::Power(top.genpartonW1.Px() + "+ helperMyBRegVarInfo.varForms.at(bvar_i) + "*top.recoB1.Px(),2) + TMath::Power(top.genpartonW1.Py() + " + helperMyBRegVarInfo.varForms.at(bvar_i)+"*top.recoB1.Py(),2) + TMath::Power(top.genpartonW1.Pz() + "+ helperMyBRegVarInfo.varForms.at(bvar_i) +"*top.recoB1.Pz(),2)))","top.fitProb>0.2&&top.combinationType==1","; m_{top} (GBR="+helperMyBRegVarInfo.varNames.at(bvar_i)+"); Events",50,100,250));
-      hists.back().SetFitGaussToCore();
-      hists.push_back(MyHistogram("GBRFactorB1FPGT02Only"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),helperMyBRegVarInfo.varForms.at(bvar_i),"top.recoB1.Pt()>0&&top.fitProb>0.2","; GBRCorr="+helperMyBRegVarInfo.varNames.at(bvar_i)+"; Events",50,0,2));
-      hists.back().SetFitGaussToCore();
-    }
-    hists.push_back(MyHistogram("GBRFactorUsedForTree","24Cleaned100TreesVarTrainingWithFlatPtTraining","","; regression factor; Events",50,0,2));
-    hists.back().SetFitGaussToCore();
-    hists.push_back(MyHistogram("PlainResponseVsMuonFraction","jet_fMuon","24Cleaned100TreesVarTrainingWithFlatPtTraining*BRegJet_jetPtCorr/BRegJet.genJetPt", "",";muon fraction; Response",20,0.01,1,50,0,2 ));
-    hists.push_back(MyHistogram("PlainResponseVsMuonFractionBOnly","jet_fMuon","24Cleaned100TreesVarTrainingWithFlatPtTraining*BRegJet_jetPtCorr/BRegJet.genJetPt", "TMath::Abs(jet.flavour)==5",";muon fraction; Response",20,0.01,1,50,0,2 ));
-    hists.push_back(MyHistogram("PlainResponseVsMuonFractionB1Only","jet_fMuon","24Cleaned100TreesVarTrainingWithFlatPtTraining*BRegJet_jetPtCorr/BRegJet.genJetPt", "top.recoB1.Pt()>0",";muon fraction; Response",20,0.01,1,50,0,2 ));
-
-    hists.push_back(MyHistogram("PlainResponseDeviationVsJetPtCorrBOnly","BRegJet_jetPtCorr","TMath::Abs(24Cleaned100TreesVarTrainingWithFlatPtTraining-BRegJet.genJetPt/BRegJet_jetPtCorr)", "TMath::Abs(jet.flavour)==5",";jet p_{T}; |GBR-true corr. factor|",20,0.01,100,50,0,2 ));
-  }
-
-  if(plotSelectedForPlotting.find("GBRTestingResponseVsInputVar")!=plotSelectedForPlotting.end()){
-    MyBRegVarInfo helperMyBRegVarInfo;
-    helperMyBRegVarInfo.initBRegInputVarTest();
-    std::string BRegUnderStudy("24PlVars1000TreesMin00250EvtsMCS3TQ07");
-    std::string BRegUnderStudyName("Nominal");
-    for (size_t bvar_i=0;bvar_i<helperMyBRegVarInfo.varNames.size();++bvar_i){
-      hists.push_back(MyHistogram("PlainResponseBOnlyVs"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),helperMyBRegVarInfo.varForms.at(bvar_i), BRegUnderStudy+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "TMath::Abs(jet.flavour)==5", ";"+helperMyBRegVarInfo.varNames.at(bvar_i)+";Response",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i), 20, 0, 2));
-      hists.back().ConfigurePlotRanges(0.95, 1.05, 0.8, 1.3);
-
-    }
-    hists.push_back(MyHistogram("FitWRecoB1"+HelperFunctions::cleanedName(BRegUnderStudy.c_str()),"TMath::Sqrt(TMath::Power(top.fitW1.E() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.E(),2) - (TMath::Power(top.fitW1.Px() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.Px(),2) + TMath::Power(top.fitW1.Py() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str())+"*top.recoB1.Py(),2) + TMath::Power(top.fitW1.Pz() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) +"*top.recoB1.Pz(),2)))","top.fitProb>0.2","; m_{top}^{fitW} (GBR="+BRegUnderStudyName+"); Events",50,100,250));
-    hists.back().SetFitGaussToCore();
-    hists.push_back(MyHistogram("FitWRecoB1CP"+HelperFunctions::cleanedName(BRegUnderStudy.c_str()),"TMath::Sqrt(TMath::Power(top.fitW1.E() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.E(),2) - (TMath::Power(top.fitW1.Px() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.Px(),2) + TMath::Power(top.fitW1.Py() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str())+"*top.recoB1.Py(),2) + TMath::Power(top.fitW1.Pz() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) +"*top.recoB1.Pz(),2)))","top.fitProb>0.2&&top.combinationType==1","; m_{top}^{fitW} (GBR="+BRegUnderStudyName+"); Events",50,100,250));
-    hists.back().SetFitGaussToCore();
-    hists.push_back(MyHistogram("RecoWRecoB1"+HelperFunctions::cleanedName(BRegUnderStudy.c_str()),"TMath::Sqrt(TMath::Power(top.recoW1.E() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.E(),2) - (TMath::Power(top.recoW1.Px() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.Px(),2) + TMath::Power(top.recoW1.Py() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str())+"*top.recoB1.Py(),2) + TMath::Power(top.recoW1.Pz() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) +"*top.recoB1.Pz(),2)))","top.fitProb>0.2","; m_{top}^{recoW} (GBR="+BRegUnderStudyName+"); Events",50,100,250));
-    hists.back().SetFitGaussToCore();
-    hists.push_back(MyHistogram("GenPartonWRecoB1"+HelperFunctions::cleanedName(BRegUnderStudy.c_str()),"TMath::Sqrt(TMath::Power(top.genpartonW1.E() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.E(),2) - (TMath::Power(top.genpartonW1.Px() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.Px(),2) + TMath::Power(top.genpartonW1.Py() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str())+"*top.recoB1.Py(),2) + TMath::Power(top.genpartonW1.Pz() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) +"*top.recoB1.Pz(),2)))","top.fitProb>0.2","; m_{top}^{genpartonW} (GBR="+BRegUnderStudyName+"); Events",50,100,250));
-    hists.back().SetFitGaussToCore();
-    hists.push_back(MyHistogram("GenPartonWRecoB1CP"+HelperFunctions::cleanedName(BRegUnderStudy.c_str()),"TMath::Sqrt(TMath::Power(top.genpartonW1.E() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.E(),2) - (TMath::Power(top.genpartonW1.Px() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.Px(),2) + TMath::Power(top.genpartonW1.Py() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str())+"*top.recoB1.Py(),2) + TMath::Power(top.genpartonW1.Pz() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) +"*top.recoB1.Pz(),2)))","top.fitProb>0.2&&top.combinationType==1","; m_{top}^{genpartonW} (GBR="+BRegUnderStudyName+"); Events",50,100,250));
-    hists.back().SetFitGaussToCore();
-
-    hists.push_back(MyHistogram("FitWRecoB1VsJetCorrPt"+HelperFunctions::cleanedName(BRegUnderStudy.c_str()),"BRegJet_jetPtCorr","TMath::Sqrt(TMath::Power(top.fitW1.E() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.E(),2) - (TMath::Power(top.fitW1.Px() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.Px(),2) + TMath::Power(top.fitW1.Py() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str())+"*top.recoB1.Py(),2) + TMath::Power(top.fitW1.Pz() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) +"*top.recoB1.Pz(),2)))","top.fitProb>0.2","; p_{T}^{jet}; m_{top}^{fitW} (GBR="+BRegUnderStudyName+")",25,30,180,50,100,250));
-    hists.push_back(MyHistogram("FitWRecoB1CPVsJetCorrPt"+HelperFunctions::cleanedName(BRegUnderStudy.c_str()),"BRegJet_jetPtCorr","TMath::Sqrt(TMath::Power(top.fitW1.E() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.E(),2) - (TMath::Power(top.fitW1.Px() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.Px(),2) + TMath::Power(top.fitW1.Py() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str())+"*top.recoB1.Py(),2) + TMath::Power(top.fitW1.Pz() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) +"*top.recoB1.Pz(),2)))","top.fitProb>0.2&&top.combinationType==1","; p_{T}^{jet}; m_{top}^{fitW} (GBR="+BRegUnderStudyName+")",25,30,180,50,100,250));
-
-    hists.push_back(MyHistogram("FitWRecoB1VsGenPt"+HelperFunctions::cleanedName(BRegUnderStudy.c_str()),"BRegJet.genJetPt","TMath::Sqrt(TMath::Power(top.fitW1.E() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.E(),2) - (TMath::Power(top.fitW1.Px() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.Px(),2) + TMath::Power(top.fitW1.Py() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str())+"*top.recoB1.Py(),2) + TMath::Power(top.fitW1.Pz() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) +"*top.recoB1.Pz(),2)))","top.fitProb>0.2","; p_{T}^{gen}; m_{top}^{fitW} (GBR="+BRegUnderStudyName+")",25,30,180,50,100,250));
-    hists.push_back(MyHistogram("FitWRecoB1CPVsGenPt"+HelperFunctions::cleanedName(BRegUnderStudy.c_str()),"BRegJet.genJetPt","TMath::Sqrt(TMath::Power(top.fitW1.E() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.E(),2) - (TMath::Power(top.fitW1.Px() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.Px(),2) + TMath::Power(top.fitW1.Py() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str())+"*top.recoB1.Py(),2) + TMath::Power(top.fitW1.Pz() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) +"*top.recoB1.Pz(),2)))","top.fitProb>0.2&&top.combinationType==1","; p_{T}^{gen}; m_{top}^{fitW} (GBR="+BRegUnderStudyName+")",25,30,180,50,100,250));
-
-
-
-    hists.push_back(MyHistogram("genpartonWRecoB1VsJetCorrPt"+HelperFunctions::cleanedName(BRegUnderStudy.c_str()),"BRegJet_jetPtCorr","TMath::Sqrt(TMath::Power(top.genpartonW1.E() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.E(),2) - (TMath::Power(top.genpartonW1.Px() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.Px(),2) + TMath::Power(top.genpartonW1.Py() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str())+"*top.recoB1.Py(),2) + TMath::Power(top.genpartonW1.Pz() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) +"*top.recoB1.Pz(),2)))","top.fitProb>0.2","; p_{T}^{jet}; m_{top}^{genpartonW} (GBR="+BRegUnderStudyName+")",25,30,180,50,100,250));
-    hists.push_back(MyHistogram("genpartonWRecoB1CPVsJetCorrPt"+HelperFunctions::cleanedName(BRegUnderStudy.c_str()),"BRegJet_jetPtCorr","TMath::Sqrt(TMath::Power(top.genpartonW1.E() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.E(),2) - (TMath::Power(top.genpartonW1.Px() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.Px(),2) + TMath::Power(top.genpartonW1.Py() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str())+"*top.recoB1.Py(),2) + TMath::Power(top.genpartonW1.Pz() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) +"*top.recoB1.Pz(),2)))","top.fitProb>0.2&&top.combinationType==1","; p_{T}^{jet}; m_{top}^{genpartonW} (GBR="+BRegUnderStudyName+")",25,30,180,50,100,250));
-
-    hists.push_back(MyHistogram("genpartonWRecoB1VsGenPt"+HelperFunctions::cleanedName(BRegUnderStudy.c_str()),"BRegJet.genJetPt","TMath::Sqrt(TMath::Power(top.genpartonW1.E() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.E(),2) - (TMath::Power(top.genpartonW1.Px() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.Px(),2) + TMath::Power(top.genpartonW1.Py() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str())+"*top.recoB1.Py(),2) + TMath::Power(top.genpartonW1.Pz() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) +"*top.recoB1.Pz(),2)))","top.fitProb>0.2","; p_{T}^{gen}; m_{top}^{genpartonW} (GBR="+BRegUnderStudyName+")",25,30,180,50,100,250));
-    hists.push_back(MyHistogram("genpartonWRecoB1CPVsGenPt"+HelperFunctions::cleanedName(BRegUnderStudy.c_str()),"BRegJet.genJetPt","TMath::Sqrt(TMath::Power(top.genpartonW1.E() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.E(),2) - (TMath::Power(top.genpartonW1.Px() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) + "*top.recoB1.Px(),2) + TMath::Power(top.genpartonW1.Py() + " + HelperFunctions::cleanedName(BRegUnderStudy.c_str())+"*top.recoB1.Py(),2) + TMath::Power(top.genpartonW1.Pz() + "+ HelperFunctions::cleanedName(BRegUnderStudy.c_str()) +"*top.recoB1.Pz(),2)))","top.fitProb>0.2&&top.combinationType==1","; p_{T}^{gen}; m_{top}^{genpartonW} (GBR="+BRegUnderStudyName+")",25,30,180,50,100,250));
-    helperMyBRegVarInfo.initBRegTest();
-    for (size_t bvar_i=0;bvar_i<helperMyBRegVarInfo.varNames.size();++bvar_i){
-      hists.push_back(MyHistogram("ResponseCheckBOnlyInclusive"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "TMath::Abs(jet.flavour)==5","; Response; Events",50,0,2 ));
-      hists.back().ConfigureExtraOptions(true);
-    }
-  }
-
-  if(plotSelectedForPlotting.find("GBRTestingB1Plots")!=plotSelectedForPlotting.end()){
-    MyBRegVarInfo helperMyBRegVarInfo;
-    helperMyBRegVarInfo.initBRegTest();
-    for (size_t bvar_i=0;bvar_i<helperMyBRegVarInfo.varNames.size();++bvar_i){
-      hists.push_back(MyHistogram("PlainResponseB1FPGT02Only"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "top.recoB1.Pt()>0&&top.fitProb>0.2","; Response (GBR="+helperMyBRegVarInfo.varNames.at(bvar_i)+"); Events",50,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i) ));
-      hists.back().SetFitGaussToCore();
-
-      hists.push_back(MyHistogram("FitWRecoB1"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),"TMath::Sqrt(TMath::Power(top.fitW1.E() + " + helperMyBRegVarInfo.varForms.at(bvar_i) + "*top.recoB1.E(),2) - (TMath::Power(top.fitW1.Px() + "+ helperMyBRegVarInfo.varForms.at(bvar_i) + "*top.recoB1.Px(),2) + TMath::Power(top.fitW1.Py() + " + helperMyBRegVarInfo.varForms.at(bvar_i)+"*top.recoB1.Py(),2) + TMath::Power(top.fitW1.Pz() + "+ helperMyBRegVarInfo.varForms.at(bvar_i) +"*top.recoB1.Pz(),2)))","top.fitProb>0.2","; m_{top} (GBR="+helperMyBRegVarInfo.varNames.at(bvar_i)+"); Events",50,100,250));
-      hists.back().SetFitGaussToCore();
-      hists.push_back(MyHistogram("RecoWRecoB1"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),"TMath::Sqrt(TMath::Power(top.recoW1.E() + " + helperMyBRegVarInfo.varForms.at(bvar_i) + "*top.recoB1.E(),2) - (TMath::Power(top.recoW1.Px() + "+ helperMyBRegVarInfo.varForms.at(bvar_i) + "*top.recoB1.Px(),2) + TMath::Power(top.recoW1.Py() + " + helperMyBRegVarInfo.varForms.at(bvar_i)+"*top.recoB1.Py(),2) + TMath::Power(top.recoW1.Pz() + "+ helperMyBRegVarInfo.varForms.at(bvar_i) +"*top.recoB1.Pz(),2)))","top.fitProb>0.2","; m_{top} (GBR="+helperMyBRegVarInfo.varNames.at(bvar_i)+"); Events",50,100,250));
-      hists.back().SetFitGaussToCore();
-    }
-  }
-
-  if(plotSelectedForPlotting.find("GBRSystTestingPlots")!=plotSelectedForPlotting.end()){
-    MyBRegVarInfo helperMyBRegVarInfo;
-    helperMyBRegVarInfo.initBRegTest();
-    //	  helperMyBRegVarInfo.initBRegSystematicsTest();
-    for (size_t bvar_i=0;bvar_i<helperMyBRegVarInfo.varNames.size();++bvar_i){
-      hists.push_back(MyHistogram("PlainResponseBOnly"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i))+"VsGenJetPt","BRegJet.genJetPt",helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "TMath::Abs(jet.flavour)==5",";p_{T}^{gen}; Response",20,30.,300,50,0,2 ));
-      hists.back().ConfigureExtraOptions(false, "1.", true, "", true);
-      hists.push_back(MyHistogram("PlainResponseBOnly"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i))+"VsJetPtCorr","BRegJet_jetPtCorr",helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "TMath::Abs(jet.flavour)==5",";jet p_{T}; Response",20,30.,300,50,0,2 ));
-      hists.back().ConfigureExtraOptions(false, "1.", true, "", true);
-      hists.push_back(MyHistogram("PlainResponseNoB"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i))+"VsJetPtCorr","BRegJet_jetPtCorr",helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "TMath::Abs(jet.flavour)!=5",";jet p_{T}; Response",20,30.,300,50,0,2 ));
-      hists.back().ConfigureExtraOptions(false, "1.", true, "", true);
-      hists.push_back(MyHistogram("PlainResponseBTagReq"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i))+"VsJetPtCorr","BRegJet_jetPtCorr",helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "jet_bTagCSV>0.679",";jet p_{T}; Response",20,30.,300,50,0,2 ));
-      hists.back().ConfigureExtraOptions(false, "1.", true, "", true);
-      hists.push_back(MyHistogram("PlainResponseBTagReqExtreme"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i))+"VsJetPtCorr","BRegJet_jetPtCorr",helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "jet_bTagCSV>0.9",";jet p_{T}; Response",20,30.,300,50,0,2 ));
-      hists.back().ConfigureExtraOptions(false, "1.", true, "", true);
-    }
-  }
-
-
-  if(plotSelectedForPlotting.find("GBRTestingResponseBTails")!=plotSelectedForPlotting.end()){
-    hists.push_back(MyHistogram("PlainResponseB1TailTest","BRegJet_jetPtCorr/BRegJet.genJetPt", "top.recoB1.Pt()>0&&top.fitProb>0.2","; Response; Events",50,0,2));
-    hists.push_back(MyHistogram("PlainResponseB1TailTestLogY","BRegJet_jetPtCorr/BRegJet.genJetPt", "top.recoB1.Pt()>0&&top.fitProb>0.2","; Response; Events",50,0,2));
-    hists.back().ConfigureExtraOptions(false, "1.",true,"",false,true);
-
-    hists.push_back(MyHistogram("PlainResponseBTailTest","BRegJet_jetPtCorr/BRegJet.genJetPt", "","; Response; Events",50,0,2));
-    hists.push_back(MyHistogram("PlainResponseBTailTestLogY","BRegJet_jetPtCorr/BRegJet.genJetPt", "","; Response; Events",50,0,2));
-    hists.back().ConfigureExtraOptions(false, "1.",true,"",false,true);
-  }
-
-  if(plotSelectedForPlotting.find("CalibTreeResponseBTails")!=plotSelectedForPlotting.end()){
-//    hists.push_back(MyHistogram("CalibPlainResponseTailTest","JetPt*JetCorrL1*JetCorrL2L3/GenJetPt", "JetGenJetDeltaR<0.1","; Response; Events",50,0,2));
-//    hists.push_back(MyHistogram("CalibPlainResponseTailTestLogY","JetPt*JetCorrL1*JetCorrL2L3/GenJetPt", "JetGenJetDeltaR<0.1","; Response; Events",50,0,2));
-//    hists.back().ConfigureExtraOptions(false, "1.",true,"",false,true);
-
-    hists.push_back(MyHistogram("CalibPlainResponseLeadJetTailTest","JetPt[0]*JetCorrL1[0]*JetCorrL2L3[0]/GenJetPt[0]", "JetGenJetDeltaR[0]<0.1","; Response; Events",50,0,2));
-    hists.push_back(MyHistogram("CalibPlainResponseLeadJetTailTestLogY","JetPt[0]*JetCorrL1[0]*JetCorrL2L3[0]/GenJetPt[0]", "JetGenJetDeltaR[0]<0.1","; Response; Events",50,0,2));
-    hists.back().ConfigureExtraOptions(false, "1.",true,"",false,true);
-  }
-
-
-  if(plotSelectedForPlotting.find("GBRResponseTesting")!=plotSelectedForPlotting.end()){
-    MyBRegVarInfo helperMyBRegVarInfo;
-    helperMyBRegVarInfo.initBRegSystematicsTest();
-    //	  helperMyBRegVarInfo.initBRegTest();
-    for (size_t bvar_i=0;bvar_i<helperMyBRegVarInfo.varNames.size();++bvar_i){
-      hists.push_back(MyHistogram("PlainResponseBOnly"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i))+"VsGenJetPt","BRegJet.genJetPt",helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "TMath::Abs(jet.flavour)==5",";p_{T}^{gen}; Response",20,30.,300,50,0,2 ));
-      hists.back().ConfigureExtraOptions(false, "1.", true, "", true);
-      //	    void TopMassControlPlots::MyHistogram::ConfigureExtraOptions(bool SetFitGaussToCore, std::string SetCustomHistoweight, bool ExportSigVarToRoot, std::string LegendHeader, bool useLogXBins, bool useLogYBins)
-
-      hists.push_back(MyHistogram("PlainResponseBOnly"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i))+"VsJetPtCorr","BRegJet_jetPtCorr",helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "TMath::Abs(jet.flavour)==5",";jet p_{T}; Response",20,30.,300,50,0,2 ));
-      hists.back().ConfigureExtraOptions(false, "1.", true, "", true);
-
-      hists.push_back(MyHistogram("PlainResponseUDSOnly"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i))+"VsJetPtCorr","BRegJet_jetPtCorr",helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "TMath::Abs(jet.flavour)<=3",";jet p_{T}; Response",20,30.,300,50,0,2 ));
-      hists.back().ConfigureExtraOptions(false, "1.", true, "", true);
-      hists.push_back(MyHistogram("PlainResponseUDSOnly"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i))+"VsGenJetPt","BRegJet.genJetPt",helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "TMath::Abs(jet.flavour)<=3",";jet p_{T}^{gen}; Response",20,30.,300,50,0,2 ));
-      hists.back().ConfigureExtraOptions(false, "1.", true, "", true);
-
-
-      hists.push_back(MyHistogram("PlainResponseCOnly"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i))+"VsJetPtCorr","BRegJet_jetPtCorr",helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "TMath::Abs(jet.flavour)==4",";jet p_{T}; Response",20,30.,300,50,0,2 ));
-      hists.back().ConfigureExtraOptions(false, "1.", true, "", true);
-
-      hists.push_back(MyHistogram("PlainResponseNoB"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i))+"VsJetPtCorr","BRegJet_jetPtCorr",helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "TMath::Abs(jet.flavour)!=5",";jet p_{T}; Response",20,30.,300,50,0,2 ));
-      hists.back().ConfigureExtraOptions(false, "1.", true, "", true);
-
-      hists.push_back(MyHistogram("PlainResponseBTagReq"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i))+"VsJetPtCorr","BRegJet_jetPtCorr",helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "jet_bTagCSV>0.679",";jet p_{T}; Response",20,30.,300,50,0,2 ));
-      hists.back().ConfigureExtraOptions(false, "1.", true, "", true);
-
-      hists.push_back(MyHistogram("PlainResponseBTagReqExtreme"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i))+"VsJetPtCorr","BRegJet_jetPtCorr",helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "jet_bTagCSV>0.9",";jet p_{T}; Response",20,30.,300,50,0,2 ));
-      hists.back().ConfigureExtraOptions(false, "1.", true, "", true);
-
-
-      hists.push_back(MyHistogram("RecoPtLogLog"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i))+"VsGenJetPt","BRegJet.genJetPt",helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr", "TMath::Abs(jet.flavour)==5",";p_{T}^{gen}; Response",20,30.,300,50,30,300));
-      hists.back().ConfigureExtraOptions(false, "1.", true, "", true,true);
-
-      hists.push_back(MyHistogram("RecoPtLog"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i))+"VsGenJetPt","BRegJet.genJetPt",helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr", "TMath::Abs(jet.flavour)==5",";p_{T}^{gen}; Response",20,30.,300,50,30,300));
-      hists.back().ConfigureExtraOptions(false, "1.", true, "", true,false);
-
-      hists.push_back(MyHistogram("FineBinBOnlyRecoPtLog"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i))+"VsGenJetPt","BRegJet.genJetPt",helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr", "TMath::Abs(jet.flavour)==5",";p_{T}^{gen}; Response",200,5,300,100,30,500));
-      hists.back().ConfigureExtraOptions(false, "1.", true, "", true,false);
-      hists.push_back(MyHistogram("FineBinPlainResponseBOnly"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i))+"VsGenJetPt","BRegJet.genJetPt",helperMyBRegVarInfo.varForms.at(bvar_i)+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "TMath::Abs(jet.flavour)==5",";p_{T}^{gen}; Response",200,5,300,100,0,4 ));
-      hists.back().ConfigureExtraOptions(false, "1.", true, "", true);
-
-
-
-    }
-  }
-
-  if(plotSelectedForPlotting.find("GBRResponseImprovement")!=plotSelectedForPlotting.end()){
-//	  std::string BRegUnderStudy("24PlVars1000TreesMin00250EvtsMCS3TQ07");
-
-	  std::string BRegUnderStudy("24Cleaned100TreesVarTrainingWithFlatPtTraining");
-	  std::cout << "adding GBRResponseImprovement histos" << std::endl;
-	  hists.push_back(MyHistogram("JetPtCorr",BRegUnderStudy+"*BRegJet_jetPtCorr", "","; p_{T}^{corr.}; Events",20,20,500 ));
-	  hists.back().ConfigureExtraOptions(false, "1.", false,"",true);
-//	  hists.back().ConfigureExtraOptions(false, "1.", false,"",false);
-//
-	  hists.push_back(MyHistogram("ResponseCheckBOnlyInclusive",BRegUnderStudy+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "TMath::Abs(jet.flavour)==5","; Response; Events",50,0,2 ));
-//	  hists.back().ConfigureExtraOptions(true, "1.", false,"");
-//
-//
-//	  hists.push_back(MyHistogram("ResponseCheckBOnlyLowPtBarrel",BRegUnderStudy+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "TMath::Abs(jet.flavour)==5&&TMath::Abs(BRegJet_jetEta)<1.3&&BRegJet_jetPtCorr>30&&BRegJet_jetPtCorr<50","; Response; Events",50,0,2 ));
-//	  hists.back().ConfigureExtraOptions(true, "1.", false,"|#eta|<1.3; p_{T}<50 GeV");
-//	  hists.push_back(MyHistogram("ResponseCheckBOnlyPeakPtBarrel",BRegUnderStudy+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "TMath::Abs(jet.flavour)==5&&TMath::Abs(BRegJet_jetEta)<1.3&&BRegJet_jetPtCorr>50&&BRegJet_jetPtCorr<70","; Response; Events",50,0,2 ));
-//	  hists.back().ConfigureExtraOptions(true, "1.", false,"|#eta|<1.3; 50<p_{T}<70 GeV");
-//	  hists.push_back(MyHistogram("ResponseCheckBOnlyHighPtBarrel",BRegUnderStudy+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "TMath::Abs(jet.flavour)==5&&TMath::Abs(BRegJet_jetEta)<1.3&&BRegJet_jetPtCorr>70","; Response; Events",50,0,2 ));
-//	  hists.back().ConfigureExtraOptions(true, "1.", false,"|#eta|<1.3; p_{T}>70 GeV");
-//
-//	  hists.push_back(MyHistogram("ResponseCheckBOnlyLowPtEndcap",BRegUnderStudy+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "TMath::Abs(jet.flavour)==5&&TMath::Abs(BRegJet_jetEta)>1.3&&BRegJet_jetPtCorr>30&&BRegJet_jetPtCorr<50","; Response; Events",50,0,2 ));
-//	  hists.back().ConfigureExtraOptions(true, "1.", false,"|#eta|>1.3; p_{T}<50 GeV");
-//	  hists.push_back(MyHistogram("ResponseCheckBOnlyPeakPtEndcap",BRegUnderStudy+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "TMath::Abs(jet.flavour)==5&&TMath::Abs(BRegJet_jetEta)>1.3&&BRegJet_jetPtCorr>50&&BRegJet_jetPtCorr<70","; Response; Events",50,0,2 ));
-//	  hists.back().ConfigureExtraOptions(true, "1.", false,"|#eta|>1.3; 50<p_{T}<70 GeV");
-//	  hists.push_back(MyHistogram("ResponseCheckBOnlyHighPtEndcap",BRegUnderStudy+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "TMath::Abs(jet.flavour)==5&&TMath::Abs(BRegJet_jetEta)>1.3&&BRegJet_jetPtCorr>70","; Response; Events",50,0,2 ));
-//	  hists.back().ConfigureExtraOptions(true, "1.", false,"|#eta|>1.3; p_{T}>70 GeV");
-//
-//	  hists.push_back(MyHistogram("ResponseCheckBTagReqLowPtBarrel",BRegUnderStudy+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "jet_bTagCSV>0.679&&TMath::Abs(BRegJet_jetEta)<1.3&&BRegJet_jetPtCorr>30&&BRegJet_jetPtCorr<50","; Response; Events",50,0,2 ));
-//	  hists.back().ConfigureExtraOptions(true, "1.", false,"|#eta|<1.3; p_{T}<50 GeV");
-//	  hists.push_back(MyHistogram("ResponseCheckBTagReqPeakPtBarrel",BRegUnderStudy+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "jet_bTagCSV>0.679&&TMath::Abs(BRegJet_jetEta)<1.3&&BRegJet_jetPtCorr>50&&BRegJet_jetPtCorr<70","; Response; Events",50,0,2 ));
-//	  hists.back().ConfigureExtraOptions(true, "1.", false,"|#eta|<1.3; 50<p_{T}<70 GeV");
-//	  hists.push_back(MyHistogram("ResponseCheckBTagReqHighPtBarrel",BRegUnderStudy+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "jet_bTagCSV>0.679&&TMath::Abs(BRegJet_jetEta)<1.3&&BRegJet_jetPtCorr>70","; Response; Events",50,0,2 ));
-//	  hists.back().ConfigureExtraOptions(true, "1.", false,"|#eta|<1.3; p_{T}>70 GeV");
-//
-//	  hists.push_back(MyHistogram("ResponseCheckBTagReqLowPtEndcap",BRegUnderStudy+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "jet_bTagCSV>0.679&&TMath::Abs(BRegJet_jetEta)>1.3&&BRegJet_jetPtCorr>30&&BRegJet_jetPtCorr<50","; Response; Events",50,0,2 ));
-//	  hists.back().ConfigureExtraOptions(true, "1.", false,"|#eta|>1.3; p_{T}<50 GeV");
-//	  hists.push_back(MyHistogram("ResponseCheckBTagReqPeakPtEndcap",BRegUnderStudy+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "jet_bTagCSV>0.679&&TMath::Abs(BRegJet_jetEta)>1.3&&BRegJet_jetPtCorr>50&&BRegJet_jetPtCorr<70","; Response; Events",50,0,2 ));
-//	  hists.back().ConfigureExtraOptions(true, "1.", false,"|#eta|>1.3; 50<p_{T}<70 GeV");
-//	  hists.push_back(MyHistogram("ResponseCheckBTagReqHighPtEndcap",BRegUnderStudy+"*BRegJet_jetPtCorr/BRegJet.genJetPt", "jet_bTagCSV>0.679&&TMath::Abs(BRegJet_jetEta)>1.3&&BRegJet_jetPtCorr>70","; Response; Events",50,0,2 ));
-//	  hists.back().ConfigureExtraOptions(true, "1.", false,"|#eta|>1.3; p_{T}>70 GeV");
-//
-//
-//
-//	  hists.push_back(MyHistogram("PlainResponseDeviationVsJetPtCorrBOnly","BRegJet_jetPtCorr","TMath::Abs("+BRegUnderStudy+"-BRegJet.genJetPt/BRegJet_jetPtCorr)", "TMath::Abs(jet.flavour)==5",";jet p_{T}; |GBR-true corr. factor|",20,30,300,50,0,2 ));
-//	  hists.back().ConfigureExtraOptions(false, "1.", false,"",true);
-//	  hists.back().ConfigurePlotRanges(0.7, 1.0, 0.0, 0.3);
-//	  hists.push_back(MyHistogram("PlainResponseDeviationVsJetEtaBOnly","TMath::Abs(BRegJet_jetEta)","TMath::Abs("+BRegUnderStudy+"-BRegJet.genJetPt/BRegJet_jetPtCorr)", "TMath::Abs(jet.flavour)==5",";jet |#eta|; |GBR-true corr. factor|",12,0,2.4,50,0,2 ));
-//	  hists.back().ConfigurePlotRanges(0.8, 1.0,0.0,0.25);
-
-	  std::cout << "done adding GBRResponseImprovement histos" << std::endl;
-  }
   //
   // DEFINE DATASETS
   //
@@ -1127,10 +843,13 @@ void TopMassControlPlots::doPlots()
       samples.push_back(MySample("Data", "Run2015D", kData, kBlack));
     }
     else {
-        if (channelID != Helper::kElectronJets) samples.push_back(MySample("Data", "76x/SingleMuon_16Dec2015_workingJEC_allCut", kData, kBlack));
-    	//if (channelID != Helper::kElectronJets) samples.push_back(MySample("Data", "76x/RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_workingJEC_1.00_allCut", kData, kBlack,1,lumi_/1000.));
+        samples.push_back(MySample("Data", "TopMassTreeSpring16_80X_RanII16_13fb_2triggMu_160727", kData, kBlack));
+//         samples.push_back(MySample("Data", "SingleMuon_16Dec2015_noBweight_allCut", kData, kBlack));
 
-    	if (channelID != Helper::kMuonJets) samples.push_back(MySample("Data", "76x/SingleElectron_16Dec2015_workingJEC_allCut", kData, kBlack));
+//       samples.push_back(MySample("Data", "SingleMuon_Run2015D-05Oct2015-v1_matchingCleaned_allCut", kData, kBlack));
+//       samples.push_back(MySample("Data", "SingleElectron_Run2015D-PromptReco-v4_electronCut_allCut", kData, kBlack));	
+//       samples.push_back(MySample("Data", "SingleElectron_Run2015D-05Oct2015-v1_electronCut_allCut", kData, kBlack));
+//       samples.push_back(MySample("Data", "SingleMuon_Run2015D-PromptReco-v4_matchingCleaned_allCut", kData, kBlack));
     }
     
     // SIGNAL
@@ -1140,12 +859,13 @@ void TopMassControlPlots::doPlots()
     if(plotSelectedForPlotting.find("NobPlots")!=plotSelectedForPlotting.end()){
       samples.push_back(MySample("t#bar{t}", "Summer12_TTJetsMS1725_nob", kSig, kRed+1, 1, lumi_/1000., "", signalNormUnc));
     }
-    else samples.push_back(MySample("t#bar{t}", "76x/RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_sysJER_1.00_sigRes0.0_allCut", kSig, kRed+1, 1, lumi_/1000., "", signalNormUnc));
-    	//samples.push_back(MySample("t#bar{t}", "76x/RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_workingJEC_1.00_allCut", kSig, kRed+1, 1, lumi_/1000., "", signalNormUnc));
-    //samples.push_back(MySample("t#bar{t}", "../2015_JESVariations/76x/RunIISpring15MiniAODv2_76x_asymptotic_v12_ext3-v1_TT_TuneCUETP8M1_powheg-pythia8_MS1725_patJetsUpdated_1.00", kSig, kRed+1, 1, lumi_/1000., "", signalNormUnc));
+//     else samples.push_back(MySample("t#bar{t}", "RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1_TT_TuneCUETP8M1_13TeV-powheg-pythia8_matchingCleaned_allCut", kSig, kRed+1, 1, lumi_/1000., "", signalNormUnc));
+//     else samples.push_back(MySample("t#bar{t}", "RunII_TT_TuneCUETP8M1_powheg-pythia8_76X_mcRun2_asymptotic_v12_ext3_NoBWeight_1.00_allCut", kSig, kRed+1, 1, lumi_/1000., "", signalNormUnc));
+//     else samples.push_back(MySample("t#bar{t}", "Fall15_TT_TuneCUETP8M1_13TeV_powheg_pythia8_1.00_IDClassDef_6", kSig, kRed+1, 1, lumi_/1000., "", signalNormUnc));
+    else samples.push_back(MySample("t#bar{t}", "/2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_PUsys_MS1725_1.00", kSig, kRed+1, 1, lumi_/1000., "weight.combinedWeight|weight.combinedWeight"));
 
     // SIGNAL VARIATIONS
-    
+       
     // JES
     if(plotSelectedForPlotting.find("JESUncVariationPlots")!=plotSelectedForPlotting.end()){
       samples.push_back(MySample("t#bar{t}, JES down", "Summer12_TTJetsMS1725_source:down_Total", kSigVar, kRed+1, 1, lumi_/1000.));
@@ -1154,16 +874,26 @@ void TopMassControlPlots::doPlots()
     
     // JER
     if(plotSelectedForPlotting.find("JERUncVariationPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("t#bar{t}, JER down", "Summer12_TTJetsMS1725_jer:-1", kSigVar, kRed+1, 1, lumi_/1000.));
-      samples.push_back(MySample("t#bar{t}, JER up", "Summer12_TTJetsMS1725_jer:1", kSigVar, kGreen+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, JER down", "Summer12_TTJetsMS1725_jer:down", kSigVar, kRed+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, JER up", "Summer12_TTJetsMS1725_jer:up", kSigVar, kGreen+1, 1, lumi_/1000.));
     }    
     
     // PU
     if(plotSelectedForPlotting.find("PUPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("t#bar{t}, PU up", "Summer12_TTJetsMS1725_nob", kSigVar, kRed+1, 1, lumi_/1000., "weight.combinedWeight|weight.combinedWeight/weight.puWeight*weight.puWeightUp"));
-      samples.push_back(MySample("t#bar{t}, PU down", "Summer12_TTJetsMS1725_nob", kSigVar, kRed+1, 1, lumi_/1000., "weight.combinedWeight|weight.combinedWeight/weight.puWeight*weight.puWeightDown"));
+      samples.push_back(MySample("t#bar{t}, PU up", "2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1725_1.00", kSigVar, kRed+1, 1, lumi_/1000., "weight.combinedWeight|weight.combinedWeight/weight.puWeight*weight.puWeightUp"));
+      samples.push_back(MySample("t#bar{t}, PU down", "2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1725_1.00", kSigVar, kRed+1, 1, lumi_/1000., "weight.combinedWeight|weight.combinedWeight/weight.puWeight*weight.puWeightDown"));
     }
     
+    // LeptonSF
+    if(plotSelectedForPlotting.find("LeptonSFPlots")!=plotSelectedForPlotting.end()){
+      samples.push_back(MySample("t#bar{t}, LeptonSF up", "2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1725_1.00", kSigVar, kRed-8, 1, lumi_/1000., "weight.combinedWeight|weight.combinedWeight/weight.triggerWeight*weight.triggerWeightUp"));
+      samples.push_back(MySample("t#bar{t}, LeptonSF down", "2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1725_1.00", kSigVar, kRed+3, 1, lumi_/1000., "weight.combinedWeight|weight.combinedWeight/weight.triggerWeight*weight.triggerWeightDown"));
+    }
+    //bTagWeight
+    if(plotSelectedForPlotting.find("bTagSFPlots")!=plotSelectedForPlotting.end()){
+      samples.push_back(MySample("t#bar{t}, bTagSF up", "2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1725_1.00", kSigVar, kRed-8, 1, lumi_/1000., "weight.combinedWeight|weight.combinedWeight/weight.bTagWeight*weight.bTagWeight_bTagSFUp"));
+      samples.push_back(MySample("t#bar{t}, bTagSF down", "2016B_JESVariations_ICHEPdata/TT_TuneCUETP8M1_13TeV_powheg_pythia8_Spring16_MS1725_1.00", kSigVar, kRed+3, 1, lumi_/1000., "weight.combinedWeight|weight.combinedWeight/weight.bTagWeight*weight.bTagWeight_bTagSFDown"));
+    }
     // MCGeneratorPlots
     if(plotSelectedForPlotting.find("MCGeneratorPlots")!=plotSelectedForPlotting.end()){
       samples.push_back(MySample("t#bar{t}, Powheg+Pythia6 Z2*", "Summer12_TTJets1725_powheg", kSigVar, kGreen+1, 9, lumi_/1000.));
@@ -1215,11 +945,11 @@ void TopMassControlPlots::doPlots()
     
     // BACKGROUND
     if(plotSelectedForPlotting.find("BackgroundPlots")!=plotSelectedForPlotting.end()){
-	samples.push_back(MySample("Single t", "76x/BG/major/ST_merged_allCut", kBkg, kMagenta, 1, lumi_/1000., "", 0.1));
-      samples.push_back(MySample("W+jets", "76x/BG/major/WJetsToLNu_TuneCUETP8M-amcatnloFXFX-pythia8_asymptotic_v12-v1_allCut", kBkg, kGreen-3, 1, lumi_/1000.  , "", 0.2));   
-      samples.push_back(MySample("Z+jets", "76x/BG/minor/DYJetsToLL_merged_allCut", kBkg, kAzure-2, 1, lumi_/1000., "", 0.2)); //FIXME check if neg. Weight of amcatnloFXFX part were put into acount
-      samples.push_back(MySample("QCD multijet", "76x/BG/minor/QCD_lepEnriched_merged_allCut", kBkg, kYellow, 1, lumi_/1000., "", 1.));
-      samples.push_back(MySample("Diboson", "76x/BG/minor/DiBoson_merged_allCut", kBkg, kWhite, 1, lumi_/1000., "", 0.05));
+      samples.push_back(MySample("Single t", "TopMassTreeSpring16_80X_BG_MC_new_sel_ST_tW_160731", kBkg, kMagenta, 1, lumi_/1000., "", 0.1));
+      //samples.push_back(MySample("W+jets", "TopMassTreeSpring16_80X_BG_MC_new_sel_WJets_160714_with_weight", kBkg, kGreen-3, 1, lumi_/1000., "", 0.2));//inkl Umgewichtung von amcatnlo zu amcatnloFXFX
+      //samples.push_back(MySample("Z+jets", "Summer12_ZJets", kBkg, kAzure-2, 1, lumi_/1000., "", 0.2));
+      //samples.push_back(MySample("QCD multijet", "Summer12_QCD", kBkg, kYellow, 1, lumi_/1000., "", 1.));
+      //samples.push_back(MySample("Diboson", "Summer12_Diboson", kBkg, kWhite, 1, lumi_/1000., "", 0.05));
     }
 
     // OTHER VARIATIONS
@@ -1362,13 +1092,13 @@ void TopMassControlPlots::doPlots()
       }
       else if(plotSelectedForPlotting.find("eventTreeWithJEC")!=plotSelectedForPlotting.end()){
     	  chain = new TChain("eventTree");
-    	  if (channelID != Helper::kElectronJets) nFiles += chain->Add((path_+sample.file+std::string("_muon/job_*.root")).c_str());
-    	  if (channelID != Helper::kMuonJets) nFiles += chain->Add((path_+sample.file+std::string("_electron/job_*.root")).c_str());
+    	  if (channelID != Helper::kElectronJets) nFiles += chain->Add((path_+sample.file+std::string("_muon/*.root")).c_str());
+    	  if (channelID != Helper::kMuonJets) nFiles += chain->Add((path_+sample.file+std::string("_electron/*.root")).c_str());
       }
       else{
     	  chain = new TChain("analyzeHitFit/eventTree");
-    	  if (channelID != Helper::kElectronJets) nFiles += chain->Add((path_+sample.file+std::string("_muon/job_*.root")).c_str());
-    	 if (channelID != Helper::kMuonJets    ) nFiles += chain->Add((path_+sample.file+std::string("_electron/job_*.root")).c_str());
+    	  if (channelID != Helper::kElectronJets) nFiles += chain->Add((path_+sample.file+std::string("_muon/*.root")).c_str());
+    	 if (channelID != Helper::kMuonJets    ) nFiles += chain->Add((path_+sample.file+std::string("_electron/*.root")).c_str());
       }
       std::cout << "Adding " << nFiles << " files for " << sample.name << " (" << sample.file << "), type: " << sample.type << std::endl;
 
@@ -1403,7 +1133,6 @@ void TopMassControlPlots::doPlots()
       double loopFraction = 1.;
       if (po::GetOption<bool>("test")) loopFraction = 0.01;
       for(int i = 0; i < loopSize*loopFraction; ++i){
-    	  if(i%1000==0) std::cout<<"\r  Loop over permutations: "<<(int)((float)i*100./(float)(loopSize*loopFraction-1))<<"%";
         //if(i%1000==0)std::cout << "event " << (Long_t) i << std::endl;
         long entry = chain->LoadTree(i);
         if(entry  < 0) break;
@@ -1428,7 +1157,6 @@ void TopMassControlPlots::doPlots()
 
         // Loop over permutations
         for(int j = 0, l = sel.GetNdata(); j < l; ++j){
-
           if(!sel.EvalInstance(j)) continue;
           // Loop over samples
           for(MyHistogram& hist : hists){
@@ -1767,8 +1495,6 @@ void TopMassControlPlots::doPlots()
   //
   // DRAW CONTROL PLOTS
   //
-
-  gSystem->mkdir((std::string("plot/controlplots/").c_str()));
 
   // initialize file stream for logging
   std::ofstream logResultsFile;

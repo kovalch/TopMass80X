@@ -1,6 +1,6 @@
 CC := g++
-C := $(CC) -O3 -Wall -fPIC -g
-L := $(CC) -O3
+C := $(CC) -O0 -Wall -fPIC -g
+L := $(CC) -O0
 
 ROOTCFLAGS  := $(shell root-config --cflags)
 ROOTLIBS    := $(shell root-config --libs) -lTreePlayer
