@@ -4,36 +4,40 @@
 #include "DataFormats/Common/interface/View.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+ 
+// void
+// EffSFLepton2DEventWeight::beginJob()
+// {
+//   if( histoname_==" " ) throw edm::Exception( edm::errors::Configuration, "Not correct histname!" );
 
+// }
 
 EffSFLepton2DEventWeight::EffSFLepton2DEventWeight(const edm::ParameterSet& cfg):
   particles_            ( cfg.getParameter<edm::InputTag>    ("particles") ),
   sysVar_               ( cfg.getParameter<std::string>      ("sysVar"   ) ),
   verbose_              ( cfg.getParameter<int>              ("verbose"  ) ),
   filename_             ( cfg.getParameter<edm::FileInPath>  ("filename" ) ),
-  additionalFactor_     ( cfg.getParameter<double>      ("additionalFactor"     ) ),
-  additionalFactorErr_  ( cfg.getParameter<double>      ("additionalFactorErr"  ) ),
-  shapeDistortionFactor_( cfg.getParameter<double>      ("shapeDistortionFactor") ),
-  shapeVarEtaThreshold_ ( cfg.getParameter<double>      ("shapeVarEtaThreshold" ) ),
-  shapeVarPtThreshold_  ( cfg.getParameter<double>      ("shapeVarPtThreshold"  ) )
+  histoname_            ( cfg.getParameter<std::string>      ("histoname" ) ),
+  additionalSystErr_    ( cfg.getParameter<double>      ("additionalSystErr") ),
+  etaMaxVal_ 		( cfg.getParameter<double>      ("etaMaxVal") )
 {
-  consumes<edm::View<reco::Candidate> >(particles_);
   produces<double>();
   
+  mayConsume<edm::View<reco::Candidate>>(particles_);
+
   // debugging control outpu
   if(verbose_>=2){
-     std::cout << "executing EffSFLepton2DEventWeight with the following options"<< std::endl;   
+    std::cout << "executing EffSFLepton2DEventWeight with the following options"<< std::endl;   
     std::cout << "particles_            : " << particles_             << std::endl;
     std::cout << "sysVar_               : " << sysVar_                << std::endl;
     std::cout << "verbose_              : " << verbose_               << std::endl;
     std::cout << "filename_             : " << filename_              << std::endl;
-    std::cout << "additionalFactor_     : " << additionalFactor_      << std::endl;
-    std::cout << "additionalFactorErr_  : " << additionalFactorErr_   << std::endl;
-    std::cout << "shapeDistortionFactor_: " << shapeDistortionFactor_ << std::endl;
-    std::cout << "shapeVarEtaThreshold_ : " << shapeVarEtaThreshold_  << std::endl;
-    std::cout << "shapeVarPtThreshold_  : " << shapeVarPtThreshold_   << std::endl;
+    std::cout << "histoname_            : " << histoname_              << std::endl;
+    std::cout << "additionalSystErr_     : " << additionalSystErr_      << std::endl;
+    
   }
-
+  
   // load TFile Service
   edm::Service<TFileService> fs;
   if( !fs ){
@@ -43,29 +47,35 @@ EffSFLepton2DEventWeight::EffSFLepton2DEventWeight(const edm::ParameterSet& cfg)
   /// booking of histogram for muon ID+trigger eff SF
   hists_["lepEffSF"] = fs->make<TH1F>( "lepEffSF", "lepEffSF", 40, 0., 2.);
   
-  /// get SF 2D histo from specified input file
+  /// get SF 2D histo from specified input file and input histoname
   if(filename_.location()){
     file_ = new TFile((TString)filename_.fullPath());
     if(!(file_->IsZombie())){
       if(verbose_>=1) std::cout<<filename_.fullPath()<<" opened"<<std::endl;
-      /// get pt and eta dependend 2D histo
-      if     (sysVar_=="PUup")   hists2D_["effSFPtEta"]       = (TH2F*) file_->Get("tapAllSFetaPUup"  )->Clone();
-      else if(sysVar_=="PUdown") hists2D_["effSFPtEta"]       = (TH2F*) file_->Get("tapAllSFetaPUdown")->Clone();
-      else                       hists2D_["effSFPtEta"]       = (TH2F*) file_->Get("tapAllSFeta"      )->Clone();
-      if(verbose_>=1) std::cout<<"histo found"<<std::endl;
-      /// considered range for 2D SFhisto
-      ptmin =hists2D_["effSFPtEta"]->GetXaxis()->GetXmin();
-      ptmax =hists2D_["effSFPtEta"]->GetXaxis()->GetXmax();
-      etamin=hists2D_["effSFPtEta"]->GetYaxis()->GetXmin();
-      etamax=hists2D_["effSFPtEta"]->GetYaxis()->GetXmax();
-      // set range per hand
-      ptmin =  33.1;
-      ptmax =1199.9;
-      etamin= -2.09;
-      etamax=  2.09;
-      if(verbose_>=1){
-	std::cout << "x range: " << ptmin  << ".." << ptmax  << std::endl;
-	std::cout << "y range: " << etamin << ".." << etamax << std::endl;
+      if(!( histoname_==" ")){
+	hists2D = (TH2F*) file_->Get(histoname_.c_str());      
+      	if(verbose_>=1) std::cout<< histoname_ <<" histo used"<<std::endl;
+	
+        /// get pt and eta dependend 2D histo
+	/// considered range for 2D SFhisto
+	//check if the histo axis are not swapped; x-axis: pt, y-axis:  eta 
+
+	if (hists2D->GetXaxis()->GetXmax() > etaMaxVal_){
+	  ptmin =hists2D->GetXaxis()->GetXmin();
+	  ptmax =hists2D->GetXaxis()->GetXmax();
+	  etamin=hists2D->GetYaxis()->GetXmin();
+	  etamax=hists2D->GetYaxis()->GetXmax();
+	} else {
+	  ptmin =hists2D->GetYaxis()->GetXmin();
+	  ptmax =hists2D->GetYaxis()->GetXmax();
+	  etamin=hists2D->GetXaxis()->GetXmin();
+	  etamax=hists2D->GetXaxis()->GetXmax(); 
+	}
+
+	if(verbose_>=1){
+	  std::cout << "x range: " << ptmin  << ".." << ptmax  << std::endl;
+	  std::cout << "y range: " << etamin << ".." << etamax << std::endl;
+	}
       }
     }
     else{
@@ -87,12 +97,13 @@ EffSFLepton2DEventWeight::produce(edm::Event& evt, const edm::EventSetup& setup)
   // (designed for lepton or electron collection)
   edm::Handle<edm::View<reco::Candidate> > particles;
   evt.getByLabel(particles_, particles);
-
+  
   // variables used
   double pt, eta;
   double result     =  1.0;
   double errorUp    = -1.0;
   double errorDown  = -1.0;
+  double errorCorr    = 0.;
   int numPart       =  0;
   if(numPart>1){
     std::cout << "WARNING in EffSFLepton2DEventWeight: more than one";
@@ -120,23 +131,46 @@ EffSFLepton2DEventWeight::produce(edm::Event& evt, const edm::EventSetup& setup)
       int binPt =-1;
       int binEta=-1;
       if(     pt<ptmin  ) pt=ptmin;
-      else if(pt>ptmax  ) pt=ptmax;
-      if(     eta<etamin) eta=etamin;
+      else if(pt>=ptmax  ) pt=ptmax-0.001;
+      if(  eta<-1*etamax) eta=-1*etamax;
       else if(eta>etamax) eta=etamax;
-      binPt = hists2D_["effSFPtEta"]->GetXaxis()->FindBin(pt );
-      binEta= hists2D_["effSFPtEta"]->GetYaxis()->FindBin(eta);
+
+
+      if (hists2D->GetXaxis()->GetXmax() > etaMaxVal_){
+	binPt = hists2D->GetXaxis()->FindBin(pt );
+	if (etamin == 0){
+	  binEta= hists2D->GetYaxis()->FindBin(std::abs(eta));
+	} else if (etamin < 0){
+	  binEta= hists2D->GetYaxis()->FindBin(eta);
+	}
+      } else {
+	binPt = hists2D->GetYaxis()->FindBin(pt );
+	if (etamin == 0){
+	  binEta= hists2D->GetXaxis()->FindBin(std::abs(eta));
+	} else if (etamin < 0){
+	  binEta= hists2D->GetXaxis()->FindBin(eta);
+	}
+      }
+
+
+       
       // get SF and errors for this 
       if(binPt==-1||binEta==-1){
 	std::cout << "ERROR in EffSFLepton2DEventWeight: can not identify bin in 2D effSF histo for ";
 	std::cout << "pt=" << pt << "& eta=" << eta << std::endl;
-	std::cout << "will use SF 1.+/-0." << std::cout;
+	std::cout << "will use SF 1.+/-0. " << std::endl;
 	result    =1.;
 	errorUp   =0.;
 	errorDown =0.;
       }
       else{
-	result    = hists2D_["effSFPtEta"]->GetBinContent(binPt, binEta);
-	errorUp   = hists2D_["effSFPtEta"]->GetBinError  (binPt, binEta);
+	if (hists2D->GetXaxis()->GetXmax() > etaMaxVal_){
+	  result    = hists2D->GetBinContent(binPt, binEta);
+	  errorUp   = hists2D->GetBinError  (binPt, binEta);
+	} else {
+	  result    = hists2D->GetBinContent(binEta, binPt);
+	  errorUp   = hists2D->GetBinError  (binEta, binPt);  
+	}
 	errorDown = errorUp; // asymmetric errors not possible with 2D histos
       }
       if(verbose_>1) std::cout << "bin(pt,eta)=("<< binPt << "," << binEta << ")" << std::endl;
@@ -152,34 +186,14 @@ EffSFLepton2DEventWeight::produce(edm::Event& evt, const edm::EventSetup& setup)
       std::cout << "errorDown: " << errorDown << std::endl;
     }
     /// systematic variations for trigger eff. SF (normalisation and shape uncertainties)
-    if     (sysVar_ == "combinedEffSFNormUpStat")   result += errorUp;
-    else if(sysVar_ == "combinedEffSFNormDownStat") result -= errorDown;
-    else if(sysVar_ == "combinedEffSFShapeUpEta"){
-      /// different versions of shape distortion (via difference between result in respective bin or via certain threshold)
-      if      (shapeDistortionFactor_>0)   result += shapeDistortionFactor_ * (result - 1.);
-      else if (std::abs(eta) <shapeVarEtaThreshold_) result -= errorDown; 
-      else                                 result += errorUp;
-    }
-    else if(sysVar_ == "combinedEffSFShapeDownEta"){
-      /// different versions of shape distortion (via difference between result in respective bin or via certain threshold)
-      if      (shapeDistortionFactor_>0)   result -= shapeDistortionFactor_ * (result - 1.);
-      else if (std::abs(eta) <shapeVarEtaThreshold_) result += errorUp; 
-      else                                 result -= errorDown;
-    }
-    else if(sysVar_ == "combinedEffSFShapeUpPt")  { 
-      if(pt<shapeVarPtThreshold_) result += errorUp; 
-      else                        result -= errorDown;
-    }
-    else if(sysVar_ == "combinedEffSFShapeDownPt"){ 
-      if(pt<shapeVarPtThreshold_) result -= errorDown; 
-      else                        result += errorUp;
-    }
-    /// additional factor (e.g. if lepton selection and trigger eff. SF is quoted separately
-    ///                         or flat SF is used                                          )
-    result *= additionalFactor_;
-    /// systematic variations for eff. SF
-    if     (sysVar_ == "combinedEffSFNormUpSys"  ) result *= (1+additionalFactorErr_);
-    else if(sysVar_ == "combinedEffSFNormDownSys") result *= (1-additionalFactorErr_);
+    
+    errorCorr = additionalSystErr_; 
+//     std::cout<<numPart<< ": pt=" <<pt<< "; eta=" <<eta<< "; SF= "<<result<<"; errorUp="<< errorUp <<"; errorDown="<< errorDown<< "; errorCorr= "<< errorCorr << std::endl;
+//     if(result==0 || result==INFINITY) LogDebug ( "EffSFLepton2DEventWeight" ) << " SF= "<<result<<"; errorUp="<< errorUp <<"; errorDown="<< errorDown;
+    
+    if     (sysVar_ == "combinedEffSFNormUpStat")   result += errorUp + errorCorr;
+    else if(sysVar_ == "combinedEffSFNormDownStat") result -= errorDown + errorCorr;
+    
     if(verbose_>=1) std::cout<<numPart<< ": pt=" <<pt<< "; eta=" <<eta<< "; SF= "<<result<<"; errorUp="<< errorUp <<"; errorDown="<< errorDown<<std::endl;
     hists_.find("lepEffSF" )->second->Fill(result);
   // break in order to have only one event weight (the one of the leading part.) in case of more part. in the event

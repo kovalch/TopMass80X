@@ -47,7 +47,7 @@ EventWeightPU::EventWeightPU(const edm::ParameterSet& cfg):
     }
     else LumiWeights3D_.weight3D_init(inTag_Weight3DHistoFile.fullPath());
   }
-  else if(inTag_MCSampleTag == "RunIISpring15DR"||inTag_MCSampleTag == "RunIIFall15DR"){
+  else if(inTag_MCSampleTag == "RunIISpring15DR"||inTag_MCSampleTag == "RunIIFall15DR"||inTag_MCSampleTag == "RunIISpring16DR"){
     LumiWeights3D_ = edm::Lumi3DReWeighting();
     LumiWeights_   = edm::LumiReWeighting(inTag_MCSampleFile.fullPath(),inTag_DataFile.fullPath(),
 					  inTag_MCSampleHistoName,inTag_DataHistoName);
@@ -102,7 +102,7 @@ void EventWeightPU::produce(edm::Event& evt, const edm::EventSetup& setup)
     { 
       int BX = iterPU->getBunchCrossing(); // -1: previous BX, 0: current BX,  1: next BX
       
-      if (inTag_MCSampleTag == "Fall11" || inTag_MCSampleTag == "Summer12" || inTag_MCSampleTag == "RunIISpring15DR"  || inTag_MCSampleTag == "RunIIFall15DR"){
+      if (inTag_MCSampleTag == "Fall11" || inTag_MCSampleTag == "Summer12" || inTag_MCSampleTag == "RunIISpring15DR"  || inTag_MCSampleTag == "RunIIFall15DR" || inTag_MCSampleTag == "RunIISpring16DR"){
 	if (BX ==  0) fnvtx = iterPU->getTrueNumInteractions();
       }
       else if (inTag_MCSampleTag == "Summer11"){
@@ -112,7 +112,7 @@ void EventWeightPU::produce(edm::Event& evt, const edm::EventSetup& setup)
       }
     }
 
-    if      (inTag_MCSampleTag == "Fall11" || inTag_MCSampleTag == "Summer12" || inTag_MCSampleTag == "RunIISpring15DR" || inTag_MCSampleTag == "RunIIFall15DR") wght_ = LumiWeights_.weight(fnvtx);
+    if      (inTag_MCSampleTag == "Fall11" || inTag_MCSampleTag == "Summer12" || inTag_MCSampleTag == "RunIISpring15DR" || inTag_MCSampleTag == "RunIIFall15DR" || inTag_MCSampleTag == "RunIISpring16DR") wght_ = LumiWeights_.weight(fnvtx);
     else if (inTag_MCSampleTag == "Summer11") wght_ = LumiWeights3D_.weight3D(nvtx_m, nvtx, nvtx_p);
   } 
 

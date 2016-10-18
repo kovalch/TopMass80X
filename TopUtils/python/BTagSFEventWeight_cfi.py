@@ -16,5 +16,7 @@ bTagSFEventWeight = cms.EDProducer("BTagSFEventWeight",
   verbose  = cms.int32(  0),                  ## set to 1 if terminal text output is desired
   filename = cms.FileInPath(""),              ## if filename != "", the efficiencies are read from histos
                                               ## provided in that file
+  csv_filename = cms.FileInPath(""),              ## if filename != "", the efficiencies are read from histos
+  discrCut  =   cms.double(0.8),                                  
   noHistograms = cms.bool(False)              ## deactivate the histogram creation
 )

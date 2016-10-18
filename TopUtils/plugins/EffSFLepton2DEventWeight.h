@@ -27,11 +27,8 @@
 ///                        "combinedEffSFNormUpSys/Down": uses additionalFactorErr_ as flat global uncertainty
 /// verbose_               set to 0 if no output on terminal is desired, 1 for moderate and 2 for detailed output
 /// filename_              if not set to "", efficiencies are loaded from histos in filename_
-/// additionalFactor_      multiplies with factor (can be used for flat SF)
-/// additionalFactorErr_   flat normalisation error for additional factor (e.g. 0.03 = 3%)
-/// shapeDistortionFactor_ for eff SF shape uncertainty
-/// shapeVarPtThreshold_   eta value which divides up and down variation for shape variations
-/// shapeVarPtThreshold_   pT value which divides up and down variation for shape variations
+/// additionalSystErr_      multiplies with factor ( + 0.5% for single muon triggers to be applyied on top of statistical errors)
+
 
 class EffSFLepton2DEventWeight : public edm::EDProducer {
 
@@ -40,6 +37,7 @@ class EffSFLepton2DEventWeight : public edm::EDProducer {
   ~EffSFLepton2DEventWeight();
   
  private:
+//   virtual void beginJob() ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
@@ -48,23 +46,22 @@ class EffSFLepton2DEventWeight : public edm::EDProducer {
   std::string sysVar_;
   int verbose_;
   edm::FileInPath filename_;
-  double additionalFactor_;
-  double additionalFactorErr_;
-  double meanTriggerEffSF_;
-  double shapeDistortionFactor_;
-  double shapeVarEtaThreshold_;
-  double shapeVarPtThreshold_;
+  std::string histoname_;
+  double additionalSystErr_;
+  double etaMaxVal_;
   
   /// helper values from 2D SFhisto
   double ptmin ;
   double ptmax ;
   double etamin;
   double etamax;
-
+  
+  /// histogram
+  TH2F * hists2D;
+  
   /// histogram container
   std::map<std::string, TH1F*> hists_;
-  std::map<std::string, TH2F*> hists2D_;
-
+  
   /// file with histos
   TFile * file_;
 };

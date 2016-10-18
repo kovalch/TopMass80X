@@ -40,14 +40,14 @@ EventWeightBJES::EventWeightBJES(const edm::ParameterSet& cfg):
 
   sourceHist = (TH1F*) sourceFile->Get("EventWeightBJES/genBHadronPtFraction")->Clone();
   targetHist = (TH1F*) targetFile->Get("EventWeightBJES/genBHadronPtFraction")->Clone();
-
+  
   if (sourceHist->GetNbinsX() != targetHist->GetNbinsX()) std::cout << "Incompatible b-fragmentation histograms: Number of bins not equal" << std::endl;
 
   sourceHist->Scale(1./sourceHist->Integral());
   targetHist->Scale(1./targetHist->Integral());
-
   hists["weightHist"] = (TH1F*) targetHist->Clone();
   hists.find("weightHist")->second->Divide(sourceHist);
+
 
   std::cout << "Weights for b-fragmentation" << std::endl;
   for (int i = 0; i < sourceHist->GetNbinsX(); ++i) {
@@ -56,6 +56,9 @@ EventWeightBJES::EventWeightBJES(const edm::ParameterSet& cfg):
               << std::setw(10) << hists.find("weightHist")->second->GetBinContent(i);
   }
   std::cout << std::endl;
+  
+  mayConsume<std::vector<reco::GenJet>>(genJets_);
+  mayConsume<reco::GenParticleCollection>(genParticles_);
 }
 
 EventWeightBJES::~EventWeightBJES()
@@ -120,7 +123,7 @@ EventWeightBJES::produce(edm::Event& evt, const edm::EventSetup& setup)
         double dr   = sqrt( deta*deta + dphi*dphi );
 
         // Simple dR match of hadron and GenJet
-        if (dr < 0.5) {
+        if (dr < 0.4) {
           double xb = p.pt()/ijet->pt();
           hists.find("genBHadronPtFraction")->second->Fill(xb);
           if (xb < 2.) {

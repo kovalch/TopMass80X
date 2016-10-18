@@ -10,6 +10,7 @@
 MCPileUp::MCPileUp(const edm::ParameterSet& iConfig)
 {
   inTag_PUSource = iConfig.getParameter<edm::InputTag>("PUSource");  
+  mayConsume<edm::View<PileupSummaryInfo>>(inTag_PUSource);
 }
 
 MCPileUp::~MCPileUp(){}
