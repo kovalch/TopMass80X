@@ -7,7 +7,7 @@ EventWeightBJES = cms.EDProducer("EventWeightBJES",
     ## Pythia6 is 0.25
   nuDecayFractionTarget = cms.double(0.25),
     ## use up:0.262, down:0.238, based on PDG
-  fragSourceFile        = cms.FileInPath("TopAnalysis/TopUtils/data/MC_BJES_TuneZ2star.root"),
-  fragTargetFile        = cms.FileInPath("TopAnalysis/TopUtils/data/MC_BJES_TuneZ2star.root")
+  fragSourceFile        = cms.FileInPath("TopAnalysis/TopUtils/data/MC_BJES_TuneZ2star_rbLEP.root"),##MC_BJES_TuneZ2star.root
+  fragTargetFile        = cms.FileInPath("TopAnalysis/TopUtils/data/MC_BJES_TuneZ2star_rbLEP.root")
     ## for variation: TopAnalysis/TopUtils/data/MC_BJES_TuneZ2star_rbLEP.root
 )

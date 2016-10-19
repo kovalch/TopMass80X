@@ -6,9 +6,9 @@ analyzeBTagEfficiency = cms.EDAnalyzer("BTagEfficiencyAnalyzer",
   ## vertex collection                                     
     vertices = cms.InputTag("goodOfflinePrimaryVertices"),
   ## name of b tag algorithm in pat::Jet
-    bTagAlgo = cms.string("combinedSecondaryVertexBJetTags"),
+    bTagAlgo = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
   ## b tag discriminator cut value (here: medium working point)
-    bTagDiscrCut = cms.double(0.679),
+    bTagDiscrCut = cms.double(0.8),
   ## set to 1 if terminal text output is desired
     #verbose  = cms.int32(  0)
   ## binning for b and c jets:

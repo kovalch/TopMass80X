@@ -1,10 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-# module to select GenParticles, basic collection needed as input
-# See https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsCutParser
-# on how to use the cut-string
-#
-selectedGenParticles = cms.EDFilter("CommonGenParticleSelector",
-                                    src = cms.InputTag("genParticles"),
-                                    cut = cms.string("")
-                                    )
+effSFLepton2DEventWeight = cms.EDProducer("EffSFLepton2DEventWeight",
+  particles  = cms.InputTag(""), ## jet collection (after jet selection, before b-tagging)
+  sysVar   = cms.string(""),                  ## "noSys", "combinedEffSFNormUpStat/Down", "combinedEffSFShapeUpEta(Pt)/Down", 
+                                              ## "combinedEffSFNormUpSys/Down"
+                                              ## "PUup", "PUdown"
+                                              ## "flatTriggerSF"
+  verbose  = cms.int32(  0),                  ## set to 1 if terminal text output is desired
+  filename = cms.FileInPath("TopAnalysis/Configuration/data/MuonEffSF2D2012.root"),
+  histoname = cms.string(" "),
+  additionalSystErr = cms.double(0.),
+  etaMaxVal = cms.double(5.),
+)

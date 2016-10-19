@@ -19,7 +19,12 @@ BTagEfficiencyAnalyzer::BTagEfficiencyAnalyzer(const edm::ParameterSet& cfg):
 {
    /// weight is an optional parameter; if not present 
    /// in the module the used weight will be 1.
+  
    if(cfg.exists("weight" )) weightTag_= cfg.getParameter<edm::InputTag>("weight" );
+   
+   mayConsume<edm::View< pat::Jet >>(jets_);
+   mayConsume<std::vector<reco::Vertex> >(vertices_);
+   mayConsume<double>(weightTag_);
 }
 
 /// default destructor

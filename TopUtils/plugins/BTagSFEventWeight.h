@@ -19,6 +19,9 @@
 #include "CondFormats/PhysicsToolsObjects/interface/BinningPointByMap.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
+#include "CondFormats/BTauObjects/interface/BTagCalibrationReader.h"
+
 /// This module calculates a b tag scale factor (SF) for the whole event with >=2 b tags,
 /// which is put into the CMSSW event
 /// as a double, which can be used as an event weight in the analyzers of interest.
@@ -42,17 +45,16 @@ class BTagSFEventWeight : public edm::EDProducer {
 
  private:
   edm::InputTag jets_;
-  std::string bTagAlgo_;
   std::string version_;
+  std::string bTagAlgo_;
+  double discrCut_;
   bool newRecipe_;
   int maxJets_;
   std::string sysVar_;
-  double shapeVarPtThreshold_;
-  double shapeVarEtaThreshold_;
-  double uncertaintySFb_;
-  double shapeDistortionFactor_;
   int verbose_;
   edm::FileInPath filename_;
+  edm::FileInPath csv_filename_;
+  
   bool noHistograms_;
   double maxPtDB_;
   double maxPt11004_;
@@ -75,21 +77,21 @@ class BTagSFEventWeight : public edm::EDProducer {
   /// file with histos
   TFile * file_;
 
-  double effBTagSF11004(double);
-  double effBTagSFerr11004(double);
-  double effMisTagSF11004(double, double, TString);
-  double effBTagSF2012(double);
-  double effBTagSF76X(double);
-  double effBTagSFerr76X(double);
-  double effBTagSFerr2012(double);
-  double effMisTagSF2012(double, double, TString);
-  double effMisTagSF76X(double, double, TString);
   double effBTag    (double, double);
-  double effBTagSF  (double, double, bool);
+  double effBTagSF  (double, double);
   double effBTagCjet(double, double);
+  double effBTagCjetSF(double, double);
   double effMisTag  (double, double);
   double effMisTagSF(double, double);
   double effBTagEvent(std::vector<double> &, std::vector<double> &);
+  
+  BTagCalibrationReader reader;
+  BTagCalibrationReader reader_up;
+  BTagCalibrationReader reader_down;
+
+  BTagCalibrationReader reader_incl;
+  BTagCalibrationReader reader_incl_up;
+  BTagCalibrationReader reader_incl_down;
   
 };
 

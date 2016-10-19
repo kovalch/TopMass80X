@@ -34,7 +34,7 @@ process.TFileService = cms.Service("TFileService", fileName = cms.string("MC_PUD
 #process.load("TopAnalysis.Configuration.samples.Summer11_QCD_Pt_80to170_EMEnriched_TuneZ2_7TeV_pythia6_cff")
 #process.load("TopAnalysis.Configuration.zprime_M500GeV_W5000MeV_Madgraph_Summer11_AOD_cff")
 #process.load("TopAnalysis.Configuration.zprime_M750GeV_W7500MeV_Madgraph_Summer11_AOD_cff")
-process.load("TopAnalysis.Configuration.samples.Fall11_TTJets_TuneZ2_7TeV_madgraph_tauola_cff")
+process.load("TopAnalysis.Configuration.Spring16_TT_TuneCUETP8M1_13TeV-powheg-pythia8_v2_cff")
 #process.load("TopAnalysis.Configuration.samples.Fall11_TTJets_TuneZ2_7TeV_powheg_tauola_cff")
 #process.load("TopAnalysis.Configuration.samples.Fall11_TTJets_TuneZ2_7TeV_mcatnlo_cff")
 
