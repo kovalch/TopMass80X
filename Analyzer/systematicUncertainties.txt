@@ -1,0 +1,872 @@
+Uncertainty name & 2D mass & JSF & 1D mass \tabularnewline
+\hline
+\hline
+ColorReconnectionModelling & 0.19$\pm$0.06 & 0.002$\pm$0.001 & 0.06$\pm$0.04 \tabularnewline
+- shift                           & -0.19 & +0.002 & -0.06 \tabularnewline
+\hline
+JEC : Intercalibration           & 0.09$\pm$0.00 & 0.002$\pm$0.000 & 0.21$\pm$0.00 \tabularnewline
+- up                              & +0.04 & +0.002 & +0.21 \tabularnewline
+- down                            & +0.09 & -0.002 & -0.06 \tabularnewline
+\hline
+JEC : MPFInSitu                  & 0.07$\pm$0.00 & 0.003$\pm$0.000 & 0.28$\pm$0.00 \tabularnewline
+- up                              & +0.05 & +0.003 & +0.28 \tabularnewline
+- down                            & +0.07 & -0.003 & -0.15 \tabularnewline
+\hline
+JEC : Uncorrelated               & 0.32$\pm$0.00 & 0.017$\pm$0.000 & 1.07$\pm$0.00 \tabularnewline
+- up                              & -0.20 & +0.017 & +1.07 \tabularnewline
+- down                            & +0.32 & -0.016 & -0.91 \tabularnewline
+\hline
+JER                              & 0.27$\pm$0.00 & 0.004$\pm$0.000 & 0.16$\pm$0.00 \tabularnewline
+- up                              & -0.14 & +0.004 & +0.16 \tabularnewline
+- down                            & +0.27 & -0.004 & -0.03 \tabularnewline
+\hline
+(cc) JER correction                   & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.22$\pm$0.00 \tabularnewline
+- shift                           & +0.62 & -0.011 & -0.22 \tabularnewline
+\hline
+PS $Q^{2}$ scale          & 0.14$\pm$0.05 & 0.009$\pm$0.000 & 0.83$\pm$0.03 \tabularnewline
+- up                              & +0.14 & +0.009 & +0.83 \tabularnewline
+- down                            & -0.03 & -0.009 & -0.75 \tabularnewline
+\hline
+Pileup & 0.23$\pm$0.00 & 0.003$\pm$0.000 & 0.06$\pm$0.00 \tabularnewline
+- up                              & -0.20 & +0.003 & +0.06 \tabularnewline
+- down                            & +0.23 & -0.003 & -0.01 \tabularnewline
+\hline
+Underlying Event & 0.50$\pm$0.06 & 0.011$\pm$0.001 & 0.33$\pm$0.04 \tabularnewline
+- shift                           & +0.50 & -0.011 & -0.33 \tabularnewline
+\hline
+(cc) aMCatNLOFXFX, same configuration & 1.29$\pm$0.08 & 0.003$\pm$0.001 & 1.04$\pm$0.05 \tabularnewline
+- shift                           & -1.29 & +0.003 & -1.04 \tabularnewline
+\hline
+calibration                      & 0.06$\pm$0.00 & 0.000$\pm$0.000 & 0.03$\pm$0.00 \tabularnewline
+- shift                           & +0.06 & -0.000 & +0.03 \tabularnewline
+\hline
+(cc) flavor bottom                    & 0.35$\pm$0.00 & 0.000$\pm$0.000 & 0.36$\pm$0.00 \tabularnewline
+- up                              & -0.22 & -0.000 & -0.22 \tabularnewline
+- down                            & +0.35 & +0.000 & +0.36 \tabularnewline
+\hline
+(cc) flavor charm                     & 0.08$\pm$0.00 & 0.000$\pm$0.000 & 0.08$\pm$0.00 \tabularnewline
+- up                              & +0.08 & -0.000 & +0.06 \tabularnewline
+- down                            & +0.05 & +0.000 & +0.08 \tabularnewline
+\hline
+(cc) flavor gluon                     & 0.25$\pm$0.00 & 0.003$\pm$0.000 & 0.10$\pm$0.00 \tabularnewline
+- up                              & -0.13 & +0.003 & +0.10 \tabularnewline
+- down                            & +0.25 & -0.003 & +0.05 \tabularnewline
+\hline
+(cc) flavor light                     & 0.17$\pm$0.00 & 0.002$\pm$0.000 & 0.08$\pm$0.00 \tabularnewline
+- up                              & +0.17 & -0.001 & +0.06 \tabularnewline
+- down                            & -0.04 & +0.002 & +0.08 \tabularnewline
+\hline
+(cc) source:up_TotalNoFlavorNoTime    & 0.32$\pm$0.00 & 0.017$\pm$0.000 & 1.11$\pm$0.00 \tabularnewline
+- up                              & -0.20 & +0.017 & +1.11 \tabularnewline
+- down                            & +0.32 & -0.016 & -0.95 \tabularnewline
+\hline
+\hline
+Total& 0.74 & 0.023 & 1.45 
+JEC quad. sum          & 0.34 & 0.017 & 1.13 \tabularnewline
+JEC: Flavor            & 0.47 & 0.003 & 0.39 \tabularnewline
+- linear & -0.61 & 0.001 & 0.56 \tabularnewline
+lin-merged          & 0.88 & 0.023 & 1.50 \tabularnewline
+\hline
+\hline
+Total& 0.84 & 0.023 & 1.51 \tabularnewline 
+ \hline 
+ \hline 
+Uncertainty name & 2D mass & JSF & 1D mass \tabularnewline
+\hline
+\hline
+ColorReconnectionModelling & 0.19$\pm$0.06 & 0.002$\pm$0.001 & 0.06$\pm$0.04 \tabularnewline
+- shift                           & -0.19 & +0.002 & -0.06 \tabularnewline
+\hline
+JEC : Intercalibration           & 0.09$\pm$0.00 & 0.002$\pm$0.000 & 0.21$\pm$0.00 \tabularnewline
+- up                              & +0.04 & +0.002 & +0.21 \tabularnewline
+- down                            & +0.09 & -0.002 & -0.06 \tabularnewline
+\hline
+JEC : MPFInSitu                  & 0.07$\pm$0.00 & 0.003$\pm$0.000 & 0.28$\pm$0.00 \tabularnewline
+- up                              & +0.05 & +0.003 & +0.28 \tabularnewline
+- down                            & +0.07 & -0.003 & -0.15 \tabularnewline
+\hline
+JEC : Uncorrelated               & 0.32$\pm$0.00 & 0.017$\pm$0.000 & 1.07$\pm$0.00 \tabularnewline
+- up                              & -0.20 & +0.017 & +1.07 \tabularnewline
+- down                            & +0.32 & -0.016 & -0.91 \tabularnewline
+\hline
+JER                              & 0.27$\pm$0.00 & 0.004$\pm$0.000 & 0.16$\pm$0.00 \tabularnewline
+- up                              & -0.14 & +0.004 & +0.16 \tabularnewline
+- down                            & +0.27 & -0.004 & -0.03 \tabularnewline
+\hline
+(cc) JER correction                   & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.22$\pm$0.00 \tabularnewline
+- shift                           & +0.62 & -0.011 & -0.22 \tabularnewline
+\hline
+PS $Q^{2}$ scale          & 0.14$\pm$0.05 & 0.009$\pm$0.000 & 0.83$\pm$0.03 \tabularnewline
+- up                              & +0.14 & +0.009 & +0.83 \tabularnewline
+- down                            & -0.03 & -0.009 & -0.75 \tabularnewline
+\hline
+Pileup & 0.23$\pm$0.00 & 0.003$\pm$0.000 & 0.06$\pm$0.00 \tabularnewline
+- up                              & -0.20 & +0.003 & +0.06 \tabularnewline
+- down                            & +0.23 & -0.003 & -0.01 \tabularnewline
+\hline
+(cc) TuneCUETP8M1T4		     & 172.44$\pm$0.02 & 1.000$\pm$0.000 & 172.47$\pm$0.01 \tabularnewline
+- shift                           & -172.44 & -1.000 & -172.47 \tabularnewline
+\hline
+Underlying Event & 0.50$\pm$0.06 & 0.011$\pm$0.001 & 0.33$\pm$0.04 \tabularnewline
+- shift                           & +0.50 & -0.011 & -0.33 \tabularnewline
+\hline
+(cc) aMCatNLOFXFX, same configuration & 172.44$\pm$0.02 & 1.000$\pm$0.000 & 172.47$\pm$0.01 \tabularnewline
+- shift                           & -172.44 & -1.000 & -172.47 \tabularnewline
+\hline
+calibration                      & 0.06$\pm$0.00 & 0.000$\pm$0.000 & 0.03$\pm$0.00 \tabularnewline
+- shift                           & +0.06 & -0.000 & +0.03 \tabularnewline
+\hline
+(cc) flavor bottom                    & 0.35$\pm$0.00 & 0.000$\pm$0.000 & 0.36$\pm$0.00 \tabularnewline
+- up                              & -0.22 & -0.000 & -0.22 \tabularnewline
+- down                            & +0.35 & +0.000 & +0.36 \tabularnewline
+\hline
+(cc) flavor charm                     & 0.08$\pm$0.00 & 0.000$\pm$0.000 & 0.08$\pm$0.00 \tabularnewline
+- up                              & +0.08 & -0.000 & +0.06 \tabularnewline
+- down                            & +0.05 & +0.000 & +0.08 \tabularnewline
+\hline
+(cc) flavor gluon                     & 0.25$\pm$0.00 & 0.003$\pm$0.000 & 0.10$\pm$0.00 \tabularnewline
+- up                              & -0.13 & +0.003 & +0.10 \tabularnewline
+- down                            & +0.25 & -0.003 & +0.05 \tabularnewline
+\hline
+(cc) flavor light                     & 0.17$\pm$0.00 & 0.002$\pm$0.000 & 0.08$\pm$0.00 \tabularnewline
+- up                              & +0.17 & -0.001 & +0.06 \tabularnewline
+- down                            & -0.04 & +0.002 & +0.08 \tabularnewline
+\hline
+(cc) source:up_TotalNoFlavorNoTime    & 0.32$\pm$0.00 & 0.017$\pm$0.000 & 1.11$\pm$0.00 \tabularnewline
+- up                              & -0.20 & +0.017 & +1.11 \tabularnewline
+- down                            & +0.32 & -0.016 & -0.95 \tabularnewline
+\hline
+\hline
+Total& 0.74 & 0.023 & 1.45 
+JEC quad. sum          & 0.34 & 0.017 & 1.13 \tabularnewline
+JEC: Flavor            & 0.47 & 0.003 & 0.39 \tabularnewline
+- linear & -0.61 & 0.001 & 0.56 \tabularnewline
+nonlin-merged          & 0.88 & 0.023 & 1.50 \tabularnewline
+\hline
+\hline
+Total& 0.84 & 0.023 & 1.51 \tabularnewline 
+ \hline 
+ \hline 
+Uncertainty name & 2D mass & JSF & 1D mass \tabularnewline
+\hline
+\hline
+ColorReconnectionModelling & 0.19$\pm$0.06 & 0.002$\pm$0.001 & 0.06$\pm$0.04 \tabularnewline
+- shift                           & -0.19 & +0.002 & -0.06 \tabularnewline
+\hline
+JEC : Intercalibration           & 0.09$\pm$0.00 & 0.002$\pm$0.000 & 0.21$\pm$0.00 \tabularnewline
+- up                              & +0.04 & +0.002 & +0.21 \tabularnewline
+- down                            & +0.09 & -0.002 & -0.06 \tabularnewline
+\hline
+JEC : MPFInSitu                  & 0.07$\pm$0.00 & 0.003$\pm$0.000 & 0.28$\pm$0.00 \tabularnewline
+- up                              & +0.05 & +0.003 & +0.28 \tabularnewline
+- down                            & +0.07 & -0.003 & -0.15 \tabularnewline
+\hline
+JEC : Uncorrelated               & 0.32$\pm$0.00 & 0.017$\pm$0.000 & 1.07$\pm$0.00 \tabularnewline
+- up                              & -0.20 & +0.017 & +1.07 \tabularnewline
+- down                            & +0.32 & -0.016 & -0.91 \tabularnewline
+\hline
+JER                              & 0.27$\pm$0.00 & 0.004$\pm$0.000 & 0.16$\pm$0.00 \tabularnewline
+- up                              & -0.14 & +0.004 & +0.16 \tabularnewline
+- down                            & +0.27 & -0.004 & -0.03 \tabularnewline
+\hline
+(cc) JER correction                   & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.22$\pm$0.00 \tabularnewline
+- shift                           & +0.62 & -0.011 & -0.22 \tabularnewline
+\hline
+PS $Q^{2}$ scale          & 0.14$\pm$0.05 & 0.009$\pm$0.000 & 0.83$\pm$0.03 \tabularnewline
+- up                              & +0.14 & +0.009 & +0.83 \tabularnewline
+- down                            & -0.03 & -0.009 & -0.75 \tabularnewline
+\hline
+Pileup & 0.23$\pm$0.00 & 0.003$\pm$0.000 & 0.06$\pm$0.00 \tabularnewline
+- up                              & -0.20 & +0.003 & +0.06 \tabularnewline
+- down                            & +0.23 & -0.003 & -0.01 \tabularnewline
+\hline
+(cc) TuneCUETP8M1T4		     & 0.13$\pm$0.09 & 0.000$\pm$0.001 & 0.09$\pm$0.06 \tabularnewline
+- shift                           & -0.13 & +0.000 & -0.09 \tabularnewline
+\hline
+Underlying Event & 0.50$\pm$0.06 & 0.011$\pm$0.001 & 0.33$\pm$0.04 \tabularnewline
+- shift                           & +0.50 & -0.011 & -0.33 \tabularnewline
+\hline
+(cc) aMCatNLOFXFX, same configuration & 0.89$\pm$0.08 & 0.006$\pm$0.001 & 1.32$\pm$0.05 \tabularnewline
+- shift                           & -0.89 & -0.006 & -1.32 \tabularnewline
+\hline
+calibration                      & 0.06$\pm$0.00 & 0.000$\pm$0.000 & 0.03$\pm$0.00 \tabularnewline
+- shift                           & +0.06 & -0.000 & +0.03 \tabularnewline
+\hline
+(cc) flavor bottom                    & 0.35$\pm$0.00 & 0.000$\pm$0.000 & 0.36$\pm$0.00 \tabularnewline
+- up                              & -0.22 & -0.000 & -0.22 \tabularnewline
+- down                            & +0.35 & +0.000 & +0.36 \tabularnewline
+\hline
+(cc) flavor charm                     & 0.08$\pm$0.00 & 0.000$\pm$0.000 & 0.08$\pm$0.00 \tabularnewline
+- up                              & +0.08 & -0.000 & +0.06 \tabularnewline
+- down                            & +0.05 & +0.000 & +0.08 \tabularnewline
+\hline
+(cc) flavor gluon                     & 0.25$\pm$0.00 & 0.003$\pm$0.000 & 0.10$\pm$0.00 \tabularnewline
+- up                              & -0.13 & +0.003 & +0.10 \tabularnewline
+- down                            & +0.25 & -0.003 & +0.05 \tabularnewline
+\hline
+(cc) flavor light                     & 0.17$\pm$0.00 & 0.002$\pm$0.000 & 0.08$\pm$0.00 \tabularnewline
+- up                              & +0.17 & -0.001 & +0.06 \tabularnewline
+- down                            & -0.04 & +0.002 & +0.08 \tabularnewline
+\hline
+(cc) source:up_TotalNoFlavorNoTime    & 0.32$\pm$0.00 & 0.017$\pm$0.000 & 1.11$\pm$0.00 \tabularnewline
+- up                              & -0.20 & +0.017 & +1.11 \tabularnewline
+- down                            & +0.32 & -0.016 & -0.95 \tabularnewline
+\hline
+\hline
+Total& 0.74 & 0.023 & 1.45 
+JEC quad. sum          & 0.34 & 0.017 & 1.13 \tabularnewline
+JEC: Flavor            & 0.47 & 0.003 & 0.39 \tabularnewline
+- linear & -0.61 & 0.001 & 0.56 \tabularnewline
+nonlin-merged          & 0.88 & 0.023 & 1.50 \tabularnewline
+\hline
+\hline
+Total& 0.84 & 0.023 & 1.51 \tabularnewline 
+ \hline 
+ \hline 
+Uncertainty name & 2D mass & JSF & 1D mass \tabularnewline
+\hline
+\hline
+ColorReconnectionModelling & 0.19$\pm$0.06 & 0.002$\pm$0.001 & 0.06$\pm$0.04 \tabularnewline
+- shift                           & -0.19 & +0.002 & -0.06 \tabularnewline
+\hline
+JEC : Intercalibration           & 0.09$\pm$0.00 & 0.002$\pm$0.000 & 0.21$\pm$0.00 \tabularnewline
+- up                              & +0.04 & +0.002 & +0.21 \tabularnewline
+- down                            & +0.09 & -0.002 & -0.06 \tabularnewline
+\hline
+JEC : MPFInSitu                  & 0.07$\pm$0.00 & 0.003$\pm$0.000 & 0.28$\pm$0.00 \tabularnewline
+- up                              & +0.05 & +0.003 & +0.28 \tabularnewline
+- down                            & +0.07 & -0.003 & -0.15 \tabularnewline
+\hline
+JEC : Uncorrelated               & 0.32$\pm$0.00 & 0.017$\pm$0.000 & 1.07$\pm$0.00 \tabularnewline
+- up                              & -0.20 & +0.017 & +1.07 \tabularnewline
+- down                            & +0.32 & -0.016 & -0.91 \tabularnewline
+\hline
+JER                              & 0.27$\pm$0.00 & 0.004$\pm$0.000 & 0.16$\pm$0.00 \tabularnewline
+- up                              & -0.14 & +0.004 & +0.16 \tabularnewline
+- down                            & +0.27 & -0.004 & -0.03 \tabularnewline
+\hline
+(cc) JER correction                   & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.22$\pm$0.00 \tabularnewline
+- shift                           & +0.62 & -0.011 & -0.22 \tabularnewline
+\hline
+PS $Q^{2}$ scale          & 0.14$\pm$0.05 & 0.009$\pm$0.000 & 0.83$\pm$0.03 \tabularnewline
+- up                              & +0.14 & +0.009 & +0.83 \tabularnewline
+- down                            & -0.03 & -0.009 & -0.75 \tabularnewline
+\hline
+Pileup & 0.23$\pm$0.00 & 0.003$\pm$0.000 & 0.06$\pm$0.00 \tabularnewline
+- up                              & -0.20 & +0.003 & +0.06 \tabularnewline
+- down                            & +0.23 & -0.003 & -0.01 \tabularnewline
+\hline
+(cc) TuneCUETP8M1T4		     & 0.13$\pm$0.09 & 0.000$\pm$0.001 & 0.09$\pm$0.06 \tabularnewline
+- shift                           & -0.13 & +0.000 & -0.09 \tabularnewline
+\hline
+Underlying Event & 0.50$\pm$0.06 & 0.011$\pm$0.001 & 0.33$\pm$0.04 \tabularnewline
+- shift                           & +0.50 & -0.011 & -0.33 \tabularnewline
+\hline
+(cc) aMCatNLOFXFX, same configuration & 0.89$\pm$0.08 & 0.006$\pm$0.001 & 1.32$\pm$0.05 \tabularnewline
+- shift                           & -0.89 & -0.006 & -1.32 \tabularnewline
+\hline
+calibration                      & 0.06$\pm$0.00 & 0.000$\pm$0.000 & 0.03$\pm$0.00 \tabularnewline
+- shift                           & +0.06 & -0.000 & +0.03 \tabularnewline
+\hline
+(cc) flavor bottom                    & 0.35$\pm$0.00 & 0.000$\pm$0.000 & 0.36$\pm$0.00 \tabularnewline
+- up                              & -0.22 & -0.000 & -0.22 \tabularnewline
+- down                            & +0.35 & +0.000 & +0.36 \tabularnewline
+\hline
+(cc) flavor charm                     & 0.08$\pm$0.00 & 0.000$\pm$0.000 & 0.08$\pm$0.00 \tabularnewline
+- up                              & +0.08 & -0.000 & +0.06 \tabularnewline
+- down                            & +0.05 & +0.000 & +0.08 \tabularnewline
+\hline
+(cc) flavor gluon                     & 0.25$\pm$0.00 & 0.003$\pm$0.000 & 0.10$\pm$0.00 \tabularnewline
+- up                              & -0.13 & +0.003 & +0.10 \tabularnewline
+- down                            & +0.25 & -0.003 & +0.05 \tabularnewline
+\hline
+(cc) flavor light                     & 0.17$\pm$0.00 & 0.002$\pm$0.000 & 0.08$\pm$0.00 \tabularnewline
+- up                              & +0.17 & -0.001 & +0.06 \tabularnewline
+- down                            & -0.04 & +0.002 & +0.08 \tabularnewline
+\hline
+(cc) madgraphMLM_pythia8, same configuration & 0.90$\pm$0.07 & 0.006$\pm$0.001 & 0.45$\pm$0.04 \tabularnewline
+- shift                           & +0.90 & -0.006 & +0.45 \tabularnewline
+\hline
+(cc) powheg_herwigpp, same configuration & 3.78$\pm$0.07 & 0.005$\pm$0.001 & 3.41$\pm$0.05 \tabularnewline
+- shift                           & -3.78 & +0.005 & -3.41 \tabularnewline
+\hline
+(cc) source:up_TotalNoFlavorNoTime    & 0.32$\pm$0.00 & 0.017$\pm$0.000 & 1.11$\pm$0.00 \tabularnewline
+- up                              & -0.20 & +0.017 & +1.11 \tabularnewline
+- down                            & +0.32 & -0.016 & -0.95 \tabularnewline
+\hline
+\hline
+Total& 0.74 & 0.023 & 1.45 
+JEC quad. sum          & 0.34 & 0.017 & 1.13 \tabularnewline
+JEC: Flavor            & 0.47 & 0.003 & 0.39 \tabularnewline
+- linear & -0.61 & 0.001 & 0.56 \tabularnewline
+nonlin-merged          & 0.88 & 0.023 & 1.50 \tabularnewline
+\hline
+\hline
+Total& 0.84 & 0.023 & 1.51 \tabularnewline 
+ \hline 
+ \hline 
+Uncertainty name & 2D mass & JSF & 1D mass \tabularnewline
+\hline
+\hline
+$Q^{2}$ scale   active?          & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.23$\pm$0.00 \tabularnewline
+- up                              & +0.62 & -0.011 & -0.22 \tabularnewline
+- down                            & +0.59 & -0.011 & -0.23 \tabularnewline
+\hline
+$Q^{2}$ scale   uncor?           & 0.62$\pm$0.03 & 0.011$\pm$0.000 & 0.23$\pm$0.02 \tabularnewline
+- up                              & +0.62 & -0.011 & -0.22 \tabularnewline
+- down                            & +0.59 & -0.011 & -0.23 \tabularnewline
+\hline
+$Q^{2}$ scale  active and uncot? & 0.62$\pm$0.03 & 0.011$\pm$0.000 & 0.23$\pm$0.02 \tabularnewline
+- up                              & +0.62 & -0.011 & -0.22 \tabularnewline
+- down                            & +0.59 & -0.011 & -0.23 \tabularnewline
+\hline
+(cc) $Q^{2}$ scale to 1001 weight     & 0.02$\pm$0.00 & 0.000$\pm$0.000 & 0.01$\pm$0.00 \tabularnewline
+- up                              & +0.01 & -0.000 & -0.01 \tabularnewline
+- down                            & -0.02 & +0.000 & -0.01 \tabularnewline
+\hline
+(cc) $Q^{2}$ scale via weight         & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.23$\pm$0.00 \tabularnewline
+- up                              & +0.62 & -0.011 & -0.22 \tabularnewline
+- down                            & +0.59 & -0.011 & -0.23 \tabularnewline
+\hline
+ColorReconnectionModelling & 0.19$\pm$0.06 & 0.002$\pm$0.001 & 0.06$\pm$0.04 \tabularnewline
+- shift                           & -0.19 & +0.002 & -0.06 \tabularnewline
+\hline
+(cc) Factorisation                    & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.22$\pm$0.00 \tabularnewline
+- up                              & +0.62 & -0.011 & -0.22 \tabularnewline
+- down                            & +0.62 & -0.011 & -0.21 \tabularnewline
+\hline
+JEC : Intercalibration           & 0.09$\pm$0.00 & 0.002$\pm$0.000 & 0.21$\pm$0.00 \tabularnewline
+- up                              & +0.04 & +0.002 & +0.21 \tabularnewline
+- down                            & +0.09 & -0.002 & -0.06 \tabularnewline
+\hline
+JEC : MPFInSitu                  & 0.07$\pm$0.00 & 0.003$\pm$0.000 & 0.28$\pm$0.00 \tabularnewline
+- up                              & +0.05 & +0.003 & +0.28 \tabularnewline
+- down                            & +0.07 & -0.003 & -0.15 \tabularnewline
+\hline
+JEC : Uncorrelated               & 0.32$\pm$0.00 & 0.017$\pm$0.000 & 1.07$\pm$0.00 \tabularnewline
+- up                              & -0.20 & +0.017 & +1.07 \tabularnewline
+- down                            & +0.32 & -0.016 & -0.91 \tabularnewline
+\hline
+JER                              & 0.27$\pm$0.00 & 0.004$\pm$0.000 & 0.16$\pm$0.00 \tabularnewline
+- up                              & -0.14 & +0.004 & +0.16 \tabularnewline
+- down                            & +0.27 & -0.004 & -0.03 \tabularnewline
+\hline
+(cc) JER correction                   & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.22$\pm$0.00 \tabularnewline
+- shift                           & +0.62 & -0.011 & -0.22 \tabularnewline
+\hline
+PS $Q^{2}$ scale          & 0.14$\pm$0.05 & 0.009$\pm$0.000 & 0.83$\pm$0.03 \tabularnewline
+- up                              & +0.14 & +0.009 & +0.83 \tabularnewline
+- down                            & -0.03 & -0.009 & -0.75 \tabularnewline
+\hline
+Pileup & 0.08$\pm$0.00 & 0.001$\pm$0.000 & 0.01$\pm$0.00 \tabularnewline
+- up                              & -0.08 & +0.001 & +0.01 \tabularnewline
+- down                            & +0.08 & -0.001 & -0.00 \tabularnewline
+\hline
+(cc) Renormalisation                  & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.22$\pm$0.00 \tabularnewline
+- up                              & +0.61 & -0.011 & -0.21 \tabularnewline
+- down                            & +0.62 & -0.011 & -0.22 \tabularnewline
+\hline
+Top-pt reweighting                & 0.65$\pm$0.00 & 0.013$\pm$0.000 & 0.38$\pm$0.00 \tabularnewline
+- shift                           & +0.65 & -0.013 & -0.38 \tabularnewline
+\hline
+(cc) TuneCUETP8M1T4		     & 0.13$\pm$0.09 & 0.000$\pm$0.001 & 0.09$\pm$0.06 \tabularnewline
+- shift                           & -0.13 & +0.000 & -0.09 \tabularnewline
+\hline
+Underlying Event & 0.50$\pm$0.06 & 0.011$\pm$0.001 & 0.33$\pm$0.04 \tabularnewline
+- shift                           & +0.50 & -0.011 & -0.33 \tabularnewline
+\hline
+(cc) aMCatNLOFXFX, same configuration & 0.89$\pm$0.08 & 0.006$\pm$0.001 & 1.32$\pm$0.05 \tabularnewline
+- shift                           & -0.89 & -0.006 & -1.32 \tabularnewline
+\hline
+calibration                      & 0.06$\pm$0.00 & 0.000$\pm$0.000 & 0.03$\pm$0.00 \tabularnewline
+- shift                           & +0.06 & -0.000 & +0.03 \tabularnewline
+\hline
+(cc) flavor bottom                    & 0.35$\pm$0.00 & 0.000$\pm$0.000 & 0.36$\pm$0.00 \tabularnewline
+- up                              & -0.22 & -0.000 & -0.22 \tabularnewline
+- down                            & +0.35 & +0.000 & +0.36 \tabularnewline
+\hline
+(cc) flavor charm                     & 0.08$\pm$0.00 & 0.000$\pm$0.000 & 0.08$\pm$0.00 \tabularnewline
+- up                              & +0.08 & -0.000 & +0.06 \tabularnewline
+- down                            & +0.05 & +0.000 & +0.08 \tabularnewline
+\hline
+(cc) flavor gluon                     & 0.25$\pm$0.00 & 0.003$\pm$0.000 & 0.10$\pm$0.00 \tabularnewline
+- up                              & -0.13 & +0.003 & +0.10 \tabularnewline
+- down                            & +0.25 & -0.003 & +0.05 \tabularnewline
+\hline
+(cc) flavor light                     & 0.17$\pm$0.00 & 0.002$\pm$0.000 & 0.08$\pm$0.00 \tabularnewline
+- up                              & +0.17 & -0.001 & +0.06 \tabularnewline
+- down                            & -0.04 & +0.002 & +0.08 \tabularnewline
+\hline
+(cc) madgraphMLM_pythia8, same configuration & 0.90$\pm$0.07 & 0.006$\pm$0.001 & 0.45$\pm$0.04 \tabularnewline
+- shift                           & +0.90 & -0.006 & +0.45 \tabularnewline
+\hline
+(cc) powheg_herwigpp, same configuration & 3.78$\pm$0.07 & 0.005$\pm$0.001 & 3.41$\pm$0.05 \tabularnewline
+- shift                           & -3.78 & +0.005 & -3.41 \tabularnewline
+\hline
+(cc) source:up_TotalNoFlavorNoTime    & 0.32$\pm$0.00 & 0.017$\pm$0.000 & 1.11$\pm$0.00 \tabularnewline
+- up                              & -0.20 & +0.017 & +1.11 \tabularnewline
+- down                            & +0.32 & -0.016 & -0.95 \tabularnewline
+\hline
+\hline
+Total& 1.45 & 0.032 & 1.55 
+JEC quad. sum          & 0.34 & 0.017 & 1.13 \tabularnewline
+JEC: Flavor            & 0.47 & 0.003 & 0.39 \tabularnewline
+- linear & -0.61 & 0.001 & 0.56 \tabularnewline
+nonlin-merged          & 1.07 & 0.026 & 1.55 \tabularnewline
+\hline
+\hline
+Total& 1.50 & 0.032 & 1.60 \tabularnewline 
+ \hline 
+ \hline 
+Uncertainty name & 2D mass & JSF & 1D mass \tabularnewline
+\hline
+\hline
+$Q^{2}$ scale   active?          & 0.02$\pm$0.00 & 0.000$\pm$0.000 & 0.01$\pm$0.00 \tabularnewline
+- up                              & +0.01 & -0.000 & +0.00 \tabularnewline
+- down                            & -0.02 & +0.000 & -0.01 \tabularnewline
+\hline
+$Q^{2}$ scale   uncor?           & 0.02$\pm$0.03 & 0.000$\pm$0.000 & 0.01$\pm$0.02 \tabularnewline
+- up                              & +0.01 & -0.000 & +0.00 \tabularnewline
+- down                            & -0.02 & +0.000 & -0.01 \tabularnewline
+\hline
+$Q^{2}$ scale  active and uncot? & 0.02$\pm$0.03 & 0.000$\pm$0.000 & 0.01$\pm$0.02 \tabularnewline
+- up                              & +0.01 & -0.000 & +0.00 \tabularnewline
+- down                            & -0.02 & +0.000 & -0.01 \tabularnewline
+\hline
+(cc) $Q^{2}$ scale to 1001 weight     & 0.02$\pm$0.00 & 0.000$\pm$0.000 & 0.01$\pm$0.00 \tabularnewline
+- up                              & +0.01 & -0.000 & -0.01 \tabularnewline
+- down                            & -0.02 & +0.000 & -0.01 \tabularnewline
+\hline
+(cc) $Q^{2}$ scale via weight         & 0.02$\pm$0.00 & 0.000$\pm$0.000 & 0.01$\pm$0.00 \tabularnewline
+- up                              & +0.01 & -0.000 & +0.00 \tabularnewline
+- down                            & -0.02 & +0.000 & -0.01 \tabularnewline
+\hline
+ColorReconnectionModelling & 0.81$\pm$0.06 & 0.013$\pm$0.001 & 0.16$\pm$0.04 \tabularnewline
+- shift                           & -0.81 & +0.013 & +0.16 \tabularnewline
+\hline
+(cc) Factorisation                    & 0.01$\pm$0.00 & 0.000$\pm$0.000 & 0.01$\pm$0.00 \tabularnewline
+- up                              & +0.01 & -0.000 & -0.00 \tabularnewline
+- down                            & -0.00 & +0.000 & +0.01 \tabularnewline
+\hline
+JEC : Intercalibration           & 0.58$\pm$0.00 & 0.013$\pm$0.000 & 0.43$\pm$0.00 \tabularnewline
+- up                              & -0.58 & +0.013 & +0.43 \tabularnewline
+- down                            & -0.52 & +0.009 & +0.15 \tabularnewline
+\hline
+JEC : MPFInSitu                  & 0.56$\pm$0.00 & 0.014$\pm$0.000 & 0.50$\pm$0.00 \tabularnewline
+- up                              & -0.56 & +0.014 & +0.50 \tabularnewline
+- down                            & -0.55 & +0.008 & +0.07 \tabularnewline
+\hline
+JEC : Uncorrelated               & 0.82$\pm$0.00 & 0.027$\pm$0.000 & 1.29$\pm$0.00 \tabularnewline
+- up                              & -0.82 & +0.027 & +1.29 \tabularnewline
+- down                            & -0.30 & -0.005 & -0.69 \tabularnewline
+\hline
+JER                              & 0.75$\pm$0.00 & 0.015$\pm$0.000 & 0.38$\pm$0.00 \tabularnewline
+- up                              & -0.75 & +0.015 & +0.38 \tabularnewline
+- down                            & -0.35 & +0.007 & +0.19 \tabularnewline
+\hline
+(cc) JER correction                   & 0.00$\pm$0.00 & 0.000$\pm$0.000 & 0.01$\pm$0.00 \tabularnewline
+- shift                           & +0.00 & -0.000 & -0.01 \tabularnewline
+\hline
+PS $Q^{2}$ scale          & 0.64$\pm$0.05 & 0.020$\pm$0.000 & 1.05$\pm$0.03 \tabularnewline
+- up                              & -0.48 & +0.020 & +1.05 \tabularnewline
+- down                            & -0.64 & +0.001 & -0.53 \tabularnewline
+\hline
+Pileup & 0.08$\pm$0.00 & 0.001$\pm$0.000 & 0.01$\pm$0.00 \tabularnewline
+- up                              & -0.08 & +0.001 & +0.01 \tabularnewline
+- down                            & +0.08 & -0.001 & -0.00 \tabularnewline
+\hline
+(cc) Renormalisation                  & 0.01$\pm$0.00 & 0.000$\pm$0.000 & 0.01$\pm$0.00 \tabularnewline
+- up                              & -0.01 & +0.000 & +0.01 \tabularnewline
+- down                            & +0.01 & -0.000 & +0.00 \tabularnewline
+\hline
+Top-pt reweighting                & 0.03$\pm$0.00 & 0.002$\pm$0.000 & 0.16$\pm$0.00 \tabularnewline
+- shift                           & +0.03 & -0.002 & -0.16 \tabularnewline
+\hline
+(cc) TuneCUETP8M1T4		     & 0.75$\pm$0.09 & 0.011$\pm$0.001 & 0.13$\pm$0.06 \tabularnewline
+- shift                           & -0.75 & +0.011 & +0.13 \tabularnewline
+\hline
+Underlying Event & 0.11$\pm$0.06 & 0.000$\pm$0.001 & 0.11$\pm$0.04 \tabularnewline
+- shift                           & -0.11 & +0.000 & -0.11 \tabularnewline
+\hline
+(cc) aMCatNLOFXFX, same configuration & 1.50$\pm$0.08 & 0.005$\pm$0.001 & 1.10$\pm$0.05 \tabularnewline
+- shift                           & -1.50 & +0.005 & -1.10 \tabularnewline
+\hline
+calibration                      & 0.56$\pm$0.00 & 0.010$\pm$0.000 & 0.24$\pm$0.00 \tabularnewline
+- shift                           & -0.56 & +0.010 & +0.24 \tabularnewline
+\hline
+(cc) flavor bottom                    & 0.83$\pm$0.00 & 0.011$\pm$0.000 & 0.58$\pm$0.00 \tabularnewline
+- up                              & -0.83 & +0.011 & -0.00 \tabularnewline
+- down                            & -0.27 & +0.011 & +0.58 \tabularnewline
+\hline
+(cc) flavor charm                     & 0.57$\pm$0.00 & 0.011$\pm$0.000 & 0.30$\pm$0.00 \tabularnewline
+- up                              & -0.54 & +0.011 & +0.28 \tabularnewline
+- down                            & -0.57 & +0.011 & +0.30 \tabularnewline
+\hline
+(cc) flavor gluon                     & 0.74$\pm$0.00 & 0.014$\pm$0.000 & 0.32$\pm$0.00 \tabularnewline
+- up                              & -0.74 & +0.014 & +0.32 \tabularnewline
+- down                            & -0.36 & +0.008 & +0.27 \tabularnewline
+\hline
+(cc) flavor light                     & 0.66$\pm$0.00 & 0.012$\pm$0.000 & 0.30$\pm$0.00 \tabularnewline
+- up                              & -0.44 & +0.009 & +0.28 \tabularnewline
+- down                            & -0.66 & +0.012 & +0.30 \tabularnewline
+\hline
+(cc) madgraphMLM_pythia8, same configuration & 0.28$\pm$0.06 & 0.005$\pm$0.001 & 0.67$\pm$0.04 \tabularnewline
+- shift                           & +0.28 & +0.005 & +0.67 \tabularnewline
+\hline
+(cc) powheg_herwigpp, same configuration & 4.40$\pm$0.07 & 0.016$\pm$0.001 & 3.20$\pm$0.05 \tabularnewline
+- shift                           & -4.40 & +0.016 & -3.20 \tabularnewline
+\hline
+(cc) source:up_TotalNoFlavorNoTime    & 0.82$\pm$0.00 & 0.028$\pm$0.000 & 1.33$\pm$0.00 \tabularnewline
+- up                              & -0.82 & +0.028 & +1.33 \tabularnewline
+- down                            & -0.30 & -0.006 & -0.73 \tabularnewline
+\hline
+\hline
+Total& 1.81 & 0.045 & 1.86 
+JEC quad. sum          & 1.15 & 0.033 & 1.45 \tabularnewline
+JEC: Flavor            & 1.41 & 0.024 & 0.78 \tabularnewline
+- linear & -2.55 & 0.044 & 1.43 \tabularnewline
+nonlin-merged          & 2.23 & 0.050 & 2.00 \tabularnewline
+\hline
+\hline
+Total& 2.79 & 0.058 & 2.22 \tabularnewline 
+ \hline 
+ \hline 
+Uncertainty name & 2D mass & JSF & 1D mass \tabularnewline
+\hline
+\hline
+$Q^{2}$ scale   active?          & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.23$\pm$0.00 \tabularnewline
+- up                              & +0.62 & -0.011 & -0.22 \tabularnewline
+- down                            & +0.59 & -0.011 & -0.23 \tabularnewline
+\hline
+$Q^{2}$ scale   uncor?           & 0.62$\pm$0.03 & 0.011$\pm$0.000 & 0.23$\pm$0.02 \tabularnewline
+- up                              & +0.62 & -0.011 & -0.22 \tabularnewline
+- down                            & +0.59 & -0.011 & -0.23 \tabularnewline
+\hline
+$Q^{2}$ scale  active and uncot? & 0.62$\pm$0.03 & 0.011$\pm$0.000 & 0.23$\pm$0.02 \tabularnewline
+- up                              & +0.62 & -0.011 & -0.22 \tabularnewline
+- down                            & +0.59 & -0.011 & -0.23 \tabularnewline
+\hline
+(cc) $Q^{2}$ scale to 1001 weight     & 0.02$\pm$0.00 & 0.000$\pm$0.000 & 0.01$\pm$0.00 \tabularnewline
+- up                              & +0.01 & -0.000 & -0.01 \tabularnewline
+- down                            & -0.02 & +0.000 & -0.01 \tabularnewline
+\hline
+(cc) $Q^{2}$ scale via weight         & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.23$\pm$0.00 \tabularnewline
+- up                              & +0.62 & -0.011 & -0.22 \tabularnewline
+- down                            & +0.59 & -0.011 & -0.23 \tabularnewline
+\hline
+ColorReconnectionModelling & 0.19$\pm$0.06 & 0.002$\pm$0.001 & 0.06$\pm$0.04 \tabularnewline
+- shift                           & -0.19 & +0.002 & -0.06 \tabularnewline
+\hline
+(cc) Factorisation                    & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.22$\pm$0.00 \tabularnewline
+- up                              & +0.62 & -0.011 & -0.22 \tabularnewline
+- down                            & +0.62 & -0.011 & -0.21 \tabularnewline
+\hline
+JEC : Intercalibration           & 0.09$\pm$0.00 & 0.002$\pm$0.000 & 0.21$\pm$0.00 \tabularnewline
+- up                              & +0.04 & +0.002 & +0.21 \tabularnewline
+- down                            & +0.09 & -0.002 & -0.06 \tabularnewline
+\hline
+JEC : MPFInSitu                  & 0.07$\pm$0.00 & 0.003$\pm$0.000 & 0.28$\pm$0.00 \tabularnewline
+- up                              & +0.05 & +0.003 & +0.28 \tabularnewline
+- down                            & +0.07 & -0.003 & -0.15 \tabularnewline
+\hline
+JEC : Uncorrelated               & 0.32$\pm$0.00 & 0.017$\pm$0.000 & 1.07$\pm$0.00 \tabularnewline
+- up                              & -0.20 & +0.017 & +1.07 \tabularnewline
+- down                            & +0.32 & -0.016 & -0.91 \tabularnewline
+\hline
+JER                              & 0.27$\pm$0.00 & 0.004$\pm$0.000 & 0.16$\pm$0.00 \tabularnewline
+- up                              & -0.14 & +0.004 & +0.16 \tabularnewline
+- down                            & +0.27 & -0.004 & -0.03 \tabularnewline
+\hline
+(cc) JER correction                   & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.22$\pm$0.00 \tabularnewline
+- shift                           & +0.62 & -0.011 & -0.22 \tabularnewline
+\hline
+PS $Q^{2}$ scale          & 0.14$\pm$0.05 & 0.009$\pm$0.000 & 0.83$\pm$0.03 \tabularnewline
+- up                              & +0.14 & +0.009 & +0.83 \tabularnewline
+- down                            & -0.03 & -0.009 & -0.75 \tabularnewline
+\hline
+Pileup & 0.08$\pm$0.00 & 0.001$\pm$0.000 & 0.00$\pm$0.00 \tabularnewline
+- up                              & -0.08 & +0.001 & +0.00 \tabularnewline
+- down                            & +0.08 & -0.001 & -0.00 \tabularnewline
+\hline
+(cc) Renormalisation                  & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.22$\pm$0.00 \tabularnewline
+- up                              & +0.61 & -0.011 & -0.21 \tabularnewline
+- down                            & +0.62 & -0.011 & -0.22 \tabularnewline
+\hline
+Top-pt reweighting                & 0.65$\pm$0.00 & 0.013$\pm$0.000 & 0.38$\pm$0.00 \tabularnewline
+- shift                           & +0.65 & -0.013 & -0.38 \tabularnewline
+\hline
+(cc) TuneCUETP8M1T4		     & 0.13$\pm$0.09 & 0.000$\pm$0.001 & 0.09$\pm$0.06 \tabularnewline
+- shift                           & -0.13 & +0.000 & -0.09 \tabularnewline
+\hline
+Underlying Event & 0.50$\pm$0.06 & 0.011$\pm$0.001 & 0.33$\pm$0.04 \tabularnewline
+- shift                           & +0.50 & -0.011 & -0.33 \tabularnewline
+\hline
+(cc) aMCatNLOFXFX, same configuration & 0.89$\pm$0.08 & 0.006$\pm$0.001 & 1.32$\pm$0.05 \tabularnewline
+- shift                           & -0.89 & -0.006 & -1.32 \tabularnewline
+\hline
+calibration                      & 0.06$\pm$0.00 & 0.000$\pm$0.000 & 0.03$\pm$0.00 \tabularnewline
+- shift                           & +0.06 & -0.000 & +0.03 \tabularnewline
+\hline
+(cc) flavor bottom                    & 0.35$\pm$0.00 & 0.000$\pm$0.000 & 0.36$\pm$0.00 \tabularnewline
+- up                              & -0.22 & -0.000 & -0.22 \tabularnewline
+- down                            & +0.35 & +0.000 & +0.36 \tabularnewline
+\hline
+(cc) flavor charm                     & 0.08$\pm$0.00 & 0.000$\pm$0.000 & 0.08$\pm$0.00 \tabularnewline
+- up                              & +0.08 & -0.000 & +0.06 \tabularnewline
+- down                            & +0.05 & +0.000 & +0.08 \tabularnewline
+\hline
+(cc) flavor gluon                     & 0.25$\pm$0.00 & 0.003$\pm$0.000 & 0.10$\pm$0.00 \tabularnewline
+- up                              & -0.13 & +0.003 & +0.10 \tabularnewline
+- down                            & +0.25 & -0.003 & +0.05 \tabularnewline
+\hline
+(cc) flavor light                     & 0.17$\pm$0.00 & 0.002$\pm$0.000 & 0.08$\pm$0.00 \tabularnewline
+- up                              & +0.17 & -0.001 & +0.06 \tabularnewline
+- down                            & -0.04 & +0.002 & +0.08 \tabularnewline
+\hline
+(cc) madgraphMLM_pythia8, same configuration & 0.90$\pm$0.07 & 0.006$\pm$0.001 & 0.45$\pm$0.04 \tabularnewline
+- shift                           & +0.90 & -0.006 & +0.45 \tabularnewline
+\hline
+(cc) powheg_herwigpp, same configuration & 3.78$\pm$0.07 & 0.005$\pm$0.001 & 3.41$\pm$0.05 \tabularnewline
+- shift                           & -3.78 & +0.005 & -3.41 \tabularnewline
+\hline
+(cc) source:up_TotalNoFlavorNoTime    & 0.32$\pm$0.00 & 0.017$\pm$0.000 & 1.11$\pm$0.00 \tabularnewline
+- up                              & -0.20 & +0.017 & +1.11 \tabularnewline
+- down                            & +0.32 & -0.016 & -0.95 \tabularnewline
+\hline
+\hline
+Total& 1.45 & 0.032 & 1.55 
+JEC quad. sum          & 0.34 & 0.017 & 1.13 \tabularnewline
+JEC: Flavor            & 0.47 & 0.003 & 0.39 \tabularnewline
+- linear & -0.61 & 0.001 & 0.56 \tabularnewline
+nonlin-merged          & 1.07 & 0.026 & 1.55 \tabularnewline
+\hline
+\hline
+Total& 1.50 & 0.032 & 1.60 \tabularnewline 
+ \hline 
+ \hline 
+Uncertainty name & 2D mass & JSF & 1D mass \tabularnewline
+\hline
+\hline
+$Q^{2}$ scale   active?          & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.23$\pm$0.00 \tabularnewline
+- up                              & +0.62 & -0.011 & -0.22 \tabularnewline
+- down                            & +0.59 & -0.011 & -0.23 \tabularnewline
+\hline
+$Q^{2}$ scale   uncor?           & 0.62$\pm$0.03 & 0.011$\pm$0.000 & 0.23$\pm$0.02 \tabularnewline
+- up                              & +0.62 & -0.011 & -0.22 \tabularnewline
+- down                            & +0.59 & -0.011 & -0.23 \tabularnewline
+\hline
+$Q^{2}$ scale  active and uncot? & 0.62$\pm$0.03 & 0.011$\pm$0.000 & 0.23$\pm$0.02 \tabularnewline
+- up                              & +0.62 & -0.011 & -0.22 \tabularnewline
+- down                            & +0.59 & -0.011 & -0.23 \tabularnewline
+\hline
+(cc) $Q^{2}$ scale to 1001 weight     & 0.02$\pm$0.00 & 0.000$\pm$0.000 & 0.01$\pm$0.00 \tabularnewline
+- up                              & +0.01 & -0.000 & -0.01 \tabularnewline
+- down                            & -0.02 & +0.000 & -0.01 \tabularnewline
+\hline
+(cc) $Q^{2}$ scale via weight         & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.23$\pm$0.00 \tabularnewline
+- up                              & +0.62 & -0.011 & -0.22 \tabularnewline
+- down                            & +0.59 & -0.011 & -0.23 \tabularnewline
+\hline
+ColorReconnectionModelling & 0.19$\pm$0.06 & 0.002$\pm$0.001 & 0.06$\pm$0.04 \tabularnewline
+- shift                           & -0.19 & +0.002 & -0.06 \tabularnewline
+\hline
+(cc) Factorisation                    & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.22$\pm$0.00 \tabularnewline
+- up                              & +0.62 & -0.011 & -0.22 \tabularnewline
+- down                            & +0.62 & -0.011 & -0.21 \tabularnewline
+\hline
+JEC : Intercalibration           & 0.09$\pm$0.00 & 0.002$\pm$0.000 & 0.21$\pm$0.00 \tabularnewline
+- up                              & +0.04 & +0.002 & +0.21 \tabularnewline
+- down                            & +0.09 & -0.002 & -0.06 \tabularnewline
+\hline
+JEC : MPFInSitu                  & 0.07$\pm$0.00 & 0.003$\pm$0.000 & 0.28$\pm$0.00 \tabularnewline
+- up                              & +0.05 & +0.003 & +0.28 \tabularnewline
+- down                            & +0.07 & -0.003 & -0.15 \tabularnewline
+\hline
+JEC : Uncorrelated               & 0.32$\pm$0.00 & 0.017$\pm$0.000 & 1.07$\pm$0.00 \tabularnewline
+- up                              & -0.20 & +0.017 & +1.07 \tabularnewline
+- down                            & +0.32 & -0.016 & -0.91 \tabularnewline
+\hline
+JER                              & 0.27$\pm$0.00 & 0.004$\pm$0.000 & 0.16$\pm$0.00 \tabularnewline
+- up                              & -0.14 & +0.004 & +0.16 \tabularnewline
+- down                            & +0.27 & -0.004 & -0.03 \tabularnewline
+\hline
+(cc) JER correction                   & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.22$\pm$0.00 \tabularnewline
+- shift                           & +0.62 & -0.011 & -0.22 \tabularnewline
+\hline
+PS $Q^{2}$ scale          & 0.14$\pm$0.05 & 0.009$\pm$0.000 & 0.83$\pm$0.03 \tabularnewline
+- up                              & +0.14 & +0.009 & +0.83 \tabularnewline
+- down                            & -0.03 & -0.009 & -0.75 \tabularnewline
+\hline
+Pileup & 0.25$\pm$0.00 & 0.003$\pm$0.000 & 0.06$\pm$0.00 \tabularnewline
+- up                              & -0.21 & +0.003 & +0.06 \tabularnewline
+- down                            & +0.25 & -0.003 & -0.01 \tabularnewline
+\hline
+(cc) Renormalisation                  & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.22$\pm$0.00 \tabularnewline
+- up                              & +0.61 & -0.011 & -0.21 \tabularnewline
+- down                            & +0.62 & -0.011 & -0.22 \tabularnewline
+\hline
+Top-pt reweighting                & 0.65$\pm$0.00 & 0.013$\pm$0.000 & 0.38$\pm$0.00 \tabularnewline
+- shift                           & +0.65 & -0.013 & -0.38 \tabularnewline
+\hline
+(cc) TuneCUETP8M1T4		     & 0.13$\pm$0.09 & 0.000$\pm$0.001 & 0.09$\pm$0.06 \tabularnewline
+- shift                           & -0.13 & +0.000 & -0.09 \tabularnewline
+\hline
+Underlying Event & 0.50$\pm$0.06 & 0.011$\pm$0.001 & 0.33$\pm$0.04 \tabularnewline
+- shift                           & +0.50 & -0.011 & -0.33 \tabularnewline
+\hline
+(cc) aMCatNLOFXFX, same configuration & 0.89$\pm$0.08 & 0.006$\pm$0.001 & 1.32$\pm$0.05 \tabularnewline
+- shift                           & -0.89 & -0.006 & -1.32 \tabularnewline
+\hline
+calibration                      & 0.06$\pm$0.00 & 0.000$\pm$0.000 & 0.03$\pm$0.00 \tabularnewline
+- shift                           & +0.06 & -0.000 & +0.03 \tabularnewline
+\hline
+(cc) flavor bottom                    & 0.35$\pm$0.00 & 0.000$\pm$0.000 & 0.36$\pm$0.00 \tabularnewline
+- up                              & -0.22 & -0.000 & -0.22 \tabularnewline
+- down                            & +0.35 & +0.000 & +0.36 \tabularnewline
+\hline
+(cc) flavor charm                     & 0.08$\pm$0.00 & 0.000$\pm$0.000 & 0.08$\pm$0.00 \tabularnewline
+- up                              & +0.08 & -0.000 & +0.06 \tabularnewline
+- down                            & +0.05 & +0.000 & +0.08 \tabularnewline
+\hline
+(cc) flavor gluon                     & 0.25$\pm$0.00 & 0.003$\pm$0.000 & 0.10$\pm$0.00 \tabularnewline
+- up                              & -0.13 & +0.003 & +0.10 \tabularnewline
+- down                            & +0.25 & -0.003 & +0.05 \tabularnewline
+\hline
+(cc) flavor light                     & 0.17$\pm$0.00 & 0.002$\pm$0.000 & 0.08$\pm$0.00 \tabularnewline
+- up                              & +0.17 & -0.001 & +0.06 \tabularnewline
+- down                            & -0.04 & +0.002 & +0.08 \tabularnewline
+\hline
+(cc) madgraphMLM_pythia8, same configuration & 0.90$\pm$0.07 & 0.006$\pm$0.001 & 0.45$\pm$0.04 \tabularnewline
+- shift                           & +0.90 & -0.006 & +0.45 \tabularnewline
+\hline
+(cc) powheg_herwigpp, same configuration & 3.78$\pm$0.07 & 0.005$\pm$0.001 & 3.41$\pm$0.05 \tabularnewline
+- shift                           & -3.78 & +0.005 & -3.41 \tabularnewline
+\hline
+(cc) source:up_TotalNoFlavorNoTime    & 0.32$\pm$0.00 & 0.017$\pm$0.000 & 1.11$\pm$0.00 \tabularnewline
+- up                              & -0.20 & +0.017 & +1.11 \tabularnewline
+- down                            & +0.32 & -0.016 & -0.95 \tabularnewline
+\hline
+\hline
+Total& 1.47 & 0.032 & 1.55 
+JEC quad. sum          & 0.34 & 0.017 & 1.13 \tabularnewline
+JEC: Flavor            & 0.47 & 0.003 & 0.39 \tabularnewline
+- linear & -0.61 & 0.001 & 0.56 \tabularnewline
+nonlin-merged          & 1.09 & 0.027 & 1.55 \tabularnewline
+\hline
+\hline
+Total& 1.52 & 0.032 & 1.60 \tabularnewline 
+ \hline 
+ \hline 
+Uncertainty name & 2D mass & JSF & 1D mass \tabularnewline
+\hline
+\hline
+$Q^{2}$ scale   active?          & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.23$\pm$0.00 \tabularnewline
+- up                              & +0.62 & -0.011 & -0.22 \tabularnewline
+- down                            & +0.59 & -0.011 & -0.23 \tabularnewline
+\hline
+$Q^{2}$ scale   uncor?           & 0.62$\pm$0.03 & 0.011$\pm$0.000 & 0.23$\pm$0.02 \tabularnewline
+- up                              & +0.62 & -0.011 & -0.22 \tabularnewline
+- down                            & +0.59 & -0.011 & -0.23 \tabularnewline
+\hline
+$Q^{2}$ scale  active and uncot? & 0.62$\pm$0.03 & 0.011$\pm$0.000 & 0.23$\pm$0.02 \tabularnewline
+- up                              & +0.62 & -0.011 & -0.22 \tabularnewline
+- down                            & +0.59 & -0.011 & -0.23 \tabularnewline
+\hline
+(cc) $Q^{2}$ scale to 1001 weight     & 0.02$\pm$0.00 & 0.000$\pm$0.000 & 0.01$\pm$0.00 \tabularnewline
+- up                              & +0.01 & -0.000 & -0.01 \tabularnewline
+- down                            & -0.02 & +0.000 & -0.01 \tabularnewline
+\hline
+(cc) $Q^{2}$ scale via weight         & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.23$\pm$0.00 \tabularnewline
+- up                              & +0.62 & -0.011 & -0.22 \tabularnewline
+- down                            & +0.59 & -0.011 & -0.23 \tabularnewline
+\hline
+ColorReconnectionModelling & 0.19$\pm$0.06 & 0.002$\pm$0.001 & 0.06$\pm$0.04 \tabularnewline
+- shift                           & -0.19 & +0.002 & -0.06 \tabularnewline
+\hline
+(cc) Factorisation                    & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.22$\pm$0.00 \tabularnewline
+- up                              & +0.62 & -0.011 & -0.22 \tabularnewline
+- down                            & +0.62 & -0.011 & -0.21 \tabularnewline
+\hline
+JEC : Intercalibration           & 0.09$\pm$0.00 & 0.002$\pm$0.000 & 0.21$\pm$0.00 \tabularnewline
+- up                              & +0.04 & +0.002 & +0.21 \tabularnewline
+- down                            & +0.09 & -0.002 & -0.06 \tabularnewline
+\hline
+JEC : MPFInSitu                  & 0.07$\pm$0.00 & 0.003$\pm$0.000 & 0.28$\pm$0.00 \tabularnewline
+- up                              & +0.05 & +0.003 & +0.28 \tabularnewline
+- down                            & +0.07 & -0.003 & -0.15 \tabularnewline
+\hline
+JEC : Uncorrelated               & 0.32$\pm$0.00 & 0.017$\pm$0.000 & 1.07$\pm$0.00 \tabularnewline
+- up                              & -0.20 & +0.017 & +1.07 \tabularnewline
+- down                            & +0.32 & -0.016 & -0.91 \tabularnewline
+\hline
+JER                              & 0.27$\pm$0.00 & 0.004$\pm$0.000 & 0.16$\pm$0.00 \tabularnewline
+- up                              & -0.14 & +0.004 & +0.16 \tabularnewline
+- down                            & +0.27 & -0.004 & -0.03 \tabularnewline
+\hline
+(cc) JER correction                   & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.22$\pm$0.00 \tabularnewline
+- shift                           & +0.62 & -0.011 & -0.22 \tabularnewline
+\hline
+PS $Q^{2}$ scale          & 0.14$\pm$0.05 & 0.009$\pm$0.000 & 0.83$\pm$0.03 \tabularnewline
+- up                              & +0.14 & +0.009 & +0.83 \tabularnewline
+- down                            & -0.03 & -0.009 & -0.75 \tabularnewline
+\hline
+Pileup & 0.07$\pm$0.00 & 0.001$\pm$0.000 & 0.04$\pm$0.00 \tabularnewline
+- up                              & -0.05 & +0.001 & +0.04 \tabularnewline
+- down                            & +0.07 & -0.001 & +0.01 \tabularnewline
+\hline
+(cc) Renormalisation                  & 0.62$\pm$0.00 & 0.011$\pm$0.000 & 0.22$\pm$0.00 \tabularnewline
+- up                              & +0.61 & -0.011 & -0.21 \tabularnewline
+- down                            & +0.62 & -0.011 & -0.22 \tabularnewline
+\hline
+Top-pt reweighting                & 0.65$\pm$0.00 & 0.013$\pm$0.000 & 0.38$\pm$0.00 \tabularnewline
+- shift                           & +0.65 & -0.013 & -0.38 \tabularnewline
+\hline
+(cc) TuneCUETP8M1T4		     & 0.13$\pm$0.09 & 0.000$\pm$0.001 & 0.09$\pm$0.06 \tabularnewline
+- shift                           & -0.13 & +0.000 & -0.09 \tabularnewline
+\hline
+Underlying Event & 0.50$\pm$0.06 & 0.011$\pm$0.001 & 0.33$\pm$0.04 \tabularnewline
+- shift                           & +0.50 & -0.011 & -0.33 \tabularnewline
+\hline
+(cc) aMCatNLOFXFX, same configuration & 0.89$\pm$0.08 & 0.006$\pm$0.001 & 1.32$\pm$0.05 \tabularnewline
+- shift                           & -0.89 & -0.006 & -1.32 \tabularnewline
+\hline
+calibration                      & 0.06$\pm$0.00 & 0.000$\pm$0.000 & 0.03$\pm$0.00 \tabularnewline
+- shift                           & +0.06 & -0.000 & +0.03 \tabularnewline
+\hline
+(cc) flavor bottom                    & 0.35$\pm$0.00 & 0.000$\pm$0.000 & 0.36$\pm$0.00 \tabularnewline
+- up                              & -0.22 & -0.000 & -0.22 \tabularnewline
+- down                            & +0.35 & +0.000 & +0.36 \tabularnewline
+\hline
+(cc) flavor charm                     & 0.08$\pm$0.00 & 0.000$\pm$0.000 & 0.08$\pm$0.00 \tabularnewline
+- up                              & +0.08 & -0.000 & +0.06 \tabularnewline
+- down                            & +0.05 & +0.000 & +0.08 \tabularnewline
+\hline
+(cc) flavor gluon                     & 0.25$\pm$0.00 & 0.003$\pm$0.000 & 0.10$\pm$0.00 \tabularnewline
+- up                              & -0.13 & +0.003 & +0.10 \tabularnewline
+- down                            & +0.25 & -0.003 & +0.05 \tabularnewline
+\hline
+(cc) flavor light                     & 0.17$\pm$0.00 & 0.002$\pm$0.000 & 0.08$\pm$0.00 \tabularnewline
+- up                              & +0.17 & -0.001 & +0.06 \tabularnewline
+- down                            & -0.04 & +0.002 & +0.08 \tabularnewline
+\hline
+(cc) madgraphMLM_pythia8, same configuration & 0.90$\pm$0.07 & 0.006$\pm$0.001 & 0.45$\pm$0.04 \tabularnewline
+- shift                           & +0.90 & -0.006 & +0.45 \tabularnewline
+\hline
+(cc) powheg_herwigpp, same configuration & 3.78$\pm$0.07 & 0.005$\pm$0.001 & 3.41$\pm$0.05 \tabularnewline
+- shift                           & -3.78 & +0.005 & -3.41 \tabularnewline
+\hline
+(cc) source:up_TotalNoFlavorNoTime    & 0.32$\pm$0.00 & 0.017$\pm$0.000 & 1.11$\pm$0.00 \tabularnewline
+- up                              & -0.20 & +0.017 & +1.11 \tabularnewline
+- down                            & +0.32 & -0.016 & -0.95 \tabularnewline
+\hline
+\hline
+Total& 1.45 & 0.032 & 1.55 
+JEC quad. sum          & 0.34 & 0.017 & 1.13 \tabularnewline
+JEC: Flavor            & 0.47 & 0.003 & 0.39 \tabularnewline
+- linear & -0.61 & 0.001 & 0.56 \tabularnewline
+nonlin-merged          & 1.07 & 0.026 & 1.55 \tabularnewline
+\hline
+\hline
+Total& 1.50 & 0.032 & 1.60 \tabularnewline 
+ \hline 
+ \hline 

@@ -21,6 +21,13 @@ analyzeWeights = cms.EDAnalyzer("WeightEventAnalyzer",
     bWeightSrc_bTagCjetSFDown   = cms.InputTag("bTagSFEventWeightBTagCjetSFDown"),
     bWeightSrc_misTagSFUp   = cms.InputTag("bTagSFEventWeightMisTagSFUp"),
     bWeightSrc_misTagSFDown = cms.InputTag("bTagSFEventWeightMisTagSFDown"),
+
+    isoWeightSrc        = cms.InputTag("effSFMuonEventWeight"),
+    isoWeightSrcUp      = cms.InputTag("effSFMuonEventWeightUp"),
+    isoWeightSrcDown    = cms.InputTag("effSFMuonEventWeightDown"),
+    lepIDWeightSrc        = cms.InputTag("effSFMuonEventWeight"),
+    lepIDWeightSrcUp      = cms.InputTag("effSFMuonEventWeightUp"),
+    lepIDWeightSrcDown    = cms.InputTag("effSFMuonEventWeightDown"),
     
     triggerWeightSrc        = cms.InputTag("effSFMuonEventWeight"),
     triggerWeightSrcUp      = cms.InputTag("effSFMuonEventWeightUp"),
@@ -42,18 +49,8 @@ analyzeWeights = cms.EDAnalyzer("WeightEventAnalyzer",
     brCorrection   = cms.bool(False),
     showLHEweightTypes = cms.bool(False),
     
-    lepIDWeightSrc      = cms.InputTag("effSFMuonEventWeightLepID"),
-    lepIDWeightSrcUp    = cms.InputTag("effSFMuonEventWeightUpLepID"),
-    lepIDWeightSrcDown  = cms.InputTag("effSFMuonEventWeightDownLepID"),
-    
-    isoWeightSrc      = cms.InputTag("effSFMuonEventWeightIso"),
-    isoWeightSrcUp    = cms.InputTag("effSFMuonEventWeightUpIso"),
-    isoWeightSrcDown  = cms.InputTag("effSFMuonEventWeightDownIso"),
-    
-    
     topPtSFa =  cms.double(0.159),
     topPtSFb =  cms.double(-0.00141),
-    topPtSFthreshold =   cms.double(400)
-    
+    topPtSFthreshold =   cms.double(400)    
 )
  

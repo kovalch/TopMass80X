@@ -1,0 +1,3 @@
+hDfitTop1Mass, m__t___fit___GeV_, t_bar_t__nominal, 0.087, 168.201, 185.060, Data, 0.089, 166.752, 183.812 
+hDfitTop1MassPeak, m__t___fit___GeV_, t_bar_t__nominal, 0.086, 168.354, 169.364, Data, 0.087, 166.759, 168.122 
+hDfitTop1MassPeakBest, m__t___fit___GeV_, t_bar_t__nominal, 0.081, 168.740, 169.636, Data, 0.081, 167.234, 168.488 

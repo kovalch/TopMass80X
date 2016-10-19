@@ -176,7 +176,7 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
 
     // DATA
     double nEventsDataAllJets  =  4057.;//FIXME
-    double nEventsDataMuon     = 10131.; //with All Permutations
+    double nEventsDataMuon     = 26397.; //with All Permutations
     double nEventsDataElectron = 9373.;
 
     int eventsPEAllJets  = random_->Poisson(nEventsDataAllJets /18192.000*fLumiJets_); 
